@@ -1,0 +1,21 @@
+using (a = "something", b = 1, c = true, x = 'a') {
+  a: "Shoki-a",
+  b: "Shoki-b",
+  c: "Shoki-c",
+  d: "start-a-end",
+  e: "start-$(a)-end",
+  f: "start-$(in0.b)-end",
+  g: "start-$(in0.c)-end",
+  h: "Shoki-\$a",
+  i: "Shoki-\"a\"",
+  j: ["Mariano","Shoki"]  reduce "$$, $",
+  h: ['$x', "$x", `$x`],
+  i: ['$(x)', "$(x)", `$(x)`],
+  j: ['j$(x)', "j$(x)", `j$(x)`],
+  k: ['j$(x)k', "j$(x)k", `j$(x)k`],
+  k: ['$(x)k', "$(x)k", `$(x)k`],
+  l: ['$x$(x)k', "$x$(x)k", `$x$(x)k`],
+  m: ['$x$(x)$$k', "$x$(x)$$k", `$x$(x)$$k`],
+  n: ['$x$(x)$$k', "$x$(x)$$k", `$x$(x)$$k`],
+  n: ['$x$(x)$(x)$k', "$x$(x)$(x)$k", `$x$(x)$(x)$k`]
+}

@@ -1,0 +1,112 @@
+buildscript {
+    repositories {
+        maven { url "https://plugins.gradle.org/m2/" }
+    }
+
+    dependencies {
+        classpath 'gradle.plugin.org.jetbrains:gradle-intellij-plugin:0.0.43'
+    }
+}
+
+plugins {
+    id 'net.researchgate.release' version '2.3.4'
+}
+
+
+
+apply plugin: 'org.jetbrains.intellij'
+apply plugin: 'java'
+
+
+
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src/main/gen'
+        }
+    }
+}
+
+configurations {
+    gen
+}
+
+repositories {
+//        mavenLocal()
+    mavenCentral()
+    maven {
+        url "http://central.maven.org/maven2/"
+    }
+    maven {
+        url 'https://oss.sonatype.org/content/repositories/snapshots'
+    }
+    maven {
+        url "https://repository.mulesoft.org/releases/"
+    }
+    maven {
+        url "http://repository.mulesoft.org/snapshots/"
+    }
+    maven {
+        url "https://repository.mulesoft.org/nexus/content/repositories/releases"
+    }
+}
+
+
+sourceCompatibility = javaVersion
+targetCompatibility = javaVersion
+tasks.withType(JavaCompile) { options.encoding = 'UTF-8' }
+group = 'org.mule.tooling.intellij'
+
+task jarSources(type:Jar) {
+    from sourceSets.main.allSource
+    classifier = 'sources'
+}
+assemble.dependsOn jarSources
+
+
+
+intellij {
+    version = ideaVersion
+    updateSinceUntilBuild = false
+    downloadSources = false
+    sandboxDirectory = "${rootProject.buildDir}/idea-sandbox"
+    pluginName = 'data-weave-plugin'
+    publish {
+        username System.getenv('IJ_REPO_USERNAME')
+        password System.getenv('IJ_REPO_PASSWORD')
+        pluginId '8458'
+        channel ijPluginRepoChannel
+    }
+}
+
+dependencies {
+    testCompile 'junit:junit:4.+'
+    compile (group: 'com.mulesoft.weave', name: 'debugger', version: '1.2.0-SNAPSHOT')
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
+
+release {
+    buildTasks = ['doRelease']
+    // Do not change the tagTemplate value to double quotes or the version will be evaluated before
+    // the SNAPSHOT version is updated to the release version.
+    tagTemplate = 'v$version'
+    git {
+        requireBranch = /^release_v\d+.*$/
+    }
+}
+
+// We aren't building or doing anything interesting for release.
+// We just update the version and generate the tag as CI will handle deployment.
+task doRelease {
+    doLast {
+        println '===============================!!PLEASE READ!!=================================\n\n' +
+                'IMPORTANT:  The release command will trigger the creation of a new release ' +
+                'in Github, the uploading of binaries to github, and the publishing of our plugin' +
+                'to the IntelliJ plugin repository.\n' +
+                'Hit CTRL+C to cancel.\n'
+    }
+}
