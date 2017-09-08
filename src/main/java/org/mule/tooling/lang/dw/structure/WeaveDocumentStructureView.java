@@ -29,18 +29,18 @@ public class WeaveDocumentStructureView extends PsiTreeElementBase<WeaveFile> {
       if (header != null) {
         final List<WeaveDirective> weaveDirectives = header.getDirectiveList();
         for (WeaveDirective weaveDirective : weaveDirectives) {
-          if (weaveDirective instanceof WeaveVariableDirective) {
-            result.add(new WeaveVariableDirectiveView((WeaveVariableDirective) weaveDirective));
-          }
-          if (weaveDirective instanceof WeaveFunctionDirective) {
-            result.add(new WeaveFunctionDirectiveView((WeaveFunctionDirective) weaveDirective));
+          StructureViewTreeElement structureViewTreeElement = WeaveStructureElementFactory.create(weaveDirective);
+          if (structureViewTreeElement != null) {
+            result.add(structureViewTreeElement);
           }
         }
       }
       final WeaveBody body = element.getBody();
-      final StructureViewTreeElement treeElement = WeaveStructureElementFactory.create(body.getExpression());
-      if (treeElement != null) {
-        result.add(treeElement);
+      if (body != null) {
+        final StructureViewTreeElement treeElement = WeaveStructureElementFactory.create(body.getExpression());
+        if (treeElement != null) {
+          result.add(treeElement);
+        }
       }
     }
 

@@ -18,6 +18,12 @@ public class WeaveStructureElementFactory {
       return create(((WeaveBinaryExpression) element).getRight());
     } else if (element instanceof WeaveUsingExpression) {
       return create(((WeaveUsingExpression) element).getExpression());
+    } else if (element instanceof WeaveFunctionDirective) {
+      return new WeaveFunctionDirectiveView((WeaveFunctionDirective) element);
+    } else if (element instanceof WeaveVariableDirective) {
+      return new WeaveVariableDirectiveView((WeaveVariableDirective) element);
+    } else if (element instanceof WeaveTypeDirective) {
+      return new WeaveTypeDirectiveView((WeaveTypeDirective) element);
     } else {
       return null;
     }
