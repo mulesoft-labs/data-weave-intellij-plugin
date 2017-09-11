@@ -198,9 +198,12 @@ Attribute::= KeyExpression ':' Expression
 ConditionalAttribute::= '(' KeyExpression ':' Expression ')' IF Expression {pin = 6}
 
 Expression::= MatchExpression
+            | CustomInterpolatorExpression
             | DefaultValueExpression
             | BinaryExpression
             | SimpleExpression
+
+CustomInterpolatorExpression ::= Identifier BACKTIKED_QUOTED_STRING
 
 private SimpleExpression ::=
              OrExpression
@@ -237,7 +240,6 @@ UnaryMinusExpression ::= '-' SimpleExpression {pin=1}
 
 BinaryExpression ::= Expression Identifier SimpleExpression
     {
-        pin=2
         methods=[ getLeft  getRight]
     }
 
@@ -288,7 +290,7 @@ EnclosedExpression ::= '(' Expression ')'
 //Selectors
 DotSelectorExpression ::=Expression ( '..' | '.' ) Selector? ('!'| '?')? {pin=2}
 
-BracketSelectorExpression::=Expression '[' ('?' |'@' | '^' |'*')?  Expression  ']' ('!'| '?')? {pin=2}
+BracketSelectorExpression::=Expression '[' ('?' |'@' | '^' |'*')?  (BinaryExpression | SimpleExpression )  ']' ('!'| '?')? {pin=5}
 
 MatchExpression ::= Expression 'match' (PatternMatcherExpression )
 
@@ -390,7 +392,7 @@ LiteralExpression
 
 UndefinedLiteral ::= '?''?''?'
 
-LambdaLiteral ::= TypeParameterDeclaration? '(' ( FunctionParameter ( ',' FunctionParameter )* )? ')' '->' SimpleExpression {pin = 5}
+LambdaLiteral ::= TypeParameterDeclaration? '(' ( FunctionParameter ( ',' FunctionParameter )* )? ')' (':' Type)?  '->' SimpleExpression {pin = 6}
 
 private TypeParameterDeclaration ::= '<' (TypeParameter (',' TypeParameter)*)? '>'
 

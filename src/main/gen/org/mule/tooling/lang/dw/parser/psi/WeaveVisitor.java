@@ -97,6 +97,10 @@ public class WeaveVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitCustomInterpolatorExpression(@NotNull WeaveCustomInterpolatorExpression o) {
+    visitExpression(o);
+  }
+
   public void visitCustomLoader(@NotNull WeaveCustomLoader o) {
     visitPsiElement(o);
   }

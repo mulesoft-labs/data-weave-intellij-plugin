@@ -287,14 +287,14 @@ public class WeaveParser implements PsiParser, LightPsiParser {
       UNION_TYPE),
     create_token_set_(ADDITION_SUBTRACTION_EXPRESSION, AND_EXPRESSION, ANY_DATE_LITERAL, ANY_REGEX_LITERAL,
       ARRAY_DECONSTRUCT_EXPRESSION, ARRAY_EXPRESSION, AS_EXPRESSION, BINARY_EXPRESSION,
-      BOOLEAN_LITERAL, BRACKET_SELECTOR_EXPRESSION, CONDITIONAL_EXPRESSION, DEFAULT_VALUE_EXPRESSION,
-      DOT_SELECTOR_EXPRESSION, ENCLOSED_EXPRESSION, EQUALITY_EXPRESSION, EXPRESSION,
-      FUNCTION_CALL_EXPRESSION, GREATER_THAN_EXPRESSION, IS_EXPRESSION, KEY_EXPRESSION,
-      LAMBDA_LITERAL, LEFT_SHIFT_EXPRESSION, LITERAL_EXPRESSION, MATCH_EXPRESSION,
-      MULTIPLICATION_DIVISION_EXPRESSION, NOT_EXPRESSION, NULL_LITERAL, NUMBER_LITERAL,
-      OBJECT_DECONSTRUCT_EXPRESSION, OBJECT_EXPRESSION, OR_EXPRESSION, PATTERN_MATCHER_EXPRESSION,
-      RIGHT_SHIFT_EXPRESSION, STRING_LITERAL, UNARY_MINUS_EXPRESSION, UNDEFINED_LITERAL,
-      USING_EXPRESSION, VARIABLE_REFERENCE_EXPRESSION),
+      BOOLEAN_LITERAL, BRACKET_SELECTOR_EXPRESSION, CONDITIONAL_EXPRESSION, CUSTOM_INTERPOLATOR_EXPRESSION,
+      DEFAULT_VALUE_EXPRESSION, DOT_SELECTOR_EXPRESSION, ENCLOSED_EXPRESSION, EQUALITY_EXPRESSION,
+      EXPRESSION, FUNCTION_CALL_EXPRESSION, GREATER_THAN_EXPRESSION, IS_EXPRESSION,
+      KEY_EXPRESSION, LAMBDA_LITERAL, LEFT_SHIFT_EXPRESSION, LITERAL_EXPRESSION,
+      MATCH_EXPRESSION, MULTIPLICATION_DIVISION_EXPRESSION, NOT_EXPRESSION, NULL_LITERAL,
+      NUMBER_LITERAL, OBJECT_DECONSTRUCT_EXPRESSION, OBJECT_EXPRESSION, OR_EXPRESSION,
+      PATTERN_MATCHER_EXPRESSION, RIGHT_SHIFT_EXPRESSION, STRING_LITERAL, UNARY_MINUS_EXPRESSION,
+      UNDEFINED_LITERAL, USING_EXPRESSION, VARIABLE_REFERENCE_EXPRESSION),
   };
 
   /* ********************************************************** */
@@ -770,7 +770,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     r = r && Expression(b, l + 1, -1);
     r = r && consumeTokens(b, 2, R_PARREN, IF);
     p = r; // pin = 4
-    r = r && Expression(b, l + 1, 2);
+    r = r && Expression(b, l + 1, 3);
     exit_section_(b, l, m, r, p, null);
     return r || p;
   }
@@ -805,7 +805,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     r = r && consumeToken(b, COLON);
     r = r && Expression(b, l + 1, -1);
     r = r && consumeTokens(b, 0, R_PARREN, IF);
-    r = r && Expression(b, l + 1, 2);
+    r = r && Expression(b, l + 1, 3);
     exit_section_(b, m, CONDITIONAL_KEY_VALUE_PAIR, r);
     return r;
   }
@@ -972,7 +972,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     Marker m = enter_section_(b, l, _NONE_, EXPRESSION_PATTERN, "<expression pattern>");
     r = Identifier(b, l + 1);
     r = r && consumeToken(b, IF);
-    r = r && Expression(b, l + 1, 2);
+    r = r && Expression(b, l + 1, 3);
     r = r && consumeToken(b, ARROW_TOKEN);
     r = r && Expression(b, l + 1, -1);
     exit_section_(b, l, m, r, false, null);
@@ -2859,21 +2859,23 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   // Expression root: Expression
   // Operator priority table:
   // 0: POSTFIX(MatchExpression)
-  // 1: BINARY(DefaultValueExpression)
-  // 2: BINARY(BinaryExpression)
-  // 3: BINARY(OrExpression) BINARY(AndExpression) BINARY(EqualityExpression) BINARY(GreaterThanExpression)
+  // 1: ATOM(CustomInterpolatorExpression)
+  // 2: BINARY(DefaultValueExpression)
+  // 3: BINARY(BinaryExpression)
+  // 4: BINARY(OrExpression) BINARY(AndExpression) BINARY(EqualityExpression) BINARY(GreaterThanExpression)
   //    BINARY(AdditionSubtractionExpression) BINARY(RightShiftExpression) BINARY(LeftShiftExpression) BINARY(MultiplicationDivisionExpression)
   //    POSTFIX(AsExpression) POSTFIX(IsExpression) ATOM(UndefinedLiteral) ATOM(UnaryMinusExpression)
   //    PREFIX(NotExpression) ATOM(ConditionalExpression) ATOM(UsingExpression) ATOM(LambdaLiteral)
   //    ATOM(ObjectDeconstructExpression) ATOM(ObjectExpression) ATOM(ArrayDeconstructExpression) ATOM(ArrayExpression)
   //    ATOM(VariableReferenceExpression) ATOM(LiteralExpression) PREFIX(EnclosedExpression) POSTFIX(FunctionCallExpression)
-  //    POSTFIX(DotSelectorExpression) BINARY(BracketSelectorExpression)
+  //    POSTFIX(DotSelectorExpression) POSTFIX(BracketSelectorExpression)
   public static boolean Expression(PsiBuilder b, int l, int g) {
     if (!recursion_guard_(b, l, "Expression")) return false;
     addVariant(b, "<expression>");
     boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, "<expression>");
-    r = UndefinedLiteral(b, l + 1);
+    r = CustomInterpolatorExpression(b, l + 1);
+    if (!r) r = UndefinedLiteral(b, l + 1);
     if (!r) r = UnaryMinusExpression(b, l + 1);
     if (!r) r = NotExpression(b, l + 1);
     if (!r) r = ConditionalExpression(b, l + 1);
@@ -2901,65 +2903,64 @@ public class WeaveParser implements PsiParser, LightPsiParser {
         r = true;
         exit_section_(b, l, m, MATCH_EXPRESSION, r, true, null);
       }
-      else if (g < 1 && consumeTokenSmart(b, DEFAULT)) {
-        r = Expression(b, l, 2);
+      else if (g < 2 && consumeTokenSmart(b, DEFAULT)) {
+        r = Expression(b, l, 3);
         exit_section_(b, l, m, DEFAULT_VALUE_EXPRESSION, r, true, null);
       }
-      else if (g < 2 && Identifier(b, l + 1)) {
-        r = Expression(b, l, 2);
+      else if (g < 3 && Identifier(b, l + 1)) {
+        r = Expression(b, l, 3);
         exit_section_(b, l, m, BINARY_EXPRESSION, r, true, null);
       }
-      else if (g < 3 && consumeTokenSmart(b, OR_KEYWORD)) {
-        r = Expression(b, l, 2);
+      else if (g < 4 && consumeTokenSmart(b, OR_KEYWORD)) {
+        r = Expression(b, l, 3);
         exit_section_(b, l, m, OR_EXPRESSION, r, true, null);
       }
-      else if (g < 3 && consumeTokenSmart(b, AND_KEYWORD)) {
-        r = Expression(b, l, 2);
+      else if (g < 4 && consumeTokenSmart(b, AND_KEYWORD)) {
+        r = Expression(b, l, 3);
         exit_section_(b, l, m, AND_EXPRESSION, r, true, null);
       }
-      else if (g < 3 && EqualityExpression_0(b, l + 1)) {
-        r = Expression(b, l, 2);
+      else if (g < 4 && EqualityExpression_0(b, l + 1)) {
+        r = Expression(b, l, 3);
         exit_section_(b, l, m, EQUALITY_EXPRESSION, r, true, null);
       }
-      else if (g < 3 && GreaterThanExpression_0(b, l + 1)) {
-        r = Expression(b, l, 2);
+      else if (g < 4 && GreaterThanExpression_0(b, l + 1)) {
+        r = Expression(b, l, 3);
         exit_section_(b, l, m, GREATER_THAN_EXPRESSION, r, true, null);
       }
-      else if (g < 3 && AdditionSubtractionExpression_0(b, l + 1)) {
-        r = Expression(b, l, 3);
+      else if (g < 4 && AdditionSubtractionExpression_0(b, l + 1)) {
+        r = Expression(b, l, 4);
         exit_section_(b, l, m, ADDITION_SUBTRACTION_EXPRESSION, r, true, null);
       }
-      else if (g < 3 && parseTokensSmart(b, 0, GREATER, GREATER)) {
-        r = Expression(b, l, 2);
+      else if (g < 4 && parseTokensSmart(b, 0, GREATER, GREATER)) {
+        r = Expression(b, l, 3);
         exit_section_(b, l, m, RIGHT_SHIFT_EXPRESSION, r, true, null);
       }
-      else if (g < 3 && parseTokensSmart(b, 0, LESS, LESS)) {
-        r = Expression(b, l, 2);
+      else if (g < 4 && parseTokensSmart(b, 0, LESS, LESS)) {
+        r = Expression(b, l, 3);
         exit_section_(b, l, m, LEFT_SHIFT_EXPRESSION, r, true, null);
       }
-      else if (g < 3 && MultiplicationDivisionExpression_0(b, l + 1)) {
-        r = Expression(b, l, 3);
+      else if (g < 4 && MultiplicationDivisionExpression_0(b, l + 1)) {
+        r = Expression(b, l, 4);
         exit_section_(b, l, m, MULTIPLICATION_DIVISION_EXPRESSION, r, true, null);
       }
-      else if (g < 3 && AsExpression_0(b, l + 1)) {
+      else if (g < 4 && AsExpression_0(b, l + 1)) {
         r = true;
         exit_section_(b, l, m, AS_EXPRESSION, r, true, null);
       }
-      else if (g < 3 && IsExpression_0(b, l + 1)) {
+      else if (g < 4 && IsExpression_0(b, l + 1)) {
         r = true;
         exit_section_(b, l, m, IS_EXPRESSION, r, true, null);
       }
-      else if (g < 3 && FunctionCallExpression_0(b, l + 1)) {
+      else if (g < 4 && FunctionCallExpression_0(b, l + 1)) {
         r = true;
         exit_section_(b, l, m, FUNCTION_CALL_EXPRESSION, r, true, null);
       }
-      else if (g < 3 && DotSelectorExpression_0(b, l + 1)) {
+      else if (g < 4 && DotSelectorExpression_0(b, l + 1)) {
         r = true;
         exit_section_(b, l, m, DOT_SELECTOR_EXPRESSION, r, true, null);
       }
-      else if (g < 3 && BracketSelectorExpression_0(b, l + 1)) {
-        r = report_error_(b, Expression(b, l, 3));
-        r = BracketSelectorExpression_1(b, l + 1) && r;
+      else if (g < 4 && BracketSelectorExpression_0(b, l + 1)) {
+        r = true;
         exit_section_(b, l, m, BRACKET_SELECTOR_EXPRESSION, r, true, null);
       }
       else {
@@ -2988,6 +2989,17 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     Marker m = enter_section_(b);
     r = PatternMatcherExpression(b, l + 1);
     exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // Identifier BACKTIKED_QUOTED_STRING
+  public static boolean CustomInterpolatorExpression(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "CustomInterpolatorExpression")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NONE_, CUSTOM_INTERPOLATOR_EXPRESSION, "<custom interpolator expression>");
+    r = Identifier(b, l + 1);
+    r = r && consumeToken(b, BACKTIKED_QUOTED_STRING);
+    exit_section_(b, l, m, r, false, null);
     return r;
   }
 
@@ -3079,7 +3091,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     Marker m = enter_section_(b, l, _NONE_, UNARY_MINUS_EXPRESSION, null);
     r = consumeTokenSmart(b, MINUS);
     p = r; // pin = 1
-    r = r && Expression(b, l + 1, 2);
+    r = r && Expression(b, l + 1, 3);
     exit_section_(b, l, m, r, p, null);
     return r || p;
   }
@@ -3091,7 +3103,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     Marker m = enter_section_(b, l, _NONE_, null);
     r = consumeTokenSmart(b, NOT_KEYWORD);
     p = r;
-    r = p && Expression(b, l, 2);
+    r = p && Expression(b, l, 3);
     exit_section_(b, l, m, NOT_EXPRESSION, r, p, null);
     return r || p;
   }
@@ -3162,7 +3174,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // TypeParameterDeclaration? '(' ( FunctionParameter ( ',' FunctionParameter )* )? ')' '->' SimpleExpression
+  // TypeParameterDeclaration? '(' ( FunctionParameter ( ',' FunctionParameter )* )? ')' (':' Type)?  '->' SimpleExpression
   public static boolean LambdaLiteral(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "LambdaLiteral")) return false;
     if (!nextTokenIsSmart(b, L_PARREN, LESS)) return false;
@@ -3171,9 +3183,11 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     r = LambdaLiteral_0(b, l + 1);
     r = r && consumeToken(b, L_PARREN);
     r = r && LambdaLiteral_2(b, l + 1);
-    r = r && consumeTokensSmart(b, 2, R_PARREN, ARROW_TOKEN);
-    p = r; // pin = 5
-    r = r && Expression(b, l + 1, 2);
+    r = r && consumeToken(b, R_PARREN);
+    r = r && LambdaLiteral_4(b, l + 1);
+    r = r && consumeToken(b, ARROW_TOKEN);
+    p = r; // pin = 6
+    r = r && Expression(b, l + 1, 3);
     exit_section_(b, l, m, r, p, null);
     return r || p;
   }
@@ -3222,6 +3236,24 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     Marker m = enter_section_(b);
     r = consumeTokenSmart(b, COMMA);
     r = r && FunctionParameter(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // (':' Type)?
+  private static boolean LambdaLiteral_4(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "LambdaLiteral_4")) return false;
+    LambdaLiteral_4_0(b, l + 1);
+    return true;
+  }
+
+  // ':' Type
+  private static boolean LambdaLiteral_4_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "LambdaLiteral_4_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeTokenSmart(b, COLON);
+    r = r && Type(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
   }
@@ -3486,13 +3518,16 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // '[' ('?' |'@' | '^' |'*')?
+  // '[' ('?' |'@' | '^' |'*')? (BinaryExpression | SimpleExpression ) ']' ('!'| '?')?
   private static boolean BracketSelectorExpression_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "BracketSelectorExpression_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = consumeTokenSmart(b, L_BRACKET);
     r = r && BracketSelectorExpression_0_1(b, l + 1);
+    r = r && BracketSelectorExpression_0_2(b, l + 1);
+    r = r && consumeToken(b, R_BRACKET);
+    r = r && BracketSelectorExpression_0_4(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
   }
@@ -3517,31 +3552,31 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // ']' ('!'| '?')?
-  private static boolean BracketSelectorExpression_1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "BracketSelectorExpression_1")) return false;
+  // BinaryExpression | SimpleExpression
+  private static boolean BracketSelectorExpression_0_2(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "BracketSelectorExpression_0_2")) return false;
     boolean r;
     Marker m = enter_section_(b);
-    r = consumeToken(b, R_BRACKET);
-    r = r && BracketSelectorExpression_1_1(b, l + 1);
+    r = Expression(b, l + 1, 2);
+    if (!r) r = Expression(b, l + 1, 3);
     exit_section_(b, m, null, r);
     return r;
   }
 
   // ('!'| '?')?
-  private static boolean BracketSelectorExpression_1_1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "BracketSelectorExpression_1_1")) return false;
-    BracketSelectorExpression_1_1_0(b, l + 1);
+  private static boolean BracketSelectorExpression_0_4(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "BracketSelectorExpression_0_4")) return false;
+    BracketSelectorExpression_0_4_0(b, l + 1);
     return true;
   }
 
   // '!'| '?'
-  private static boolean BracketSelectorExpression_1_1_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "BracketSelectorExpression_1_1_0")) return false;
+  private static boolean BracketSelectorExpression_0_4_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "BracketSelectorExpression_0_4_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
-    r = consumeToken(b, ESCLAMATION);
-    if (!r) r = consumeToken(b, QUESTION);
+    r = consumeTokenSmart(b, ESCLAMATION);
+    if (!r) r = consumeTokenSmart(b, QUESTION);
     exit_section_(b, m, null, r);
     return r;
   }

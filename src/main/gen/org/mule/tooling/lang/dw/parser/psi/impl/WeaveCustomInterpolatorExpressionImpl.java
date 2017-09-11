@@ -10,14 +10,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.*;
 import org.mule.tooling.lang.dw.parser.psi.*;
 
-public class WeaveLambdaLiteralImpl extends WeaveExpressionImpl implements WeaveLambdaLiteral {
+public class WeaveCustomInterpolatorExpressionImpl extends WeaveExpressionImpl implements WeaveCustomInterpolatorExpression {
 
-  public WeaveLambdaLiteralImpl(ASTNode node) {
+  public WeaveCustomInterpolatorExpressionImpl(ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull WeaveVisitor visitor) {
-    visitor.visitLambdaLiteral(this);
+    visitor.visitCustomInterpolatorExpression(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -26,27 +26,15 @@ public class WeaveLambdaLiteralImpl extends WeaveExpressionImpl implements Weave
   }
 
   @Override
-  @Nullable
-  public WeaveExpression getExpression() {
-    return findChildByClass(WeaveExpression.class);
+  @NotNull
+  public WeaveIdentifier getIdentifier() {
+    return findNotNullChildByClass(WeaveIdentifier.class);
   }
 
   @Override
   @NotNull
-  public List<WeaveFunctionParameter> getFunctionParameterList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, WeaveFunctionParameter.class);
-  }
-
-  @Override
-  @Nullable
-  public WeaveType getType() {
-    return findChildByClass(WeaveType.class);
-  }
-
-  @Override
-  @NotNull
-  public List<WeaveTypeParameter> getTypeParameterList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, WeaveTypeParameter.class);
+  public PsiElement getBacktikedQuotedString() {
+    return findNotNullChildByType(BACKTIKED_QUOTED_STRING);
   }
 
 }

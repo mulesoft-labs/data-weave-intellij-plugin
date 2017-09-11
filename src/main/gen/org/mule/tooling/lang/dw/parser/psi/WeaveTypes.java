@@ -32,6 +32,7 @@ public interface WeaveTypes {
   IElementType CONDITIONAL_ATTRIBUTE = new WeaveElementType("CONDITIONAL_ATTRIBUTE");
   IElementType CONDITIONAL_EXPRESSION = new WeaveElementType("CONDITIONAL_EXPRESSION");
   IElementType CONDITIONAL_KEY_VALUE_PAIR = new WeaveElementType("CONDITIONAL_KEY_VALUE_PAIR");
+  IElementType CUSTOM_INTERPOLATOR_EXPRESSION = new WeaveElementType("CUSTOM_INTERPOLATOR_EXPRESSION");
   IElementType CUSTOM_LOADER = new WeaveElementType("CUSTOM_LOADER");
   IElementType DATA_FORMAT = new WeaveElementType("DATA_FORMAT");
   IElementType DECLARED_NAMESPACE = new WeaveElementType("DECLARED_NAMESPACE");
@@ -268,6 +269,9 @@ public interface WeaveTypes {
       }
       else if (type == CONDITIONAL_KEY_VALUE_PAIR) {
         return new WeaveConditionalKeyValuePairImpl(node);
+      }
+      else if (type == CUSTOM_INTERPOLATOR_EXPRESSION) {
+        return new WeaveCustomInterpolatorExpressionImpl(node);
       }
       else if (type == CUSTOM_LOADER) {
         return new WeaveCustomLoaderImpl(node);
