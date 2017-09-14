@@ -55,8 +55,7 @@
         <xdebugger.breakpointType implementation="org.mule.tooling.lang.dw.debug.breakpoint.WeaveBreakpointType"/>
 
         <programRunner id="WeaveDebug" implementation="org.mule.tooling.lang.dw.debug.WeaveDebuggerRunner" order="last"/>
-
-
+        <languageInjector implementation="org.mule.tooling.lang.dw.injector.MuleLanguageInjector"/>
     </extensions>
 
     <application-components>
