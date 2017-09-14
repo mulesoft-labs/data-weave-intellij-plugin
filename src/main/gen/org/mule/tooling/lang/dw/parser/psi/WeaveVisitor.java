@@ -63,6 +63,7 @@ public class WeaveVisitor extends PsiElementVisitor {
 
   public void visitBinaryExpression(@NotNull WeaveBinaryExpression o) {
     visitExpression(o);
+    // visitNamedElement(o);
   }
 
   public void visitBody(@NotNull WeaveBody o) {
@@ -99,6 +100,7 @@ public class WeaveVisitor extends PsiElementVisitor {
 
   public void visitCustomInterpolatorExpression(@NotNull WeaveCustomInterpolatorExpression o) {
     visitExpression(o);
+    // visitNamedElement(o);
   }
 
   public void visitCustomLoader(@NotNull WeaveCustomLoader o) {
@@ -163,7 +165,7 @@ public class WeaveVisitor extends PsiElementVisitor {
   }
 
   public void visitFqnIdentifier(@NotNull WeaveFqnIdentifier o) {
-    visitPsiElement(o);
+    visitNamedElement(o);
   }
 
   public void visitFunctionCallExpression(@NotNull WeaveFunctionCallExpression o) {

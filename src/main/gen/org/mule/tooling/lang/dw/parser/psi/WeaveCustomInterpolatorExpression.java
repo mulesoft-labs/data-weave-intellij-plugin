@@ -5,12 +5,18 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface WeaveCustomInterpolatorExpression extends WeaveExpression {
+public interface WeaveCustomInterpolatorExpression extends WeaveExpression, WeaveNamedElement {
 
   @NotNull
   WeaveIdentifier getIdentifier();
 
   @NotNull
   PsiElement getBacktikedQuotedString();
+
+  String getName();
+
+  PsiElement setName(String newName);
+
+  PsiElement getNameIdentifier();
 
 }

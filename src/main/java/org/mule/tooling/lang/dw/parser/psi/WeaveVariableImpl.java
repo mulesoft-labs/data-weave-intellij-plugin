@@ -34,7 +34,7 @@ public abstract class WeaveVariableImpl extends ASTWrapperPsiElement implements 
   public PsiElement setName(String newName) {
     ASTNode keyNode = getIdentifier().getNode();
     if (keyNode != null) {
-      WeaveFqnIdentifier property = WeaveElementFactory.createIdentifier(getProject(), newName);
+      WeaveIdentifier property = WeaveElementFactory.createIdentifier(getProject(), newName);
       getNode().replaceChild(keyNode, property.getNode());
     }
     return this;

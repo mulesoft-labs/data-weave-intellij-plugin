@@ -9,8 +9,9 @@ import org.mule.tooling.lang.dw.parser.psi.WeaveKeyValuePair;
 
 public class WeaveElementFactory {
 
-  public static WeaveFqnIdentifier createIdentifier(Project project, String name) {
-    return ((WeaveVariableReferenceExpression) createFile(project, name).getBody().getExpression()).getFqnIdentifier();
+  public static WeaveIdentifier createIdentifier(Project project, String name) {
+    WeaveBody body = createFile(project, name).getBody();
+    return ((WeaveVariableReferenceExpression) body.getExpression()).getFqnIdentifier().getIdentifier();
   }
 
 

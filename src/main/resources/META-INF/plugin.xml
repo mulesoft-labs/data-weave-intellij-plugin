@@ -10,14 +10,13 @@
     <idea-version since-build="145"/>
 
     <change-notes><![CDATA[
-    <h1>v0.7</h1>
+    <h1>v2.0-BETA</h1>
       <ul>
        <li>
-          <p>BugFixes</p>
+          <p>DataWeave 2.0 Support</p>
           <ul>
-            <li>New Icon</li>
-            <li>Fix go to function.</li>
-            <li>Add missing operators.</li>
+            <li>Grammar Parsing</li>
+            <li>Color Highlighting.</li>
           </ul>
         </li>
       </ul>
@@ -57,11 +56,6 @@
 
         <programRunner id="WeaveDebug" implementation="org.mule.tooling.lang.dw.debug.WeaveDebuggerRunner" order="last"/>
 
-
-
-        <lang.substitutor implementationClass="org.mule.tooling.lang.dw.editor.WeaveEditor$WeaveIOSubstitutor" language="JSON"/>
-        <lang.substitutor implementationClass="org.mule.tooling.lang.dw.editor.WeaveEditor$WeaveIOSubstitutor" language="XML"/>
-        <lang.substitutor implementationClass="org.mule.tooling.lang.dw.editor.WeaveEditor$WeaveIOSubstitutor" language="TEXT"/>
 
     </extensions>
 

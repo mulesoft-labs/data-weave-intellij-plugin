@@ -5,7 +5,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface WeaveFqnIdentifier extends PsiElement {
+public interface WeaveFqnIdentifier extends WeaveNamedElement {
 
   @Nullable
   WeaveCustomLoader getCustomLoader();
@@ -15,5 +15,11 @@ public interface WeaveFqnIdentifier extends PsiElement {
 
   @NotNull
   WeaveIdentifierPackage getIdentifierPackage();
+
+  String getName();
+
+  PsiElement setName(String newName);
+
+  PsiElement getNameIdentifier();
 
 }

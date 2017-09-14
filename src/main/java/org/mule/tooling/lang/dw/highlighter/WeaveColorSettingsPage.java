@@ -8,16 +8,25 @@ import com.intellij.openapi.options.colors.ColorDescriptor;
 import com.intellij.openapi.options.colors.ColorSettingsPage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.mule.tooling.lang.dw.WeaveIcons;
 
 import javax.swing.*;
 import java.util.HashMap;
 import java.util.Map;
 
 public class WeaveColorSettingsPage implements ColorSettingsPage {
+
+  private static final AttributesDescriptor[] DESCRIPTORS = new AttributesDescriptor[]{
+          new AttributesDescriptor("Key", WeaveSyntaxHighlighter.KEY),
+          new AttributesDescriptor("Infix Function", WeaveSyntaxHighlighter.INFIX_FUNCTION_CALL),
+          new AttributesDescriptor("Comment", WeaveSyntaxHighlighter.COMMENT),
+          new AttributesDescriptor("Variable", WeaveSyntaxHighlighter.VARIABLE),
+  };
+
   @Nullable
   @Override
   public Icon getIcon() {
-    return null;
+    return WeaveIcons.DataWeaveIcon;
   }
 
   @NotNull
@@ -41,7 +50,7 @@ public class WeaveColorSettingsPage implements ColorSettingsPage {
   @NotNull
   @Override
   public AttributesDescriptor[] getAttributeDescriptors() {
-    return new AttributesDescriptor[0];
+    return DESCRIPTORS;
   }
 
   @NotNull

@@ -1,8 +1,5 @@
 package org.mule.tooling.lang.dw.parser.psi;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Ref;
@@ -15,7 +12,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.WeaveFile;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -74,13 +75,12 @@ public class WeavePsiUtils {
   }
 
 
-  public static Optional<WeaveVariable> findVariables(@NotNull PsiElement element, @NotNull final String name) {
-    final List<WeaveVariable> variables = findVariables(element);
-    final Optional<WeaveVariable> matching = Iterables.tryFind(variables, weaveVariableDefinition -> name.equals(weaveVariableDefinition.getVariableName()));
-    return matching;
+  public static Optional<? extends PsiElement> getVariableDeclarationFor(@NotNull PsiElement element, @NotNull final String name) {
+    final List<WeaveVariable> variables = collectLocalVisibleVariables(element);
+    return variables.stream().filter(weaveVariableDefinition -> name.equals(weaveVariableDefinition.getVariableName())).findFirst();
   }
 
-  public static List<WeaveVariable> findVariables(@NotNull PsiElement element) {
+  public static List<WeaveVariable> collectLocalVisibleVariables(@NotNull PsiElement element) {
     final List<WeaveVariable> result = new ArrayList<>();
     PsiElement parent = element.getParent();
     while (isNotWeaveFile(parent)) {
@@ -120,16 +120,9 @@ public class WeavePsiUtils {
     return result;
   }
 
-  @Nullable
   public static Optional<? extends PsiElement> findFunction(PsiElement element, final String functionName) {
     final List<WeaveNamedElement> variables = findFunctions(element);
-    final Optional<WeaveNamedElement> matching = Iterables.tryFind(variables, new Predicate<WeaveNamedElement>() {
-      @Override
-      public boolean apply(WeaveNamedElement weaveVariableDefinition) {
-        return functionName.equals(weaveVariableDefinition.getName());
-      }
-    });
-    return matching;
+    return variables.stream().filter(weaveVariableDefinition -> functionName.equals(weaveVariableDefinition.getName())).findFirst();
   }
 
   @Nullable

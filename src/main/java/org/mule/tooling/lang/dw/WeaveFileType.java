@@ -9,6 +9,7 @@ import javax.swing.*;
 
 public class WeaveFileType extends LanguageFileType {
 
+  public static final String WeaveFileExtension = "dwl";
   private static WeaveFileType instance = new WeaveFileType();
 
   protected WeaveFileType() {
@@ -30,7 +31,7 @@ public class WeaveFileType extends LanguageFileType {
   @NotNull
   @Override
   public String getDefaultExtension() {
-    return "wev";
+    return WeaveFileExtension;
   }
 
   @Nullable

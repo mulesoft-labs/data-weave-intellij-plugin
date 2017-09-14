@@ -119,13 +119,17 @@ public class WeavePsiImplUtils {
   @Nullable
   public static WeaveExpression getRight(WeaveBinaryExpression expression) {
     final List<WeaveExpression> expressionList = expression.getExpressionList();
-    if (expressionList.size() > 1) {
+    if (expressionList.size() > 0) {
       return expressionList.get(1);
     } else {
       return null;
     }
   }
 
+//  @Nullable
+//  public static WeaveIdentifier getIdentifier(WeaveBinaryExpression expression) {
+//    return expression.getFqnIdentifier().getIdentifier();
+//  }
 
 
   @NotNull
@@ -142,9 +146,13 @@ public class WeavePsiImplUtils {
     return variable.getText();
   }
 
-  public static PsiReference getReference(WeaveVariableReferenceExpression variable) {
-    return new WeaveVariablePsiReference(variable, new TextRange(0, variable.getText().length()));
+  public static WeaveIdentifier getIdentifier(WeaveVariableReferenceExpression variable) {
+    return variable.getFqnIdentifier().getIdentifier();
   }
+
+//  public static PsiReference getReference(WeaveVariableReferenceExpression variable) {
+//    return new WeaveIdentifierPsiReference(variable, new TextRange(0, variable.getText().length()));
+//  }
 
   //Function Call
 //    public static PsiReference getReference(WeaveFunctionCallExpression variable) {

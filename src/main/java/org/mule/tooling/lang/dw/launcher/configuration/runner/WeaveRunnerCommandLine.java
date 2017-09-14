@@ -21,7 +21,6 @@ import java.util.List;
 public class WeaveRunnerCommandLine extends JavaCommandLineState {
 
   //Mule Main Class
-  public static final String MAIN_CLASS = "com.mulesoft.weave.WeaveRunner";
 
   private final boolean isDebug;
   private WeaveConfiguration model;
@@ -54,8 +53,7 @@ public class WeaveRunnerCommandLine extends JavaCommandLineState {
         javaParams.getClassPath().add(jar);
       }
     }
-    //Mule main class
-    javaParams.setMainClass(MAIN_CLASS);
+    javaParams.setMainClass(model.getFileType().getMainClass());
 
     //Add default vm parameters
     javaParams.getVMParametersList().add("-Xms1024m");

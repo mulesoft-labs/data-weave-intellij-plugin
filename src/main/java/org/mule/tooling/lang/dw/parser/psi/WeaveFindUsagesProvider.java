@@ -16,7 +16,9 @@ public class WeaveFindUsagesProvider implements FindUsagesProvider {
 
   private static final DefaultWordsScanner WORDS_SCANNER =
           new DefaultWordsScanner(new WeaveLexer(),
-                  TokenSet.create(WeaveTypes.ID), TokenSet.create(WeaveTypes.LINE_COMMENT), TokenSet.EMPTY);
+                  TokenSet.create(WeaveTypes.IDENTIFIER),
+                  TokenSet.create(WeaveTypes.LINE_COMMENT),
+                  TokenSet.EMPTY);
 
 
   @Nullable
@@ -39,7 +41,7 @@ public class WeaveFindUsagesProvider implements FindUsagesProvider {
   @NotNull
   @Override
   public String getType(@NotNull PsiElement psiElement) {
-    if (psiElement instanceof WeaveFunctionDefinition || psiElement instanceof WeaveFunctionCallExpression) {
+    if (psiElement instanceof WeaveFunctionDefinition || psiElement instanceof WeaveBinaryExpression || psiElement instanceof WeaveCustomInterpolatorExpression || psiElement instanceof WeaveFunctionCallExpression) {
       return "Function";
     } else if (psiElement instanceof WeaveFunctionParameter) {
       return "Parameter";
@@ -52,12 +54,17 @@ public class WeaveFindUsagesProvider implements FindUsagesProvider {
   @NotNull
   @Override
   public String getDescriptiveName(@NotNull PsiElement psiElement) {
-    return ((PsiNamedElement) psiElement).getName();
+    String name = ((PsiNamedElement) psiElement).getName();
+    if (name == null) {
+      return psiElement.getText();
+    } else {
+      return name;
+    }
   }
 
   @NotNull
   @Override
   public String getNodeText(@NotNull PsiElement psiElement, boolean b) {
-    return ((PsiNamedElement) psiElement).getName();
+    return psiElement.getText();
   }
 }

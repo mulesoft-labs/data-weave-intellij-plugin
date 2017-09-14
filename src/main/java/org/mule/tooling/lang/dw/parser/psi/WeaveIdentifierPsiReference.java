@@ -1,7 +1,6 @@
 package org.mule.tooling.lang.dw.parser.psi;
 
 
-import com.google.common.base.Optional;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.icons.AllIcons;
@@ -13,13 +12,14 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-public class WeaveVariablePsiReference extends PsiReferenceBase<PsiElement> {
+public class WeaveIdentifierPsiReference extends PsiReferenceBase<PsiElement> {
   private String variableName;
 
-  public WeaveVariablePsiReference(@NotNull WeaveVariableReferenceExpression element, TextRange textRange) {
-    super(element, textRange);
-    variableName = element.getText().substring(textRange.getStartOffset(), textRange.getEndOffset());
+  public WeaveIdentifierPsiReference(@NotNull WeaveNamedElement element) {
+    super(element, TextRange.from(element.getNameIdentifier().getStartOffsetInParent(), element.getNameIdentifier().getTextLength()));
+    variableName = element.getNameIdentifier().getText();
   }
 
   @Nullable
@@ -28,20 +28,21 @@ public class WeaveVariablePsiReference extends PsiReferenceBase<PsiElement> {
     if (variableName.equals("$") || variableName.equals("$$")) {
       return WeavePsiUtils.findImplicitVariable(myElement);
     } else {
-      Optional<? extends PsiElement> variables = WeavePsiUtils.findVariables(myElement, variableName);
+      Optional<? extends PsiElement> variables = WeavePsiUtils.getVariableDeclarationFor(myElement, variableName);
       if (variables.isPresent()) {
         return variables.get();
       } else {
-        return WeavePsiUtils.findFunction(myElement, variableName).orNull();
+        Optional<? extends PsiElement> function = WeavePsiUtils.findFunction(myElement, variableName);
+        return function.orElse(null);
       }
-
     }
   }
+
 
   @NotNull
   @Override
   public Object[] getVariants() {
-    final List<WeaveVariable> variables = WeavePsiUtils.findVariables(myElement);
+    final List<WeaveVariable> variables = WeavePsiUtils.collectLocalVisibleVariables(myElement);
     final List<LookupElement> variants = new ArrayList<>();
     for (final WeaveVariable property : variables) {
       if (property.getName() != null && property.getName().length() > 0) {

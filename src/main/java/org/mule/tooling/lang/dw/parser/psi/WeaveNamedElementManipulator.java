@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class WeaveNamedElementManipulator extends AbstractElementManipulator<WeaveNamedElement> {
   @Override
-  public WeaveNamedElement handleContentChange(@NotNull WeaveNamedElement weaveVariableReference, @NotNull TextRange textRange, String newName) throws IncorrectOperationException {
-    return (WeaveNamedElement) weaveVariableReference.setName(newName);
+  public WeaveNamedElement handleContentChange(@NotNull WeaveNamedElement element, @NotNull TextRange textRange, String newName) throws IncorrectOperationException {
+    return (WeaveNamedElement) element.setName(newName);
   }
 }

@@ -9,6 +9,7 @@ import com.intellij.psi.tree.IElementType;
 import org.jetbrains.annotations.NotNull;
 
 import org.mule.tooling.lang.dw.lexer.WeaveLexer;
+import org.mule.tooling.lang.dw.parser.WeaveParserDefinition;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.parser.psi.WeaveTypes;
 
@@ -27,6 +28,7 @@ public class WeaveSyntaxHighlighter extends SyntaxHighlighterBase {
   public static TextAttributesKey KEY = createTextAttributesKey("Weave_KEY", DefaultLanguageHighlighterColors.METADATA);
   public static TextAttributesKey FUNCTION_DECLARATION = createTextAttributesKey("Weave_FUNCTION_DECLARATION", DefaultLanguageHighlighterColors.FUNCTION_DECLARATION);
   public static TextAttributesKey FUNCTION_CALL = createTextAttributesKey("Weave_FUNCTION_CALL", DefaultLanguageHighlighterColors.FUNCTION_CALL);
+  public static TextAttributesKey INFIX_FUNCTION_CALL = createTextAttributesKey("Weave_INFIX_FUNCTION_CALL", DefaultLanguageHighlighterColors.IDENTIFIER);
   public static TextAttributesKey VARIABLE = createTextAttributesKey("Weave_VARIABLE", DefaultLanguageHighlighterColors.INSTANCE_FIELD);
 
 
@@ -41,7 +43,7 @@ public class WeaveSyntaxHighlighter extends SyntaxHighlighterBase {
   public TextAttributesKey[] getTokenHighlights(IElementType tokenType) {
     if (tokenType == null) {
       return new TextAttributesKey[0];
-    } else if (tokenType.equals(WeaveTypes.LINE_COMMENT)) {
+    } else if (tokenType.equals(WeaveTypes.LINE_COMMENT) || tokenType.equals(WeaveParserDefinition.MULTILINE_COMMENT)) {
       return new TextAttributesKey[]{COMMENT};
     } else if (tokenType.equals(WeaveTypes.DOCUMENT_SEPARATOR)) {
       return new TextAttributesKey[]{COMMENT};
@@ -51,7 +53,7 @@ public class WeaveSyntaxHighlighter extends SyntaxHighlighterBase {
       return new TextAttributesKey[]{COMMA};
     } else if (tokenType.equals(WeaveTypes.TRUE_LITERAL) || tokenType.equals(WeaveTypes.FALSE_LITERAL) || WeavePsiUtils.KeyWordsToken.contains(tokenType) || WeavePsiUtils.DirectivesToken.contains(tokenType)) {
       return new TextAttributesKey[]{KEYWORD};
-    } else if (tokenType.equals(WeaveTypes.DOUBLE_QUOTED_STRING) || tokenType.equals(WeaveTypes.SINGLE_QUOTED_STRING)) {
+    } else if (tokenType.equals(WeaveTypes.DOUBLE_QUOTED_STRING) || tokenType.equals(WeaveTypes.SINGLE_QUOTED_STRING) || tokenType.equals(WeaveTypes.BACKTIKED_QUOTED_STRING)) {
       return new TextAttributesKey[]{STRING};
     } else if (tokenType.equals(WeaveTypes.TYPE)) {
       return new TextAttributesKey[]{TYPE};

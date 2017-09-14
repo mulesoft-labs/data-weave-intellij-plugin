@@ -204,6 +204,11 @@ Expression::= MatchExpression
             | SimpleExpression
 
 CustomInterpolatorExpression ::= Identifier BACKTIKED_QUOTED_STRING
+{
+    methods = [getName setName getNameIdentifier]
+    implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
+    mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
+}
 
 private SimpleExpression ::=
              OrExpression
@@ -239,9 +244,11 @@ private ValueExpression::=UndefinedLiteral
 UnaryMinusExpression ::= '-' SimpleExpression {pin=1}
 
 BinaryExpression ::= Expression Identifier SimpleExpression
-    {
-        methods=[ getLeft  getRight]
-    }
+{
+     methods = [getName setName getNameIdentifier getLeft getRight]
+     implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
+     mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
+}
 
 AsExpression
          ::= Expression AS TypeLiteral {pin=2}
@@ -365,11 +372,7 @@ NamespaceSelector ::='#'
 MultiValueSelector ::= '*'(DeclaredNamespace? (StringLiteral|Identifier))
 
 VariableReferenceExpression ::= FqnIdentifier
-//{
-//        methods = [getVariableName getReference getName setName getNameIdentifier]
-//        implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
-//        mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
-//   }
+
 
 VariableDefinition ::= VARIABLE_DECLARATION '='  Expression  {
             methods=[getVariableName getVariableValue getName setName getNameIdentifier]
@@ -475,6 +478,11 @@ DataFormat ::= MIME_TYPE_KEYWORD
 NumberLiteral ::= DOUBLE_LITERAL | INTEGER_LITERAL
 
 FqnIdentifier ::= CustomLoader? IdentifierPackage Identifier
+{
+     methods = [getName setName getNameIdentifier]
+     implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
+     mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
+}
 
 IdentifierPackage ::= (Identifier '::')*
 

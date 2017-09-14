@@ -23,5 +23,9 @@ public class WeaveAnnotator implements Annotator {
     if (element instanceof WeaveIdentifier && element.getParent() instanceof WeaveFunctionCallExpression) {
       holder.createInfoAnnotation(element, "Function call").setTextAttributes(WeaveSyntaxHighlighter.FUNCTION_CALL);
     }
+    if (element instanceof WeaveBinaryExpression) {
+      holder.createInfoAnnotation(((WeaveBinaryExpression) element).getIdentifier(), "Infix Function Call")
+              .setTextAttributes(WeaveSyntaxHighlighter.INFIX_FUNCTION_CALL);
+    }
   }
 }
