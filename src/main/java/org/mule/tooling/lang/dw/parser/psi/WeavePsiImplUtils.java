@@ -3,14 +3,16 @@ package org.mule.tooling.lang.dw.parser.psi;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.navigation.ItemPresentation;
-import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiReference;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.mule.tooling.lang.dw.WeaveFileType;
 import org.mule.tooling.lang.dw.WeaveIcons;
+import org.mule.tooling.lang.dw.reference.WeaveModuleReferenceSet;
 
 import javax.swing.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class WeavePsiImplUtils {
 
@@ -126,10 +128,25 @@ public class WeavePsiImplUtils {
     }
   }
 
-//  @Nullable
-//  public static WeaveIdentifier getIdentifier(WeaveBinaryExpression expression) {
-//    return expression.getFqnIdentifier().getIdentifier();
-//  }
+
+  public static String getPath(WeaveModuleReference moduleReference) {
+    WeaveIdentifierPackage identifierPackage = moduleReference.getIdentifierPackage();
+    return identifierPackage.getIdentifierList().stream().map(WeaveIdentifier::getName).collect(Collectors.joining("/")) + "/" + moduleReference.getIdentifier().getName() + "." + WeaveFileType.WeaveFileExtension;
+  }
+
+  public static String getModuleFQN(WeaveModuleReference moduleReference) {
+    WeaveIdentifierPackage identifierPackage = moduleReference.getIdentifierPackage();
+    if (identifierPackage.getText().trim().isEmpty()) {
+      return moduleReference.getIdentifier().getName();
+    } else {
+      return identifierPackage.getText() + moduleReference.getIdentifier().getName();
+    }
+  }
+
+  @NotNull
+  public static PsiReference[] getReferences(WeaveModuleReference importDirective) {
+    return new WeaveModuleReferenceSet(importDirective).getAllReferences();
+  }
 
 
   @NotNull

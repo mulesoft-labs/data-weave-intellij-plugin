@@ -155,6 +155,9 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     else if (t == LITERAL_PATTERN) {
       r = LiteralPattern(b, 0);
     }
+    else if (t == MODULE_REFERENCE) {
+      r = ModuleReference(b, 0);
+    }
     else if (t == MULTI_VALUE_SELECTOR) {
       r = MultiValueSelector(b, 0);
     }
@@ -1227,7 +1230,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // IMPORT_DIRECTIVE_KEYWORD (((ImportedElement (',' ImportedElement)*) | '*') 'from')? FqnIdentifier ('as' Identifier)?
+  // IMPORT_DIRECTIVE_KEYWORD (((ImportedElement (',' ImportedElement)*) | '*') 'from')? ModuleReference ('as' Identifier)?
   public static boolean ImportDirective(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ImportDirective")) return false;
     if (!nextTokenIs(b, IMPORT_DIRECTIVE_KEYWORD)) return false;
@@ -1236,7 +1239,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     r = consumeToken(b, IMPORT_DIRECTIVE_KEYWORD);
     p = r; // pin = 1
     r = r && report_error_(b, ImportDirective_1(b, l + 1));
-    r = p && report_error_(b, FqnIdentifier(b, l + 1)) && r;
+    r = p && report_error_(b, ModuleReference(b, l + 1)) && r;
     r = p && ImportDirective_3(b, l + 1) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
@@ -1612,6 +1615,26 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     r = r && Expression(b, l + 1, -1);
     exit_section_(b, l, m, r, false, null);
     return r;
+  }
+
+  /* ********************************************************** */
+  // CustomLoader? IdentifierPackage Identifier
+  public static boolean ModuleReference(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ModuleReference")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NONE_, MODULE_REFERENCE, "<module reference>");
+    r = ModuleReference_0(b, l + 1);
+    r = r && IdentifierPackage(b, l + 1);
+    r = r && Identifier(b, l + 1);
+    exit_section_(b, l, m, r, false, null);
+    return r;
+  }
+
+  // CustomLoader?
+  private static boolean ModuleReference_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ModuleReference_0")) return false;
+    CustomLoader(b, l + 1);
+    return true;
   }
 
   /* ********************************************************** */

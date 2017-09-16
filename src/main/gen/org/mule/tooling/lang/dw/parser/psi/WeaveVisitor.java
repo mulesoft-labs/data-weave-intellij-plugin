@@ -268,6 +268,10 @@ public class WeaveVisitor extends PsiElementVisitor {
     visitExpression(o);
   }
 
+  public void visitModuleReference(@NotNull WeaveModuleReference o) {
+    visitPsiElement(o);
+  }
+
   public void visitMultiValueSelector(@NotNull WeaveMultiValueSelector o) {
     visitPsiElement(o);
   }

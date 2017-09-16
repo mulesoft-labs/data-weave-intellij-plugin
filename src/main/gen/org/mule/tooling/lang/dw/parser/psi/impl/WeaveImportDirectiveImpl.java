@@ -27,12 +27,6 @@ public class WeaveImportDirectiveImpl extends WeaveDirectiveImpl implements Weav
 
   @Override
   @Nullable
-  public WeaveFqnIdentifier getFqnIdentifier() {
-    return findChildByClass(WeaveFqnIdentifier.class);
-  }
-
-  @Override
-  @Nullable
   public WeaveIdentifier getIdentifier() {
     return findChildByClass(WeaveIdentifier.class);
   }
@@ -41,6 +35,12 @@ public class WeaveImportDirectiveImpl extends WeaveDirectiveImpl implements Weav
   @NotNull
   public List<WeaveImportedElement> getImportedElementList() {
     return PsiTreeUtil.getChildrenOfTypeAsList(this, WeaveImportedElement.class);
+  }
+
+  @Override
+  @Nullable
+  public WeaveModuleReference getModuleReference() {
+    return findChildByClass(WeaveModuleReference.class);
   }
 
 }

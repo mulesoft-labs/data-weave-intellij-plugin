@@ -126,7 +126,7 @@ private HeaderRecover::= !('---'|OUTPUT_DIRECTIVE_KEYWORD|'type'|'fun'|'ns'|'var
 
 VersionDirective::= '%dw'  DOUBLE_LITERAL
 
-ImportDirective::= IMPORT_DIRECTIVE_KEYWORD (((ImportedElement (',' ImportedElement)*) | '*') 'from')? FqnIdentifier ('as' Identifier)?
+ImportDirective::= IMPORT_DIRECTIVE_KEYWORD (((ImportedElement (',' ImportedElement)*) | '*') 'from')? ModuleReference ('as' Identifier)?
 
 ImportedElement::= Identifier ('as' Identifier)?
 
@@ -482,6 +482,10 @@ FqnIdentifier ::= CustomLoader? IdentifierPackage Identifier
      methods = [getName setName getNameIdentifier]
      implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
      mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
+}
+
+ModuleReference ::= CustomLoader? IdentifierPackage Identifier  {
+ methods = [getPath getModuleFQN getReferences]
 }
 
 IdentifierPackage ::= (Identifier '::')*

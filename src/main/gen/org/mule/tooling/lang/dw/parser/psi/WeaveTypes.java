@@ -74,6 +74,7 @@ public interface WeaveTypes {
   IElementType LITERAL_EXPRESSION = new WeaveElementType("LITERAL_EXPRESSION");
   IElementType LITERAL_PATTERN = new WeaveElementType("LITERAL_PATTERN");
   IElementType MATCH_EXPRESSION = new WeaveElementType("MATCH_EXPRESSION");
+  IElementType MODULE_REFERENCE = new WeaveElementType("MODULE_REFERENCE");
   IElementType MULTIPLE_KEY_VALUE_PAIR_OBJ = new WeaveElementType("MULTIPLE_KEY_VALUE_PAIR_OBJ");
   IElementType MULTIPLICATION_DIVISION_EXPRESSION = new WeaveElementType("MULTIPLICATION_DIVISION_EXPRESSION");
   IElementType MULTI_VALUE_SELECTOR = new WeaveElementType("MULTI_VALUE_SELECTOR");
@@ -389,6 +390,9 @@ public interface WeaveTypes {
       }
       else if (type == MATCH_EXPRESSION) {
         return new WeaveMatchExpressionImpl(node);
+      }
+      else if (type == MODULE_REFERENCE) {
+        return new WeaveModuleReferenceImpl(node);
       }
       else if (type == MULTIPLE_KEY_VALUE_PAIR_OBJ) {
         return new WeaveMultipleKeyValuePairObjImpl(node);

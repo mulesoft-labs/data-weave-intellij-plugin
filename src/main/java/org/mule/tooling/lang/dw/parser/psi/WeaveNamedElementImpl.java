@@ -2,11 +2,10 @@ package org.mule.tooling.lang.dw.parser.psi;
 
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
-import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.mule.tooling.lang.dw.reference.WeaveIdentifierPsiReference;
 
 public abstract class WeaveNamedElementImpl extends ASTWrapperPsiElement implements WeaveNamedElement {
 

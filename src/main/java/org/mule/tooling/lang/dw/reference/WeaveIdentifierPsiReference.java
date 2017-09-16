@@ -1,4 +1,4 @@
-package org.mule.tooling.lang.dw.parser.psi;
+package org.mule.tooling.lang.dw.reference;
 
 
 import com.intellij.codeInsight.lookup.LookupElement;
@@ -9,6 +9,9 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReferenceBase;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement;
+import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
+import org.mule.tooling.lang.dw.parser.psi.WeaveVariable;
 
 import java.util.ArrayList;
 import java.util.List;
