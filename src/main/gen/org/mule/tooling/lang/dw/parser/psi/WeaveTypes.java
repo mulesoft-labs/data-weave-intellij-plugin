@@ -90,6 +90,7 @@ public interface WeaveTypes {
   IElementType OBJECT_DECONSTRUCT_EXPRESSION = new WeaveElementType("OBJECT_DECONSTRUCT_EXPRESSION");
   IElementType OBJECT_DECONSTRUCT_PATTERN = new WeaveElementType("OBJECT_DECONSTRUCT_PATTERN");
   IElementType OBJECT_EXPRESSION = new WeaveElementType("OBJECT_EXPRESSION");
+  IElementType OBJECT_SELECTOR = new WeaveElementType("OBJECT_SELECTOR");
   IElementType OBJECT_TYPE = new WeaveElementType("OBJECT_TYPE");
   IElementType OPTIONS = new WeaveElementType("OPTIONS");
   IElementType OPTION_ELEMENT = new WeaveElementType("OPTION_ELEMENT");
@@ -438,6 +439,9 @@ public interface WeaveTypes {
       }
       else if (type == OBJECT_EXPRESSION) {
         return new WeaveObjectExpressionImpl(node);
+      }
+      else if (type == OBJECT_SELECTOR) {
+        return new WeaveObjectSelectorImpl(node);
       }
       else if (type == OBJECT_TYPE) {
         return new WeaveObjectTypeImpl(node);

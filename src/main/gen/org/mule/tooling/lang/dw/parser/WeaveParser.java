@@ -191,6 +191,9 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     else if (t == OBJECT_DECONSTRUCT_PATTERN) {
       r = ObjectDeconstructPattern(b, 0);
     }
+    else if (t == OBJECT_SELECTOR) {
+      r = ObjectSelector(b, 0);
+    }
     else if (t == OBJECT_TYPE) {
       r = ObjectType(b, 0);
     }
@@ -1938,6 +1941,55 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
+  // '&'(DeclaredNamespace? (StringLiteral|Identifier))?
+  public static boolean ObjectSelector(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ObjectSelector")) return false;
+    if (!nextTokenIs(b, AND)) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, AND);
+    r = r && ObjectSelector_1(b, l + 1);
+    exit_section_(b, m, OBJECT_SELECTOR, r);
+    return r;
+  }
+
+  // (DeclaredNamespace? (StringLiteral|Identifier))?
+  private static boolean ObjectSelector_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ObjectSelector_1")) return false;
+    ObjectSelector_1_0(b, l + 1);
+    return true;
+  }
+
+  // DeclaredNamespace? (StringLiteral|Identifier)
+  private static boolean ObjectSelector_1_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ObjectSelector_1_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = ObjectSelector_1_0_0(b, l + 1);
+    r = r && ObjectSelector_1_0_1(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // DeclaredNamespace?
+  private static boolean ObjectSelector_1_0_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ObjectSelector_1_0_0")) return false;
+    DeclaredNamespace(b, l + 1);
+    return true;
+  }
+
+  // StringLiteral|Identifier
+  private static boolean ObjectSelector_1_0_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ObjectSelector_1_0_1")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = StringLiteral(b, l + 1);
+    if (!r) r = Identifier(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  /* ********************************************************** */
   // '{' ((KeyValuePairType)? (',' KeyValuePairType)*)?  '}' (Schema)?
   public static boolean ObjectType(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ObjectType")) return false;
@@ -2518,6 +2570,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   //          AttributeSelector |
   //          NamespaceSelector |
   //          SchemaSelector |
+  //          ObjectSelector |
   //          MultiValueSelector
   public static boolean Selector(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "Selector")) return false;
@@ -2527,6 +2580,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     if (!r) r = AttributeSelector(b, l + 1);
     if (!r) r = NamespaceSelector(b, l + 1);
     if (!r) r = SchemaSelector(b, l + 1);
+    if (!r) r = ObjectSelector(b, l + 1);
     if (!r) r = MultiValueSelector(b, l + 1);
     exit_section_(b, l, m, r, false, null);
     return r;

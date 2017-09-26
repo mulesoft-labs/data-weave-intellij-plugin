@@ -336,6 +336,10 @@ public class WeaveVisitor extends PsiElementVisitor {
     // visitNavigatablePsiElement(o);
   }
 
+  public void visitObjectSelector(@NotNull WeaveObjectSelector o) {
+    visitPsiElement(o);
+  }
+
   public void visitObjectType(@NotNull WeaveObjectType o) {
     visitType(o);
   }

@@ -46,6 +46,12 @@ public class WeaveSelectorImpl extends ASTWrapperPsiElement implements WeaveSele
 
   @Override
   @Nullable
+  public WeaveObjectSelector getObjectSelector() {
+    return findChildByClass(WeaveObjectSelector.class);
+  }
+
+  @Override
+  @Nullable
   public WeaveSchemaSelector getSchemaSelector() {
     return findChildByClass(WeaveSchemaSelector.class);
   }

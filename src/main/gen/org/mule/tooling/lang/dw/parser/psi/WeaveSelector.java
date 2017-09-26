@@ -17,6 +17,9 @@ public interface WeaveSelector extends PsiElement {
   WeaveNamespaceSelector getNamespaceSelector();
 
   @Nullable
+  WeaveObjectSelector getObjectSelector();
+
+  @Nullable
   WeaveSchemaSelector getSchemaSelector();
 
   @Nullable

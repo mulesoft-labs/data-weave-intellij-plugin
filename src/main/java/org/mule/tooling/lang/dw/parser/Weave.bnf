@@ -359,11 +359,14 @@ Selector ::= (ValueSelector |
          AttributeSelector |
          NamespaceSelector |
          SchemaSelector |
+         ObjectSelector |
          MultiValueSelector)
 
 ValueSelector ::= (DeclaredNamespace? (StringLiteral|Identifier))
 
 AttributeSelector ::='@'(DeclaredNamespace? (StringLiteral|Identifier))?
+
+ObjectSelector ::='&'(DeclaredNamespace? (StringLiteral|Identifier))?
 
 SchemaSelector ::='^'(DeclaredNamespace? (StringLiteral|Identifier))?
 
