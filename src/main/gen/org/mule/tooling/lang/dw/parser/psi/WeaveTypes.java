@@ -14,7 +14,6 @@ public interface WeaveTypes {
   IElementType AND_EXPRESSION = new WeaveElementType("AND_EXPRESSION");
   IElementType ANY_DATE_LITERAL = new WeaveElementType("ANY_DATE_LITERAL");
   IElementType ANY_REGEX_LITERAL = new WeaveElementType("ANY_REGEX_LITERAL");
-  IElementType ARRAY_DECONSTRUCT_EXPRESSION = new WeaveElementType("ARRAY_DECONSTRUCT_EXPRESSION");
   IElementType ARRAY_DECONSTRUCT_PATTERN = new WeaveElementType("ARRAY_DECONSTRUCT_PATTERN");
   IElementType ARRAY_EXPRESSION = new WeaveElementType("ARRAY_EXPRESSION");
   IElementType AS_EXPRESSION = new WeaveElementType("AS_EXPRESSION");
@@ -41,6 +40,7 @@ public interface WeaveTypes {
   IElementType DIRECTIVE = new WeaveElementType("DIRECTIVE");
   IElementType DOCUMENT = new WeaveElementType("DOCUMENT");
   IElementType DOT_SELECTOR_EXPRESSION = new WeaveElementType("DOT_SELECTOR_EXPRESSION");
+  IElementType DO_EXPRESSION = new WeaveElementType("DO_EXPRESSION");
   IElementType DYNAMIC_KEY_VALUE_PAIR = new WeaveElementType("DYNAMIC_KEY_VALUE_PAIR");
   IElementType EMPTY_ARRAY_PATTERN = new WeaveElementType("EMPTY_ARRAY_PATTERN");
   IElementType EMPTY_OBJECT_PATTERN = new WeaveElementType("EMPTY_OBJECT_PATTERN");
@@ -141,6 +141,7 @@ public interface WeaveTypes {
   IElementType DOLLAR_VARIABLE = new WeaveTokenType("DOLLAR_VARIABLE");
   IElementType DOUBLE_LITERAL = new WeaveTokenType("DOUBLE_LITERAL");
   IElementType DOUBLE_QUOTED_STRING = new WeaveTokenType("DOUBLE_QUOTED_STRING");
+  IElementType DO_KEYWORD = new WeaveTokenType("do");
   IElementType ELSE = new WeaveTokenType("ELSE");
   IElementType EQ = new WeaveTokenType("=");
   IElementType EQUAL = new WeaveTokenType("==");
@@ -217,9 +218,6 @@ public interface WeaveTypes {
       }
       else if (type == ANY_REGEX_LITERAL) {
         return new WeaveAnyRegexLiteralImpl(node);
-      }
-      else if (type == ARRAY_DECONSTRUCT_EXPRESSION) {
-        return new WeaveArrayDeconstructExpressionImpl(node);
       }
       else if (type == ARRAY_DECONSTRUCT_PATTERN) {
         return new WeaveArrayDeconstructPatternImpl(node);
@@ -298,6 +296,9 @@ public interface WeaveTypes {
       }
       else if (type == DOT_SELECTOR_EXPRESSION) {
         return new WeaveDotSelectorExpressionImpl(node);
+      }
+      else if (type == DO_EXPRESSION) {
+        return new WeaveDoExpressionImpl(node);
       }
       else if (type == DYNAMIC_KEY_VALUE_PAIR) {
         return new WeaveDynamicKeyValuePairImpl(node);

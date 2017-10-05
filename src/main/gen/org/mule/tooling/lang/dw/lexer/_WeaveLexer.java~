@@ -181,20 +181,20 @@ public class _WeaveLexer implements FlexLexer {
     "\1\0\1\1\1\2\1\3\1\4\1\5\1\6\1\7"+
     "\14\10\1\11\1\12\1\13\1\14\1\15\1\16\1\17"+
     "\1\20\1\10\1\15\1\21\1\22\1\23\1\24\1\25"+
-    "\1\26\1\27\1\30\1\10\1\31\1\32\1\1\1\33"+
-    "\1\34\1\35\1\36\1\37\1\40\1\0\1\41\1\42"+
+    "\1\26\1\27\1\30\1\10\1\31\1\32\1\33\1\34"+
+    "\1\35\1\36\1\37\1\40\1\41\1\0\1\42\1\43"+
     "\1\5\2\0\1\6\1\0\1\7\2\10\1\0\5\10"+
-    "\1\43\6\10\1\44\1\45\1\10\1\46\5\10\1\47"+
-    "\3\10\2\15\1\50\1\51\1\52\2\53\1\10\2\0"+
-    "\1\54\1\0\1\55\1\56\1\57\1\60\3\10\1\61"+
-    "\1\62\1\63\1\64\1\65\3\0\1\42\2\10\1\0"+
-    "\4\10\1\66\10\10\1\67\3\10\1\70\2\10\1\71"+
-    "\1\53\1\72\1\73\1\74\1\10\1\75\1\10\1\76"+
-    "\1\77\1\42\1\0\1\10\1\100\1\0\1\101\1\102"+
-    "\3\10\1\0\6\10\1\103\1\104\3\10\1\105\1\0"+
-    "\1\106\2\10\1\106\1\107\1\10\1\110\2\10\1\111"+
-    "\1\10\1\112\1\113\1\10\1\114\1\10\1\115\1\116"+
-    "\3\10\1\117\1\120\4\10";
+    "\1\44\6\10\1\45\1\46\1\10\1\47\5\10\1\50"+
+    "\3\10\2\15\1\51\1\52\1\53\2\54\1\10\2\0"+
+    "\1\55\1\0\1\56\1\57\1\60\1\61\3\10\1\62"+
+    "\1\63\1\64\1\65\1\66\3\0\1\43\2\10\1\0"+
+    "\4\10\1\67\10\10\1\70\3\10\1\71\2\10\1\72"+
+    "\1\54\1\73\1\74\1\75\1\10\1\76\1\10\1\77"+
+    "\1\100\1\43\1\0\1\10\1\101\1\0\1\102\1\103"+
+    "\3\10\1\0\6\10\1\104\1\105\3\10\1\106\1\0"+
+    "\1\107\2\10\1\107\1\110\1\10\1\111\2\10\1\112"+
+    "\1\10\1\113\1\114\1\10\1\115\1\10\1\116\1\117"+
+    "\3\10\1\120\1\121\4\10";
 
   private static int [] zzUnpackAction() {
     int [] result = new int[197];
@@ -854,323 +854,327 @@ public class _WeaveLexer implements FlexLexer {
           case 1: 
             { return com.intellij.psi.TokenType.BAD_CHARACTER;
             }
-          case 81: break;
+          case 82: break;
           case 2: 
             { return com.intellij.psi.TokenType.WHITE_SPACE;
             }
-          case 82: break;
+          case 83: break;
           case 3: 
             { return DIVISION;
             }
-          case 83: break;
+          case 84: break;
           case 4: 
             { return MULTIPLY;
             }
-          case 84: break;
+          case 85: break;
           case 5: 
             { return DOUBLE_QUOTED_STRING;
             }
-          case 85: break;
+          case 86: break;
           case 6: 
             { return SINGLE_QUOTED_STRING;
             }
-          case 86: break;
+          case 87: break;
           case 7: 
             { return BACKTIKED_QUOTED_STRING;
             }
-          case 87: break;
+          case 88: break;
           case 8: 
             { return ID;
             }
-          case 88: break;
+          case 89: break;
           case 9: 
             { return MINUS;
             }
-          case 89: break;
+          case 90: break;
           case 10: 
             { return COLON;
             }
-          case 90: break;
+          case 91: break;
           case 11: 
             { return AND;
             }
-          case 91: break;
+          case 92: break;
           case 12: 
             { return UNDERSCORE;
             }
-          case 92: break;
+          case 93: break;
           case 13: 
             { return INTEGER_LITERAL;
             }
-          case 93: break;
+          case 94: break;
           case 14: 
             { return PLUS;
             }
-          case 94: break;
+          case 95: break;
           case 15: 
             { return DOLLAR_VARIABLE;
             }
-          case 95: break;
+          case 96: break;
           case 16: 
             { return OR;
             }
-          case 96: break;
+          case 97: break;
           case 17: 
             { return L_PARREN;
             }
-          case 97: break;
+          case 98: break;
           case 18: 
             { return R_PARREN;
             }
-          case 98: break;
+          case 99: break;
           case 19: 
             { return L_CURLY;
             }
-          case 99: break;
+          case 100: break;
           case 20: 
             { return R_CURLY;
             }
-          case 100: break;
+          case 101: break;
           case 21: 
             { return L_BRACKET;
             }
-          case 101: break;
+          case 102: break;
           case 22: 
             { return R_BRACKET;
             }
-          case 102: break;
+          case 103: break;
           case 23: 
             { return LESS;
             }
-          case 103: break;
+          case 104: break;
           case 24: 
             { return COMMA;
             }
-          case 104: break;
+          case 105: break;
           case 25: 
             { return ESCLAMATION;
             }
-          case 105: break;
+          case 106: break;
           case 26: 
             { return EQ;
             }
-          case 106: break;
-          case 27: 
-            { return GREATER;
-            }
           case 107: break;
-          case 28: 
-            { return MODULO;
+          case 27: 
+            { return TILDE;
             }
           case 108: break;
-          case 29: 
-            { return AT;
+          case 28: 
+            { return GREATER;
             }
           case 109: break;
-          case 30: 
-            { return QUESTION;
+          case 29: 
+            { return MODULO;
             }
           case 110: break;
-          case 31: 
-            { return HASH;
+          case 30: 
+            { return AT;
             }
           case 111: break;
-          case 32: 
-            { return XOR;
+          case 31: 
+            { return QUESTION;
             }
           case 112: break;
-          case 33: 
-            { return LINE_COMMENT;
+          case 32: 
+            { return HASH;
             }
           case 113: break;
-          case 34: 
-            { return MULTILINE_COMMENT;
+          case 33: 
+            { return XOR;
             }
           case 114: break;
-          case 35: 
-            { return AS;
+          case 34: 
+            { return LINE_COMMENT;
             }
           case 115: break;
-          case 36: 
-            { return IS;
+          case 35: 
+            { return MULTILINE_COMMENT;
             }
           case 116: break;
-          case 37: 
-            { return IF;
+          case 36: 
+            { return AS;
             }
           case 117: break;
-          case 38: 
-            { return OR_KEYWORD;
+          case 37: 
+            { return IS;
             }
           case 118: break;
-          case 39: 
-            { return NAMESPACE_DIRECTIVE_KEYWORD;
+          case 38: 
+            { return IF;
             }
           case 119: break;
-          case 40: 
-            { return CLOSE_ORDERED_KEYWORD;
+          case 39: 
+            { return OR_KEYWORD;
             }
           case 120: break;
-          case 41: 
-            { return ARROW_TOKEN;
+          case 40: 
+            { return NAMESPACE_DIRECTIVE_KEYWORD;
             }
           case 121: break;
-          case 42: 
-            { return PACKAGE_SEPARATOR;
+          case 41: 
+            { return CLOSE_ORDERED_KEYWORD;
             }
           case 122: break;
-          case 43: 
-            { return DOUBLE_LITERAL;
+          case 42: 
+            { return ARROW_TOKEN;
             }
           case 123: break;
-          case 44: 
-            { return CLOSE_CLOSE_KEYWORD;
+          case 43: 
+            { return PACKAGE_SEPARATOR;
             }
           case 124: break;
-          case 45: 
-            { return OPEN_ORDERED_KEYWORD;
+          case 44: 
+            { return DOUBLE_LITERAL;
             }
           case 125: break;
-          case 46: 
-            { return OPEN_CLOSE_KEYWORD;
+          case 45: 
+            { return CLOSE_CLOSE_KEYWORD;
             }
           case 126: break;
-          case 47: 
-            { return SUB_TYPE;
+          case 46: 
+            { return OPEN_ORDERED_KEYWORD;
             }
           case 127: break;
-          case 48: 
-            { return LESS_EQUAL;
+          case 47: 
+            { return OPEN_CLOSE_KEYWORD;
             }
           case 128: break;
-          case 49: 
-            { return NOT_EQUAL;
+          case 48: 
+            { return SUB_TYPE;
             }
           case 129: break;
-          case 50: 
-            { return EQUAL;
+          case 49: 
+            { return LESS_EQUAL;
             }
           case 130: break;
-          case 51: 
-            { return FAT_ARROW;
+          case 50: 
+            { return NOT_EQUAL;
             }
           case 131: break;
-          case 52: 
-            { return SIMILAR;
+          case 51: 
+            { return EQUAL;
             }
           case 132: break;
-          case 53: 
-            { return GREATER_EQUAL;
+          case 52: 
+            { return FAT_ARROW;
             }
           case 133: break;
-          case 54: 
-            { return AND_KEYWORD;
+          case 53: 
+            { return SIMILAR;
             }
           case 134: break;
-          case 55: 
-            { return VAR_DIRECTIVE_KEYWORD;
+          case 54: 
+            { return GREATER_EQUAL;
             }
           case 135: break;
-          case 56: 
-            { return NOT_KEYWORD;
+          case 55: 
+            { return AND_KEYWORD;
             }
           case 136: break;
-          case 57: 
-            { return DOCUMENT_SEPARATOR;
+          case 56: 
+            { return VAR_DIRECTIVE_KEYWORD;
             }
           case 137: break;
-          case 58: 
-            { return RULE_ANY_DATE;
+          case 57: 
+            { return NOT_KEYWORD;
             }
           case 138: break;
-          case 59: 
-            { return CLOSE_CLOSE_ORDERED_KEYWORD;
+          case 58: 
+            { return DOCUMENT_SEPARATOR;
             }
           case 139: break;
-          case 60: 
-            { return OPEN_CLOSE_ORDERED_KEYWORD;
+          case 59: 
+            { return RULE_ANY_DATE;
             }
           case 140: break;
-          case 61: 
-            { return FUNCTION_DIRECTIVE_KEYWORD;
+          case 60: 
+            { return CLOSE_CLOSE_ORDERED_KEYWORD;
             }
           case 141: break;
-          case 62: 
-            { return VERSION_DIRECTIVE_KEYWORD;
+          case 61: 
+            { return OPEN_CLOSE_ORDERED_KEYWORD;
             }
           case 142: break;
-          case 63: 
-            { return RULE_ANY_REGEX;
+          case 62: 
+            { return FUNCTION_DIRECTIVE_KEYWORD;
             }
           case 143: break;
-          case 64: 
-            { return TRUE_LITERAL;
+          case 63: 
+            { return VERSION_DIRECTIVE_KEYWORD;
             }
           case 144: break;
-          case 65: 
-            { return TYPE_DIRECTIVE_KEYWORD;
+          case 64: 
+            { return RULE_ANY_REGEX;
             }
           case 145: break;
-          case 66: 
-            { return ELSE;
+          case 65: 
+            { return TRUE_LITERAL;
             }
           case 146: break;
-          case 67: 
-            { return CASE_KEYWORD;
+          case 66: 
+            { return TYPE_DIRECTIVE_KEYWORD;
             }
           case 147: break;
-          case 68: 
-            { return NULL_LITERAL_KEYWORD;
+          case 67: 
+            { return ELSE;
             }
           case 148: break;
-          case 69: 
-            { return FROM_KEYWORD;
+          case 68: 
+            { return CASE_KEYWORD;
             }
           case 149: break;
-          case 70: 
-            { return NAMESPACE_URI;
+          case 69: 
+            { return NULL_LITERAL_KEYWORD;
             }
           case 150: break;
-          case 71: 
-            { return USING;
+          case 70: 
+            { return FROM_KEYWORD;
             }
           case 151: break;
-          case 72: 
-            { return INPUT_DIRECTIVE_KEYWORD;
+          case 71: 
+            { return NAMESPACE_URI;
             }
           case 152: break;
-          case 73: 
-            { return MATCH_KEYWORD;
+          case 72: 
+            { return USING;
             }
           case 153: break;
-          case 74: 
-            { return FALSE_LITERAL;
+          case 73: 
+            { return INPUT_DIRECTIVE_KEYWORD;
             }
           case 154: break;
-          case 75: 
-            { return MIME_TYPE_KEYWORD;
+          case 74: 
+            { return MATCH_KEYWORD;
             }
           case 155: break;
-          case 76: 
-            { return UNLESS;
+          case 75: 
+            { return FALSE_LITERAL;
             }
           case 156: break;
-          case 77: 
-            { return IMPORT_DIRECTIVE_KEYWORD;
+          case 76: 
+            { return MIME_TYPE_KEYWORD;
             }
           case 157: break;
-          case 78: 
-            { return OUTPUT_DIRECTIVE_KEYWORD;
+          case 77: 
+            { return UNLESS;
             }
           case 158: break;
-          case 79: 
-            { return DEFAULT;
+          case 78: 
+            { return IMPORT_DIRECTIVE_KEYWORD;
             }
           case 159: break;
-          case 80: 
-            { return MATCHES_KEYWORD;
+          case 79: 
+            { return OUTPUT_DIRECTIVE_KEYWORD;
             }
           case 160: break;
+          case 80: 
+            { return DEFAULT;
+            }
+          case 161: break;
+          case 81: 
+            { return MATCHES_KEYWORD;
+            }
+          case 162: break;
           default:
             zzScanError(ZZ_NO_MATCH);
           }

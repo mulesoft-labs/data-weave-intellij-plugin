@@ -59,6 +59,7 @@
         HASH="#"
 
         AND_KEYWORD="and"
+        DO_KEYWORD="do"
         OR_KEYWORD="or"
 
         ARROW_TOKEN="->"
@@ -105,7 +106,7 @@
 
 root ::= Document
 
-Document ::= Header ('---'  Body) ? | Body{
+Document ::= Header ('---'  Body) ? | Body {
     implements="com.intellij.psi.NavigatablePsiElement"
     methods=[getPresentation]
 }
@@ -232,10 +233,10 @@ private ValueExpression::=UndefinedLiteral
                   | NotExpression
                   | ConditionalExpression
                   | UsingExpression
+                  | DoExpression
                   | LambdaLiteral
                   | ObjectDeconstructExpression
                   | ObjectExpression
-                  | ArrayDeconstructExpression
                   | ArrayExpression
                   | VariableReferenceExpression
                   | LiteralExpression
@@ -297,7 +298,7 @@ EnclosedExpression ::= '(' Expression ')'
 //Selectors
 DotSelectorExpression ::=Expression ( '..' | '.' ) Selector? ('!'| '?')? {pin=2}
 
-BracketSelectorExpression::=Expression '[' ('?' |'@' | '^' |'*')?  (BinaryExpression | SimpleExpression )  ']' ('!'| '?')? {pin=5}
+BracketSelectorExpression::=Expression '[' ('?' |'@' | '&' | '^' |'*')?  (BinaryExpression | SimpleExpression )  ']' ('!'| '?')? {pin=5}
 
 MatchExpression ::= Expression 'match' (PatternMatcherExpression )
 
@@ -395,6 +396,14 @@ LiteralExpression
            | AnyDateLiteral
            | AnyRegexLiteral
 
+DoExpression ::= 'do' '{' (DoDirectives '---')?  Expression'}'
+
+
+private DoDirectives
+         ::= VariableDirective
+           | TypeDirective
+           | ImportDirective
+           | FunctionDirective {recoverWhile=HeaderRecover}
 
 UndefinedLiteral ::= '?''?''?'
 
@@ -422,11 +431,9 @@ AnyDateLiteral::= RULE_ANY_DATE
 
 AnyRegexLiteral::= RULE_ANY_REGEX
 
-ArrayDeconstructExpression::= '[' !ConditionalArrayElement Expression '~' Expression ']' {pin=4}
-
 ObjectDeconstructExpression ::= '{' KeyValuePair '~' Expression '}' {pin=3}
 
-ArrayExpression::= '[' ( ArrayElement ( ',' ArrayElement )* (',')? )? ']'
+ArrayExpression::= '[' ']' | '[' ( ArrayElement (('~' Expression)  | ( ',' ArrayElement )* (',')? )?) ']'
 {
     implements="com.intellij.psi.NavigatablePsiElement"
     methods=[getPresentation]

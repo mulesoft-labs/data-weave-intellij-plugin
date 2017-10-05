@@ -8,16 +8,17 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import org.mule.tooling.lang.dw.parser.psi.*;
 
-public class WeaveArrayDeconstructExpressionImpl extends WeaveExpressionImpl implements WeaveArrayDeconstructExpression {
+public class WeaveObjectSelectorImpl extends ASTWrapperPsiElement implements WeaveObjectSelector {
 
-  public WeaveArrayDeconstructExpressionImpl(ASTNode node) {
+  public WeaveObjectSelectorImpl(ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull WeaveVisitor visitor) {
-    visitor.visitArrayDeconstructExpression(this);
+    visitor.visitObjectSelector(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -26,9 +27,21 @@ public class WeaveArrayDeconstructExpressionImpl extends WeaveExpressionImpl imp
   }
 
   @Override
-  @NotNull
-  public List<WeaveExpression> getExpressionList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, WeaveExpression.class);
+  @Nullable
+  public WeaveDeclaredNamespace getDeclaredNamespace() {
+    return findChildByClass(WeaveDeclaredNamespace.class);
+  }
+
+  @Override
+  @Nullable
+  public WeaveIdentifier getIdentifier() {
+    return findChildByClass(WeaveIdentifier.class);
+  }
+
+  @Override
+  @Nullable
+  public WeaveStringLiteral getStringLiteral() {
+    return findChildByClass(WeaveStringLiteral.class);
   }
 
 }

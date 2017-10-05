@@ -108,6 +108,7 @@ EXPONENT_PART=[Ee]["+""-"]?({DIGIT})*
   "^"                         { return XOR; }
   "&"                         { return AND; }
   "true"                      { return TRUE_LITERAL;}
+  "do"                         { return DO_KEYWORD;}
   "from"                     { return FROM_KEYWORD;}
   "false"                     { return FALSE_LITERAL;}
   "null"                      { return NULL_LITERAL_KEYWORD;}

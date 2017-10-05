@@ -5,9 +5,12 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface WeaveArrayDeconstructExpression extends WeaveExpression {
+public interface WeaveDoExpression extends WeaveExpression {
 
-  @NotNull
-  List<WeaveExpression> getExpressionList();
+  @Nullable
+  WeaveDirective getDirective();
+
+  @Nullable
+  WeaveExpression getExpression();
 
 }

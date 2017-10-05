@@ -24,10 +24,6 @@ public class WeaveVisitor extends PsiElementVisitor {
     visitExpression(o);
   }
 
-  public void visitArrayDeconstructExpression(@NotNull WeaveArrayDeconstructExpression o) {
-    visitExpression(o);
-  }
-
   public void visitArrayDeconstructPattern(@NotNull WeaveArrayDeconstructPattern o) {
     visitPattern(o);
   }
@@ -125,6 +121,10 @@ public class WeaveVisitor extends PsiElementVisitor {
 
   public void visitDirective(@NotNull WeaveDirective o) {
     visitPsiElement(o);
+  }
+
+  public void visitDoExpression(@NotNull WeaveDoExpression o) {
+    visitExpression(o);
   }
 
   public void visitDocument(@NotNull WeaveDocument o) {
