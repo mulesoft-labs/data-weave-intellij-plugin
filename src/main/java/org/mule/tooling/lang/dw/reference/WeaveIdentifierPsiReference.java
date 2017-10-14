@@ -40,7 +40,7 @@ public class WeaveIdentifierPsiReference extends PsiReferenceBase<PsiElement> {
           return function.get();
         } else {
           Optional<? extends PsiElement> type = WeavePsiUtils.findType(myElement, variableName);
-          return type.orElseGet(null);
+          return type.orElse(null);
         }
       }
     }

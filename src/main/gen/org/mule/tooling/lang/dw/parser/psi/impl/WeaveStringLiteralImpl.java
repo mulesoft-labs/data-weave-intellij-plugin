@@ -2,15 +2,19 @@
 package org.mule.tooling.lang.dw.parser.psi.impl;
 
 import java.util.List;
+
+import com.intellij.psi.LiteralTextEscaper;
+import com.intellij.psi.PsiLanguageInjectionHost;
 import org.jetbrains.annotations.*;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.*;
+import org.mule.tooling.lang.dw.parser.psi.WeaveStringLiteralMixin;
 import org.mule.tooling.lang.dw.parser.psi.*;
 
-public class WeaveStringLiteralImpl extends WeaveExpressionImpl implements WeaveStringLiteral {
+public class WeaveStringLiteralImpl extends WeaveStringLiteralMixin implements WeaveStringLiteral {
 
   public WeaveStringLiteralImpl(ASTNode node) {
     super(node);

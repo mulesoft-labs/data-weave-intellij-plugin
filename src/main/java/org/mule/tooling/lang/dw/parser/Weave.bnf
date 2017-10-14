@@ -434,7 +434,11 @@ BooleanLiteral ::= TRUE_LITERAL
 
 StringLiteral ::= DOUBLE_QUOTED_STRING
                       | BACKTIKED_QUOTED_STRING
-                      | SINGLE_QUOTED_STRING { methods = [getValue] }
+                      | SINGLE_QUOTED_STRING
+{
+    methods = [getValue]
+     mixin = "org.mule.tooling.lang.dw.parser.psi.WeaveStringLiteralMixin"
+}
 
 AnyDateLiteral::= RULE_ANY_DATE
 

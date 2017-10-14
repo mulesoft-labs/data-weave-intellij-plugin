@@ -56,6 +56,7 @@
 
         <programRunner id="WeaveDebug" implementation="org.mule.tooling.lang.dw.debug.WeaveDebuggerRunner" order="last"/>
         <languageInjector implementation="org.mule.tooling.lang.dw.injector.MuleLanguageInjector"/>
+        <languageInjector implementation="org.mule.tooling.lang.dw.injector.StringInterpolationLanguageInjector"/>
     </extensions>
 
     <application-components>
