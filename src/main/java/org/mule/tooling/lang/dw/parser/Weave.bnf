@@ -52,6 +52,8 @@
         MULTIPLY="*"
         DIVISION="/"
         MODULO="%"
+        LEFT_SHIFT="<<"
+        RIGHT_SHIFT=">>"
 
         AT="@"
         QUESTION="?"
@@ -138,10 +140,17 @@ VariableDirective::= 'var' VariableDefinition
 OutputDirective::= OUTPUT_DIRECTIVE_KEYWORD (":" Type)? DataFormat Options?
 
 TypeDirective::= 'type' Identifier TypeParameterDeclaration? '=' (TypeLiteral | UndefinedLiteral)
+{
+     methods = [getName setName getNameIdentifier]
+     implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
+     mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
+     pin=1
+}
 
 FunctionDirective::= 'fun' FunctionDefinition
 
-FunctionDefinition::=Identifier TypeParameterDeclaration? L_PARREN ( FunctionParameter ( ',' FunctionParameter )* )? R_PARREN ( ":" Type "=" | "=")? Expression {
+FunctionDefinition::=Identifier TypeParameterDeclaration? L_PARREN ( FunctionParameter ( ',' FunctionParameter )* )? R_PARREN ( ":" Type "=" | "=")? Expression
+{
      methods = [getName setName getNameIdentifier]
      implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
      mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
@@ -278,10 +287,10 @@ AdditionSubtractionExpression
          ::= Expression  ( '+' | '-' ) Expression {pin=2}
 
 RightShiftExpression
-         ::= Expression '>''>' MultiplicationDivisionExpression {pin=3}
+         ::= Expression '>>' MultiplicationDivisionExpression {pin=2}
 
 LeftShiftExpression
-         ::= Expression '<''<' MultiplicationDivisionExpression {pin=3}
+         ::= Expression '<<' MultiplicationDivisionExpression {pin=2}
 
 MultiplicationDivisionExpression ::= Expression  ( '*' | '/' ) Expression {pin=2}
 

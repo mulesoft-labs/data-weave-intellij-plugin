@@ -159,6 +159,7 @@ public interface WeaveTypes {
   IElementType INPUT_DIRECTIVE_KEYWORD = new WeaveTokenType("input");
   IElementType INTEGER_LITERAL = new WeaveTokenType("INTEGER_LITERAL");
   IElementType IS = new WeaveTokenType("is");
+  IElementType LEFT_SHIFT = new WeaveTokenType("<<");
   IElementType LESS = new WeaveTokenType("<");
   IElementType LESS_EQUAL = new WeaveTokenType("<=");
   IElementType LINE_COMMENT = new WeaveTokenType("LINE_COMMENT");
@@ -185,6 +186,7 @@ public interface WeaveTypes {
   IElementType PACKAGE_SEPARATOR = new WeaveTokenType("::");
   IElementType PLUS = new WeaveTokenType("+");
   IElementType QUESTION = new WeaveTokenType("?");
+  IElementType RIGHT_SHIFT = new WeaveTokenType(">>");
   IElementType RULE_ANY_DATE = new WeaveTokenType("RULE_ANY_DATE");
   IElementType RULE_ANY_REGEX = new WeaveTokenType("RULE_ANY_REGEX");
   IElementType RULE_NULL_LITERAL = new WeaveTokenType("null");

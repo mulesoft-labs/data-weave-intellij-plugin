@@ -3025,11 +3025,11 @@ public class WeaveParser implements PsiParser, LightPsiParser {
         r = Expression(b, l, 4);
         exit_section_(b, l, m, ADDITION_SUBTRACTION_EXPRESSION, r, true, null);
       }
-      else if (g < 4 && parseTokensSmart(b, 0, GREATER, GREATER)) {
+      else if (g < 4 && consumeTokenSmart(b, RIGHT_SHIFT)) {
         r = Expression(b, l, 3);
         exit_section_(b, l, m, RIGHT_SHIFT_EXPRESSION, r, true, null);
       }
-      else if (g < 4 && parseTokensSmart(b, 0, LESS, LESS)) {
+      else if (g < 4 && consumeTokenSmart(b, LEFT_SHIFT)) {
         r = Expression(b, l, 3);
         exit_section_(b, l, m, LEFT_SHIFT_EXPRESSION, r, true, null);
       }

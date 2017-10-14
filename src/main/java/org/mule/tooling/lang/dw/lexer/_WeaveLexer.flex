@@ -70,6 +70,8 @@ EXPONENT_PART=[Ee]["+""-"]?({DIGIT})*
   "-}"                         { return CLOSE_ORDERED_KEYWORD; }
   "["                         { return L_BRACKET; }
   "]"                         { return R_BRACKET; }
+  "<<"                          {return LEFT_SHIFT;}
+  ">>"                          {return RIGHT_SHIFT;}
   "<:"                        { return SUB_TYPE;}
   ","                         { return COMMA; }
   "::"                         { return PACKAGE_SEPARATOR; }

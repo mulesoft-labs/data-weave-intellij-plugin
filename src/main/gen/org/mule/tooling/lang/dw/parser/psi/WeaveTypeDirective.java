@@ -5,7 +5,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface WeaveTypeDirective extends WeaveDirective {
+public interface WeaveTypeDirective extends WeaveDirective, WeaveNamedElement {
 
   @Nullable
   WeaveIdentifier getIdentifier();
@@ -18,5 +18,11 @@ public interface WeaveTypeDirective extends WeaveDirective {
 
   @Nullable
   WeaveUndefinedLiteral getUndefinedLiteral();
+
+  String getName();
+
+  PsiElement setName(String newName);
+
+  PsiElement getNameIdentifier();
 
 }

@@ -8,9 +8,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.*;
+import org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl;
 import org.mule.tooling.lang.dw.parser.psi.*;
 
-public class WeaveTypeDirectiveImpl extends WeaveDirectiveImpl implements WeaveTypeDirective {
+public class WeaveTypeDirectiveImpl extends WeaveNamedElementImpl implements WeaveTypeDirective {
 
   public WeaveTypeDirectiveImpl(ASTNode node) {
     super(node);

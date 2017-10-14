@@ -36,7 +36,12 @@ public class WeaveIdentifierPsiReference extends PsiReferenceBase<PsiElement> {
         return variables.get();
       } else {
         Optional<? extends PsiElement> function = WeavePsiUtils.findFunction(myElement, variableName);
-        return function.orElse(null);
+        if (function.isPresent()) {
+          return function.get();
+        } else {
+          Optional<? extends PsiElement> type = WeavePsiUtils.findType(myElement, variableName);
+          return type.orElseGet(null);
+        }
       }
     }
   }

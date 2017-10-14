@@ -23,7 +23,18 @@ import java.util.stream.Collectors;
 
 public class WeavePsiUtils {
 
-  public static List<IElementType> KeyWordsToken = Arrays.asList(WeaveTypes.IF, WeaveTypes.CASE_KEYWORD, WeaveTypes.IS, WeaveTypes.AS, WeaveTypes.UNLESS, WeaveTypes.ELSE, WeaveTypes.USING, WeaveTypes.DEFAULT, WeaveTypes.MATCHES_KEYWORD, WeaveTypes.MATCH_KEYWORD);
+  public static List<IElementType> KeyWordsToken = Arrays.asList(WeaveTypes.IF,
+          WeaveTypes.CASE_KEYWORD,
+          WeaveTypes.IS,
+          WeaveTypes.AS,
+          WeaveTypes.UNLESS,
+          WeaveTypes.ELSE,
+          WeaveTypes.USING,
+          WeaveTypes.DEFAULT,
+          WeaveTypes.MATCHES_KEYWORD,
+          WeaveTypes.MATCH_KEYWORD,
+          WeaveTypes.DO_KEYWORD
+  );
 
   public static List<IElementType> DirectivesToken =
           Arrays.asList(WeaveTypes.INPUT_DIRECTIVE_KEYWORD, WeaveTypes.OUTPUT_DIRECTIVE_KEYWORD, WeaveTypes.NAMESPACE_DIRECTIVE_KEYWORD, WeaveTypes.TYPE_DIRECTIVE_KEYWORD
@@ -119,6 +130,25 @@ public class WeavePsiUtils {
       parent = parent.getParent();
     }
     return result;
+  }
+
+  public static List<WeaveNamedElement> findTypes(@NotNull PsiElement element) {
+    final List<WeaveNamedElement> result = new ArrayList<>();
+    PsiElement parent = element.getParent();
+    while (isNotWeaveFile(parent)) {
+      if (parent instanceof WeaveDocument) {
+        final Collection<WeaveTypeDirective> functionDirectives = PsiTreeUtil.findChildrenOfType(((WeaveDocument) parent).getHeader(), WeaveTypeDirective.class);
+        result.addAll(functionDirectives);
+        break;
+      }
+      parent = parent.getParent();
+    }
+    return result;
+  }
+
+  public static Optional<? extends PsiElement> findType(PsiElement element, final String functionName) {
+    final List<WeaveNamedElement> types = findTypes(element);
+    return types.stream().filter(weaveVariableDefinition -> functionName.equals(weaveVariableDefinition.getName())).findFirst();
   }
 
   public static Optional<? extends PsiElement> findFunction(PsiElement element, final String functionName) {

@@ -418,6 +418,7 @@ public class WeaveVisitor extends PsiElementVisitor {
 
   public void visitTypeDirective(@NotNull WeaveTypeDirective o) {
     visitDirective(o);
+    // visitNamedElement(o);
   }
 
   public void visitTypeParameter(@NotNull WeaveTypeParameter o) {
