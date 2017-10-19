@@ -31,7 +31,11 @@ public abstract class WeaveNamedElementImpl extends ASTWrapperPsiElement impleme
   }
 
   public PsiReference getReference() {
-    return new WeaveIdentifierPsiReference(this);
+    if (getNameIdentifier() != null) {
+      return new WeaveIdentifierPsiReference(this);
+    } else {
+      return null;
+    }
   }
 
   @NotNull
