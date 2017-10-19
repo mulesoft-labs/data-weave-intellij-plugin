@@ -139,6 +139,10 @@ public class WeaveVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitDynamicReturn(@NotNull WeaveDynamicReturn o) {
+    visitPsiElement(o);
+  }
+
   public void visitEmptyArrayPattern(@NotNull WeaveEmptyArrayPattern o) {
     visitPattern(o);
   }

@@ -52,8 +52,6 @@
         MULTIPLY="*"
         DIVISION="/"
         MODULO="%"
-        LEFT_SHIFT="<<"
-        RIGHT_SHIFT=">>"
 
         AT="@"
         QUESTION="?"
@@ -149,13 +147,15 @@ TypeDirective::= 'type' Identifier TypeParameterDeclaration? '=' (TypeLiteral | 
 
 FunctionDirective::= 'fun' FunctionDefinition
 
-FunctionDefinition::=Identifier TypeParameterDeclaration? L_PARREN ( FunctionParameter ( ',' FunctionParameter )* )? R_PARREN ( ":" Type "=" | "=")? Expression
+FunctionDefinition::=Identifier TypeParameterDeclaration? L_PARREN ( FunctionParameter ( ',' FunctionParameter )* )? R_PARREN ( ":" (Type | DynamicReturn) "=" | "=")? Expression
 {
      methods = [getName setName getNameIdentifier]
      implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
      mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
      pin=3
 }
+
+DynamicReturn ::= '?'
 
 Schema::= '{' ( SchemaElement ( ',' SchemaElement )* )? '}'
 
@@ -281,16 +281,16 @@ IsExpression
 NotExpression ::= 'not' ValueExpression
 
 GreaterThanExpression
-         ::= Expression  ( '>' | '>=' | '<' | '<=' ) AdditionSubtractionExpression {pin=2}
+         ::= Expression  ( '>' | '>=' | '<' | '<=' ) AdditionSubtractionExpression {pin=3}
 
 AdditionSubtractionExpression
          ::= Expression  ( '+' | '-' ) Expression {pin=2}
 
 RightShiftExpression
-         ::= Expression '>>' MultiplicationDivisionExpression {pin=2}
+         ::= Expression '>''>' MultiplicationDivisionExpression {pin=3}
 
 LeftShiftExpression
-         ::= Expression '<<' MultiplicationDivisionExpression {pin=2}
+         ::= Expression '<''<' MultiplicationDivisionExpression {pin=3}
 
 MultiplicationDivisionExpression ::= Expression  ( '*' | '/' ) Expression {pin=2}
 
@@ -405,7 +405,7 @@ LiteralExpression
            | AnyDateLiteral
            | AnyRegexLiteral
 
-DoExpression ::= 'do' '{' (DoDirectives '---')?  Expression'}'
+DoExpression ::= 'do' '{' (DoDirectives+ '---')?  Expression'}'
 
 
 private DoDirectives

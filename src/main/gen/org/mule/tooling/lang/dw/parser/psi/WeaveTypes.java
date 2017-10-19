@@ -42,6 +42,7 @@ public interface WeaveTypes {
   IElementType DOT_SELECTOR_EXPRESSION = new WeaveElementType("DOT_SELECTOR_EXPRESSION");
   IElementType DO_EXPRESSION = new WeaveElementType("DO_EXPRESSION");
   IElementType DYNAMIC_KEY_VALUE_PAIR = new WeaveElementType("DYNAMIC_KEY_VALUE_PAIR");
+  IElementType DYNAMIC_RETURN = new WeaveElementType("DYNAMIC_RETURN");
   IElementType EMPTY_ARRAY_PATTERN = new WeaveElementType("EMPTY_ARRAY_PATTERN");
   IElementType EMPTY_OBJECT_PATTERN = new WeaveElementType("EMPTY_OBJECT_PATTERN");
   IElementType ENCLOSED_EXPRESSION = new WeaveElementType("ENCLOSED_EXPRESSION");
@@ -159,7 +160,6 @@ public interface WeaveTypes {
   IElementType INPUT_DIRECTIVE_KEYWORD = new WeaveTokenType("input");
   IElementType INTEGER_LITERAL = new WeaveTokenType("INTEGER_LITERAL");
   IElementType IS = new WeaveTokenType("is");
-  IElementType LEFT_SHIFT = new WeaveTokenType("<<");
   IElementType LESS = new WeaveTokenType("<");
   IElementType LESS_EQUAL = new WeaveTokenType("<=");
   IElementType LINE_COMMENT = new WeaveTokenType("LINE_COMMENT");
@@ -186,7 +186,6 @@ public interface WeaveTypes {
   IElementType PACKAGE_SEPARATOR = new WeaveTokenType("::");
   IElementType PLUS = new WeaveTokenType("+");
   IElementType QUESTION = new WeaveTokenType("?");
-  IElementType RIGHT_SHIFT = new WeaveTokenType(">>");
   IElementType RULE_ANY_DATE = new WeaveTokenType("RULE_ANY_DATE");
   IElementType RULE_ANY_REGEX = new WeaveTokenType("RULE_ANY_REGEX");
   IElementType RULE_NULL_LITERAL = new WeaveTokenType("null");
@@ -304,6 +303,9 @@ public interface WeaveTypes {
       }
       else if (type == DYNAMIC_KEY_VALUE_PAIR) {
         return new WeaveDynamicKeyValuePairImpl(node);
+      }
+      else if (type == DYNAMIC_RETURN) {
+        return new WeaveDynamicReturnImpl(node);
       }
       else if (type == EMPTY_ARRAY_PATTERN) {
         return new WeaveEmptyArrayPatternImpl(node);

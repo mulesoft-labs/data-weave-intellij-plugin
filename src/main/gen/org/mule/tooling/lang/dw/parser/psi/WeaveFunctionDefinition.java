@@ -8,6 +8,9 @@ import com.intellij.psi.PsiElement;
 public interface WeaveFunctionDefinition extends WeaveNamedElement {
 
   @Nullable
+  WeaveDynamicReturn getDynamicReturn();
+
+  @Nullable
   WeaveExpression getExpression();
 
   @NotNull

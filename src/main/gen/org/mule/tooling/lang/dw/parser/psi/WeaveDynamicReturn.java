@@ -5,12 +5,6 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface WeaveDoExpression extends WeaveExpression {
-
-  @NotNull
-  List<WeaveDirective> getDirectiveList();
-
-  @Nullable
-  WeaveExpression getExpression();
+public interface WeaveDynamicReturn extends PsiElement {
 
 }

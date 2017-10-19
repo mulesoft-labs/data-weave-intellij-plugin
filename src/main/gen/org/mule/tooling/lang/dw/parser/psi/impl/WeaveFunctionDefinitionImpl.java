@@ -28,6 +28,12 @@ public class WeaveFunctionDefinitionImpl extends WeaveNamedElementImpl implement
 
   @Override
   @Nullable
+  public WeaveDynamicReturn getDynamicReturn() {
+    return findChildByClass(WeaveDynamicReturn.class);
+  }
+
+  @Override
+  @Nullable
   public WeaveExpression getExpression() {
     return findChildByClass(WeaveExpression.class);
   }

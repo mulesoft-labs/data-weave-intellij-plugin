@@ -8,33 +8,22 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import org.mule.tooling.lang.dw.parser.psi.*;
 
-public class WeaveDoExpressionImpl extends WeaveExpressionImpl implements WeaveDoExpression {
+public class WeaveDynamicReturnImpl extends ASTWrapperPsiElement implements WeaveDynamicReturn {
 
-  public WeaveDoExpressionImpl(ASTNode node) {
+  public WeaveDynamicReturnImpl(ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull WeaveVisitor visitor) {
-    visitor.visitDoExpression(this);
+    visitor.visitDynamicReturn(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
     if (visitor instanceof WeaveVisitor) accept((WeaveVisitor)visitor);
     else super.accept(visitor);
-  }
-
-  @Override
-  @NotNull
-  public List<WeaveDirective> getDirectiveList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, WeaveDirective.class);
-  }
-
-  @Override
-  @Nullable
-  public WeaveExpression getExpression() {
-    return findChildByClass(WeaveExpression.class);
   }
 
 }
