@@ -8,8 +8,8 @@ import com.intellij.xdebugger.frame.XValueNode;
 import com.intellij.xdebugger.frame.XValuePlace;
 
 
-import com.mulesoft.weave.debugger.ArrayDebuggerValue;
-import com.mulesoft.weave.debugger.DebuggerValue;
+import org.mule.weave.v2.debugger.ArrayDebuggerValue;
+import org.mule.weave.v2.debugger.DebuggerValue;
 import org.jetbrains.annotations.NotNull;
 
 public class ArrayWeaveValue extends XValue {

@@ -1,24 +1,9 @@
-buildscript {
-    repositories {
-        maven { url "https://plugins.gradle.org/m2/" }
-    }
-
-    dependencies {
-        classpath 'gradle.plugin.org.jetbrains:gradle-intellij-plugin:0.0.43'
-    }
-}
-
-plugins {
-    id 'net.researchgate.release' version '2.3.4'
-}
-
-
+plugins { 
+  id "org.jetbrains.intellij" version "0.2.17" 
+} 
 
 apply plugin: 'org.jetbrains.intellij'
 apply plugin: 'java'
-
-
-
 
 sourceSets {
     main {
@@ -82,31 +67,6 @@ intellij {
 
 dependencies {
     testCompile 'junit:junit:4.+'
-    compile (group: 'com.mulesoft.weave', name: 'debugger', version: '1.2.0-SNAPSHOT')
+    compile (group: 'org.mule.weave', name: 'debugger', version: '2.0.0-SNAPSHOT')
 }
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
-}
-
-release {
-    buildTasks = ['doRelease']
-    // Do not change the tagTemplate value to double quotes or the version will be evaluated before
-    // the SNAPSHOT version is updated to the release version.
-    tagTemplate = 'v$version'
-    git {
-        requireBranch = /^release_v\d+.*$/
-    }
-}
-
-// We aren't building or doing anything interesting for release.
-// We just update the version and generate the tag as CI will handle deployment.
-task doRelease {
-    doLast {
-        println '===============================!!PLEASE READ!!=================================\n\n' +
-                'IMPORTANT:  The release command will trigger the creation of a new release ' +
-                'in Github, the uploading of binaries to github, and the publishing of our plugin' +
-                'to the IntelliJ plugin repository.\n' +
-                'Hit CTRL+C to cancel.\n'
-    }
-}
