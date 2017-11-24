@@ -412,6 +412,7 @@ private DoDirectives
          ::= VariableDirective
            | TypeDirective
            | ImportDirective
+           | NamespaceDirective
            | FunctionDirective {recoverWhile=HeaderRecover}
 
 UndefinedLiteral ::= '?''?''?'
