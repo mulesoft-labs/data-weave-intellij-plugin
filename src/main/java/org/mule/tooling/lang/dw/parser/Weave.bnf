@@ -516,4 +516,4 @@ IdentifierPackage ::= (Identifier '::')*
 
 CustomLoader ::= Identifier"!"
 
-Identifier ::= (DOLLAR_VARIABLE | ID | 'match' |'matches' | 'from')  {methods = [getName] }
+Identifier ::= (DOLLAR_VARIABLE | ID | 'match' |'matches' | 'from' | 'not')  {methods = [getName] }
