@@ -898,6 +898,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   // VariableDirective
   //            | TypeDirective
   //            | ImportDirective
+  //            | NamespaceDirective
   //            | FunctionDirective
   static boolean DoDirectives(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "DoDirectives")) return false;
@@ -906,6 +907,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     r = VariableDirective(b, l + 1);
     if (!r) r = TypeDirective(b, l + 1);
     if (!r) r = ImportDirective(b, l + 1);
+    if (!r) r = NamespaceDirective(b, l + 1);
     if (!r) r = FunctionDirective(b, l + 1);
     exit_section_(b, l, m, r, false, HeaderRecover_parser_);
     return r;
@@ -1235,7 +1237,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // DOLLAR_VARIABLE | ID | 'match' |'matches' | 'from'
+  // DOLLAR_VARIABLE | ID | 'match' |'matches' | 'from' | 'not'
   public static boolean Identifier(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "Identifier")) return false;
     boolean r;
@@ -1245,6 +1247,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     if (!r) r = consumeToken(b, MATCH_KEYWORD);
     if (!r) r = consumeToken(b, MATCHES_KEYWORD);
     if (!r) r = consumeToken(b, FROM_KEYWORD);
+    if (!r) r = consumeToken(b, NOT_KEYWORD);
     exit_section_(b, l, m, r, false, null);
     return r;
   }

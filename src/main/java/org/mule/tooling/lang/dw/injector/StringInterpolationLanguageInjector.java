@@ -15,23 +15,56 @@ import java.util.regex.Pattern;
 
 public class StringInterpolationLanguageInjector implements LanguageInjector {
 
-  static Pattern STRING_INTERPOLATION = Pattern.compile("\\$\\(([^\\)]*)\\)+");
+    static Pattern STRING_INTERPOLATION = Pattern.compile("\\$\\(");
 
-  @Override
-  public void getLanguagesToInject(@NotNull PsiLanguageInjectionHost host,
-                                   @NotNull InjectedLanguagePlaces injectedLanguagePlaces) {
+    @Override
+    public void getLanguagesToInject(@NotNull PsiLanguageInjectionHost host,
+                                     @NotNull InjectedLanguagePlaces injectedLanguagePlaces) {
 
-    if (host.getContainingFile().getFileType().equals(WeaveFileType.getInstance())) {
-      if (host instanceof WeaveStringLiteralMixin) {
-        String text = host.getText();
-        Matcher expressionMatcher = STRING_INTERPOLATION.matcher(text);
-        while (expressionMatcher.find()) {
-          int start = expressionMatcher.start(1);
-          int end = expressionMatcher.end(1);
-          final TextRange expressionTextRange = TextRange.from(start, end - start);
-          injectedLanguagePlaces.addPlace(WeaveLanguage.getInstance(), expressionTextRange, null, null);
+        if (host.getContainingFile().getFileType().equals(WeaveFileType.getInstance())) {
+            if (host instanceof WeaveStringLiteralMixin) {
+                String text = host.getText();
+                Matcher expressionMatcher = STRING_INTERPOLATION.matcher(text);
+                while (expressionMatcher.find()) {
+                    int start = expressionMatcher.start(0);
+                    int end = calculateEndIndex(start, text);
+                    final TextRange expressionTextRange = TextRange.from(start, end - start);
+                    injectedLanguagePlaces.addPlace(WeaveLanguage.getInstance(), expressionTextRange, null, null);
+                }
+            }
         }
-      }
     }
-  }
+
+    private int calculateEndIndex(int start, String text) {
+        int length = text.length();
+        boolean ended = false;
+        int i = start;
+        boolean insideText = false;
+        int openParenthesis = 0;
+        while (!ended && i < length) {
+            switch (text.charAt(i)) {
+                case '\\':
+                    i = i + 1;
+                    break;
+                case '\"':
+                case '`':
+                case '\'':
+                    insideText = !insideText;
+                    break;
+                case '(':
+                    openParenthesis = openParenthesis + 1;
+                    break;
+                case ')':
+                    if (openParenthesis == 0) {
+                        ended = true;
+                    } else {
+                        openParenthesis = openParenthesis - 1;
+                    }
+                    break;
+
+            }
+            i++;
+        }
+        return i - 1;
+    }
 }
