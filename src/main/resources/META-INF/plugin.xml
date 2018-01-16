@@ -1,10 +1,10 @@
 <idea-plugin version="2">
-    <id>org.mule.tooling.intellij.dataweave</id>
-    <name>Data Weave Intellij Plugin.</name>
+    <id>org.mule.tooling.intellij.dataweave.v2</id>
+    <name>DataWeave 2.0 Intellij Plugin.</name>
     <version>2.0-alpha</version>
     <vendor email="achaval@gmail.com" url="https://github.com/machaval/mule-esb-plugin">Mariano Achaval</vendor>
     <description><![CDATA[
-     Data Weave Intellij Plugin. This plugin allows to edit, run debug data weave files.
+     DataWeave 2.0 Intellij Plugin. This plugin allows to edit, run debug data weave files.
     ]]></description>
 
     <idea-version since-build="145"/>
@@ -17,6 +17,10 @@
           <ul>
             <li>Grammar Parsing</li>
             <li>Color Highlighting.</li>
+            <li>Local Refactoring.</li>
+            <li>Run/Debug Script.</li>
+            <li>String Interpolation support.</li>
+            <li>Simple mule config language injection.</li>
           </ul>
         </li>
       </ul>

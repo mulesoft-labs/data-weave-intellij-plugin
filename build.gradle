@@ -56,17 +56,17 @@ intellij {
     updateSinceUntilBuild = false
     downloadSources = false
     sandboxDirectory = "${rootProject.buildDir}/idea-sandbox"
-    pluginName = 'data-weave-plugin'
+    pluginName = 'data-weave-plugin-v2'
     publish {
         username System.getenv('IJ_REPO_USERNAME')
         password System.getenv('IJ_REPO_PASSWORD')
-        pluginId '8458'
+        pluginId '10362'
         channel ijPluginRepoChannel
     }
 }
 
 dependencies {
     testCompile 'junit:junit:4.+'
-    compile (group: 'org.mule.weave', name: 'debugger', version: '2.0.0-SNAPSHOT')
+    compile (group: 'org.mule.weave', name: 'debugger', version: '2.1.0-SNAPSHOT')
 }
 
