@@ -25,9 +25,10 @@ public class StringInterpolationLanguageInjector implements LanguageInjector {
             if (host instanceof WeaveStringLiteralMixin) {
                 String text = host.getText();
                 Matcher expressionMatcher = STRING_INTERPOLATION.matcher(text);
-                while (expressionMatcher.find()) {
-                    int start = expressionMatcher.start(0);
-                    int end = calculateEndIndex(start, text);
+                int end = 0;
+                while (expressionMatcher.find(end)) {
+                    int start = expressionMatcher.end();
+                    end = calculateEndIndex(start, text);
                     final TextRange expressionTextRange = TextRange.from(start, end - start);
                     injectedLanguagePlaces.addPlace(WeaveLanguage.getInstance(), expressionTextRange, null, null);
                 }
@@ -52,13 +53,16 @@ public class StringInterpolationLanguageInjector implements LanguageInjector {
                     insideText = !insideText;
                     break;
                 case '(':
-                    openParenthesis = openParenthesis + 1;
+                    if (!insideText)
+                        openParenthesis = openParenthesis + 1;
                     break;
                 case ')':
-                    if (openParenthesis == 0) {
-                        ended = true;
-                    } else {
-                        openParenthesis = openParenthesis - 1;
+                    if (!insideText) {
+                        if (openParenthesis == 0) {
+                            ended = true;
+                        } else {
+                            openParenthesis = openParenthesis - 1;
+                        }
                     }
                     break;
 
