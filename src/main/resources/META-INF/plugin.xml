@@ -1,8 +1,8 @@
-<idea-plugin version="2">
+<idea-plugin>
     <id>org.mule.tooling.intellij.dataweave.v2</id>
     <name>DataWeave 2.0 Intellij Plugin.</name>
     <version>2.0.1-alpha</version>
-    <vendor email="achaval@gmail.com" url="https://github.com/machaval/mule-esb-plugin">Mariano Achaval</vendor>
+    <vendor email="mariano.achaval@mulesoft.com" url="https://github.com/mulesoft-labs/data-weave-intellij-plugin">Mulesoft</vendor>
     <description><![CDATA[
      DataWeave 2.0 Intellij Plugin. This plugin allows to edit, run debug data weave files.
     ]]></description>
