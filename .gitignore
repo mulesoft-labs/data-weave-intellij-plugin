@@ -3,7 +3,6 @@ build
 .gradle
 *.iml
 **/.idea/**
-*.jar
 *.zip
 .DS_Store
 idea-flex.skeleton
