@@ -49,8 +49,6 @@ task jarSources(type:Jar) {
 }
 assemble.dependsOn jarSources
 
-
-
 intellij {
     version = ideaVersion
     updateSinceUntilBuild = false
