@@ -5,17 +5,18 @@ import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SettingsEditor;
 import org.jetbrains.annotations.NotNull;
 import org.mule.tooling.lang.dw.launcher.configuration.ui.WeaveRunnerConfPanel;
+import org.mule.tooling.lang.dw.launcher.configuration.ui.WeaveTestRunnerConfPanel;
 
 import javax.swing.*;
 import java.util.Collection;
 
 
-public class WeaveRunnerEditor extends SettingsEditor<WeaveConfiguration> {
+public class WeaveTestRunnerEditor extends SettingsEditor<WeaveTestConfiguration> {
 
-  private WeaveRunnerConfPanel configurationPanel;
+  private WeaveTestRunnerConfPanel configurationPanel;
 
-  public WeaveRunnerEditor(WeaveConfiguration runnerConfiguration) {
-    this.configurationPanel = new WeaveRunnerConfPanel(runnerConfiguration.getProject());
+  public WeaveTestRunnerEditor(WeaveTestConfiguration runnerConfiguration) {
+    this.configurationPanel = new WeaveTestRunnerConfPanel(runnerConfiguration.getProject());
     super.resetFrom(runnerConfiguration);
   }
 
@@ -25,7 +26,7 @@ public class WeaveRunnerEditor extends SettingsEditor<WeaveConfiguration> {
    * The values may be stored in disk, if not, set some defaults
    */
   @Override
-  protected void resetEditorFrom(WeaveConfiguration runnerConfiguration) {
+  protected void resetEditorFrom(WeaveTestConfiguration runnerConfiguration) {
     this.configurationPanel.getModuleCombo().setModules(runnerConfiguration.getValidModules());
     Module selectedModule = runnerConfiguration.getModule();
     if (selectedModule == null) {
@@ -36,8 +37,6 @@ public class WeaveRunnerEditor extends SettingsEditor<WeaveConfiguration> {
     }
     this.configurationPanel.getModuleCombo().setSelectedModule(selectedModule);
     this.configurationPanel.getWeaveFile().setText(runnerConfiguration.getWeaveFile());
-    this.configurationPanel.getOutput().setText(runnerConfiguration.getWeaveOutput());
-    this.configurationPanel.getWeaveInputs().setItems(runnerConfiguration.getWeaveInputs());
   }
 
   /**
@@ -47,14 +46,13 @@ public class WeaveRunnerEditor extends SettingsEditor<WeaveConfiguration> {
    * @throws ConfigurationException ex
    */
   @Override
-  protected void applyEditorTo(WeaveConfiguration runnerConfiguration) throws ConfigurationException {
-    runnerConfiguration.setWeaveOutput(this.configurationPanel.getOutput().getText());
+  protected void applyEditorTo(WeaveTestConfiguration runnerConfiguration) throws ConfigurationException {
     runnerConfiguration.setWeaveFile(this.configurationPanel.getWeaveFile().getText());
     final Module selectedModule = this.configurationPanel.getModuleCombo().getSelectedModule();
     if (selectedModule != null) {
       runnerConfiguration.setModule(selectedModule);
     }
-    runnerConfiguration.setWeaveInputs(this.configurationPanel.getWeaveInputs().getItems());
+    runnerConfiguration.setWeaveFile(this.configurationPanel.getWeaveFile().getText());
   }
 
   @NotNull

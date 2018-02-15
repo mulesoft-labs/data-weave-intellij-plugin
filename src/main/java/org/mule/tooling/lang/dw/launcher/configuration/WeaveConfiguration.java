@@ -18,10 +18,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.launcher.configuration.runner.WeaveRunnerCommandLine;
 import org.mule.tooling.lang.dw.launcher.configuration.ui.WeaveInput;
-import org.mule.tooling.lang.dw.util.WeaveExecutableType;
-import org.mule.tooling.lang.dw.util.WeaveSdk;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -31,18 +28,16 @@ public class WeaveConfiguration extends ModuleBasedConfiguration implements Modu
 
   public static final String PREFIX = "DataWeaveConfig-";
   public static final String WEAVE_HOME_FIELD = PREFIX + "WeaveHome";
-  public static final String WEAVE_TYPE_FIELD = PREFIX + "Type";
   public static final String WEAVE_FILE = PREFIX + "WeaveFile";
   public static final String WEAVE_OUTPUT = PREFIX + "WeaveOutput";
   public static final String WEAVE_INPUT = "WeaveInput";
 
 
-  private String weaveHome;
   private Project project;
   private String weaveFile;
   private String weaveOutput;
   private List<WeaveInput> weaveInputs;
-  private WeaveExecutableType fileType = WeaveExecutableType.MAPPING;
+
 
   protected WeaveConfiguration(String name, @NotNull ConfigurationFactory factory, Project project) {
     super(name, new JavaRunConfigurationModule(project, true), factory);
@@ -66,11 +61,6 @@ public class WeaveConfiguration extends ModuleBasedConfiguration implements Modu
   @Override
   public void readExternal(Element element) throws InvalidDataException {
     super.readExternal(element);
-    this.weaveHome = JDOMExternalizerUtil.readField(element, WEAVE_HOME_FIELD);
-    String fileType = JDOMExternalizerUtil.readField(element, WEAVE_TYPE_FIELD);
-    if (fileType != null) {
-      this.fileType = WeaveExecutableType.valueOf(fileType);
-    }
     this.weaveFile = JDOMExternalizerUtil.readField(element, WEAVE_FILE);
     this.weaveOutput = JDOMExternalizerUtil.readField(element, WEAVE_OUTPUT);
     final List<Element> children = element.getChildren(WEAVE_INPUT);
@@ -83,20 +73,12 @@ public class WeaveConfiguration extends ModuleBasedConfiguration implements Modu
     getConfigurationModule().readExternal(element);
   }
 
-  public WeaveExecutableType getFileType() {
-    return fileType;
-  }
 
-  public void setFileType(WeaveExecutableType fileType) {
-    this.fileType = fileType;
-  }
 
   @Override
   public void writeExternal(Element element) throws WriteExternalException {
     super.writeExternal(element);
     // Stores the values of this class into the parent
-    JDOMExternalizerUtil.writeField(element, WEAVE_HOME_FIELD, this.getWeaveHome());
-    JDOMExternalizerUtil.writeField(element, WEAVE_TYPE_FIELD, this.getFileType().name());
     JDOMExternalizerUtil.writeField(element, WEAVE_FILE, this.getWeaveFile());
     JDOMExternalizerUtil.writeField(element, WEAVE_OUTPUT, this.getWeaveOutput());
     JDOMExternalizerUtil.addChildren(element, WEAVE_INPUT, weaveInputs);
@@ -112,17 +94,6 @@ public class WeaveConfiguration extends ModuleBasedConfiguration implements Modu
 
   @Override
   public void checkConfiguration() throws RuntimeConfigurationException {
-    final String muleHome = getWeaveHome();
-    if (!StringUtils.isBlank(muleHome)) {
-      if (!new File(muleHome).exists()) {
-        throw new RuntimeConfigurationException("Weave home does not exists : " + muleHome);
-      }
-
-      if (!WeaveSdk.isValidWeaveHome(getWeaveHome())) {
-        throw new RuntimeConfigurationException(muleHome + " path is not a valid Weave home.");
-      }
-    }
-
     if (StringUtils.isBlank(getWeaveFile())) {
       throw new RuntimeConfigurationException(getWeaveFile() + " weave file can not be empty.");
     }
@@ -134,10 +105,7 @@ public class WeaveConfiguration extends ModuleBasedConfiguration implements Modu
   }
 
 
-  @Nullable
-  public String getWeaveHome() {
-    return weaveHome;
-  }
+
 
   public String getWeaveFile() {
     return weaveFile;
@@ -155,9 +123,6 @@ public class WeaveConfiguration extends ModuleBasedConfiguration implements Modu
     this.weaveOutput = weaveOutput;
   }
 
-  public void setMuleHome(String weaveHome) {
-    this.weaveHome = weaveHome;
-  }
 
   public Module getModule() {
     return getConfigurationModule().getModule();

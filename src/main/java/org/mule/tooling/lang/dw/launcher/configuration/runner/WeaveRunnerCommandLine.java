@@ -45,15 +45,7 @@ public class WeaveRunnerCommandLine extends JavaCommandLineState {
         javaParams.configureByModule(module, JavaParameters.JDK_AND_CLASSES);
       }
     }
-
-    final String weaveHome = model.getWeaveHome();
-    if (StringUtils.isNotBlank(weaveHome)) {
-      final List<File> urLs = WeaveSdk.getJars(weaveHome);
-      for (File jar : urLs) {
-        javaParams.getClassPath().add(jar);
-      }
-    }
-    javaParams.setMainClass(model.getFileType().getMainClass());
+    javaParams.setMainClass("org.mule.weave.v2.runtime.utils.WeaveRunner");
 
     //Add default vm parameters
     javaParams.getVMParametersList().add("-Xms1024m");

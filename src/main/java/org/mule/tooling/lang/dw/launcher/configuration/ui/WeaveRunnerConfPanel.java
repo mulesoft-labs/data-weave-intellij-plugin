@@ -19,7 +19,7 @@ import java.util.Comparator;
 
 public class WeaveRunnerConfPanel {
 
-  private TextFieldWithBrowseButton weaveHome;
+
   private JPanel mainPanel;
   private ModulesComboBox moduleCombo;
   private JTextField output;
@@ -31,16 +31,10 @@ public class WeaveRunnerConfPanel {
 
   public WeaveRunnerConfPanel(final Project project) {
     this.project = project;
-    final FileChooserDescriptor descriptor = new FileChooserDescriptor(false, true, false, false, false, false);
-    getWeaveHome().addBrowseFolderListener("Select Weave Home", "Select weave home", project, descriptor);
-
     final FileChooserDescriptor waveDescriptor = new FileChooserDescriptor(true, false, false, false, false, false)
-            .withHideIgnored(true).withShowHiddenFiles(false).withFileFilter(new Condition<VirtualFile>() {
-              @Override
-              public boolean value(VirtualFile virtualFile) {
-                String fn = virtualFile.getName().toLowerCase();
-                return (fn.endsWith(".wev") || fn.endsWith(".dw"));
-              }
+            .withHideIgnored(true).withShowHiddenFiles(false).withFileFilter(virtualFile -> {
+              String fn = virtualFile.getName().toLowerCase();
+              return (fn.endsWith(".dwl"));
             });
     getWeaveFile().addBrowseFolderListener("Select Weave File", "Select Weave File", project, waveDescriptor);
 
@@ -77,9 +71,6 @@ public class WeaveRunnerConfPanel {
     return mainPanel;
   }
 
-  public TextFieldWithBrowseButton getWeaveHome() {
-    return weaveHome;
-  }
 
   public ModulesComboBox getModuleCombo() {
     return moduleCombo;

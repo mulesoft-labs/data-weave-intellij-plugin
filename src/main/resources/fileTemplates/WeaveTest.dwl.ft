@@ -1,0 +1,6 @@
+%dw 2.0
+import * from dw::test::Tests
+---
+"Test ${NAME}" describedBy [
+
+]

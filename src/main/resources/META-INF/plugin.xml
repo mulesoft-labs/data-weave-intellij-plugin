@@ -30,9 +30,13 @@
     <extensions defaultExtensionNs="com.intellij">
 
         <!--Data Weave-->
+        <testFramework implementation="org.mule.tooling.lang.dw.testintegration.WeaveTestFramework" order="first"/>
 
         <configurationType implementation="org.mule.tooling.lang.dw.launcher.configuration.WeaveConfigurationType"/>
         <runConfigurationProducer implementation="org.mule.tooling.lang.dw.launcher.configuration.WeaveConfigurationProducer"/>
+
+        <configurationType implementation="org.mule.tooling.lang.dw.launcher.configuration.WeaveTestConfigurationType"/>
+        <runConfigurationProducer implementation="org.mule.tooling.lang.dw.launcher.configuration.WeaveTestConfigurationProducer"/>
 
         <fileTypeFactory implementation="org.mule.tooling.lang.dw.WeaveFileTypeFactory"/>
         <lang.parserDefinition language="Weave" implementationClass="org.mule.tooling.lang.dw.parser.WeaveParserDefinition"/>
