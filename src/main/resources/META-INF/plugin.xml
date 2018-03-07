@@ -69,11 +69,17 @@
         <completion.contributor language="Weave"
                                 implementationClass="org.mule.tooling.lang.dw.completion.WeaveCompletionContributor"/>
 
+
+
         <xdebugger.breakpointType implementation="org.mule.tooling.lang.dw.debug.breakpoint.WeaveBreakpointType"/>
 
         <programRunner id="WeaveDebug" implementation="org.mule.tooling.lang.dw.debug.WeaveDebuggerRunner" order="last"/>
         <languageInjector implementation="org.mule.tooling.lang.dw.injector.MuleLanguageInjector"/>
         <languageInjector implementation="org.mule.tooling.lang.dw.injector.StringInterpolationLanguageInjector"/>
+
+
+        <toolWindow id="Design Center" anchor="bottom"
+                    factoryClass="org.mule.tooling.lang.browser.BrowserToolWindowFactory"/>
     </extensions>
 
     <application-components>

@@ -15,7 +15,6 @@ public class WeaveSuspendContext extends XSuspendContext {
   private WeaveExecutionStack weaveExecutionStack;
 
   public WeaveSuspendContext(DebuggerClient client, OnFrameEvent frame, XDebugSession session, VirtualFile file) {
-
     weaveExecutionStack = new WeaveExecutionStack(client, frame, WEAVE_STACK, session, file);
   }
 

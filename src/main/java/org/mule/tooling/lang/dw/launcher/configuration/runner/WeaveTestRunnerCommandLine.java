@@ -33,8 +33,6 @@ public class WeaveTestRunnerCommandLine extends JavaCommandLineState {
         this.isDebug = DefaultDebugExecutor.EXECUTOR_ID.equals(environment.getExecutor().getId());
         this.configuration = configuration;
     }
-    //TODO view AbstractTestRunConfiguration from ScalaPlugin
-    //com.intellij.execution.testframework.sm.SMTestRunnerConnectionUtil.createAndAttachConsole() also
 
     @Override
     protected JavaParameters createJavaParameters() throws ExecutionException {
@@ -50,8 +48,6 @@ public class WeaveTestRunnerCommandLine extends JavaCommandLineState {
         //Add default vm parameters
         javaParams.getVMParametersList().add("-Xms1024m");
         javaParams.getVMParametersList().add("-Xmx1024m");
-        javaParams.getVMParametersList().add("-XX:PermSize=256m");
-        javaParams.getVMParametersList().add("-XX:MaxPermSize=256m");
         javaParams.getVMParametersList().add("-XX:+HeapDumpOnOutOfMemoryError");
         javaParams.getVMParametersList().add("-XX:+AlwaysPreTouch");
         javaParams.getVMParametersList().add("-XX:NewSize=512m");
@@ -78,7 +74,6 @@ public class WeaveTestRunnerCommandLine extends JavaCommandLineState {
     @NotNull
     @Override
     public ExecutionResult execute(@NotNull Executor executor, @NotNull ProgramRunner runner) throws ExecutionException {
-        System.setProperty("idea.smrunner.debug", "true");
         ProcessHandler processHandler = startProcess();
         RunConfiguration runConfiguration = getConfiguration();
         TestConsoleProperties properties = new SMTRunnerConsoleProperties(runConfiguration, "WeaveTest", executor);

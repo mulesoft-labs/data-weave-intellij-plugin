@@ -82,7 +82,7 @@ public class WeaveDebuggerRunner extends DefaultProgramRunner {
     @Override
     public void run() {
       int i = 0;
-      while (i < 50) {
+      while (i < 100) {
         try {
           System.out.println("Trying to connect " + i);
           localhost.connect();

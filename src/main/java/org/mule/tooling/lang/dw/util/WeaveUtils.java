@@ -1,20 +1,17 @@
 package org.mule.tooling.lang.dw.util;
 
-import com.intellij.openapi.diagnostic.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.mule.tooling.lang.dw.parser.psi.*;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 
 public class WeaveUtils {
 
-    final static Logger logger = Logger.getInstance(WeaveUtils.class);
-
     public static boolean isTestFile(WeaveDocument document) {
+        if (document == null)
+            return false;
         WeaveHeader header = document.getHeader();
         if (header != null) {
             return header.getDirectiveList().stream().anyMatch((directive) -> {

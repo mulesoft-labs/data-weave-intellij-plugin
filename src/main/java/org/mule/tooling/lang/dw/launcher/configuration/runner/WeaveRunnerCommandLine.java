@@ -50,8 +50,6 @@ public class WeaveRunnerCommandLine extends JavaCommandLineState {
     //Add default vm parameters
     javaParams.getVMParametersList().add("-Xms1024m");
     javaParams.getVMParametersList().add("-Xmx1024m");
-    javaParams.getVMParametersList().add("-XX:PermSize=256m");
-    javaParams.getVMParametersList().add("-XX:MaxPermSize=256m");
     javaParams.getVMParametersList().add("-XX:+HeapDumpOnOutOfMemoryError");
     javaParams.getVMParametersList().add("-XX:+AlwaysPreTouch");
     javaParams.getVMParametersList().add("-XX:NewSize=512m");
