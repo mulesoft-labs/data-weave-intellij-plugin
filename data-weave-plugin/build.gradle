@@ -1,0 +1,21 @@
+sourceSets {
+    main {
+        java {
+            srcDir 'src/main/gen'
+        }
+    }
+}
+
+intellij {
+    pluginName = 'data-weave-plugin-v2'
+}
+repositories {
+    mavenLocal()
+}
+
+dependencies {
+    testCompile 'junit:junit:4.+'
+    compile(group: 'org.mule.weave', name: 'debugger', version: '2.1.1-SNAPSHOT')
+    compile(group: 'org.mule.weave', name: 'dw-lsp', version: '2.1.1-lsp-SNAPSHOT')
+}
+

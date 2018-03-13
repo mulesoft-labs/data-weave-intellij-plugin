@@ -1,77 +1,61 @@
-plugins { 
-  id "org.jetbrains.intellij" version "0.2.17" 
-} 
+plugins {
+    id "org.jetbrains.intellij" version "0.2.17"
+}
 
-apply plugin: 'org.jetbrains.intellij'
-apply plugin: 'java'
+subprojects {
 
-sourceSets {
-    main {
-        java {
-            srcDir 'src/main/gen'
+    apply plugin: 'org.jetbrains.intellij'
+    apply plugin: 'java'
+
+
+    configurations {
+        gen
+    }
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven {
+            url "http://central.maven.org/maven2/"
+        }
+        maven {
+            url 'https://oss.sonatype.org/content/repositories/snapshots'
+        }
+        maven {
+            url "https://repository.mulesoft.org/releases/"
+        }
+        maven {
+            url "http://repository.mulesoft.org/snapshots/"
+        }
+        maven {
+            url "https://repository.mulesoft.org/nexus/content/repositories/releases"
+        }
+    }
+
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
+    tasks.withType(JavaCompile) { options.encoding = 'UTF-8' }
+    group = 'org.mule.tooling.intellij'
+
+    task jarSources(type: Jar) {
+        from sourceSets.main.allSource
+        classifier = 'sources'
+    }
+
+    assemble.dependsOn jarSources
+
+    intellij {
+        version = ideaVersion
+        updateSinceUntilBuild = false
+        downloadSources = false
+        sandboxDirectory = "${rootProject.buildDir}/idea-sandbox"
+        publish {
+            username System.getenv('IJ_REPO_USERNAME')
+            password System.getenv('IJ_REPO_PASSWORD')
+            pluginId '10362'
+            channel ijPluginRepoChannel
         }
     }
 }
 
-configurations {
-    gen
-}
-
-repositories {
-//        mavenLocal()
-    mavenCentral()
-    maven {
-        url "http://central.maven.org/maven2/"
-    }
-    maven {
-        url 'https://oss.sonatype.org/content/repositories/snapshots'
-    }
-    maven {
-        url "https://repository.mulesoft.org/releases/"
-    }
-    maven {
-        url "http://repository.mulesoft.org/snapshots/"
-    }
-    maven {
-        url "https://repository.mulesoft.org/nexus/content/repositories/releases"
-    }
-}
-
-
-sourceCompatibility = javaVersion
-targetCompatibility = javaVersion
-tasks.withType(JavaCompile) { options.encoding = 'UTF-8' }
-group = 'org.mule.tooling.intellij'
-
-task jarSources(type:Jar) {
-    from sourceSets.main.allSource
-    classifier = 'sources'
-}
-assemble.dependsOn jarSources
-
-intellij {
-    version = ideaVersion
-    updateSinceUntilBuild = false
-    downloadSources = false
-    sandboxDirectory = "${rootProject.buildDir}/idea-sandbox"
-    pluginName = 'data-weave-plugin-v2'
-    publish {
-        username System.getenv('IJ_REPO_USERNAME')
-        password System.getenv('IJ_REPO_PASSWORD')
-        pluginId '10362'
-        channel ijPluginRepoChannel
-    }
-}
-
-dependencies {
-    compile files('lib/jxbrowser-6.19.jar',
-            'lib/jxbrowser-linux64-6.19.jar',
-            'lib/jxbrowser-mac-6.19.jar',
-            'lib/jxbrowser-win32-6.19.jar',
-            'lib/license.jar'
-    )
-
-    testCompile 'junit:junit:4.+'
-    compile (group: 'org.mule.weave', name: 'debugger', version: '2.1.0-SNAPSHOT')
-}
 

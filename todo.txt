@@ -1,0 +1,25 @@
+Intellij snippets
+
+Module Interesting stuff
+
+* com.intellij.openapi.roots.ModuleRootManager
+* final Module module = ModuleUtil.findModuleForFile(virtualFile, project);
+
+
+public class PsiUtils {
+    public static List<VirtualFile> findFileByRelativePath(@NotNull Project project, @NotNull String fileRelativePath) {
+       String relativePath = fileRelativePath.startsWith("/") ? fileRelativePath : "/" + fileRelativePath;
+        Set<FileType> fileTypes = Collections.singleton(FileTypeManager.getInstance().getFileTypeByFileName(relativePath));
+        final List<VirtualFile> fileList = new ArrayList<>();
+        FileBasedIndex.getInstance().processFilesContainingAllKeys(FileTypeIndex.NAME, fileTypes, GlobalSearchScope.projectScope(project), null, virtualFile -> {
+           if (virtualFile.getPath().endsWith(relativePath)) {
+              fileList.add(virtualFile);
+           }
+           return true;
+        });
+        return fileList;
+     }
+}
+
+TODO Implement
+WeaveQualifiedNameProvider
