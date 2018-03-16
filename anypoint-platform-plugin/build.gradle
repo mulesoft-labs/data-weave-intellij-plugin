@@ -1,0 +1,23 @@
+version '2.0.2'
+
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile files(
+            '../lib/jxbrowser-6.19.jar',
+            '../lib/jxbrowser-linux64-6.19.jar',
+            '../lib/jxbrowser-mac-6.19.jar',
+            '../lib/jxbrowser-win32-6.19.jar',
+            '../lib/license.jar',
+    )
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+

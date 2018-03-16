@@ -41,7 +41,7 @@ public class DataWeaveServiceManager extends AbstractProjectComponent {
             String uri = completionParameters.getOriginalFile().getVirtualFile().getUrl();
             final TextDocumentIdentifier textDocument = new TextDocumentIdentifier(uri);
             final Editor editor = completionParameters.getEditor();
-            dwTextDocumentService.didOpen(new DidOpenTextDocumentParams(new TextDocumentItem(uri, "DW", 1, "")));
+            dwTextDocumentService.didOpen(new DidOpenTextDocumentParams(new TextDocumentItem(uri, "DW", 1, completionParameters.getEditor().getDocument().getText())));
             final int offset = completionParameters.getOffset();
             final Position position = LSPUtils.logicalToLSPPos(editor.offsetToLogicalPosition(offset));
             final TextDocumentPositionParams textDocumentPositionParams = new TextDocumentPositionParams(textDocument, position);

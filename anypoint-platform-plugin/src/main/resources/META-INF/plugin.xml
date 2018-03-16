@@ -1,0 +1,47 @@
+<idea-plugin>
+    <id>org.mule.tooling.intellij.anypointplatform.v2</id>
+    <name>Anypoint Platform Intellij Plugin.</name>
+    <version>2.0.3</version>
+    <vendor email="mariano.achaval@mulesoft.com" url="https://github.com/mulesoft-labs/data-weave-intellij-plugin">
+        Mulesoft
+    </vendor>
+    <description><![CDATA[
+     Anypoint platform plugin
+    ]]></description>
+
+    <idea-version since-build="145"/>
+
+    <change-notes><![CDATA[
+    ]]>
+    </change-notes>
+
+    <extensions defaultExtensionNs="com.intellij">
+
+        <applicationConfigurable instance="org.mule.tooling.platform.settings.PlatformSettings" id="AnypointPlatform"
+                                 groupId="root" displayName="Anypoint Platform"/>
+        <applicationService id="PlatformState"
+                            serviceInterface="org.mule.tooling.platform.settings.PlatformSettingsState"
+                            serviceImplementation="org.mule.tooling.platform.settings.PlatformSettingsState"/>
+        <applicationService id="LoginStorageState"
+                            serviceInterface="org.mule.tooling.platform.LoginStorageState"
+                            serviceImplementation="org.mule.tooling.platform.LoginStorageState"/>
+
+    </extensions>
+
+    <project-components>
+        <component>
+            <implementation-class>org.mule.tooling.platform.LoginStatusVisualizer</implementation-class>
+        </component>
+    </project-components>
+    <application-components>
+        <component>
+            <implementation-class>org.mule.tooling.platform.LoginManager</implementation-class>
+        </component>
+    </application-components>
+
+
+    <actions>
+
+    </actions>
+
+</idea-plugin>

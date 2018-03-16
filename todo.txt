@@ -21,5 +21,18 @@ public class PsiUtils {
      }
 }
 
+///////
+
+
+ApplicationManager.getApplication().invokeLater(() -> {
+      StatusBar statusBar = WindowManager.getInstance().getStatusBar(project);
+      if (statusBar != null && !isDisposed()) {
+        statusBar.addWidget(widget, "after " + (SystemInfo.isMac ? "Encoding" : "InsertOverwrite"), project);
+        subscribeToMappingChanged();
+        subscribeToRepoChangeEvents(project);
+        update();
+      }
+    }, project.getDisposed());
+
 TODO Implement
 WeaveQualifiedNameProvider
