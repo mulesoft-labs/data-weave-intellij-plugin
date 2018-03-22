@@ -60,12 +60,6 @@ public class IntellijVirtualFileSystemAdaptor implements VirtualFileSystem {
         return new IntellijWeaveResourceResolver(project, this);
     }
 
-    @Override
-    public org.mule.weave.v2.editor.VirtualFile[] list() {
-        //TODO review what is needed here
-        return new org.mule.weave.v2.editor.VirtualFile[0];
-    }
-
     public static class IntellijWeaveResourceResolver implements WeaveResourceResolver {
 
         private Project project;
