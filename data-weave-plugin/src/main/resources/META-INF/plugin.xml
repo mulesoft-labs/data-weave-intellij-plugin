@@ -74,7 +74,7 @@
         <completion.contributor language="Weave"
                                 implementationClass="org.mule.tooling.lang.dw.completion.WeaveCompletionContributor"/>
 
-
+        <qualifiedNameProvider implementation="org.mule.tooling.lang.dw.qn.WeaveQualifiedNameProvider"/>
         <xdebugger.breakpointType implementation="org.mule.tooling.lang.dw.debug.breakpoint.WeaveBreakpointType"/>
 
         <programRunner id="WeaveDebug" implementation="org.mule.tooling.lang.dw.debug.WeaveDebuggerRunner"

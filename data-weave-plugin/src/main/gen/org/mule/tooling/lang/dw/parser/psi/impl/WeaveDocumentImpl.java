@@ -43,4 +43,18 @@ public class WeaveDocumentImpl extends ASTWrapperPsiElement implements WeaveDocu
     return WeavePsiImplUtils.getPresentation(this);
   }
 
+  @Nullable
+  public String getQualifiedName() {
+    return WeavePsiImplUtils.getQualifiedName(this);
+  }
+
+  @Nullable
+  public String getName() {
+    return WeavePsiImplUtils.getName(this);
+  }
+
+  public WeaveDocument setName(String name) {
+    return WeavePsiImplUtils.setName(this, name);
+  }
+
 }

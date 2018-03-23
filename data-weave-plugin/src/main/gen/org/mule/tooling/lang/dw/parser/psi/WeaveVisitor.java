@@ -5,6 +5,7 @@ import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.NavigatablePsiElement;
+import com.intellij.psi.PsiQualifiedNamedElement;
 
 public class WeaveVisitor extends PsiElementVisitor {
 
@@ -129,6 +130,7 @@ public class WeaveVisitor extends PsiElementVisitor {
 
   public void visitDocument(@NotNull WeaveDocument o) {
     visitNavigatablePsiElement(o);
+    // visitPsiQualifiedNamedElement(o);
   }
 
   public void visitDotSelectorExpression(@NotNull WeaveDotSelectorExpression o) {

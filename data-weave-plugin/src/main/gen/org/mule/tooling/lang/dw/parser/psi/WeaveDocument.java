@@ -5,9 +5,10 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.NavigatablePsiElement;
+import com.intellij.psi.PsiQualifiedNamedElement;
 import com.intellij.navigation.ItemPresentation;
 
-public interface WeaveDocument extends NavigatablePsiElement {
+public interface WeaveDocument extends NavigatablePsiElement, PsiQualifiedNamedElement {
 
   @Nullable
   WeaveBody getBody();
@@ -16,5 +17,13 @@ public interface WeaveDocument extends NavigatablePsiElement {
   WeaveHeader getHeader();
 
   ItemPresentation getPresentation();
+
+  @Nullable
+  String getQualifiedName();
+
+  @Nullable
+  String getName();
+
+  WeaveDocument setName(String name);
 
 }

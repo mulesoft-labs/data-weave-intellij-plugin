@@ -1,15 +1,12 @@
 package org.mule.tooling.lang.dw.parser.psi;
 
-import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Ref;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
@@ -17,13 +14,9 @@ import com.intellij.xdebugger.XDebuggerUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.WeaveFile;
+import org.mule.weave.v2.parser.ast.header.directives.NamespaceDirective;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -177,16 +170,39 @@ public class WeavePsiUtils {
         return null;
     }
 
-    public static String getFQN(PsiElement element) {
-        Project project = element.getProject();
-        final VirtualFile baseDir = project.getBaseDir();
-        VirtualFile file = element.getContainingFile().getVirtualFile();
-        String relativePath = FileUtil.getRelativePath(VfsUtil.virtualToIoFile(baseDir), VfsUtil.virtualToIoFile(file));
-        String fqn = relativePath.substring(relativePath.indexOf('/') + 1).replaceAll("/", "::");
-        return fqn.substring(0, fqn.lastIndexOf('.'));
-    }
 
     private static boolean isNotWeaveFile(PsiElement parent) {
         return parent != null && !(parent instanceof WeaveFile);
+    }
+
+    @Nullable
+    public static PsiElement resolveReference(WeaveDocument document, String searchElement) {
+        WeaveHeader header = document.getHeader();
+        if (header != null) {
+            List<WeaveDirective> directiveList = header.getDirectiveList();
+            for (WeaveDirective weaveDirective : directiveList) {
+                if (weaveDirective instanceof WeaveFunctionDirective) {
+                    WeaveFunctionDefinition functionDefinition = ((WeaveFunctionDirective) weaveDirective).getFunctionDefinition();
+                    if (functionDefinition != null && searchElement.equals(functionDefinition.getName())) {
+                        return functionDefinition;
+                    }
+                } else if (weaveDirective instanceof WeaveVariableDirective) {
+                    WeaveVariableDefinition functionDefinition = ((WeaveVariableDirective) weaveDirective).getVariableDefinition();
+                    if (functionDefinition != null && searchElement.equals(functionDefinition.getName())) {
+                        return functionDefinition;
+                    }
+                } else if (weaveDirective instanceof WeaveTypeDirective) {
+                    if (searchElement.equals(((WeaveTypeDirective) weaveDirective).getName())) {
+                        return weaveDirective;
+                    }
+                } else if (weaveDirective instanceof WeaveNamespaceDirective) {
+                    WeaveIdentifier identifier = ((WeaveNamespaceDirective) weaveDirective).getIdentifier();
+                    if (identifier != null && searchElement.equals(identifier.getName())) {
+                        return weaveDirective;
+                    }
+                }
+            }
+        }
+        return null;
     }
 }
