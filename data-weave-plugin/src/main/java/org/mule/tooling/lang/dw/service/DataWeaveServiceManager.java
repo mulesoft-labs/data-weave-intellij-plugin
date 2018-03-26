@@ -7,19 +7,35 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.AbstractProjectComponent;
-import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiDocumentManager;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.util.PsiUtil;
 import org.eclipse.lsp4j.*;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.intellij.markdown.ast.ASTNode;
+import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor;
+import org.intellij.markdown.flavours.gfm.GFMFlavourDescriptor;
+import org.intellij.markdown.html.HtmlGenerator;
+import org.intellij.markdown.parser.MarkdownParser;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.mule.tooling.lang.dw.parser.psi.WeaveIdentifier;
+import org.mule.tooling.lang.dw.qn.WeaveQualifiedNameProvider;
 import org.mule.weave.lsp.DWTextDocumentService;
+import org.mule.weave.lsp.WeaveDocumentService;
 import org.mule.weave.v2.completion.EmptyDataFormatDescriptorProvider$;
+import org.mule.weave.v2.parser.ast.variables.NameIdentifier;
+import org.mule.weave.v2.scope.Reference;
+import scala.Option;
 
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 
 public class DataWeaveServiceManager extends AbstractProjectComponent {
 
@@ -37,27 +53,74 @@ public class DataWeaveServiceManager extends AbstractProjectComponent {
     }
 
     public List<LookupElement> completion(CompletionParameters completionParameters) {
-        try {
-            String uri = completionParameters.getOriginalFile().getVirtualFile().getUrl();
-            final TextDocumentIdentifier textDocument = new TextDocumentIdentifier(uri);
-            final Editor editor = completionParameters.getEditor();
-            dwTextDocumentService.didOpen(new DidOpenTextDocumentParams(new TextDocumentItem(uri, "DW", 1, completionParameters.getEditor().getDocument().getText())));
-            final int offset = completionParameters.getOffset();
-            final Position position = LSPUtils.logicalToLSPPos(editor.offsetToLogicalPosition(offset));
-            final TextDocumentPositionParams textDocumentPositionParams = new TextDocumentPositionParams(textDocument, position);
-            final CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion = dwTextDocumentService.completion(textDocumentPositionParams);
-            final Either<List<CompletionItem>, CompletionList> listCompletionListEither = completion.get();
-            if (listCompletionListEither.isLeft()) {
-                return createElements(listCompletionListEither.getLeft());
+        //First make sure is in the write context
+        final Document document = completionParameters.getEditor().getDocument();
+        final WeaveDocumentService weaveDocumentService = didOpen(document);
+        final int offset = completionParameters.getOffset();
+        final CompletionList listCompletionListEither = weaveDocumentService.completion(offset);
+        return createElements(listCompletionListEither.getItems());
+    }
+
+    @NotNull
+    private TextDocumentIdentifier getTextDocumentIdentifier(VirtualFile virtualFile) {
+        return new TextDocumentIdentifier(virtualFile.getUrl());
+    }
+
+    public WeaveDocumentService didOpen(Document document) {
+        final PsiFile psiFile = PsiDocumentManager.getInstance(myProject).getPsiFile(document);
+        return didOpen(psiFile);
+    }
+
+    private WeaveDocumentService didOpen(PsiFile psiFile) {
+        final String url = psiFile.getVirtualFile().getUrl();
+        return dwTextDocumentService.open(url);
+    }
+
+    @Nullable
+    public String hover(PsiElement element) {
+        Document document = PsiDocumentManager.getInstance(myProject).getDocument(element.getContainingFile());
+        WeaveDocumentService weaveDocumentService = didOpen(document);
+        Hover hover = weaveDocumentService.hover(element.getTextOffset());
+        List<Either<String, MarkedString>> contents = hover.getContents();
+        if (!contents.isEmpty()) {
+            Either<String, MarkedString> stringEither = contents.get(0);
+            if (stringEither.isLeft()) {
+                return stringEither.getLeft();
             } else {
-                CompletionList right = listCompletionListEither.getRight();
-                return createElements(right.getItems());
+                return stringEither.getRight().getValue();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ArrayList<>();
+        } else {
+            return null;
         }
     }
+
+    @Nullable
+    public PsiElement resolveReference(WeaveIdentifier identifier) {
+        final WeaveDocumentService weaveDocumentService = didOpen(identifier.getContainingFile());
+        final Option<Reference> referenceOption = weaveDocumentService.resolveReference(identifier.getTextOffset());
+        if (referenceOption.isDefined()) {
+            final Reference reference = referenceOption.get();
+            final Option<NameIdentifier> nameIdentifier = reference.moduleSource();
+            final WeaveQualifiedNameProvider nameProvider = new WeaveQualifiedNameProvider();
+            PsiFile container;
+            if (nameIdentifier.isDefined()) {
+                PsiElement psiElement = nameProvider.getPsiElement(myProject, nameIdentifier.get());
+                if (psiElement != null) {
+                    container = psiElement.getContainingFile();
+                } else {
+                    //Unable to find the module
+                    return null;
+                }
+            } else {
+                container = identifier.getContainingFile();
+            }
+            NameIdentifier referencedNode = reference.referencedNode();
+            return PsiUtil.getElementAtOffset(container, referencedNode.location().startPosition().index());
+        } else {
+            return null;
+        }
+    }
+
 
     private List<LookupElement> createElements(List<CompletionItem> items) {
         ArrayList<LookupElement> result = new ArrayList<>();
@@ -83,7 +146,7 @@ public class DataWeaveServiceManager extends AbstractProjectComponent {
         final String presentableText = (label != null && !Objects.equals(label, "")) ? label : (insertText != null) ? insertText : "";
         final String tailText = (detail != null) ? detail : "";
         final Icon icon = getCompletionIcon(kind);
-        final LookupElementBuilder lookupElementBuilder = LookupElementBuilder.create(insertText);
+        final LookupElementBuilder lookupElementBuilder = LookupElementBuilder.create(label);
         if (kind == CompletionItemKind.Keyword) {
             lookupElementBuilder.withBoldness(true);
         }
@@ -146,4 +209,48 @@ public class DataWeaveServiceManager extends AbstractProjectComponent {
         return project.getComponent(DataWeaveServiceManager.class);
     }
 
+    @Nullable
+    public String documentation(PsiElement psiElement) {
+        WeaveDocumentService weaveDocumentService = didOpen(psiElement.getContainingFile());
+        SignatureHelp signatureHelp = weaveDocumentService.documentationOf(psiElement.getTextOffset());
+        List<SignatureInformation> signatures = signatureHelp.getSignatures();
+        if (!signatures.isEmpty()) {
+            String documentation = signatures.get(0).getDocumentation();
+            if (documentation != null) {
+                return toHtml(documentation);
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
+
+    public String toHtml(String text) {
+        GFMFlavourDescriptor flavour = new GFMFlavourDescriptor();
+        ASTNode astNode = new MarkdownParser(flavour).buildMarkdownTreeFromString(text);
+        return new HtmlGenerator(text, astNode, flavour, true).generateHtml();
+    }
+
+    public static class CompletionData {
+        private String label;
+        private String documentation;
+
+        public CompletionData(String label, String documentation) {
+            this.label = label;
+            this.documentation = documentation;
+        }
+
+        public String getLabel() {
+            return label;
+        }
+
+        public String getDocumentation() {
+            return documentation;
+        }
+
+        public String toString() {
+            return label;
+        }
+    }
 }

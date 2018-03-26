@@ -61,6 +61,8 @@
         <lang.braceMatcher language="Weave" implementationClass="org.mule.tooling.lang.dw.WeavePairedBraceMatcher"/>
         <quoteHandler fileType="Weave" className="org.mule.tooling.lang.dw.WeaveQuoteHandler"/>
 
+        <gotoClassContributor implementation="org.mule.tooling.lang.dw.navigation.GotoMappingContributor"/>
+
         <lang.refactoringSupport language="Weave"
                                  implementationClass="org.mule.tooling.lang.dw.refactor.WeaveRefactoringSupportProvider"/>
         <lang.elementManipulator forClass="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
@@ -82,9 +84,9 @@
         <languageInjector implementation="org.mule.tooling.lang.dw.injector.MuleLanguageInjector"/>
         <languageInjector implementation="org.mule.tooling.lang.dw.injector.StringInterpolationLanguageInjector"/>
 
-
+        <documentationProvider  implementation="org.mule.tooling.lang.dw.documentation.WeaveDocumentationProvider"/>
         <!--<toolWindow id="Design Center" anchor="bottom"-->
-                    <!--factoryClass="org.mule.tooling.lang.browser.BrowserToolWindowFactory"/>-->
+        <!--factoryClass="org.mule.tooling.lang.browser.BrowserToolWindowFactory"/>-->
 
 
     </extensions>

@@ -6,60 +6,63 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiReference;
 import com.intellij.psi.PsiReferenceBase;
+import com.intellij.psi.impl.source.resolve.ResolveCache;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.mule.tooling.lang.dw.parser.psi.WeaveIdentifier;
 import org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.parser.psi.WeaveVariable;
+import org.mule.tooling.lang.dw.service.DataWeaveServiceManager;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class WeaveIdentifierPsiReference extends PsiReferenceBase<PsiElement> {
-  private String variableName;
+    private WeaveNamedElement namedElement;
 
-  public WeaveIdentifierPsiReference(@NotNull WeaveNamedElement element) {
-    super(element, TextRange.from(element.getNameIdentifier().getStartOffsetInParent(), element.getNameIdentifier().getTextLength()));
-    variableName = element.getNameIdentifier().getText();
-  }
+    public WeaveIdentifierPsiReference(@NotNull WeaveNamedElement element) {
+        super(element, TextRange.from(element.getNameIdentifier().getStartOffsetInParent(), element.getNameIdentifier().getTextLength()));
+        namedElement = element;
+    }
 
-  @Nullable
-  @Override
-  public PsiElement resolve() {
-    if (variableName.equals("$") || variableName.equals("$$")) {
-      return WeavePsiUtils.findImplicitVariable(myElement);
-    } else {
-      Optional<? extends PsiElement> variables = WeavePsiUtils.getVariableDeclarationFor(myElement, variableName);
-      if (variables.isPresent()) {
-        return variables.get();
-      } else {
-        Optional<? extends PsiElement> function = WeavePsiUtils.findFunction(myElement, variableName);
-        if (function.isPresent()) {
-          return function.get();
-        } else {
-          Optional<? extends PsiElement> type = WeavePsiUtils.findType(myElement, variableName);
-          return type.orElse(null);
+    @Nullable
+    @Override
+    public PsiElement resolve() {
+        return ResolveCache.getInstance(getElement().getProject()).resolveWithCaching(this, MyResolver.INSTANCE, false, false);
+    }
+
+    public PsiElement resolveInner() {
+        final DataWeaveServiceManager instance = DataWeaveServiceManager.getInstance(myElement.getProject());
+        return instance.resolveReference(namedElement.getIdentifier());
+    }
+
+
+    @NotNull
+    @Override
+    public Object[] getVariants() {
+        final List<WeaveVariable> variables = WeavePsiUtils.collectLocalVisibleVariables(myElement);
+        final List<LookupElement> variants = new ArrayList<>();
+        for (final WeaveVariable property : variables) {
+            if (property.getName() != null && property.getName().length() > 0) {
+                variants.add(LookupElementBuilder.create(property).
+                        withIcon(AllIcons.Nodes.Variable).
+                        withTypeText(property.getContainingFile().getName())
+                );
+            }
         }
-      }
+        return variants.toArray();
     }
-  }
 
+    private static class MyResolver implements ResolveCache.Resolver {
+        private static final MyResolver INSTANCE = new MyResolver();
 
-  @NotNull
-  @Override
-  public Object[] getVariants() {
-    final List<WeaveVariable> variables = WeavePsiUtils.collectLocalVisibleVariables(myElement);
-    final List<LookupElement> variants = new ArrayList<>();
-    for (final WeaveVariable property : variables) {
-      if (property.getName() != null && property.getName().length() > 0) {
-        variants.add(LookupElementBuilder.create(property).
-                withIcon(AllIcons.Nodes.Variable).
-                withTypeText(property.getContainingFile().getName())
-        );
-      }
+        @Nullable
+        public PsiElement resolve(@NotNull PsiReference ref, boolean incompleteCode) {
+            return ((WeaveIdentifierPsiReference) ref).resolveInner();
+        }
+
     }
-    return variants.toArray();
-  }
 }

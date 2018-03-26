@@ -34,5 +34,15 @@ ApplicationManager.getApplication().invokeLater(() -> {
       }
     }, project.getDisposed());
 
+
+----------------------------------------------------------------------------------------------------------------
+
 TODO Implement
-WeaveQualifiedNameProvider
+
+* WeaveQualifiedNameProvider DONE
+* PSI Stubs for fast search
+** https://www.jetbrains.org/intellij/sdk/docs/basics/indexing_and_psi_stubs/stub_indexes.html?search=index
+** https://www.jetbrains.org/intellij/sdk/docs/basics/indexing_and_psi_stubs/file_based_indexes.html?search=index
+
+* com.intellij.execution.filters.ConsoleFilterProvider
+** <consoleFilterProvider implementation="org.mule.tooling.esb.console.ConsoleFlowStackFilterProvider" order="first"/>

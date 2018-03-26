@@ -57,7 +57,7 @@ public class WeaveQualifiedNameProvider implements QualifiedNameProvider {
             if (getParent(psiElement, 3) instanceof WeaveDocument) {
                 WeaveDocument document = WeavePsiUtils.getDocument(psiElement);
                 if (document != null) {
-                    return document.getQualifiedName() + "::" + ((WeaveNamedElement) psiElement).getName();
+                    return document.getQualifiedName() + NameIdentifier.SEPARATOR() + ((WeaveNamedElement) psiElement).getName();
                 }
             }
         } else if (psiElement instanceof WeaveTypeDirective) {
@@ -65,7 +65,7 @@ public class WeaveQualifiedNameProvider implements QualifiedNameProvider {
             if (getParent(psiElement, 2) instanceof WeaveDocument) {
                 WeaveDocument document = WeavePsiUtils.getDocument(psiElement);
                 if (document != null) {
-                    return document.getQualifiedName() + "::" + ((WeaveNamedElement) psiElement).getName();
+                    return document.getQualifiedName() + NameIdentifier.SEPARATOR() + ((WeaveNamedElement) psiElement).getName();
                 }
             }
         }
@@ -112,10 +112,19 @@ public class WeaveQualifiedNameProvider implements QualifiedNameProvider {
     }
 
     @Nullable
-    private PsiElement getPsiElement(Project project, NameIdentifier nameIdentifier) {
+    public PsiElement getPsiElement(Project project, NameIdentifier nameIdentifier) {
         String fileRelativePath = NameIdentifierHelper.toWeaveFilePath(nameIdentifier);
+        List<PsiElement> psiElements = getPsiElements(project, fileRelativePath);
+        if (psiElements.isEmpty()) {
+            return null;
+        } else {
+            return psiElements.get(0);
+        }
+    }
+
+    public List<PsiElement> getPsiElements(Project project, String fileRelativePath) {
         String relativePath = fileRelativePath.startsWith("/") ? fileRelativePath : "/" + fileRelativePath;
-        Set<FileType> fileTypes = Collections.singleton(FileTypeManager.getInstance().getFileTypeByFileName(relativePath));
+        Set<FileType> fileTypes = Collections.singleton(WeaveFileType.getInstance());
         final List<VirtualFile> fileList = new ArrayList<>();
         FileBasedIndex.getInstance().processFilesContainingAllKeys(FileTypeIndex.NAME, fileTypes, GlobalSearchScope.allScope(project), null, virtualFile -> {
             if (virtualFile.getPath().endsWith(relativePath)) {
@@ -123,12 +132,11 @@ public class WeaveQualifiedNameProvider implements QualifiedNameProvider {
             }
             return true;
         });
-        if (fileList.isEmpty()) {
-            return null;
-        } else {
-            VirtualFile virtualFile = fileList.get(0);
-            return PsiManager.getInstance(project).findFile(virtualFile);
+        ArrayList<PsiElement> result = new ArrayList<>();
+        for (VirtualFile virtualFile : fileList) {
+            result.add(PsiManager.getInstance(project).findFile(virtualFile));
         }
+        return result;
     }
 
 

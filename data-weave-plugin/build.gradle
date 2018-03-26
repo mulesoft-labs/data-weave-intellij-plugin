@@ -10,11 +10,17 @@ intellij {
     pluginName = 'data-weave-plugin-v2'
 }
 repositories {
+    maven {
+        name "jetbrains-markdown"
+        url "https://dl.bintray.com/jetbrains/markdown"
+    }
     mavenLocal()
 }
 
 dependencies {
     testCompile 'junit:junit:4.+'
+
+    compile("org.jetbrains:markdown:0.1.12")
     compile(group: 'org.mule.weave', name: 'debugger', version: '2.1.3-SNAPSHOT')
     compile(group: 'org.mule.weave', name: 'dw-lsp', version: '2.1.3-lsp-SNAPSHOT')
 }

@@ -1,81 +1,90 @@
 package org.mule.tooling.lang.dw.reference;
 
+import com.intellij.openapi.util.Comparing;
 import com.intellij.openapi.util.TextRange;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.psi.impl.source.resolve.reference.impl.providers.FileReference;
-import com.intellij.psi.impl.source.resolve.reference.impl.providers.FileReferenceSet;
+import com.intellij.psi.*;
+import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.NotNull;
-import org.mule.tooling.lang.dw.WeaveFileType;
+import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.parser.psi.WeaveModuleReference;
+import org.mule.weave.v2.parser.ast.variables.NameIdentifier;
 
-import java.util.List;
+import java.util.*;
 
 
-public class WeaveModuleReferenceSet extends FileReferenceSet {
+public class WeaveModuleReferenceSet {
 
-  public WeaveModuleReferenceSet(@NotNull WeaveModuleReference moduleReference) {
-    super(moduleReference.getModuleFQN(), moduleReference, 0, null, true);
-  }
+    private final List<WeaveModulePsiReference> psiReferences;
+    private WeaveModuleReference moduleReference;
+    private final GlobalSearchScope mySearchScope;
 
-  protected List<FileReference> reparse(String path, int startInElement) {
-    int wsHead = 0;
-    int wsTail = 0;
-    TextRange valueRange = TextRange.from(startInElement, path.length());
-    List<FileReference> referencesList = ContainerUtil.newArrayList();
-    for (int i = wsHead; i < path.length() && Character.isWhitespace(path.charAt(i)); i++) {
-      wsHead++;     // skip head white spaces
-    }
-    for (int i = path.length() - 1; i >= 0 && Character.isWhitespace(path.charAt(i)); i--) {
-      wsTail++;     // skip tail white spaces
+    public WeaveModuleReferenceSet(@NotNull WeaveModuleReference moduleReference) {
+        this.moduleReference = moduleReference;
+        this.mySearchScope = GlobalSearchScope.allScope(moduleReference.getProject());
+        this.psiReferences = this.parse(moduleReference.getModuleFQN());
     }
 
-    int index = 0;
-    int curSep = findSeparatorOffset(path, wsHead);
-    int sepLen = curSep >= wsHead ? findSeparatorLength(path, curSep) : 0;
 
-    if (curSep >= 0 && path.length() == wsHead + sepLen + wsTail) {
-      // add extra reference for the only & leading "/"
-      TextRange r = TextRange.create(startInElement, offset(curSep + Math.max(0, sepLen - 1), valueRange) + 1);
-      referencesList.add(createFileReference(r, index++, path.subSequence(curSep, curSep + sepLen).toString()));
-    }
-    curSep = curSep == wsHead ? curSep + sepLen : wsHead; // reset offsets & start again for simplicity
-    sepLen = 0;
-    while (curSep >= 0) {
-      int nextSep = findSeparatorOffset(path, curSep + sepLen);
-      int start = curSep + sepLen;
-      int endTrimmed = nextSep > 0 ? nextSep : Math.max(start, path.length() - wsTail);
-      int endInclusive = nextSep > 0 ? nextSep : Math.max(start, path.length() - 1 - wsTail);
-      String refText;
-      if (index == 0 && nextSep < 0 && !StringUtil.contains(path, path)) {
-        refText = path;
-      } else {
-        refText = path.subSequence(start, endTrimmed).toString();
-      }
-      TextRange textRange = new TextRange(offset(start, valueRange), offset(endInclusive, valueRange) + (nextSep < 0 && refText.length() > 0 ? 1 : 0));
-      if (nextSep <= 0) {
-        refText = refText + "." + WeaveFileType.WeaveFileExtension;
-      }
-      referencesList.add(createFileReference(textRange, index++, refText));
-      curSep = nextSep;
-      sepLen = curSep > 0 ? findSeparatorLength(path, curSep) : 0;
+    public GlobalSearchScope getSearchScope() {
+        return mySearchScope;
     }
 
-    return referencesList;
-  }
+    @NotNull
+    protected List<WeaveModulePsiReference> parse(String str) {
+        final List<WeaveModulePsiReference> references = new ArrayList<>();
+        int current = 0;
+        int index = 0;
+        int next = 0;
+        while (next >= 0) {
+            next = findNextSeparator(str, current);
+            final TextRange range = new TextRange(current, (next >= 0 ? next : str.length()));
+            references.addAll(createReferences(range, index++));
+            current = next + getSeparator().length();
+        }
+        return references;
+    }
 
-  @Override
-  public String getSeparatorString() {
-    return "::";
-  }
+    private String getSeparator() {
+        return NameIdentifier.SEPARATOR();
+    }
 
-  private static int offset(int offset, TextRange valueRange) {
-    return offset + valueRange.getStartOffset();
-  }
+    protected int findNextSeparator(final String str, final int current) {
+        final int next;
+        next = str.indexOf(getSeparator(), current);
+        return next;
+    }
 
-  @Override
-  public boolean absoluteUrlNeedsStartSlash() {
-    return false;
-  }
+    public WeaveModuleReference getElement() {
+        return moduleReference;
+    }
 
+    public List<WeaveModulePsiReference> getPsiReferences() {
+        return psiReferences;
+    }
+
+    public PsiReference[] getAllReferences() {
+        return psiReferences.toArray(new PsiReference[psiReferences.size()]);
+    }
+
+    public Set<PsiPackage> getInitialContext() {
+        return Collections.singleton(JavaPsiFacade.getInstance(getElement().getProject()).findPackage(""));
+    }
+
+    protected List<WeaveModulePsiReference> createReferences(final TextRange range, final int index) {
+        WeaveModulePsiReference reference = new WeaveModulePsiReference(this, range, index);
+        return reference == null ? Collections.emptyList() : Collections.singletonList(reference);
+    }
+
+
+    public WeaveModulePsiReference getReference(int index) {
+        return getPsiReferences().get(index);
+    }
+
+    public Collection<PsiPackage> resolvePackageName(@Nullable PsiPackage context, final String packageName) {
+        if (context != null) {
+            return ContainerUtil.filter(context.getSubPackages(mySearchScope), aPackage -> Comparing.equal(aPackage.getName(), packageName));
+        }
+        return Collections.emptyList();
+    }
 }
