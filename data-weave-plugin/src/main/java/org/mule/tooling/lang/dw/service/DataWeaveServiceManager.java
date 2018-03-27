@@ -9,7 +9,6 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.AbstractProjectComponent;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -17,7 +16,6 @@ import com.intellij.psi.util.PsiUtil;
 import org.eclipse.lsp4j.*;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.intellij.markdown.ast.ASTNode;
-import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor;
 import org.intellij.markdown.flavours.gfm.GFMFlavourDescriptor;
 import org.intellij.markdown.html.HtmlGenerator;
 import org.intellij.markdown.parser.MarkdownParser;
@@ -61,11 +59,6 @@ public class DataWeaveServiceManager extends AbstractProjectComponent {
         return createElements(listCompletionListEither.getItems());
     }
 
-    @NotNull
-    private TextDocumentIdentifier getTextDocumentIdentifier(VirtualFile virtualFile) {
-        return new TextDocumentIdentifier(virtualFile.getUrl());
-    }
-
     public WeaveDocumentService didOpen(Document document) {
         final PsiFile psiFile = PsiDocumentManager.getInstance(myProject).getPsiFile(document);
         return didOpen(psiFile);
@@ -81,13 +74,17 @@ public class DataWeaveServiceManager extends AbstractProjectComponent {
         Document document = PsiDocumentManager.getInstance(myProject).getDocument(element.getContainingFile());
         WeaveDocumentService weaveDocumentService = didOpen(document);
         Hover hover = weaveDocumentService.hover(element.getTextOffset());
-        List<Either<String, MarkedString>> contents = hover.getContents();
-        if (!contents.isEmpty()) {
-            Either<String, MarkedString> stringEither = contents.get(0);
-            if (stringEither.isLeft()) {
-                return stringEither.getLeft();
+        if (hover != null) {
+            List<Either<String, MarkedString>> contents = hover.getContents();
+            if (!contents.isEmpty()) {
+                Either<String, MarkedString> stringEither = contents.get(0);
+                if (stringEither.isLeft()) {
+                    return stringEither.getLeft();
+                } else {
+                    return stringEither.getRight().getValue();
+                }
             } else {
-                return stringEither.getRight().getValue();
+                return null;
             }
         } else {
             return null;

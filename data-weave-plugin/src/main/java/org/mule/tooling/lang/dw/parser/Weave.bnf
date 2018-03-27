@@ -501,18 +501,18 @@ DataFormat ::= MIME_TYPE_KEYWORD
 
 NumberLiteral ::= DOUBLE_LITERAL | INTEGER_LITERAL
 
-FqnIdentifier ::= CustomLoader? IdentifierPackage Identifier
+FqnIdentifier ::= CustomLoader? ContainerModuleIdentifier Identifier
 {
-     methods = [getName setName getNameIdentifier]
+     methods = [getName setName getNameIdentifier getReferences]
      implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
      mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
 }
 
-ModuleReference ::= CustomLoader? IdentifierPackage Identifier  {
+ModuleReference ::= CustomLoader? ContainerModuleIdentifier Identifier  {
  methods = [getPath getModuleFQN getReferences]
 }
 
-IdentifierPackage ::= (Identifier '::')*
+ContainerModuleIdentifier ::= (Identifier '::')*
 
 CustomLoader ::= Identifier"!"
 

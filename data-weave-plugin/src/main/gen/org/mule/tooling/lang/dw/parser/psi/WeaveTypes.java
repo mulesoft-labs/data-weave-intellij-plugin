@@ -31,6 +31,7 @@ public interface WeaveTypes {
   IElementType CONDITIONAL_ATTRIBUTE = new WeaveElementType("CONDITIONAL_ATTRIBUTE");
   IElementType CONDITIONAL_EXPRESSION = new WeaveElementType("CONDITIONAL_EXPRESSION");
   IElementType CONDITIONAL_KEY_VALUE_PAIR = new WeaveElementType("CONDITIONAL_KEY_VALUE_PAIR");
+  IElementType CONTAINER_MODULE_IDENTIFIER = new WeaveElementType("CONTAINER_MODULE_IDENTIFIER");
   IElementType CUSTOM_INTERPOLATOR_EXPRESSION = new WeaveElementType("CUSTOM_INTERPOLATOR_EXPRESSION");
   IElementType CUSTOM_LOADER = new WeaveElementType("CUSTOM_LOADER");
   IElementType DATA_FORMAT = new WeaveElementType("DATA_FORMAT");
@@ -57,7 +58,6 @@ public interface WeaveTypes {
   IElementType GREATER_THAN_EXPRESSION = new WeaveElementType("GREATER_THAN_EXPRESSION");
   IElementType HEADER = new WeaveElementType("HEADER");
   IElementType IDENTIFIER = new WeaveElementType("IDENTIFIER");
-  IElementType IDENTIFIER_PACKAGE = new WeaveElementType("IDENTIFIER_PACKAGE");
   IElementType IMPORTED_ELEMENT = new WeaveElementType("IMPORTED_ELEMENT");
   IElementType IMPORT_DIRECTIVE = new WeaveElementType("IMPORT_DIRECTIVE");
   IElementType INPUT_DIRECTIVE = new WeaveElementType("INPUT_DIRECTIVE");
@@ -271,6 +271,9 @@ public interface WeaveTypes {
       else if (type == CONDITIONAL_KEY_VALUE_PAIR) {
         return new WeaveConditionalKeyValuePairImpl(node);
       }
+      else if (type == CONTAINER_MODULE_IDENTIFIER) {
+        return new WeaveContainerModuleIdentifierImpl(node);
+      }
       else if (type == CUSTOM_INTERPOLATOR_EXPRESSION) {
         return new WeaveCustomInterpolatorExpressionImpl(node);
       }
@@ -345,9 +348,6 @@ public interface WeaveTypes {
       }
       else if (type == IDENTIFIER) {
         return new WeaveIdentifierImpl(node);
-      }
-      else if (type == IDENTIFIER_PACKAGE) {
-        return new WeaveIdentifierPackageImpl(node);
       }
       else if (type == IMPORTED_ELEMENT) {
         return new WeaveImportedElementImpl(node);

@@ -28,6 +28,12 @@ public class WeaveModuleReferenceImpl extends ASTWrapperPsiElement implements We
   }
 
   @Override
+  @NotNull
+  public WeaveContainerModuleIdentifier getContainerModuleIdentifier() {
+    return findNotNullChildByClass(WeaveContainerModuleIdentifier.class);
+  }
+
+  @Override
   @Nullable
   public WeaveCustomLoader getCustomLoader() {
     return findChildByClass(WeaveCustomLoader.class);
@@ -37,12 +43,6 @@ public class WeaveModuleReferenceImpl extends ASTWrapperPsiElement implements We
   @NotNull
   public WeaveIdentifier getIdentifier() {
     return findNotNullChildByClass(WeaveIdentifier.class);
-  }
-
-  @Override
-  @NotNull
-  public WeaveIdentifierPackage getIdentifierPackage() {
-    return findNotNullChildByClass(WeaveIdentifierPackage.class);
   }
 
   public String getPath() {

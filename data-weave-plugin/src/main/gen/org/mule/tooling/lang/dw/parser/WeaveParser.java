@@ -65,6 +65,9 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     else if (t == CONDITIONAL_KEY_VALUE_PAIR) {
       r = ConditionalKeyValuePair(b, 0);
     }
+    else if (t == CONTAINER_MODULE_IDENTIFIER) {
+      r = ContainerModuleIdentifier(b, 0);
+    }
     else if (t == CUSTOM_LOADER) {
       r = CustomLoader(b, 0);
     }
@@ -118,9 +121,6 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     }
     else if (t == IDENTIFIER) {
       r = Identifier(b, 0);
-    }
-    else if (t == IDENTIFIER_PACKAGE) {
-      r = IdentifierPackage(b, 0);
     }
     else if (t == IMPORT_DIRECTIVE) {
       r = ImportDirective(b, 0);
@@ -820,6 +820,32 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
+  // (Identifier '::')*
+  public static boolean ContainerModuleIdentifier(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ContainerModuleIdentifier")) return false;
+    Marker m = enter_section_(b, l, _NONE_, CONTAINER_MODULE_IDENTIFIER, "<container module identifier>");
+    int c = current_position_(b);
+    while (true) {
+      if (!ContainerModuleIdentifier_0(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "ContainerModuleIdentifier", c)) break;
+      c = current_position_(b);
+    }
+    exit_section_(b, l, m, true, false, null);
+    return true;
+  }
+
+  // Identifier '::'
+  private static boolean ContainerModuleIdentifier_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ContainerModuleIdentifier_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = Identifier(b, l + 1);
+    r = r && consumeToken(b, PACKAGE_SEPARATOR);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  /* ********************************************************** */
   // Identifier"!"
   public static boolean CustomLoader(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "CustomLoader")) return false;
@@ -1020,13 +1046,13 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // CustomLoader? IdentifierPackage Identifier
+  // CustomLoader? ContainerModuleIdentifier Identifier
   public static boolean FqnIdentifier(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "FqnIdentifier")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, FQN_IDENTIFIER, "<fqn identifier>");
     r = FqnIdentifier_0(b, l + 1);
-    r = r && IdentifierPackage(b, l + 1);
+    r = r && ContainerModuleIdentifier(b, l + 1);
     r = r && Identifier(b, l + 1);
     exit_section_(b, l, m, r, false, null);
     return r;
@@ -1249,32 +1275,6 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     if (!r) r = consumeToken(b, FROM_KEYWORD);
     if (!r) r = consumeToken(b, NOT_KEYWORD);
     exit_section_(b, l, m, r, false, null);
-    return r;
-  }
-
-  /* ********************************************************** */
-  // (Identifier '::')*
-  public static boolean IdentifierPackage(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "IdentifierPackage")) return false;
-    Marker m = enter_section_(b, l, _NONE_, IDENTIFIER_PACKAGE, "<identifier package>");
-    int c = current_position_(b);
-    while (true) {
-      if (!IdentifierPackage_0(b, l + 1)) break;
-      if (!empty_element_parsed_guard_(b, "IdentifierPackage", c)) break;
-      c = current_position_(b);
-    }
-    exit_section_(b, l, m, true, false, null);
-    return true;
-  }
-
-  // Identifier '::'
-  private static boolean IdentifierPackage_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "IdentifierPackage_0")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
-    r = Identifier(b, l + 1);
-    r = r && consumeToken(b, PACKAGE_SEPARATOR);
-    exit_section_(b, m, null, r);
     return r;
   }
 
@@ -1667,13 +1667,13 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // CustomLoader? IdentifierPackage Identifier
+  // CustomLoader? ContainerModuleIdentifier Identifier
   public static boolean ModuleReference(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ModuleReference")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, MODULE_REFERENCE, "<module reference>");
     r = ModuleReference_0(b, l + 1);
-    r = r && IdentifierPackage(b, l + 1);
+    r = r && ContainerModuleIdentifier(b, l + 1);
     r = r && Identifier(b, l + 1);
     exit_section_(b, l, m, r, false, null);
     return r;

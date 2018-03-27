@@ -11,14 +11,14 @@ import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import org.mule.tooling.lang.dw.parser.psi.*;
 
-public class WeaveIdentifierPackageImpl extends ASTWrapperPsiElement implements WeaveIdentifierPackage {
+public class WeaveContainerModuleIdentifierImpl extends ASTWrapperPsiElement implements WeaveContainerModuleIdentifier {
 
-  public WeaveIdentifierPackageImpl(ASTNode node) {
+  public WeaveContainerModuleIdentifierImpl(ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull WeaveVisitor visitor) {
-    visitor.visitIdentifierPackage(this);
+    visitor.visitContainerModuleIdentifier(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {

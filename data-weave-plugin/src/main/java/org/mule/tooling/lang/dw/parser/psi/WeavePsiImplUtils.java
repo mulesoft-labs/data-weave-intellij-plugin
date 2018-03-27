@@ -5,19 +5,24 @@ import com.intellij.icons.AllIcons;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectFileIndex;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
+import com.intellij.ui.ListUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.WeaveFileType;
 import org.mule.tooling.lang.dw.WeaveIcons;
+import org.mule.tooling.lang.dw.reference.WeaveIdentifierPsiReference;
 import org.mule.tooling.lang.dw.reference.WeaveModuleReferenceSet;
 import org.mule.weave.v2.parser.ast.variables.NameIdentifier;
 import org.mule.weave.v2.sdk.NameIdentifierHelper;
 
 import javax.swing.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -181,12 +186,12 @@ public class WeavePsiImplUtils {
 
 
     public static String getPath(WeaveModuleReference moduleReference) {
-        WeaveIdentifierPackage identifierPackage = moduleReference.getIdentifierPackage();
+        WeaveContainerModuleIdentifier identifierPackage = moduleReference.getContainerModuleIdentifier();
         return identifierPackage.getIdentifierList().stream().map(WeaveIdentifier::getName).collect(Collectors.joining("/")) + "/" + moduleReference.getIdentifier().getName() + "." + WeaveFileType.WeaveFileExtension;
     }
 
     public static String getModuleFQN(WeaveModuleReference moduleReference) {
-        WeaveIdentifierPackage identifierPackage = moduleReference.getIdentifierPackage();
+        WeaveContainerModuleIdentifier identifierPackage = moduleReference.getContainerModuleIdentifier();
         if (identifierPackage.getText().trim().isEmpty()) {
             return moduleReference.getIdentifier().getName();
         } else {
@@ -196,7 +201,24 @@ public class WeavePsiImplUtils {
 
     @NotNull
     public static PsiReference[] getReferences(WeaveModuleReference importDirective) {
-        return new WeaveModuleReferenceSet(importDirective).getAllReferences();
+        return new WeaveModuleReferenceSet(importDirective, importDirective.getModuleFQN()).getAllReferences();
+    }
+
+    public static PsiReference[] getReferences(WeaveFqnIdentifier identifier) {
+        List<PsiReference> result = new ArrayList<>();
+        if (!identifier.getContainerModuleIdentifier().getIdentifierList().isEmpty()) {
+            String containerModuleFQN = getContainerModuleFQN(identifier);
+            PsiReference[] allReferences = new WeaveModuleReferenceSet(identifier, containerModuleFQN).getAllReferences();
+            result.addAll(Arrays.asList(allReferences));
+        }
+        result.add(new WeaveIdentifierPsiReference(identifier));
+        return result.toArray(new PsiReference[result.size()]);
+    }
+
+
+    public static String getContainerModuleFQN(WeaveFqnIdentifier identifier) {
+        WeaveContainerModuleIdentifier identifierPackage = identifier.getContainerModuleIdentifier();
+        return identifierPackage.getIdentifierList().stream().map(i -> i.getName()).reduce((v, a) -> v + "::" + a).orElse("");
     }
 
 

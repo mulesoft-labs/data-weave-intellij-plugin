@@ -4,8 +4,12 @@ package org.mule.tooling.lang.dw.parser.psi;
 import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiReference;
 
 public interface WeaveFqnIdentifier extends WeaveNamedElement {
+
+  @NotNull
+  WeaveContainerModuleIdentifier getContainerModuleIdentifier();
 
   @Nullable
   WeaveCustomLoader getCustomLoader();
@@ -13,13 +17,12 @@ public interface WeaveFqnIdentifier extends WeaveNamedElement {
   @NotNull
   WeaveIdentifier getIdentifier();
 
-  @NotNull
-  WeaveIdentifierPackage getIdentifierPackage();
-
   String getName();
 
   PsiElement setName(String newName);
 
   PsiElement getNameIdentifier();
+
+  PsiReference[] getReferences();
 
 }

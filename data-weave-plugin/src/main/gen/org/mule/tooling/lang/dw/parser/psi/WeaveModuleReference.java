@@ -8,14 +8,14 @@ import com.intellij.psi.PsiReference;
 
 public interface WeaveModuleReference extends PsiElement {
 
+  @NotNull
+  WeaveContainerModuleIdentifier getContainerModuleIdentifier();
+
   @Nullable
   WeaveCustomLoader getCustomLoader();
 
   @NotNull
   WeaveIdentifier getIdentifier();
-
-  @NotNull
-  WeaveIdentifierPackage getIdentifierPackage();
 
   String getPath();
 

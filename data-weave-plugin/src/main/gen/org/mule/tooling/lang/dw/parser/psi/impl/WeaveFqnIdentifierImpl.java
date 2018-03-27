@@ -10,6 +10,7 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.*;
 import org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl;
 import org.mule.tooling.lang.dw.parser.psi.*;
+import com.intellij.psi.PsiReference;
 
 public class WeaveFqnIdentifierImpl extends WeaveNamedElementImpl implements WeaveFqnIdentifier {
 
@@ -27,6 +28,12 @@ public class WeaveFqnIdentifierImpl extends WeaveNamedElementImpl implements Wea
   }
 
   @Override
+  @NotNull
+  public WeaveContainerModuleIdentifier getContainerModuleIdentifier() {
+    return findNotNullChildByClass(WeaveContainerModuleIdentifier.class);
+  }
+
+  @Override
   @Nullable
   public WeaveCustomLoader getCustomLoader() {
     return findChildByClass(WeaveCustomLoader.class);
@@ -38,10 +45,8 @@ public class WeaveFqnIdentifierImpl extends WeaveNamedElementImpl implements Wea
     return findNotNullChildByClass(WeaveIdentifier.class);
   }
 
-  @Override
-  @NotNull
-  public WeaveIdentifierPackage getIdentifierPackage() {
-    return findNotNullChildByClass(WeaveIdentifierPackage.class);
+  public PsiReference[] getReferences() {
+    return WeavePsiImplUtils.getReferences(this);
   }
 
 }

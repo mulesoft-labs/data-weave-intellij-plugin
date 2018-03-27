@@ -5,7 +5,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface WeaveIdentifierPackage extends PsiElement {
+public interface WeaveContainerModuleIdentifier extends PsiElement {
 
   @NotNull
   List<WeaveIdentifier> getIdentifierList();

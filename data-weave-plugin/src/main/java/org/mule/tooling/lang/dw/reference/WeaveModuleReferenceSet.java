@@ -1,13 +1,11 @@
 package org.mule.tooling.lang.dw.reference;
 
-import com.intellij.openapi.util.Comparing;
+import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.*;
-import com.intellij.psi.search.GlobalSearchScope;
-import com.intellij.util.containers.ContainerUtil;
+import com.intellij.psi.impl.JavaPsiFacadeImpl;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.mule.tooling.lang.dw.parser.psi.WeaveModuleReference;
 import org.mule.weave.v2.parser.ast.variables.NameIdentifier;
 
 import java.util.*;
@@ -15,31 +13,27 @@ import java.util.*;
 
 public class WeaveModuleReferenceSet {
 
+    private static final Logger LOG = Logger.getInstance("#org.mule.tooling.lang.dw.reference.WeaveModuleReferenceSet");
+
     private final List<WeaveModulePsiReference> psiReferences;
-    private WeaveModuleReference moduleReference;
-    private final GlobalSearchScope mySearchScope;
+    private PsiElement moduleReference;
 
-    public WeaveModuleReferenceSet(@NotNull WeaveModuleReference moduleReference) {
+    public WeaveModuleReferenceSet(@NotNull PsiElement moduleReference, String fqn) {
         this.moduleReference = moduleReference;
-        this.mySearchScope = GlobalSearchScope.allScope(moduleReference.getProject());
-        this.psiReferences = this.parse(moduleReference.getModuleFQN());
-    }
-
-
-    public GlobalSearchScope getSearchScope() {
-        return mySearchScope;
+        this.psiReferences = this.parse(fqn);
     }
 
     @NotNull
-    protected List<WeaveModulePsiReference> parse(String str) {
+    private List<WeaveModulePsiReference> parse(String str) {
         final List<WeaveModulePsiReference> references = new ArrayList<>();
         int current = 0;
         int index = 0;
         int next = 0;
         while (next >= 0) {
             next = findNextSeparator(str, current);
-            final TextRange range = new TextRange(current, (next >= 0 ? next : str.length()));
-            references.addAll(createReferences(range, index++));
+            int end = next >= 0 ? next : str.length();
+            final TextRange range = new TextRange(current, end);
+            references.addAll(createReferences(range, str.substring(0, end), index++));
             current = next + getSeparator().length();
         }
         return references;
@@ -49,17 +43,17 @@ public class WeaveModuleReferenceSet {
         return NameIdentifier.SEPARATOR();
     }
 
-    protected int findNextSeparator(final String str, final int current) {
+    private int findNextSeparator(final String str, final int current) {
         final int next;
         next = str.indexOf(getSeparator(), current);
         return next;
     }
 
-    public WeaveModuleReference getElement() {
+    public PsiElement getElement() {
         return moduleReference;
     }
 
-    public List<WeaveModulePsiReference> getPsiReferences() {
+    private List<WeaveModulePsiReference> getPsiReferences() {
         return psiReferences;
     }
 
@@ -67,13 +61,25 @@ public class WeaveModuleReferenceSet {
         return psiReferences.toArray(new PsiReference[psiReferences.size()]);
     }
 
-    public Set<PsiPackage> getInitialContext() {
-        return Collections.singleton(JavaPsiFacade.getInstance(getElement().getProject()).findPackage(""));
+    protected Set<PsiFileSystemItem> getContext(String packageName) {
+        final PsiPackage psiPackage = JavaPsiFacadeImpl.getInstance(getProject()).findPackage(packageName.replaceAll(NameIdentifier.SEPARATOR(), "."));
+        final HashSet<PsiFileSystemItem> result = new HashSet<>();
+        if (psiPackage != null) {
+            final PsiDirectory[] directories = psiPackage.getDirectories();
+            result.addAll(Arrays.asList(directories));
+        }
+        return result;
     }
 
-    protected List<WeaveModulePsiReference> createReferences(final TextRange range, final int index) {
-        WeaveModulePsiReference reference = new WeaveModulePsiReference(this, range, index);
-        return reference == null ? Collections.emptyList() : Collections.singletonList(reference);
+    @NotNull
+    private Project getProject() {
+        return getElement().getProject();
+    }
+
+
+    protected List<WeaveModulePsiReference> createReferences(final TextRange range, String fqn, final int index) {
+        WeaveModulePsiReference reference = new WeaveModulePsiReference(this, fqn, range, index);
+        return Collections.singletonList(reference);
     }
 
 
@@ -81,10 +87,4 @@ public class WeaveModuleReferenceSet {
         return getPsiReferences().get(index);
     }
 
-    public Collection<PsiPackage> resolvePackageName(@Nullable PsiPackage context, final String packageName) {
-        if (context != null) {
-            return ContainerUtil.filter(context.getSubPackages(mySearchScope), aPackage -> Comparing.equal(aPackage.getName(), packageName));
-        }
-        return Collections.emptyList();
-    }
 }

@@ -95,6 +95,10 @@ public class WeaveVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitContainerModuleIdentifier(@NotNull WeaveContainerModuleIdentifier o) {
+    visitPsiElement(o);
+  }
+
   public void visitCustomInterpolatorExpression(@NotNull WeaveCustomInterpolatorExpression o) {
     visitExpression(o);
     // visitNamedElement(o);
@@ -199,10 +203,6 @@ public class WeaveVisitor extends PsiElementVisitor {
   }
 
   public void visitIdentifier(@NotNull WeaveIdentifier o) {
-    visitPsiElement(o);
-  }
-
-  public void visitIdentifierPackage(@NotNull WeaveIdentifierPackage o) {
     visitPsiElement(o);
   }
 
