@@ -18,11 +18,11 @@ public class WeaveVisitor extends PsiElementVisitor {
   }
 
   public void visitAnyDateLiteral(@NotNull WeaveAnyDateLiteral o) {
-    visitExpression(o);
+    visitLiteralExpression(o);
   }
 
   public void visitAnyRegexLiteral(@NotNull WeaveAnyRegexLiteral o) {
-    visitExpression(o);
+    visitLiteralExpression(o);
   }
 
   public void visitArrayDeconstructPattern(@NotNull WeaveArrayDeconstructPattern o) {
@@ -39,10 +39,6 @@ public class WeaveVisitor extends PsiElementVisitor {
   }
 
   public void visitAttribute(@NotNull WeaveAttribute o) {
-    visitPsiElement(o);
-  }
-
-  public void visitAttributeElement(@NotNull WeaveAttributeElement o) {
     visitPsiElement(o);
   }
 
@@ -68,7 +64,7 @@ public class WeaveVisitor extends PsiElementVisitor {
   }
 
   public void visitBooleanLiteral(@NotNull WeaveBooleanLiteral o) {
-    visitExpression(o);
+    visitLiteralExpression(o);
   }
 
   public void visitBracketSelectorExpression(@NotNull WeaveBracketSelectorExpression o) {
@@ -84,7 +80,7 @@ public class WeaveVisitor extends PsiElementVisitor {
   }
 
   public void visitConditionalAttribute(@NotNull WeaveConditionalAttribute o) {
-    visitPsiElement(o);
+    visitAttribute(o);
   }
 
   public void visitConditionalExpression(@NotNull WeaveConditionalExpression o) {
@@ -92,7 +88,7 @@ public class WeaveVisitor extends PsiElementVisitor {
   }
 
   public void visitConditionalKeyValuePair(@NotNull WeaveConditionalKeyValuePair o) {
-    visitPsiElement(o);
+    visitKeyValuePair(o);
   }
 
   public void visitContainerModuleIdentifier(@NotNull WeaveContainerModuleIdentifier o) {
@@ -141,8 +137,12 @@ public class WeaveVisitor extends PsiElementVisitor {
     visitExpression(o);
   }
 
+  public void visitDynamicAttribute(@NotNull WeaveDynamicAttribute o) {
+    visitAttribute(o);
+  }
+
   public void visitDynamicKeyValuePair(@NotNull WeaveDynamicKeyValuePair o) {
-    visitPsiElement(o);
+    visitKeyValuePair(o);
   }
 
   public void visitDynamicReturn(@NotNull WeaveDynamicReturn o) {
@@ -230,10 +230,6 @@ public class WeaveVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
-  public void visitKeyExpression(@NotNull WeaveKeyExpression o) {
-    visitExpression(o);
-  }
-
   public void visitKeyType(@NotNull WeaveKeyType o) {
     visitType(o);
   }
@@ -247,7 +243,7 @@ public class WeaveVisitor extends PsiElementVisitor {
   }
 
   public void visitLambdaLiteral(@NotNull WeaveLambdaLiteral o) {
-    visitExpression(o);
+    visitLiteralExpression(o);
   }
 
   public void visitLambdaType(@NotNull WeaveLambdaType o) {
@@ -322,11 +318,11 @@ public class WeaveVisitor extends PsiElementVisitor {
   }
 
   public void visitNullLiteral(@NotNull WeaveNullLiteral o) {
-    visitExpression(o);
+    visitLiteralExpression(o);
   }
 
   public void visitNumberLiteral(@NotNull WeaveNumberLiteral o) {
-    visitExpression(o);
+    visitLiteralExpression(o);
   }
 
   public void visitObjectDeconstructExpression(@NotNull WeaveObjectDeconstructExpression o) {
@@ -378,6 +374,10 @@ public class WeaveVisitor extends PsiElementVisitor {
     visitExpression(o);
   }
 
+  public void visitQualifiedName(@NotNull WeaveQualifiedName o) {
+    visitPsiElement(o);
+  }
+
   public void visitReferenceType(@NotNull WeaveReferenceType o) {
     visitType(o);
   }
@@ -406,8 +406,13 @@ public class WeaveVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitSimpleAttribute(@NotNull WeaveSimpleAttribute o) {
+    visitAttribute(o);
+  }
+
   public void visitSimpleKeyValuePair(@NotNull WeaveSimpleKeyValuePair o) {
-    visitNavigatablePsiElement(o);
+    visitKeyValuePair(o);
+    // visitNavigatablePsiElement(o);
   }
 
   public void visitSingleKeyValuePairObj(@NotNull WeaveSingleKeyValuePairObj o) {
@@ -415,7 +420,7 @@ public class WeaveVisitor extends PsiElementVisitor {
   }
 
   public void visitStringLiteral(@NotNull WeaveStringLiteral o) {
-    visitExpression(o);
+    visitLiteralExpression(o);
   }
 
   public void visitType(@NotNull WeaveType o) {
@@ -440,7 +445,7 @@ public class WeaveVisitor extends PsiElementVisitor {
   }
 
   public void visitUndefinedLiteral(@NotNull WeaveUndefinedLiteral o) {
-    visitExpression(o);
+    visitLiteralExpression(o);
   }
 
   public void visitUnionType(@NotNull WeaveUnionType o) {

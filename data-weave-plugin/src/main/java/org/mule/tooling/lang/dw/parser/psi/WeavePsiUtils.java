@@ -170,6 +170,10 @@ public class WeavePsiUtils {
         return null;
     }
 
+    public static boolean isArrayItem(PsiElement element) {
+        return element.getParent() instanceof WeaveArrayExpression;
+    }
+
 
     private static boolean isNotWeaveFile(PsiElement parent) {
         return parent != null && !(parent instanceof WeaveFile);

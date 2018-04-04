@@ -8,17 +8,16 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.*;
-import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import org.mule.tooling.lang.dw.parser.psi.*;
 
-public class WeaveAttributeElementImpl extends ASTWrapperPsiElement implements WeaveAttributeElement {
+public class WeaveSimpleAttributeImpl extends WeaveAttributeImpl implements WeaveSimpleAttribute {
 
-  public WeaveAttributeElementImpl(ASTNode node) {
+  public WeaveSimpleAttributeImpl(ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull WeaveVisitor visitor) {
-    visitor.visitAttributeElement(this);
+    visitor.visitSimpleAttribute(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -27,21 +26,15 @@ public class WeaveAttributeElementImpl extends ASTWrapperPsiElement implements W
   }
 
   @Override
-  @Nullable
-  public WeaveAttribute getAttribute() {
-    return findChildByClass(WeaveAttribute.class);
+  @NotNull
+  public WeaveExpression getExpression() {
+    return findNotNullChildByClass(WeaveExpression.class);
   }
 
   @Override
-  @Nullable
-  public WeaveConditionalAttribute getConditionalAttribute() {
-    return findChildByClass(WeaveConditionalAttribute.class);
-  }
-
-  @Override
-  @Nullable
-  public WeaveEnclosedExpression getEnclosedExpression() {
-    return findChildByClass(WeaveEnclosedExpression.class);
+  @NotNull
+  public WeaveQualifiedName getQualifiedName() {
+    return findNotNullChildByClass(WeaveQualifiedName.class);
   }
 
 }

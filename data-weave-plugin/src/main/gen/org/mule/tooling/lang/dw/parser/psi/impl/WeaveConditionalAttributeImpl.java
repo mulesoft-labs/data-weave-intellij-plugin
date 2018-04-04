@@ -8,10 +8,9 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.*;
-import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import org.mule.tooling.lang.dw.parser.psi.*;
 
-public class WeaveConditionalAttributeImpl extends ASTWrapperPsiElement implements WeaveConditionalAttribute {
+public class WeaveConditionalAttributeImpl extends WeaveAttributeImpl implements WeaveConditionalAttribute {
 
   public WeaveConditionalAttributeImpl(ASTNode node) {
     super(node);
@@ -28,8 +27,14 @@ public class WeaveConditionalAttributeImpl extends ASTWrapperPsiElement implemen
 
   @Override
   @NotNull
-  public List<WeaveExpression> getExpressionList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, WeaveExpression.class);
+  public WeaveExpression getExpression() {
+    return findNotNullChildByClass(WeaveExpression.class);
+  }
+
+  @Override
+  @NotNull
+  public WeaveSimpleAttribute getSimpleAttribute() {
+    return findNotNullChildByClass(WeaveSimpleAttribute.class);
   }
 
 }

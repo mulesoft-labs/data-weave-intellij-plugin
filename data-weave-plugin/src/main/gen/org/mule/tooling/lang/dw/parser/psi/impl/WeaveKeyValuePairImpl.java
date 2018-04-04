@@ -11,7 +11,7 @@ import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import org.mule.tooling.lang.dw.parser.psi.*;
 
-public class WeaveKeyValuePairImpl extends ASTWrapperPsiElement implements WeaveKeyValuePair {
+public abstract class WeaveKeyValuePairImpl extends ASTWrapperPsiElement implements WeaveKeyValuePair {
 
   public WeaveKeyValuePairImpl(ASTNode node) {
     super(node);
@@ -24,18 +24,6 @@ public class WeaveKeyValuePairImpl extends ASTWrapperPsiElement implements Weave
   public void accept(@NotNull PsiElementVisitor visitor) {
     if (visitor instanceof WeaveVisitor) accept((WeaveVisitor)visitor);
     else super.accept(visitor);
-  }
-
-  @Override
-  @Nullable
-  public WeaveConditionalKeyValuePair getConditionalKeyValuePair() {
-    return findChildByClass(WeaveConditionalKeyValuePair.class);
-  }
-
-  @Override
-  @Nullable
-  public WeaveSimpleKeyValuePair getSimpleKeyValuePair() {
-    return findChildByClass(WeaveSimpleKeyValuePair.class);
   }
 
 }

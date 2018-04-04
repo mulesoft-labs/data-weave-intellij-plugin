@@ -5,6 +5,12 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface WeaveBooleanLiteral extends WeaveLiteralExpression {
+public interface WeaveSimpleAttribute extends WeaveAttribute {
+
+  @NotNull
+  WeaveExpression getExpression();
+
+  @NotNull
+  WeaveQualifiedName getQualifiedName();
 
 }

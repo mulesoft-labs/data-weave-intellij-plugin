@@ -85,6 +85,7 @@
         <languageInjector implementation="org.mule.tooling.lang.dw.injector.StringInterpolationLanguageInjector"/>
 
         <documentationProvider  implementation="org.mule.tooling.lang.dw.documentation.WeaveDocumentationProvider"/>
+        <breadcrumbsInfoProvider implementation="org.mule.tooling.lang.dw.breadcrums.WeaveBreadcrumbsInfoProvider"/>
         <!--<toolWindow id="Design Center" anchor="bottom"-->
         <!--factoryClass="org.mule.tooling.lang.browser.BrowserToolWindowFactory"/>-->
 

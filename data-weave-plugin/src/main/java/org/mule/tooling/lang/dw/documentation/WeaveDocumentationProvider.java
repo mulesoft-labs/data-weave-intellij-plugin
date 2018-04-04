@@ -12,7 +12,7 @@ public class WeaveDocumentationProvider implements DocumentationProvider {
     @Nullable
     @Override
     public String getQuickNavigateInfo(PsiElement element, PsiElement originalElement) {
-        return DataWeaveServiceManager.getInstance(originalElement.getProject()).hover(originalElement);
+        return DataWeaveServiceManager.getInstance(element.getProject()).hover(element);
     }
 
     @Nullable
@@ -24,20 +24,27 @@ public class WeaveDocumentationProvider implements DocumentationProvider {
     @Nullable
     @Override
     public String generateDoc(PsiElement element, @Nullable PsiElement originalElement) {
-        if (originalElement == null) {
-            return DataWeaveServiceManager.getInstance(element.getProject()).documentation(element);
+        String documentation;
+        if (element instanceof WeaveDocumentationPsiElement) {
+            documentation = DataWeaveServiceManager.toHtml(((WeaveDocumentationPsiElement) element).getDocs());
         } else {
-            return DataWeaveServiceManager.getInstance(originalElement.getProject()).documentation(originalElement);
+            documentation = DataWeaveServiceManager.getInstance(element.getProject()).documentation(element);
+            if (originalElement != null && documentation == null) {
+                documentation = DataWeaveServiceManager.getInstance(originalElement.getProject()).documentation(originalElement);
+            }
         }
+        return documentation;
     }
 
     @Nullable
     @Override
     public PsiElement getDocumentationElementForLookupItem(PsiManager psiManager, Object lookupElement, PsiElement element) {
         if (lookupElement instanceof DataWeaveServiceManager.CompletionData) {
-            return null;
+            DataWeaveServiceManager.CompletionData completionData = (DataWeaveServiceManager.CompletionData) lookupElement;
+            return new WeaveDocumentationPsiElement(element, completionData.getDocumentation(), completionData.getLabel());
+        } else {
+            return element;
         }
-        return null;
     }
 
     @Nullable

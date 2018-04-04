@@ -5,12 +5,12 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface WeaveConditionalKeyValuePair extends PsiElement {
+public interface WeaveConditionalKeyValuePair extends WeaveKeyValuePair {
 
   @NotNull
-  List<WeaveExpression> getExpressionList();
+  WeaveExpression getExpression();
 
   @NotNull
-  WeaveKey getKey();
+  WeaveSimpleKeyValuePair getSimpleKeyValuePair();
 
 }

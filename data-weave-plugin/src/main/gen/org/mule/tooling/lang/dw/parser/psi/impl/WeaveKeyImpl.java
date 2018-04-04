@@ -34,8 +34,8 @@ public class WeaveKeyImpl extends ASTWrapperPsiElement implements WeaveKey {
 
   @Override
   @NotNull
-  public WeaveExpression getExpression() {
-    return findNotNullChildByClass(WeaveExpression.class);
+  public WeaveQualifiedName getQualifiedName() {
+    return findNotNullChildByClass(WeaveQualifiedName.class);
   }
 
 }

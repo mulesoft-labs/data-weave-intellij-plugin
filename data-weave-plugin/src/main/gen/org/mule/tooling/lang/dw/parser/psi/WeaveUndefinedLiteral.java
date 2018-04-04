@@ -5,6 +5,6 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface WeaveUndefinedLiteral extends WeaveExpression {
+public interface WeaveUndefinedLiteral extends WeaveLiteralExpression {
 
 }

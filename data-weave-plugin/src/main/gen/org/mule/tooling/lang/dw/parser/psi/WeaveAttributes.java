@@ -8,6 +8,6 @@ import com.intellij.psi.PsiElement;
 public interface WeaveAttributes extends PsiElement {
 
   @NotNull
-  List<WeaveAttributeElement> getAttributeElementList();
+  List<WeaveAttribute> getAttributeList();
 
 }

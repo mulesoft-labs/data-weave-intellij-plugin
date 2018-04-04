@@ -8,11 +8,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.*;
-import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import org.mule.tooling.lang.dw.parser.psi.*;
 import com.intellij.navigation.ItemPresentation;
 
-public class WeaveSimpleKeyValuePairImpl extends ASTWrapperPsiElement implements WeaveSimpleKeyValuePair {
+public class WeaveSimpleKeyValuePairImpl extends WeaveKeyValuePairImpl implements WeaveSimpleKeyValuePair {
 
   public WeaveSimpleKeyValuePairImpl(ASTNode node) {
     super(node);

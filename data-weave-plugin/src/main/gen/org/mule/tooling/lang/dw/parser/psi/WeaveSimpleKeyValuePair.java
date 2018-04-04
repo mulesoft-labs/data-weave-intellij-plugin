@@ -7,7 +7,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.NavigatablePsiElement;
 import com.intellij.navigation.ItemPresentation;
 
-public interface WeaveSimpleKeyValuePair extends NavigatablePsiElement {
+public interface WeaveSimpleKeyValuePair extends WeaveKeyValuePair, NavigatablePsiElement {
 
   @NotNull
   WeaveExpression getExpression();

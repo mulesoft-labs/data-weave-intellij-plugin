@@ -10,7 +10,7 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.*;
 import org.mule.tooling.lang.dw.parser.psi.*;
 
-public class WeaveLambdaLiteralImpl extends WeaveExpressionImpl implements WeaveLambdaLiteral {
+public class WeaveLambdaLiteralImpl extends WeaveLiteralExpressionImpl implements WeaveLambdaLiteral {
 
   public WeaveLambdaLiteralImpl(ASTNode node) {
     super(node);

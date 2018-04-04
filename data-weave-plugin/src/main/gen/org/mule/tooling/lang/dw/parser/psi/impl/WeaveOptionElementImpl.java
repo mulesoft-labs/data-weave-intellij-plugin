@@ -28,14 +28,14 @@ public class WeaveOptionElementImpl extends ASTWrapperPsiElement implements Weav
 
   @Override
   @NotNull
-  public WeaveExpression getExpression() {
-    return findNotNullChildByClass(WeaveExpression.class);
+  public WeaveIdentifier getIdentifier() {
+    return findNotNullChildByClass(WeaveIdentifier.class);
   }
 
   @Override
   @NotNull
-  public WeaveIdentifier getIdentifier() {
-    return findNotNullChildByClass(WeaveIdentifier.class);
+  public WeaveLiteralExpression getLiteralExpression() {
+    return findNotNullChildByClass(WeaveLiteralExpression.class);
   }
 
 }

@@ -8,9 +8,9 @@ import com.intellij.psi.PsiElement;
 public interface WeaveOptionElement extends PsiElement {
 
   @NotNull
-  WeaveExpression getExpression();
+  WeaveIdentifier getIdentifier();
 
   @NotNull
-  WeaveIdentifier getIdentifier();
+  WeaveLiteralExpression getLiteralExpression();
 
 }

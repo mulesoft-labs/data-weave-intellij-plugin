@@ -7,10 +7,4 @@ import com.intellij.psi.PsiElement;
 
 public interface WeaveKeyValuePair extends PsiElement {
 
-  @Nullable
-  WeaveConditionalKeyValuePair getConditionalKeyValuePair();
-
-  @Nullable
-  WeaveSimpleKeyValuePair getSimpleKeyValuePair();
-
 }

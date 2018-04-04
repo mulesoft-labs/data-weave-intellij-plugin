@@ -5,7 +5,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface WeaveLambdaLiteral extends WeaveExpression {
+public interface WeaveLambdaLiteral extends WeaveLiteralExpression {
 
   @Nullable
   WeaveExpression getExpression();

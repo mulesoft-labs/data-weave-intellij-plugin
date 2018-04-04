@@ -11,6 +11,6 @@ public interface WeaveKey extends PsiElement {
   WeaveAttributes getAttributes();
 
   @NotNull
-  WeaveExpression getExpression();
+  WeaveQualifiedName getQualifiedName();
 
 }

@@ -28,8 +28,8 @@ public class WeaveAttributesImpl extends ASTWrapperPsiElement implements WeaveAt
 
   @Override
   @NotNull
-  public List<WeaveAttributeElement> getAttributeElementList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, WeaveAttributeElement.class);
+  public List<WeaveAttribute> getAttributeList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, WeaveAttribute.class);
   }
 
 }

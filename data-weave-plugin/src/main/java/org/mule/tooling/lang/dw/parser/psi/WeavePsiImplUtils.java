@@ -147,7 +147,7 @@ public class WeavePsiImplUtils {
             @Nullable
             @Override
             public String getPresentableText() {
-                return kvp.getKey().getExpression().getText();
+                return kvp.getKey().getText();
             }
 
             @Nullable

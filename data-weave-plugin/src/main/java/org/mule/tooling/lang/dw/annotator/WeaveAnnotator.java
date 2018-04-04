@@ -11,9 +11,7 @@ import org.mule.tooling.lang.dw.parser.psi.*;
 public class WeaveAnnotator implements Annotator {
   @Override
   public void annotate(@NotNull PsiElement element, @NotNull AnnotationHolder holder) {
-    if (element instanceof WeaveKeyExpression) {
-      holder.createInfoAnnotation(element, "Property key").setTextAttributes(WeaveSyntaxHighlighter.KEY);
-    }
+
     if (element instanceof WeaveIdentifier && element.getParent() instanceof WeaveFunctionDefinition) {
       holder.createInfoAnnotation(element, "Function").setTextAttributes(WeaveSyntaxHighlighter.FUNCTION_DECLARATION);
     }

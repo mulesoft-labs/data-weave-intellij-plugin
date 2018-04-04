@@ -8,17 +8,16 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.*;
-import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import org.mule.tooling.lang.dw.parser.psi.*;
 
-public class WeaveMultipleKeyValuePairObjImpl extends ASTWrapperPsiElement implements WeaveMultipleKeyValuePairObj {
+public class WeaveDynamicAttributeImpl extends WeaveAttributeImpl implements WeaveDynamicAttribute {
 
-  public WeaveMultipleKeyValuePairObjImpl(ASTNode node) {
+  public WeaveDynamicAttributeImpl(ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull WeaveVisitor visitor) {
-    visitor.visitMultipleKeyValuePairObj(this);
+    visitor.visitDynamicAttribute(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -28,8 +27,8 @@ public class WeaveMultipleKeyValuePairObjImpl extends ASTWrapperPsiElement imple
 
   @Override
   @NotNull
-  public List<WeaveKeyValuePair> getKeyValuePairList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, WeaveKeyValuePair.class);
+  public WeaveEnclosedExpression getEnclosedExpression() {
+    return findNotNullChildByClass(WeaveEnclosedExpression.class);
   }
 
 }

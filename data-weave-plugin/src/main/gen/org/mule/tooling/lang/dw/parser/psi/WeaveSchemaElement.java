@@ -7,10 +7,10 @@ import com.intellij.psi.PsiElement;
 
 public interface WeaveSchemaElement extends PsiElement {
 
-  @NotNull
-  List<WeaveExpression> getExpressionList();
-
   @Nullable
   WeaveIdentifier getIdentifier();
+
+  @NotNull
+  List<WeaveLiteralExpression> getLiteralExpressionList();
 
 }

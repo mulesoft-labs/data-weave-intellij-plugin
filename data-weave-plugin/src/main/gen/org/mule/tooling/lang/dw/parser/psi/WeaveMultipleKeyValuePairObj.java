@@ -8,9 +8,6 @@ import com.intellij.psi.PsiElement;
 public interface WeaveMultipleKeyValuePairObj extends PsiElement {
 
   @NotNull
-  List<WeaveDynamicKeyValuePair> getDynamicKeyValuePairList();
-
-  @NotNull
   List<WeaveKeyValuePair> getKeyValuePairList();
 
 }

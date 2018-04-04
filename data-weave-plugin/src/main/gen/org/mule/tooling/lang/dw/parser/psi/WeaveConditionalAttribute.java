@@ -5,9 +5,12 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface WeaveConditionalAttribute extends PsiElement {
+public interface WeaveConditionalAttribute extends WeaveAttribute {
 
   @NotNull
-  List<WeaveExpression> getExpressionList();
+  WeaveExpression getExpression();
+
+  @NotNull
+  WeaveSimpleAttribute getSimpleAttribute();
 
 }

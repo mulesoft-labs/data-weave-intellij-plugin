@@ -97,9 +97,12 @@
   ]
 
     extends(".*(Directive)")=Directive
-    extends(".*(Expression|Literal)")=Expression
+    extends(".*(Expression)")=Expression
     extends(".*(Type)")=Type
     extends(".*(Pattern)")=Pattern
+    extends(".*(Literal)")=LiteralExpression
+    extends(".*(KeyValuePair)")=KeyValuePair
+    extends(".*(Attribute)")=Attribute
     pin(".*Directive") =1
 
 }
@@ -189,23 +192,25 @@ SimpleKeyValuePair ::= Key ':' Expression
     implements="com.intellij.psi.NavigatablePsiElement"
     methods=[getPresentation]
 }
-ConditionalKeyValuePair ::= '(' Key ':' Expression ')' IF SimpleExpression
+ConditionalKeyValuePair ::= '(' SimpleKeyValuePair ')' IF SimpleExpression
 
-Key::=  KeyExpression Attributes?
+Key::=  QualifiedName Attributes?
 
-KeyExpression::= DeclaredNamespace? (Identifier | StringLiteral| EnclosedExpression)
+QualifiedName::= DeclaredNamespace? (Identifier | StringLiteral| EnclosedExpression)
 
 DeclaredNamespace::= Identifier '#'
 
-Attributes::= '@(' ( AttributeElement ( ',' AttributeElement )* )? ')'
+Attributes::= '@(' ( Attribute ( ',' Attribute )* )? ')'
 
-AttributeElement::= ConditionalAttribute
-           | Attribute
-           | EnclosedExpression
+Attribute::= ConditionalAttribute
+           | SimpleAttribute
+           | DynamicAttribute
 
-Attribute::= KeyExpression ':' Expression
+DynamicAttribute ::= EnclosedExpression
 
-ConditionalAttribute::= '(' KeyExpression ':' Expression ')' IF Expression {pin = 6}
+SimpleAttribute::= QualifiedName ':' Expression
+
+ConditionalAttribute::= '(' SimpleAttribute ')' IF Expression {pin = 6}
 
 Expression::= MatchExpression
             | CustomInterpolatorExpression

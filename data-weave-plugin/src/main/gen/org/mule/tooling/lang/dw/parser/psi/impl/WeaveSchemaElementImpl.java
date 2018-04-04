@@ -27,15 +27,15 @@ public class WeaveSchemaElementImpl extends ASTWrapperPsiElement implements Weav
   }
 
   @Override
-  @NotNull
-  public List<WeaveExpression> getExpressionList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, WeaveExpression.class);
-  }
-
-  @Override
   @Nullable
   public WeaveIdentifier getIdentifier() {
     return findChildByClass(WeaveIdentifier.class);
+  }
+
+  @Override
+  @NotNull
+  public List<WeaveLiteralExpression> getLiteralExpressionList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, WeaveLiteralExpression.class);
   }
 
 }

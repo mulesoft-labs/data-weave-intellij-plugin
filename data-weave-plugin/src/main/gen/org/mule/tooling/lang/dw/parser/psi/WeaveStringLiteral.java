@@ -5,7 +5,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface WeaveStringLiteral extends WeaveExpression {
+public interface WeaveStringLiteral extends WeaveLiteralExpression {
 
   @Nullable
   PsiElement getBacktikedQuotedString();
