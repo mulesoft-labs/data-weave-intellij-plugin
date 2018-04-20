@@ -15,13 +15,13 @@ import com.intellij.xdebugger.XDebugProcess;
 import com.intellij.xdebugger.XDebugProcessStarter;
 import com.intellij.xdebugger.XDebugSession;
 import com.intellij.xdebugger.XDebuggerManager;
-import org.mule.weave.v2.debugger.client.DebuggerClient;
-import org.mule.weave.v2.debugger.client.tcp.TcpClientDebuggerProtocol;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.launcher.configuration.WeaveConfiguration;
 import org.mule.tooling.lang.dw.launcher.configuration.runner.WeaveRunnerCommandLine;
+import org.mule.weave.v2.debugger.client.DebuggerClient;
+import org.mule.weave.v2.debugger.client.tcp.TcpClientProtocol;
 
 public class WeaveDebuggerRunner extends DefaultProgramRunner {
 
@@ -63,7 +63,7 @@ public class WeaveDebuggerRunner extends DefaultProgramRunner {
         final String path = project.getBasePath();
         final String relativePath = weaveFile.substring(path.length());
         final VirtualFile fileByRelativePath = projectFile.findFileByRelativePath(relativePath);
-        final DebuggerClient localhost = new DebuggerClient(new WeaveDebuggerClientListener(session, fileByRelativePath), new TcpClientDebuggerProtocol("localhost", 6565));
+        final DebuggerClient localhost = new DebuggerClient(new WeaveDebuggerClientListener(session, fileByRelativePath), new TcpClientProtocol("localhost", 6565));
         final ExecutionResult result = state.execute(env.getExecutor(), WeaveDebuggerRunner.this);
         new DebuggerConnector(localhost).start();
         return new WeaveDebugProcess(session, localhost, result);

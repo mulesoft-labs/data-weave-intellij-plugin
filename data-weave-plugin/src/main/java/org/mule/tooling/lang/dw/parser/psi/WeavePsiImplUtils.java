@@ -164,6 +164,15 @@ public class WeavePsiImplUtils {
         };
     }
 
+    public static boolean isMappingDocument(WeaveDocument document){
+        return document.getBody() != null;
+    }
+
+    public static boolean isModuleDocument(WeaveDocument document){
+        return document.getBody() == null;
+    }
+
+
     @Nullable
     public static WeaveExpression getLeft(WeaveBinaryExpression expression) {
         final List<WeaveExpression> expressionList = expression.getExpressionList();

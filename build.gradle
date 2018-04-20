@@ -45,7 +45,7 @@ subprojects {
     assemble.dependsOn jarSources
 
     intellij {
-        version = ideaVersion
+        version = "LATEST-EAP-SNAPSHOT"
         updateSinceUntilBuild = false
         downloadSources = false
         sandboxDirectory = "${rootProject.buildDir}/idea-sandbox"

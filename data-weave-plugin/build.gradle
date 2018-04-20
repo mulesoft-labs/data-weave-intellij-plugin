@@ -21,7 +21,7 @@ dependencies {
     testCompile 'junit:junit:4.+'
 
     compile("org.jetbrains:markdown:0.1.12")
-    compile(group: 'org.mule.weave', name: 'debugger', version: '2.1.3-SNAPSHOT')
-    compile(group: 'org.mule.weave', name: 'parser', version: '2.1.3-lsp-SNAPSHOT')
+    compile(group: 'org.mule.weave', name: 'debugger', version: weaveVersion)
+    compile(group: 'org.mule.weave', name: 'parser', version: weaveVersion)
 }
 

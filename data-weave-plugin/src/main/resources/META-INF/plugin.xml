@@ -90,11 +90,15 @@
         <!--factoryClass="org.mule.tooling.lang.browser.BrowserToolWindowFactory"/>-->
 
 
+        <toolWindow id="Weave Preview" anchor="bottom" icon="AllIcons.Actions.Preview" factoryClass="org.mule.tooling.lang.dw.preview.PreviewToolWindowFactory" />
     </extensions>
 
     <project-components>
         <component>
             <implementation-class>org.mule.tooling.lang.dw.service.DataWeaveServiceManager</implementation-class>
+        </component>
+        <component>
+            <implementation-class>org.mule.tooling.lang.dw.agent.WeaveAgentComponent</implementation-class>
         </component>
     </project-components>
     <application-components>

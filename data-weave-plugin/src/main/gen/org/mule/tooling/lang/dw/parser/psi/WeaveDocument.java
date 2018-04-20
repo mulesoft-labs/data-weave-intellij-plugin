@@ -26,4 +26,8 @@ public interface WeaveDocument extends NavigatablePsiElement, PsiQualifiedNamedE
 
   WeaveDocument setName(String name);
 
+  boolean isMappingDocument();
+
+  boolean isModuleDocument();
+
 }

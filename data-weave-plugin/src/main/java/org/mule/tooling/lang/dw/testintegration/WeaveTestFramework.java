@@ -38,10 +38,8 @@ public class WeaveTestFramework implements TestFramework {
 
     @Override
     public boolean isLibraryAttached(@NotNull Module module) {
-//        GlobalSearchScope scope = GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module);
         VirtualFile fileByUrl = VirtualFileManager.getInstance().findFileByUrl("dw/test/Test.dwl");
         return fileByUrl != null;
-
     }
 
     @Nullable
@@ -110,7 +108,6 @@ public class WeaveTestFramework implements TestFramework {
 
     @Override
     public boolean isTestMethod(PsiElement psiElement) {
-
         return false;
     }
 

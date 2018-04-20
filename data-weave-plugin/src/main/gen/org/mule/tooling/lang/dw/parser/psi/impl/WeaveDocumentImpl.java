@@ -57,4 +57,12 @@ public class WeaveDocumentImpl extends ASTWrapperPsiElement implements WeaveDocu
     return WeavePsiImplUtils.setName(this, name);
   }
 
+  public boolean isMappingDocument() {
+    return WeavePsiImplUtils.isMappingDocument(this);
+  }
+
+  public boolean isModuleDocument() {
+    return WeavePsiImplUtils.isModuleDocument(this);
+  }
+
 }

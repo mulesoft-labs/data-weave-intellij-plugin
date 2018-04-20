@@ -5,17 +5,12 @@ import com.intellij.execution.configurations.JavaCommandLineState;
 import com.intellij.execution.configurations.JavaParameters;
 import com.intellij.execution.executors.DefaultDebugExecutor;
 import com.intellij.execution.runners.ExecutionEnvironment;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ProjectRootManager;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.mule.tooling.lang.dw.launcher.configuration.WeaveConfiguration;
 import org.mule.tooling.lang.dw.launcher.configuration.ui.WeaveInput;
-import org.mule.tooling.lang.dw.util.WeaveSdk;
 
-import java.io.File;
 import java.util.List;
 
 public class WeaveRunnerCommandLine extends JavaCommandLineState {
@@ -33,28 +28,10 @@ public class WeaveRunnerCommandLine extends JavaCommandLineState {
 
   @Override
   protected JavaParameters createJavaParameters() throws ExecutionException {
-    final JavaParameters javaParams = new JavaParameters();
     // Use the same JDK as the project
     final Project project = this.model.getProject();
-    final ProjectRootManager manager = ProjectRootManager.getInstance(project);
-    javaParams.setJdk(manager.getProjectSdk());
-    // All modules to use the same things
-    final Module[] modules = ModuleManager.getInstance(project).getModules();
-    if (modules.length > 0) {
-      for (Module module : modules) {
-        javaParams.configureByModule(module, JavaParameters.JDK_AND_CLASSES);
-      }
-    }
-    javaParams.setMainClass("org.mule.weave.v2.runtime.utils.WeaveRunner");
 
-    //Add default vm parameters
-    javaParams.getVMParametersList().add("-Xms1024m");
-    javaParams.getVMParametersList().add("-Xmx1024m");
-    javaParams.getVMParametersList().add("-XX:+HeapDumpOnOutOfMemoryError");
-    javaParams.getVMParametersList().add("-XX:+AlwaysPreTouch");
-    javaParams.getVMParametersList().add("-XX:NewSize=512m");
-    javaParams.getVMParametersList().add("-XX:MaxNewSize=512m");
-    javaParams.getVMParametersList().add("-XX:MaxTenuringThreshold=8");
+    final JavaParameters javaParams = WeaveRunnerHelper.createJavaParameters(project);
 
     final List<WeaveInput> weaveInputs = model.getWeaveInputs();
     for (WeaveInput weaveInput : weaveInputs) {

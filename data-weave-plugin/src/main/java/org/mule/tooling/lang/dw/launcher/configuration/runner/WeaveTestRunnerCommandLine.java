@@ -43,16 +43,10 @@ public class WeaveTestRunnerCommandLine extends JavaCommandLineState {
         javaParams.setJdk(manager.getProjectSdk());
         // All modules to use the same things
         javaParams.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS);
-        javaParams.setMainClass("org.mule.weave.v2.runtime.utils.WeaveRunner");
+        javaParams.setMainClass(WeaveRunnerHelper.WEAVE_RUNNER_MAIN_CLASS);
 
         //Add default vm parameters
-        javaParams.getVMParametersList().add("-Xms1024m");
-        javaParams.getVMParametersList().add("-Xmx1024m");
-        javaParams.getVMParametersList().add("-XX:+HeapDumpOnOutOfMemoryError");
-        javaParams.getVMParametersList().add("-XX:+AlwaysPreTouch");
-        javaParams.getVMParametersList().add("-XX:NewSize=512m");
-        javaParams.getVMParametersList().add("-XX:MaxNewSize=512m");
-        javaParams.getVMParametersList().add("-XX:MaxTenuringThreshold=8");
+        WeaveRunnerHelper.setupDefaultVMParams(javaParams);
 
         ParametersList params = javaParams.getProgramParametersList();
         params.add("--wtest");

@@ -1,5 +1,8 @@
 Intellij snippets
 
+Replace error message panel with
+com.intellij.notification.EventLogConsole.createLogEditor
+
 Module Interesting stuff
 
 * com.intellij.openapi.roots.ModuleRootManager
