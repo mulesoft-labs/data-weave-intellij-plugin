@@ -30,6 +30,7 @@ import org.mule.tooling.lang.dw.WeaveFileType;
 import org.mule.tooling.lang.dw.agent.RunPreviewCallback;
 import org.mule.tooling.lang.dw.agent.WeaveAgentComponent;
 import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
+import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.ui.MessagePanel;
 import org.mule.weave.v2.debugger.event.PreviewExecutedFailedEvent;
 import org.mule.weave.v2.debugger.event.PreviewExecutedSuccessfulEvent;
@@ -39,6 +40,8 @@ import java.awt.*;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils.getWeaveDocument;
 
 public class WeavePreviewComponent implements Disposable {
 
@@ -86,36 +89,43 @@ public class WeavePreviewComponent implements Disposable {
         return createPreviewPanel();
     }
 
+    public PsiFile getCurrentFile() {
+        return currentFile;
+    }
+
     public void runPreview() {
 
-        VirtualFile selectedItem = (VirtualFile) scenariosComboBox.getSelectedItem();
-        if (selectedItem == null)
-            return;
+        ApplicationManager.getApplication().runReadAction(() -> {
+            VirtualFile selectedItem = (VirtualFile) scenariosComboBox.getSelectedItem();
+            if (selectedItem == null)
+                return;
 
-        final Document document = PsiDocumentManager.getInstance(myProject).getDocument(currentFile);
-        final WeaveDocument weaveDocument = (WeaveDocument) currentFile.getChildren()[0];
-        final WeaveAgentComponent agentComponent = WeaveAgentComponent.getInstance(myProject);
-        final String inputsPath = selectedItem.findChild(INPUT_FOLDER_NAME).getPath();
-        final Module module = ModuleUtil.findModuleForFile(currentFile.getVirtualFile(), myProject);
-        agentComponent.runPreview(inputsPath, document.getText(), weaveDocument.getQualifiedName(), currentFile.getVirtualFile().getUrl(), 10000L, module, new RunPreviewCallback() {
+            final Document document = PsiDocumentManager.getInstance(myProject).getDocument(currentFile);
+            final WeaveDocument weaveDocument = (WeaveDocument) currentFile.getChildren()[0];
+            final WeaveAgentComponent agentComponent = WeaveAgentComponent.getInstance(myProject);
+            final String inputsPath = selectedItem.findChild(INPUT_FOLDER_NAME).getPath();
+            final Module module = ModuleUtil.findModuleForFile(currentFile.getVirtualFile(), myProject);
+            agentComponent.runPreview(inputsPath, document.getText(), weaveDocument.getQualifiedName(), currentFile.getVirtualFile().getUrl(), 10000L, module, new RunPreviewCallback() {
 
-            @Override
-            public void onPreviewSuccessful(PreviewExecutedSuccessfulEvent result) {
-                onPreviewResult(result);
-            }
-
-            @Override
-            public void onPreviewFailed(PreviewExecutedFailedEvent message) {
-                disposeOutputEditorIfExists();
-                Component component = outputEditorPanel.getComponent(0);
-                if (component instanceof PreviewErrorPanel) {
-                    ((PreviewErrorPanel) component).updateMessage(message.message());
-                } else {
-                    PreviewErrorPanel errorPanel = new PreviewErrorPanel(message.message());
-                    changeMainPanel(errorPanel);
+                @Override
+                public void onPreviewSuccessful(PreviewExecutedSuccessfulEvent result) {
+                    onPreviewResult(result);
                 }
-            }
+
+                @Override
+                public void onPreviewFailed(PreviewExecutedFailedEvent message) {
+                    disposeOutputEditorIfExists();
+                    Component component = outputEditorPanel.getComponent(0);
+                    if (component instanceof PreviewErrorPanel) {
+                        ((PreviewErrorPanel) component).updateMessage(message.message());
+                    } else {
+                        PreviewErrorPanel errorPanel = new PreviewErrorPanel(message.message());
+                        changeMainPanel(errorPanel);
+                    }
+                }
+            });
         });
+
     }
 
     public void changeMainPanel(JComponent errorPanel2) {
@@ -145,17 +155,6 @@ public class WeavePreviewComponent implements Disposable {
         return null;
     }
 
-    @Nullable
-    private WeaveDocument getWeaveDocument(PsiFile psiFile) {
-        PsiElement[] children = psiFile.getChildren();
-        if (children.length > 0) {
-            PsiElement child = children[0];
-            if (child instanceof WeaveDocument) {
-                return (WeaveDocument) child;
-            }
-        }
-        return null;
-    }
 
     @Nullable
     private VirtualFile findIntegrationTestFolder(VirtualFile[] sourceRoots) {
@@ -185,8 +184,11 @@ public class WeavePreviewComponent implements Disposable {
 
 
     public void open(@Nullable PsiFile psiFile) {
-        this.currentFile = psiFile;
+        if (currentFile == psiFile) {
+            return;
+        }
         if (psiFile != null && psiFile.getFileType() == WeaveFileType.getInstance()) {
+            this.currentFile = psiFile;
             Module moduleForFile = ModuleUtil.findModuleForFile(psiFile.getVirtualFile(), psiFile.getProject());
             if (moduleForFile != null) {
                 VirtualFile[] sourceRoots = ModuleRootManager.getInstance(moduleForFile).getSourceRoots(true);

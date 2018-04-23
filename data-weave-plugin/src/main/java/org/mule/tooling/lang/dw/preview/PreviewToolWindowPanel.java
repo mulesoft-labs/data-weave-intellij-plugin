@@ -19,6 +19,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.WeaveFileType;
 import org.mule.tooling.lang.dw.agent.WeaveAgentComponent;
+import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
+import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.ui.MessagePanel;
 
 import javax.swing.*;
@@ -48,11 +50,14 @@ public class PreviewToolWindowPanel extends SimpleToolWindowPanel implements Dis
     private void setupUI() {
         cardLayout = new CardLayout();
         mainPanel = new JPanel(cardLayout);
-        weavePreviewComponent = new WeavePreviewComponent();
         mainPanel.add(new MessagePanel("No DataWeave runtime found."), NO_RUNTIME_AVAILABLE);
         mainPanel.add(new MessagePanel("No live view available."), NOTHING_TO_SHOW);
+        weavePreviewComponent = new WeavePreviewComponent();
+        previewComponent = weavePreviewComponent.createComponent(myProject);
+        mainPanel.add(previewComponent, PREVIEW_EDITOR);
         setContent(mainPanel);
         setToolbar(createToolbar());
+        cardLayout.show(mainPanel, NOTHING_TO_SHOW);
     }
 
     private BorderLayoutPanel createToolbar() {
@@ -82,7 +87,6 @@ public class PreviewToolWindowPanel extends SimpleToolWindowPanel implements Dis
             }
         });
         group.add(new ToggleAction(null, "Run on editor changes", AllIcons.Ide.IncomingChangesOn) {
-
 
             @Override
             public boolean isSelected(AnActionEvent e) {
@@ -127,19 +131,21 @@ public class PreviewToolWindowPanel extends SimpleToolWindowPanel implements Dis
 
 
     private void setFile(@Nullable PsiFile psiFile) {
-        cardLayout.show(mainPanel, NOTHING_TO_SHOW);
-        if (previewComponent != null) {
-            weavePreviewComponent.close();
-            mainPanel.remove(previewComponent);
-        }
-        if (psiFile != null && psiFile.getFileType() == WeaveFileType.getInstance()) {
-            previewComponent = weavePreviewComponent.createComponent(myProject);
-            mainPanel.add(previewComponent, PREVIEW_EDITOR);
-            weavePreviewComponent.open(psiFile);
-            cardLayout.show(mainPanel, PREVIEW_EDITOR);
-        } else {
-            //If It didn't returned then set the nothing to show message
+        if (psiFile == null) {
             cardLayout.show(mainPanel, NOTHING_TO_SHOW);
+        } else if (psiFile != weavePreviewComponent.getCurrentFile() && psiFile.getFileType() == WeaveFileType.getInstance()) {
+            WeaveDocument weaveDocument = WeavePsiUtils.getWeaveDocument(psiFile);
+            if (weaveDocument != null && weaveDocument.isMappingDocument()) {
+                if (previewComponent != null) {
+                    weavePreviewComponent.close();
+                    mainPanel.remove(previewComponent);
+                    previewComponent = null;
+                }
+                previewComponent = weavePreviewComponent.createComponent(myProject);
+                mainPanel.add(previewComponent, PREVIEW_EDITOR);
+                weavePreviewComponent.open(psiFile);
+                cardLayout.show(mainPanel, PREVIEW_EDITOR);
+            }
         }
     }
 

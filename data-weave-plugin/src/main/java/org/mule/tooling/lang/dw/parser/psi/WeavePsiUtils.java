@@ -7,6 +7,7 @@ import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
@@ -205,6 +206,18 @@ public class WeavePsiUtils {
                         return weaveDirective;
                     }
                 }
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    public static WeaveDocument getWeaveDocument(PsiFile psiFile) {
+        PsiElement[] children = psiFile.getChildren();
+        if (children.length > 0) {
+            PsiElement child = children[0];
+            if (child instanceof WeaveDocument) {
+                return (WeaveDocument) child;
             }
         }
         return null;
