@@ -16,10 +16,13 @@ import com.intellij.notification.Notifications;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.AbstractProjectComponent;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
+import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.OrderEnumerator;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.util.PathsList;
 import com.intellij.util.net.NetUtils;
 import org.jetbrains.annotations.NotNull;
 import org.mule.tooling.lang.dw.launcher.configuration.runner.WeaveRunnerHelper;
@@ -68,8 +71,8 @@ public class WeaveAgentComponent extends AbstractProjectComponent {
         final Executor executor = DefaultRunExecutor.getRunExecutorInstance();
 
         try {
-            RunProfileState state = createRunProfileState(freePort);
-            ExecutionResult result = state.execute(executor, runner);
+            final RunProfileState state = createRunProfileState(freePort);
+            final ExecutionResult result = state.execute(executor, runner);
             //noinspection ConstantConditions
             processHandler = result.getProcessHandler();
             //Wait for it to init
@@ -83,12 +86,19 @@ public class WeaveAgentComponent extends AbstractProjectComponent {
         client.connect(MAX_RETRIES, 1000L);
     }
 
-    public void runPreview(String inputsPath, String script, String identifier, String url, Long maxTime, RunPreviewCallback callback) {
+    public void runPreview(String inputsPath, String script, String identifier, String url, Long maxTime, Module module, RunPreviewCallback callback) {
         checkClientConnected(() -> {
                     //Make sure all files are persisted before running preview
                     ApplicationManager.getApplication().invokeLater(() -> {
+                        //Save all files
                         FileDocumentManager.getInstance().saveAllDocuments();
-                        client.runPreview(inputsPath, script, identifier, url, maxTime, new DefaultWeaveAgentClientListener() {
+                        final OrderEnumerator orderEnumerator = OrderEnumerator.orderEntries(module).withoutLibraries().withoutSdk();
+                        final PathsList pathsList = new PathsList();
+                        //We add sources too as we don't compile the we want to have the weave files up to date
+                        pathsList.addVirtualFiles(orderEnumerator.getSourceRoots());
+                        pathsList.addVirtualFiles(orderEnumerator.getClassesRoots());
+                        final String[] paths = pathsList.getPathList().toArray(new String[0]);
+                        client.runPreview(inputsPath, script, identifier, url, maxTime, paths, new DefaultWeaveAgentClientListener() {
                             @Override
                             public void onPreviewExecuted(PreviewExecutedEvent result) {
                                 ApplicationManager.getApplication().invokeLater(() -> {

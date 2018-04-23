@@ -1,6 +1,7 @@
 package org.mule.tooling.lang.dw.preview;
 
 import com.intellij.navigation.ItemPresentation;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
@@ -20,6 +21,7 @@ import com.intellij.ui.JBSplitter;
 import com.intellij.ui.JBTabsPaneImpl;
 import com.intellij.ui.ListCellRendererWrapper;
 import com.intellij.ui.tabs.TabInfo;
+import com.intellij.util.Alarm;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.components.BorderLayoutPanel;
 import org.jetbrains.annotations.NotNull;
@@ -38,7 +40,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WeavePreviewComponent {
+public class WeavePreviewComponent implements Disposable {
 
     public static final String INTEGRATION_TEST_FOLDER_NAME = "dwit";
     public static final String INPUT_FOLDER_NAME = "inputs";
@@ -51,9 +53,11 @@ public class WeavePreviewComponent {
     private BorderLayoutPanel previewPanel;
     private final Document outputDocument;
     private Editor outputEditor;
-    private String outputEditorMimeType;
+    private String outputEditorFileExtension;
     private PsiFile currentFile;
+    private boolean runOnChange = true;
 
+    private Alarm myDocumentAlarm = new Alarm(Alarm.ThreadToUse.POOLED_THREAD, this);
 
     public WeavePreviewComponent() {
         outputDocument = EditorFactory.getInstance().createDocument("");
@@ -64,18 +68,26 @@ public class WeavePreviewComponent {
         PsiManager.getInstance(project).addPsiTreeChangeListener(new PsiTreeChangeAdapter() {
             @Override
             public void childReplaced(@NotNull PsiTreeChangeEvent event) {
-                if (currentFile == null) {
-                    System.out.println("Ignoring change ;)");
+                if (currentFile == null || !runOnChange) {
                     return;
                 }
-                runPreview();
+
+                //We call all the request and add a new one if in 200 milliseconds no change was introduce then trigger preview
+                myDocumentAlarm.cancelAllRequests();
+                myDocumentAlarm.addRequest(() -> {
+                    if (myDocumentAlarm.isDisposed())
+                        return;
+                    runPreview();
+                }, 200);
+
                 //We know the change came from this file now
             }
-        });
+        }, this);
         return createPreviewPanel();
     }
 
     public void runPreview() {
+
         VirtualFile selectedItem = (VirtualFile) scenariosComboBox.getSelectedItem();
         if (selectedItem == null)
             return;
@@ -84,7 +96,8 @@ public class WeavePreviewComponent {
         final WeaveDocument weaveDocument = (WeaveDocument) currentFile.getChildren()[0];
         final WeaveAgentComponent agentComponent = WeaveAgentComponent.getInstance(myProject);
         final String inputsPath = selectedItem.findChild(INPUT_FOLDER_NAME).getPath();
-        agentComponent.runPreview(inputsPath, document.getText(), weaveDocument.getQualifiedName(), currentFile.getVirtualFile().getUrl(), 10000L, new RunPreviewCallback() {
+        final Module module = ModuleUtil.findModuleForFile(currentFile.getVirtualFile(), myProject);
+        agentComponent.runPreview(inputsPath, document.getText(), weaveDocument.getQualifiedName(), currentFile.getVirtualFile().getUrl(), 10000L, module, new RunPreviewCallback() {
 
             @Override
             public void onPreviewSuccessful(PreviewExecutedSuccessfulEvent result) {
@@ -93,7 +106,7 @@ public class WeavePreviewComponent {
 
             @Override
             public void onPreviewFailed(PreviewExecutedFailedEvent message) {
-                disposeEditorIfExists();
+                disposeOutputEditorIfExists();
                 Component component = outputEditorPanel.getComponent(0);
                 if (component instanceof PreviewErrorPanel) {
                     ((PreviewErrorPanel) component).updateMessage(message.message());
@@ -102,8 +115,6 @@ public class WeavePreviewComponent {
                     changeMainPanel(errorPanel);
                 }
             }
-
-
         });
     }
 
@@ -168,13 +179,12 @@ public class WeavePreviewComponent {
 
         final JPanel chooserPanel = createScenarioSelectorPanel();
         previewPanel.addToTop(chooserPanel);
-//        previewPanel.addToCenter(inputTabs.getComponent());
         previewPanel.addToCenter(splitter);
         return previewPanel;
     }
 
 
-    public void setFile(@Nullable PsiFile psiFile) {
+    public void open(@Nullable PsiFile psiFile) {
         this.currentFile = psiFile;
         if (psiFile != null && psiFile.getFileType() == WeaveFileType.getInstance()) {
             Module moduleForFile = ModuleUtil.findModuleForFile(psiFile.getVirtualFile(), psiFile.getProject());
@@ -245,19 +255,17 @@ public class WeavePreviewComponent {
     public void onPreviewResult(PreviewExecutedSuccessfulEvent result) {
         final String extension = (result.extension().startsWith(".")) ? result.extension().substring(1) : result.extension();
         final String content = getContent(result);
-        final String mimeType = result.mimeType();
-        if (extension != null && (outputEditor == null || !mimeType.equals(outputEditorMimeType))) {
-            disposeEditorIfExists();
+        if (extension != null && (outputEditor == null || !extension.equals(outputEditorFileExtension))) {
+            disposeOutputEditorIfExists();
             setDocumentContent(content);
             FileType fileTypeByExtension = FileTypeManager.getInstance().getFileTypeByExtension(extension);
-
             outputEditor = EditorFactory.getInstance().createEditor(outputDocument, myProject, fileTypeByExtension, true);
             changeMainPanel(outputEditor.getComponent());
-            outputEditorMimeType = mimeType;
+            outputEditorFileExtension = extension;
         } else if (extension != null) {
             setDocumentContent(content);
         } else {
-            changeMainPanel(new MessagePanel("Unable to render the output for mimeType " + mimeType));
+            changeMainPanel(new MessagePanel("Unable to render the output for extension " + extension));
         }
 
     }
@@ -275,15 +283,16 @@ public class WeavePreviewComponent {
         ApplicationManager.getApplication().runWriteAction(() -> outputDocument.setText(content));
     }
 
-    public void disposeEditorIfExists() {
+    public void disposeOutputEditorIfExists() {
         if (outputEditor != null) {
             EditorFactory.getInstance().releaseEditor(outputEditor);
             outputEditor = null;
-            outputEditorMimeType = null;
+            outputEditorFileExtension = null;
         }
     }
 
     private void loadInputFiles(VirtualFile inputs) {
+        closeAllInputs();
         List<VirtualFile> children = VfsUtil.collectChildrenRecursively(inputs);
         for (VirtualFile input : children) {
             if (!input.isDirectory()) {
@@ -291,22 +300,28 @@ public class WeavePreviewComponent {
                 if (file != null) {
                     Document document = file.getViewProvider().getDocument();
                     if (document != null) {
-                        previewPanel.grabFocus();
-                        inputTabs.getTabs().removeAllTabs();
                         Editor editor = EditorFactory.getInstance().createEditor(document, myProject, input, false);
                         editors.add(editor);
                         TabInfo tabInfo = new TabInfo(inputTabs.getComponent());
                         ItemPresentation presentation = file.getPresentation();
                         if (presentation != null) {
-                            tabInfo.setText(presentation.getPresentableText());
+                            String relativeLocation = VfsUtil.getRelativeLocation(input, inputs);
+                            String expression = relativeLocation.replace('/', '.');
+                            tabInfo.setText(expression);
                             tabInfo.setIcon(presentation.getIcon(false));
                         }
                         tabInfo.setComponent(editor.getComponent());
                         inputTabs.getTabs().addTab(tabInfo);
+                        inputTabs.setSelectedIndex(0);
                     }
                 }
             }
         }
+    }
+
+    private void closeAllInputs() {
+        previewPanel.grabFocus();
+        inputTabs.getTabs().removeAllTabs();
     }
 
 
@@ -320,7 +335,30 @@ public class WeavePreviewComponent {
         }
         this.editors.clear();
         this.scenariosComboBox.removeAllItems();
+        disposeOutputEditorIfExists();
         this.currentFile = null;
+    }
+
+    @Override
+    public void dispose() {
+        close();
+    }
+
+    public boolean runAvailable() {
+        if (currentFile != null && scenariosComboBox != null) {
+            VirtualFile selectedItem = (VirtualFile) scenariosComboBox.getSelectedItem();
+            return selectedItem != null;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean runOnChange() {
+        return runOnChange;
+    }
+
+    public void runOnChange(boolean state) {
+        this.runOnChange = state;
     }
 
 

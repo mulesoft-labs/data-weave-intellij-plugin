@@ -9,6 +9,9 @@ import com.intellij.ui.content.ContentFactory;
 import org.jetbrains.annotations.NotNull;
 
 public class PreviewToolWindowFactory implements ToolWindowFactory, DumbAware {
+
+    public static String ID = "Weave Preview";
+
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
