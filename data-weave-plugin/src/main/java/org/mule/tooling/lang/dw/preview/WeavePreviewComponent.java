@@ -11,7 +11,6 @@ import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VfsUtil;
@@ -27,10 +26,12 @@ import com.intellij.util.ui.components.BorderLayoutPanel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.WeaveFileType;
-import org.mule.tooling.lang.dw.agent.RunPreviewCallback;
-import org.mule.tooling.lang.dw.agent.WeaveAgentComponent;
-import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
+import org.mule.tooling.lang.dw.service.DataWeaveScenariosManager;
+import org.mule.tooling.lang.dw.service.Scenario;
+import org.mule.tooling.lang.dw.service.agent.RunPreviewCallback;
+import org.mule.tooling.lang.dw.service.agent.WeaveAgentComponent;
+import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
 import org.mule.tooling.lang.dw.ui.MessagePanel;
 import org.mule.weave.v2.debugger.event.PreviewExecutedFailedEvent;
 import org.mule.weave.v2.debugger.event.PreviewExecutedSuccessfulEvent;
@@ -41,17 +42,12 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils.getWeaveDocument;
-
 public class WeavePreviewComponent implements Disposable {
-
-    public static final String INTEGRATION_TEST_FOLDER_NAME = "dwit";
-    public static final String INPUT_FOLDER_NAME = "inputs";
 
     private List<Editor> editors = new ArrayList<>();
     private JBTabsPaneImpl inputTabs;
     private Project myProject;
-    private ComboBox<VirtualFile> scenariosComboBox;
+    private ComboBox<Scenario> scenariosComboBox;
     private BorderLayoutPanel outputEditorPanel;
     private BorderLayoutPanel previewPanel;
     private final Document outputDocument;
@@ -96,14 +92,14 @@ public class WeavePreviewComponent implements Disposable {
     public void runPreview() {
 
         ApplicationManager.getApplication().runReadAction(() -> {
-            VirtualFile selectedItem = (VirtualFile) scenariosComboBox.getSelectedItem();
+            Scenario selectedItem = (Scenario) scenariosComboBox.getSelectedItem();
             if (selectedItem == null)
                 return;
 
             final Document document = PsiDocumentManager.getInstance(myProject).getDocument(currentFile);
             final WeaveDocument weaveDocument = (WeaveDocument) currentFile.getChildren()[0];
             final WeaveAgentComponent agentComponent = WeaveAgentComponent.getInstance(myProject);
-            final String inputsPath = selectedItem.findChild(INPUT_FOLDER_NAME).getPath();
+            final String inputsPath = selectedItem.getInputs().getPath();
             final Module module = ModuleUtil.findModuleForFile(currentFile.getVirtualFile(), myProject);
             agentComponent.runPreview(inputsPath, document.getText(), weaveDocument.getQualifiedName(), currentFile.getVirtualFile().getUrl(), 10000L, module, new RunPreviewCallback() {
 
@@ -133,37 +129,8 @@ public class WeavePreviewComponent implements Disposable {
         outputEditorPanel.addToCenter(errorPanel2);
     }
 
-    private ComboBoxModel<VirtualFile> createModel(VirtualFile[] scenarios) {
-        return new DefaultComboBoxModel<>(scenarios);
-    }
-
-    @Nullable
-    private VirtualFile[] findScenarios(PsiFile psiFile, VirtualFile integrationTestFolder) {
-        WeaveDocument weaveDocument = getWeaveDocument(psiFile);
-        if (weaveDocument != null) {
-            boolean mappingDocument = weaveDocument.isMappingDocument();
-            if (mappingDocument) {
-                String qualifiedName = weaveDocument.getQualifiedName();
-                if (qualifiedName != null) {
-                    VirtualFile testDirectory = integrationTestFolder.findChild(qualifiedName);
-                    if (testDirectory != null) {
-                        return testDirectory.getChildren();
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-
-    @Nullable
-    private VirtualFile findIntegrationTestFolder(VirtualFile[] sourceRoots) {
-        for (VirtualFile sourceRoot : sourceRoots) {
-            if (sourceRoot.isDirectory() && sourceRoot.getName().endsWith(INTEGRATION_TEST_FOLDER_NAME)) {
-                return sourceRoot;
-            }
-        }
-        return null;
+    private ComboBoxModel<Scenario> createModel(List<Scenario> scenarios) {
+        return new DefaultComboBoxModel<>(scenarios.toArray(new Scenario[0]));
     }
 
     private JComponent createPreviewPanel() {
@@ -189,19 +156,15 @@ public class WeavePreviewComponent implements Disposable {
         }
         if (psiFile != null && psiFile.getFileType() == WeaveFileType.getInstance()) {
             this.currentFile = psiFile;
-            Module moduleForFile = ModuleUtil.findModuleForFile(psiFile.getVirtualFile(), psiFile.getProject());
-            if (moduleForFile != null) {
-                VirtualFile[] sourceRoots = ModuleRootManager.getInstance(moduleForFile).getSourceRoots(true);
-                VirtualFile integrationTestFolder = findIntegrationTestFolder(sourceRoots);
-                if (integrationTestFolder != null) {
-                    VirtualFile[] scenarios = findScenarios(psiFile, integrationTestFolder);
-                    if (scenarios != null) {
-                        scenariosComboBox.setModel(createModel(scenarios));
-                        //Load first scenario
-                        if (scenarios.length > 0) {
-                            loadScenario(scenarios[0]);
-                        }
-                    }
+            DataWeaveScenariosManager instance = DataWeaveScenariosManager.getInstance(myProject);
+            WeaveDocument weaveDocument = WeavePsiUtils.getWeaveDocument(psiFile);
+            List<Scenario> scenarios = instance.getScenariosFor(weaveDocument);
+            scenariosComboBox.setModel(createModel(scenarios));
+            //Load first scenario
+            if (!scenarios.isEmpty()) {
+                Scenario currentScenarioFor = instance.getCurrentScenarioFor(weaveDocument);
+                if (currentScenarioFor != null) {
+                    loadScenario(currentScenarioFor);
                 }
             }
         }
@@ -213,8 +176,9 @@ public class WeavePreviewComponent implements Disposable {
         scenariosComboBox = new ComboBox<>();
         scenariosComboBox.setRenderer(new ScenarioNameRenderer());
         scenariosComboBox.addActionListener(evt -> {
-            VirtualFile scenario = (VirtualFile) scenariosComboBox.getSelectedItem();
+            Scenario scenario = (Scenario) scenariosComboBox.getSelectedItem();
             if (scenario != null) {
+                DataWeaveScenariosManager.getInstance(myProject).setCurrentScenario(getCurrentWeaveDocument(), scenario);
                 loadScenario(scenario);
             }
         });
@@ -246,8 +210,12 @@ public class WeavePreviewComponent implements Disposable {
         return chooserPanel;
     }
 
-    private void loadScenario(VirtualFile scenario) {
-        VirtualFile inputs = scenario.findChild(INPUT_FOLDER_NAME);
+    private WeaveDocument getCurrentWeaveDocument() {
+        return WeavePsiUtils.getWeaveDocument(currentFile);
+    }
+
+    private void loadScenario(Scenario scenario) {
+        final VirtualFile inputs = scenario.getInputs();
         if (inputs != null && inputs.isDirectory()) {
             loadInputFiles(inputs);
         }
@@ -307,8 +275,14 @@ public class WeavePreviewComponent implements Disposable {
                         TabInfo tabInfo = new TabInfo(inputTabs.getComponent());
                         ItemPresentation presentation = file.getPresentation();
                         if (presentation != null) {
-                            String relativeLocation = VfsUtil.getRelativeLocation(input, inputs);
+                            final String relativeLocation = VfsUtil.getRelativeLocation(input, inputs);
+                            assert relativeLocation != null;
                             String expression = relativeLocation.replace('/', '.');
+                            String extension = input.getExtension();
+                            if (extension != null) {
+                                //extension doesn't have the dot so we need to add a + 1
+                                expression = expression.substring(0, expression.length() - (extension.length() + 1)) + " (" + StringUtil.capitalize(extension) + ")";
+                            }
                             tabInfo.setText(expression);
                             tabInfo.setIcon(presentation.getIcon(false));
                         }
@@ -364,12 +338,11 @@ public class WeavePreviewComponent implements Disposable {
     }
 
 
-    private static class ScenarioNameRenderer extends ListCellRendererWrapper<VirtualFile> {
+    private static class ScenarioNameRenderer extends ListCellRendererWrapper<Scenario> {
         @Override
-        public void customize(JList list, VirtualFile value, int index, boolean selected, boolean hasFocus) {
+        public void customize(JList list, Scenario value, int index, boolean selected, boolean hasFocus) {
             if (value != null) {
-                String scenario = StringUtil.capitalizeWords(value.getName(), "_", false, false);
-                setText(scenario);
+                setText(value.getPresentableText());
             }
         }
     }

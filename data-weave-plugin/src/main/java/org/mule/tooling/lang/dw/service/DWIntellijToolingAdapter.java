@@ -5,7 +5,6 @@ import com.intellij.codeInsight.lookup.AutoCompletionPolicy;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.icons.AllIcons;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.AbstractProjectComponent;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
@@ -20,28 +19,33 @@ import org.intellij.markdown.html.HtmlGenerator;
 import org.intellij.markdown.parser.MarkdownParser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
 import org.mule.tooling.lang.dw.parser.psi.WeaveIdentifier;
 import org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement;
+import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.qn.WeaveQualifiedNameProvider;
 import org.mule.weave.v2.completion.EmptyDataFormatDescriptorProvider$;
 import org.mule.weave.v2.completion.Suggestion;
 import org.mule.weave.v2.completion.SuggestionType;
+import org.mule.weave.v2.editor.ImplicitInput;
+import org.mule.weave.v2.editor.VirtualFile;
 import org.mule.weave.v2.editor.WeaveDocumentToolingService;
 import org.mule.weave.v2.editor.WeaveToolingService;
 import org.mule.weave.v2.hover.HoverMessage;
 import org.mule.weave.v2.parser.ast.variables.NameIdentifier;
 import org.mule.weave.v2.scope.Reference;
+import org.mule.weave.v2.ts.WeaveType;
 import scala.Option;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class DataWeaveServiceManager extends AbstractProjectComponent {
+public class DWIntellijToolingAdapter extends AbstractProjectComponent {
 
     private IntellijVirtualFileSystemAdaptor projectVirtualFileSystem;
     private WeaveToolingService dwTextDocumentService;
 
-    protected DataWeaveServiceManager(Project project) {
+    protected DWIntellijToolingAdapter(Project project) {
         super(project);
     }
 
@@ -60,14 +64,29 @@ public class DataWeaveServiceManager extends AbstractProjectComponent {
         return createElements(items);
     }
 
-    public WeaveDocumentToolingService didOpen(Document document) {
+    private WeaveDocumentToolingService didOpen(Document document) {
         final PsiFile psiFile = PsiDocumentManager.getInstance(myProject).getPsiFile(document);
+        assert psiFile != null;
         return didOpen(psiFile);
+    }
+
+    public WeaveType parseType(String weaveType) {
+        Option<WeaveType> weaveTypeOption = dwTextDocumentService.parseType(weaveType);
+        if (weaveTypeOption.isDefined()) {
+            return weaveTypeOption.get();
+        } else {
+            return null;
+        }
     }
 
     private WeaveDocumentToolingService didOpen(PsiFile psiFile) {
         final String url = psiFile.getVirtualFile().getUrl();
-        return dwTextDocumentService.open(url);
+        final VirtualFile file = projectVirtualFileSystem.file(url);
+        final DataWeaveScenariosManager instance = DataWeaveScenariosManager.getInstance(myProject);
+        final WeaveDocument weaveDocument = WeavePsiUtils.getWeaveDocument(psiFile);
+        final ImplicitInput currentImplicitTypes = instance.getCurrentImplicitTypes(weaveDocument);
+        final WeaveType expectedOutput = instance.getExpectedOutput(weaveDocument);
+        return dwTextDocumentService.open(file, currentImplicitTypes != null ? currentImplicitTypes : new ImplicitInput(), Option.apply(expectedOutput));
     }
 
     @Nullable
@@ -159,13 +178,8 @@ public class DataWeaveServiceManager extends AbstractProjectComponent {
         return elementBuilder.withAutoCompletionPolicy(AutoCompletionPolicy.SETTINGS_DEPENDENT);
     }
 
-
-    public static void invokeLater(Runnable runnable) {
-        ApplicationManager.getApplication().invokeLater(runnable);
-    }
-
-    public static DataWeaveServiceManager getInstance(@NotNull Project project) {
-        return project.getComponent(DataWeaveServiceManager.class);
+    public static DWIntellijToolingAdapter getInstance(@NotNull Project project) {
+        return project.getComponent(DWIntellijToolingAdapter.class);
     }
 
     @Nullable

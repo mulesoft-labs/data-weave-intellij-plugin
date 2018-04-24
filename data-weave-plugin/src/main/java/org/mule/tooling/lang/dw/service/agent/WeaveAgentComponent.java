@@ -1,4 +1,4 @@
-package org.mule.tooling.lang.dw.agent;
+package org.mule.tooling.lang.dw.service.agent;
 
 import com.intellij.execution.DefaultExecutionResult;
 import com.intellij.execution.ExecutionException;
@@ -146,12 +146,24 @@ public class WeaveAgentComponent extends AbstractProjectComponent {
             //Make sure all files are persisted before running preview
             ApplicationManager.getApplication().invokeLater(() -> {
                 FileDocumentManager.getInstance().saveAllDocuments();
-                client.inferWeaveType(inputsPath, new DefaultWeaveAgentClientListener() {
+                client.inferInputsWeaveType(inputsPath, new DefaultWeaveAgentClientListener() {
                     @Override
                     public void onImplicitWeaveTypesCalculated(ImplicitInputTypesEvent result) {
-                        ApplicationManager.getApplication().invokeLater(() -> {
-                            callback.onInputsTypesCalculated(result);
-                        });
+                        callback.onInputsTypesCalculated(result);
+                    }
+                });
+            });
+        });
+    }
+
+    public void calculateWeaveType(String path, InferTypeResultCallback callback) {
+        checkClientConnected(() -> {
+            //Make sure all files are persisted before running preview
+            ApplicationManager.getApplication().invokeLater(() -> {
+                client.inferWeaveType(path, new DefaultWeaveAgentClientListener() {
+                    @Override
+                    public void onWeaveTypeInfer(InferWeaveTypeEvent result) {
+                        callback.onType(result);
                     }
                 });
             });

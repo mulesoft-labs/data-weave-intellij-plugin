@@ -95,10 +95,13 @@
 
     <project-components>
         <component>
-            <implementation-class>org.mule.tooling.lang.dw.service.DataWeaveServiceManager</implementation-class>
+            <implementation-class>org.mule.tooling.lang.dw.service.DWIntellijToolingAdapter</implementation-class>
         </component>
         <component>
-            <implementation-class>org.mule.tooling.lang.dw.agent.WeaveAgentComponent</implementation-class>
+            <implementation-class>org.mule.tooling.lang.dw.service.agent.WeaveAgentComponent</implementation-class>
+        </component>
+        <component>
+            <implementation-class>org.mule.tooling.lang.dw.service.DataWeaveScenariosManager</implementation-class>
         </component>
     </project-components>
     <application-components>

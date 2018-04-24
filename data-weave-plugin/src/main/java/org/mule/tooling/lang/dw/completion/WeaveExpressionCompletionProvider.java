@@ -4,16 +4,10 @@ import com.intellij.codeInsight.completion.CompletionParameters;
 import com.intellij.codeInsight.completion.CompletionProvider;
 import com.intellij.codeInsight.completion.CompletionResultSet;
 import com.intellij.codeInsight.lookup.LookupElement;
-import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiWhiteSpace;
-import com.intellij.psi.impl.source.tree.LeafPsiElement;
-import com.intellij.psi.tree.IElementType;
 import com.intellij.util.ProcessingContext;
 import org.jetbrains.annotations.NotNull;
-import org.mule.tooling.lang.dw.parser.psi.WeaveTypes;
-import org.mule.tooling.lang.dw.service.DataWeaveServiceManager;
+import org.mule.tooling.lang.dw.service.DWIntellijToolingAdapter;
 
 import java.util.List;
 
@@ -23,7 +17,7 @@ public class WeaveExpressionCompletionProvider extends CompletionProvider<Comple
     @Override
     protected void addCompletions(@NotNull CompletionParameters completionParameters, ProcessingContext processingContext, @NotNull CompletionResultSet completionResultSet) {
         Project project = completionParameters.getPosition().getProject();
-        List<LookupElement> completion = DataWeaveServiceManager.getInstance(project).completion(completionParameters);
+        List<LookupElement> completion = DWIntellijToolingAdapter.getInstance(project).completion(completionParameters);
         completionResultSet.addAllElements(completion);
     }
 }

@@ -11,11 +11,10 @@ import com.intellij.psi.PsiReferenceBase;
 import com.intellij.psi.impl.source.resolve.ResolveCache;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.mule.tooling.lang.dw.parser.psi.WeaveIdentifier;
 import org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.parser.psi.WeaveVariable;
-import org.mule.tooling.lang.dw.service.DataWeaveServiceManager;
+import org.mule.tooling.lang.dw.service.DWIntellijToolingAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +34,7 @@ public class WeaveIdentifierPsiReference extends PsiReferenceBase<PsiElement> {
     }
 
     public PsiElement resolveInner() {
-        final DataWeaveServiceManager instance = DataWeaveServiceManager.getInstance(myElement.getProject());
+        final DWIntellijToolingAdapter instance = DWIntellijToolingAdapter.getInstance(myElement.getProject());
         return instance.resolveReference(namedElement.getIdentifier());
     }
 

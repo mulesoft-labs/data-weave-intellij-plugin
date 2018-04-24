@@ -4,7 +4,7 @@ import com.intellij.lang.documentation.DocumentationProvider;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiManager;
 import org.jetbrains.annotations.Nullable;
-import org.mule.tooling.lang.dw.service.DataWeaveServiceManager;
+import org.mule.tooling.lang.dw.service.DWIntellijToolingAdapter;
 
 import java.util.List;
 
@@ -12,7 +12,7 @@ public class WeaveDocumentationProvider implements DocumentationProvider {
     @Nullable
     @Override
     public String getQuickNavigateInfo(PsiElement element, PsiElement originalElement) {
-        return DataWeaveServiceManager.getInstance(element.getProject()).hover(element);
+        return DWIntellijToolingAdapter.getInstance(element.getProject()).hover(element);
     }
 
     @Nullable
@@ -26,11 +26,11 @@ public class WeaveDocumentationProvider implements DocumentationProvider {
     public String generateDoc(PsiElement element, @Nullable PsiElement originalElement) {
         String documentation;
         if (element instanceof WeaveDocumentationPsiElement) {
-            documentation = DataWeaveServiceManager.toHtml(((WeaveDocumentationPsiElement) element).getDocs());
+            documentation = DWIntellijToolingAdapter.toHtml(((WeaveDocumentationPsiElement) element).getDocs());
         } else {
-            documentation = DataWeaveServiceManager.getInstance(element.getProject()).documentation(element);
+            documentation = DWIntellijToolingAdapter.getInstance(element.getProject()).documentation(element);
             if (originalElement != null && documentation == null) {
-                documentation = DataWeaveServiceManager.getInstance(originalElement.getProject()).documentation(originalElement);
+                documentation = DWIntellijToolingAdapter.getInstance(originalElement.getProject()).documentation(originalElement);
             }
         }
         return documentation;
@@ -39,8 +39,8 @@ public class WeaveDocumentationProvider implements DocumentationProvider {
     @Nullable
     @Override
     public PsiElement getDocumentationElementForLookupItem(PsiManager psiManager, Object lookupElement, PsiElement element) {
-        if (lookupElement instanceof DataWeaveServiceManager.CompletionData) {
-            DataWeaveServiceManager.CompletionData completionData = (DataWeaveServiceManager.CompletionData) lookupElement;
+        if (lookupElement instanceof DWIntellijToolingAdapter.CompletionData) {
+            DWIntellijToolingAdapter.CompletionData completionData = (DWIntellijToolingAdapter.CompletionData) lookupElement;
             return new WeaveDocumentationPsiElement(element, completionData.getDocumentation(), completionData.getLabel());
         } else {
             return element;
