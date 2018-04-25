@@ -1,6 +1,9 @@
 package org.mule.tooling.lang.dw.service.agent;
 
-import com.intellij.execution.*;
+import com.intellij.execution.DefaultExecutionResult;
+import com.intellij.execution.ExecutionException;
+import com.intellij.execution.ExecutionResult;
+import com.intellij.execution.Executor;
 import com.intellij.execution.configurations.*;
 import com.intellij.execution.executors.DefaultRunExecutor;
 import com.intellij.execution.process.OSProcessHandler;
@@ -54,44 +57,52 @@ public class WeaveAgentComponent extends AbstractProjectComponent {
         }
     }
 
-    public void init() {
-        int freePort;
-        if (processHandler != null) {
-            tearDown();
-        }
+    public synchronized void init() {
         try {
-            freePort = NetUtils.findAvailableSocketPort();
-        } catch (IOException e) {
-            freePort = 2333;
-        }
-        final ProgramRunner runner = new DefaultProgramRunner() {
-            @Override
-            @NotNull
-            public String getRunnerId() {
-                return "Weave Agent Runner";
-            }
+            if (client == null || !client.isConnected()) {
+                int freePort;
+                if (processHandler != null) {
+                    tearDown();
+                }
+                try {
+                    freePort = NetUtils.findAvailableSocketPort();
+                } catch (IOException e) {
+                    freePort = 2333;
+                }
+                final ProgramRunner runner = new DefaultProgramRunner() {
+                    @Override
+                    @NotNull
+                    public String getRunnerId() {
+                        return "Weave Agent Runner";
+                    }
 
-            @Override
-            public boolean canRun(@NotNull String executorId, @NotNull RunProfile profile) {
-                return true;
+                    @Override
+                    public boolean canRun(@NotNull String executorId, @NotNull RunProfile profile) {
+                        return true;
+                    }
+                };
+                final Executor executor = DefaultRunExecutor.getRunExecutorInstance();
+                try {
+                    final RunProfileState state = createRunProfileState(freePort);
+                    final ExecutionResult result = state.execute(executor, runner);
+                    //noinspection ConstantConditions
+                    processHandler = result.getProcessHandler();
+                    //Wait for it to init
+                    processHandler.waitFor(ONE_SECOND_DELAY);
+                } catch (Throwable e) {
+                    return;
+                }
+                processHandler.startNotify();
+                TcpClientProtocol clientProtocol = new TcpClientProtocol("localhost", freePort);
+                client = new WeaveAgentClient(clientProtocol, new DefaultWeaveAgentClientListener());
+                client.connect(MAX_RETRIES, 1000L);
+                if (client.isConnected()) {
+                    System.out.println("Weave agent connected to server.");
+                }
             }
-        };
-        final Executor executor = DefaultRunExecutor.getRunExecutorInstance();
-
-        try {
-            final RunProfileState state = createRunProfileState(freePort);
-            final ExecutionResult result = state.execute(executor, runner);
-            //noinspection ConstantConditions
-            processHandler = result.getProcessHandler();
-            //Wait for it to init
-            processHandler.waitFor(ONE_SECOND_DELAY);
-        } catch (Throwable e) {
-            return;
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        processHandler.startNotify();
-        TcpClientProtocol clientProtocol = new TcpClientProtocol("localhost", freePort);
-        client = new WeaveAgentClient(clientProtocol, new DefaultWeaveAgentClientListener());
-        client.connect(MAX_RETRIES, 1000L);
     }
 
     public void runPreview(String inputsPath, String script, String identifier, String url, Long maxTime, Module module, RunPreviewCallback callback) {
@@ -245,6 +256,8 @@ public class WeaveAgentComponent extends AbstractProjectComponent {
         //Kill the process
         processHandler.destroyProcess();
         client.disconnect();
+        client = null;
+        processHandler = null;
     }
 
 

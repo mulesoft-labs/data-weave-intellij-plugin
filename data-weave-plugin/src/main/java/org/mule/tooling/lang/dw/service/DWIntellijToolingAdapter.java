@@ -5,10 +5,12 @@ import com.intellij.codeInsight.lookup.AutoCompletionPolicy;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.icons.AllIcons;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.components.AbstractProjectComponent;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -49,12 +51,14 @@ import scala.Option;
 import scala.collection.Seq$;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-public class DWIntellijToolingAdapter extends AbstractProjectComponent {
+public class DWIntellijToolingAdapter extends AbstractProjectComponent implements Disposable {
 
     private IntellijVirtualFileSystemAdaptor projectVirtualFileSystem;
     private WeaveToolingService dwTextDocumentService;
@@ -66,24 +70,13 @@ public class DWIntellijToolingAdapter extends AbstractProjectComponent {
     @Override
     public void initComponent() {
         projectVirtualFileSystem = new IntellijVirtualFileSystemAdaptor(myProject);
-        final SpecificModuleResourceResolver java = SpecificModuleResourceResolver.apply("java", name -> {
-            FutureResult<Option<WeaveResource>> futureResource = new FutureResult<>();
-            WeaveAgentComponent.getInstance(myProject).resolveModule(name.name(), name.loader().get(), myProject, event -> {
-                if (event.content().isDefined()) {
-                    String content = event.content().get();
-                    futureResource.set(Option.apply(WeaveResource$.MODULE$.apply(name.name(), content)));
-                } else {
-                    futureResource.set(Option.empty());
-                }
-            });
-            try {
-                return futureResource.get(1, TimeUnit.SECONDS);
-            } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                return Option.empty();
-            }
+        RemoteResourceResolver resourceResolver = new RemoteResourceResolver(myProject);
+        final SpecificModuleResourceResolver java = SpecificModuleResourceResolver.apply("java", resourceResolver);
+        final SpecificModuleResourceResolver[] moduleResourceResolvers = {java};
+        projectVirtualFileSystem.changeListener(file -> {
+            resourceResolver.invalidateCache(file.getNameIdentifier());
         });
-
-        dwTextDocumentService = WeaveToolingService.apply(projectVirtualFileSystem, EmptyDataFormatDescriptorProvider$.MODULE$, new SpecificModuleResourceResolver[]{});
+        dwTextDocumentService = WeaveToolingService.apply(projectVirtualFileSystem, EmptyDataFormatDescriptorProvider$.MODULE$, moduleResourceResolvers);
     }
 
     public List<LookupElement> completion(CompletionParameters completionParameters) {
@@ -238,6 +231,11 @@ public class DWIntellijToolingAdapter extends AbstractProjectComponent {
         return new HtmlGenerator(text, astNode, flavour, true).generateHtml();
     }
 
+    @Override
+    public void dispose() {
+        Disposer.dispose(projectVirtualFileSystem);
+    }
+
     public static class CompletionData {
         private String label;
         private String documentation;
@@ -272,6 +270,75 @@ public class DWIntellijToolingAdapter extends AbstractProjectComponent {
         @Override
         public int hashCode() {
             return label != null ? label.hashCode() : 0;
+        }
+    }
+
+    private static class RemoteResourceResolver implements WeaveResourceResolver {
+
+        private Project myProject;
+        private Map<NameIdentifier, CacheEntry> cache = new HashMap<>();
+
+        public RemoteResourceResolver(Project myProject) {
+            this.myProject = myProject;
+        }
+
+        void invalidateCache(NameIdentifier name) {
+            if (cache.containsKey(name)) {
+                cache.get(name).invalidate();
+            }
+        }
+
+        @Override
+        public Option<WeaveResource> resolve(NameIdentifier name) {
+            CacheEntry weaveResourceOption = cache.get(name);
+            if (weaveResourceOption != null && weaveResourceOption.isValid()) {
+                return weaveResourceOption.getValue();
+            } else {
+                FutureResult<Option<WeaveResource>> futureResource = new FutureResult<>();
+                WeaveAgentComponent.getInstance(myProject).resolveModule(name.name(), name.loader().get(), myProject, event -> {
+                    if (event.content().isDefined()) {
+                        String content = event.content().get();
+                        Option<WeaveResource> resourceOption = Option.apply(WeaveResource$.MODULE$.apply(name.name(), content));
+                        cache.put(name, new CacheEntry(resourceOption));
+                        futureResource.set(resourceOption);
+                    } else {
+                        Option<WeaveResource> empty = Option.empty();
+                        futureResource.set(empty);
+                    }
+                });
+                try {
+                    return futureResource.get(500, TimeUnit.MILLISECONDS);
+                } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                    if (weaveResourceOption != null) {
+                        return weaveResourceOption.getValue();
+                    } else {
+                        return Option.empty();
+                    }
+                }
+            }
+        }
+
+    }
+
+    private static class CacheEntry {
+        private Option<WeaveResource> value;
+        private boolean valid;
+
+        public CacheEntry(Option<WeaveResource> value) {
+            this.value = value;
+            this.valid = true;
+        }
+
+        public void invalidate() {
+            this.valid = false;
+        }
+
+        public Option<WeaveResource> getValue() {
+            return value;
+        }
+
+        public boolean isValid() {
+            return valid;
         }
     }
 }

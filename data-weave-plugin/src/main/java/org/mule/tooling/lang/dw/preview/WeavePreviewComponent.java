@@ -25,6 +25,7 @@ import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.components.BorderLayoutPanel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.mule.tooling.lang.dw.WeaveConstants;
 import org.mule.tooling.lang.dw.WeaveFileType;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.service.DataWeaveScenariosManager;
@@ -77,7 +78,7 @@ public class WeavePreviewComponent implements Disposable {
                     if (myDocumentAlarm.isDisposed())
                         return;
                     runPreview();
-                }, 200);
+                }, WeaveConstants.MODIFICATIONS_DELAY);
 
                 //We know the change came from this file now
             }

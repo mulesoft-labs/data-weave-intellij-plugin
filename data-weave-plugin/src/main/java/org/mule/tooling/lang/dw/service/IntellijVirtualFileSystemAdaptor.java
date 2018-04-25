@@ -1,5 +1,6 @@
 package org.mule.tooling.lang.dw.service;
 
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.Result;
 import com.intellij.openapi.application.RunResult;
@@ -15,9 +16,11 @@ import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiTreeAnyChangeAbstractAdapter;
 import com.intellij.psi.search.FileTypeIndex;
 import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.util.Alarm;
 import com.intellij.util.indexing.FileBasedIndex;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.mule.tooling.lang.dw.WeaveConstants;
 import org.mule.tooling.lang.dw.WeaveFileType;
 import org.mule.tooling.lang.dw.util.VirtualFileSystemUtils;
 import org.mule.weave.v2.editor.ChangeListener;
@@ -34,12 +37,34 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-public class IntellijVirtualFileSystemAdaptor implements VirtualFileSystem {
+public class IntellijVirtualFileSystemAdaptor implements VirtualFileSystem, Disposable {
 
     private Project project;
 
+    private Alarm myDocumentAlarm;
+    private List<ChangeListener> listeners;
+
     public IntellijVirtualFileSystemAdaptor(Project project) {
         this.project = project;
+        this.myDocumentAlarm = new Alarm(Alarm.ThreadToUse.POOLED_THREAD, this);
+        this.listeners = new ArrayList<>();
+
+        PsiManager.getInstance(this.project).addPsiTreeChangeListener(new PsiTreeAnyChangeAbstractAdapter() {
+            @Override
+            protected void onChange(@Nullable PsiFile file) {
+                if (file != null) {
+                    VirtualFile virtualFile = file.getVirtualFile();
+                    onFileChanged(virtualFile);
+                }
+            }
+        });
+
+        VirtualFileManager.getInstance().addVirtualFileListener(new VirtualFileListener() {
+            @Override
+            public void contentsChanged(@NotNull VirtualFileEvent event) {
+                onFileChanged(event.getFile());
+            }
+        });
     }
 
     @Override
@@ -50,31 +75,26 @@ public class IntellijVirtualFileSystemAdaptor implements VirtualFileSystem {
 
     @Override
     public void changeListener(ChangeListener cl) {
-        PsiManager.getInstance(this.project).addPsiTreeChangeListener(new PsiTreeAnyChangeAbstractAdapter() {
-            @Override
-            protected void onChange(@Nullable PsiFile file) {
-                if (file != null) {
-                    VirtualFile virtualFile = file.getVirtualFile();
-                    onFileChanged(virtualFile, cl);
-                }
-            }
-        });
-
-        VirtualFileManager.getInstance().addVirtualFileListener(new VirtualFileAdapter() {
-            @Override
-            public void contentsChanged(@NotNull VirtualFileEvent event) {
-                onFileChanged(event.getFile(), cl);
-            }
-        });
+        this.listeners.add(cl);
     }
 
-    private void onFileChanged(VirtualFile virtualFile, ChangeListener cl) {
-        final VirtualFile contentRootForFile = ProjectFileIndex.SERVICE.getInstance(project).getSourceRootForFile(virtualFile);
-        if (contentRootForFile != null) {
-            //If it is a file from the project
-            IntellijVirtualFileAdaptor intellijVirtualFileAdaptor = new IntellijVirtualFileAdaptor(IntellijVirtualFileSystemAdaptor.this, virtualFile, project, null);
-            cl.onChanged(intellijVirtualFileAdaptor);
-        }
+    private void onFileChanged(VirtualFile virtualFile) {
+        //We cancel all request
+        myDocumentAlarm.cancelAllRequests();
+        myDocumentAlarm.addRequest(() -> {
+            ApplicationManager.getApplication().runReadAction(() -> {
+                final VirtualFile contentRootForFile = ProjectFileIndex.SERVICE.getInstance(project).getSourceRootForFile(virtualFile);
+                if (contentRootForFile != null) {
+                    //If it is a file from the project
+                    final IntellijVirtualFileAdaptor intellijVirtualFile = new IntellijVirtualFileAdaptor(IntellijVirtualFileSystemAdaptor.this, virtualFile, project, null);
+                    for (ChangeListener listener : listeners) {
+                        listener.onChanged(intellijVirtualFile);
+                    }
+                }
+            });
+
+        }, WeaveConstants.MODIFICATIONS_DELAY);
+
     }
 
     @Override
@@ -85,6 +105,11 @@ public class IntellijVirtualFileSystemAdaptor implements VirtualFileSystem {
     @Override
     public WeaveResourceResolver asResourceResolver() {
         return new IntellijWeaveResourceResolver(project, this);
+    }
+
+    @Override
+    public void dispose() {
+
     }
 
     public static class IntellijWeaveResourceResolver implements WeaveResourceResolver {
