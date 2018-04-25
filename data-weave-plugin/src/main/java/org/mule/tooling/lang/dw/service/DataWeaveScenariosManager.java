@@ -92,7 +92,7 @@ public class DataWeaveScenariosManager extends AbstractProjectComponent implemen
         if (testFolder != null && VfsUtil.isAncestor(testFolder, modifiedFile, true)) {
             VirtualFile scenario = modifiedFile;
             while (!scenario.getParent().getParent().equals(testFolder)) {
-                scenario = modifiedFile.getParent();
+                scenario = scenario.getParent();
             }
             onModified(new Scenario(scenario));
         }
@@ -213,14 +213,11 @@ public class DataWeaveScenariosManager extends AbstractProjectComponent implemen
     private List<VirtualFile> findScenarios(PsiFile psiFile, VirtualFile integrationTestFolder) {
         WeaveDocument weaveDocument = getWeaveDocument(psiFile);
         if (weaveDocument != null) {
-            boolean mappingDocument = weaveDocument.isMappingDocument();
-            if (mappingDocument) {
-                String qualifiedName = weaveDocument.getQualifiedName();
-                if (qualifiedName != null) {
-                    VirtualFile testDirectory = integrationTestFolder.findChild(qualifiedName);
-                    if (testDirectory != null) {
-                        return Arrays.asList(testDirectory.getChildren());
-                    }
+            String qualifiedName = weaveDocument.getQualifiedName();
+            if (qualifiedName != null) {
+                VirtualFile testDirectory = integrationTestFolder.findChild(qualifiedName);
+                if (testDirectory != null) {
+                    return Arrays.asList(testDirectory.getChildren());
                 }
             }
         }

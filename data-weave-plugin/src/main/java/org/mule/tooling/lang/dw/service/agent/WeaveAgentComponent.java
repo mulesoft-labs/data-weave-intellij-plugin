@@ -1,9 +1,6 @@
 package org.mule.tooling.lang.dw.service.agent;
 
-import com.intellij.execution.DefaultExecutionResult;
-import com.intellij.execution.ExecutionException;
-import com.intellij.execution.ExecutionResult;
-import com.intellij.execution.Executor;
+import com.intellij.execution.*;
 import com.intellij.execution.configurations.*;
 import com.intellij.execution.executors.DefaultRunExecutor;
 import com.intellij.execution.process.OSProcessHandler;
@@ -17,8 +14,10 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.AbstractProjectComponent;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.OrderEnumerator;
+import com.intellij.openapi.util.Computable;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.search.GlobalSearchScope;
@@ -44,6 +43,15 @@ public class WeaveAgentComponent extends AbstractProjectComponent {
 
     protected WeaveAgentComponent(Project project) {
         super(project);
+    }
+
+    @Override
+    public void projectOpened() {
+        Boolean isInstalled = ApplicationManager.getApplication().runReadAction((Computable<Boolean>) () -> isWeaveRuntimeInstalled());
+        if (isInstalled) {
+            //We initialized if it is installed
+            init();
+        }
     }
 
     public void init() {
@@ -92,12 +100,7 @@ public class WeaveAgentComponent extends AbstractProjectComponent {
                     ApplicationManager.getApplication().invokeLater(() -> {
                         //Save all files
                         FileDocumentManager.getInstance().saveAllDocuments();
-                        final OrderEnumerator orderEnumerator = OrderEnumerator.orderEntries(module).withoutLibraries().withoutSdk();
-                        final PathsList pathsList = new PathsList();
-                        //We add sources too as we don't compile the we want to have the weave files up to date
-                        pathsList.addVirtualFiles(orderEnumerator.getSourceRoots());
-                        pathsList.addVirtualFiles(orderEnumerator.getClassesRoots());
-                        final String[] paths = pathsList.getPathList().toArray(new String[0]);
+                        final String[] paths = getClasspath(module);
                         client.runPreview(inputsPath, script, identifier, url, maxTime, paths, new DefaultWeaveAgentClientListener() {
                             @Override
                             public void onPreviewExecuted(PreviewExecutedEvent result) {
@@ -116,6 +119,32 @@ public class WeaveAgentComponent extends AbstractProjectComponent {
                     });
                 }
         );
+    }
+
+    @NotNull
+    public String[] getClasspath(Module module) {
+        final PathsList pathsList = new PathsList();
+        loadClasspathInto(module, pathsList);
+        return pathsList.getPathList().toArray(new String[0]);
+    }
+
+    public String[] getClasspath(Project project) {
+        final PathsList pathsList = new PathsList();
+        // All modules to use the same things
+        final Module[] modules = ModuleManager.getInstance(project).getModules();
+        if (modules.length > 0) {
+            for (Module module : modules) {
+                loadClasspathInto(module, pathsList);
+            }
+        }
+        return pathsList.getPathList().toArray(new String[0]);
+    }
+
+    public void loadClasspathInto(Module module, PathsList pathsList) {
+        final OrderEnumerator orderEnumerator = OrderEnumerator.orderEntries(module).withoutLibraries().withoutSdk();
+        //We add sources too as we don't compile the we want to have the weave files up to date
+        pathsList.addVirtualFiles(orderEnumerator.getSourceRoots());
+        pathsList.addVirtualFiles(orderEnumerator.getClassesRoots());
     }
 
     public void checkClientConnected(Runnable onConnected) {
@@ -149,7 +178,9 @@ public class WeaveAgentComponent extends AbstractProjectComponent {
                 client.inferInputsWeaveType(inputsPath, new DefaultWeaveAgentClientListener() {
                     @Override
                     public void onImplicitWeaveTypesCalculated(ImplicitInputTypesEvent result) {
-                        callback.onInputsTypesCalculated(result);
+                        ApplicationManager.getApplication().invokeLater(() -> {
+                            callback.onInputsTypesCalculated(result);
+                        });
                     }
                 });
             });
@@ -163,7 +194,9 @@ public class WeaveAgentComponent extends AbstractProjectComponent {
                 client.inferWeaveType(path, new DefaultWeaveAgentClientListener() {
                     @Override
                     public void onWeaveTypeInfer(InferWeaveTypeEvent result) {
-                        callback.onType(result);
+                        ApplicationManager.getApplication().invokeLater(() -> {
+                            callback.onType(result);
+                        });
                     }
                 });
             });
@@ -183,9 +216,21 @@ public class WeaveAgentComponent extends AbstractProjectComponent {
         });
     }
 
-    public void resolveModule(String identifier, String loader, ModuleLoadedCallback callback) {
+    public void availableModules(AvailableModulesCallback callback) {
+        client.availableModules(new DefaultWeaveAgentClientListener() {
+            @Override
+            public void onAvailableModules(AvailableModulesEvent am) {
+                ApplicationManager.getApplication().invokeLater(() -> {
+                    callback.onAvailableModules(am);
+                });
+            }
+        });
+    }
+
+    public void resolveModule(String identifier, String loader, Project module, ModuleLoadedCallback callback) {
+        final String[] paths = getClasspath(module);
         checkClientConnected(() -> {
-            client.resolveModule(identifier, loader, new DefaultWeaveAgentClientListener() {
+            client.resolveModule(identifier, loader, paths, new DefaultWeaveAgentClientListener() {
                 @Override
                 public void onModuleLoaded(ModuleResolvedEvent result) {
                     ApplicationManager.getApplication().invokeLater(() -> {

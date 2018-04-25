@@ -1,5 +1,8 @@
 package org.mule.tooling.lang.dw.service;
 
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.Result;
+import com.intellij.openapi.application.RunResult;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileTypes.FileType;
@@ -7,10 +10,16 @@ import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.vfs.*;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
+import com.intellij.psi.PsiTreeAnyChangeAbstractAdapter;
 import com.intellij.psi.search.FileTypeIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.indexing.FileBasedIndex;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.mule.tooling.lang.dw.WeaveFileType;
+import org.mule.tooling.lang.dw.util.VirtualFileSystemUtils;
 import org.mule.weave.v2.editor.ChangeListener;
 import org.mule.weave.v2.editor.VirtualFileSystem;
 import org.mule.weave.v2.parser.ast.variables.NameIdentifier;
@@ -41,13 +50,31 @@ public class IntellijVirtualFileSystemAdaptor implements VirtualFileSystem {
 
     @Override
     public void changeListener(ChangeListener cl) {
+        PsiManager.getInstance(this.project).addPsiTreeChangeListener(new PsiTreeAnyChangeAbstractAdapter() {
+            @Override
+            protected void onChange(@Nullable PsiFile file) {
+                if (file != null) {
+                    VirtualFile virtualFile = file.getVirtualFile();
+                    onFileChanged(virtualFile, cl);
+                }
+            }
+        });
+
         VirtualFileManager.getInstance().addVirtualFileListener(new VirtualFileAdapter() {
             @Override
             public void contentsChanged(@NotNull VirtualFileEvent event) {
-                IntellijVirtualFileAdaptor intellijVirtualFileAdaptor = new IntellijVirtualFileAdaptor(IntellijVirtualFileSystemAdaptor.this, event.getFile(), project, null);
-                cl.onChanged(intellijVirtualFileAdaptor);
+                onFileChanged(event.getFile(), cl);
             }
         });
+    }
+
+    private void onFileChanged(VirtualFile virtualFile, ChangeListener cl) {
+        final VirtualFile contentRootForFile = ProjectFileIndex.SERVICE.getInstance(project).getSourceRootForFile(virtualFile);
+        if (contentRootForFile != null) {
+            //If it is a file from the project
+            IntellijVirtualFileAdaptor intellijVirtualFileAdaptor = new IntellijVirtualFileAdaptor(IntellijVirtualFileSystemAdaptor.this, virtualFile, project, null);
+            cl.onChanged(intellijVirtualFileAdaptor);
+        }
     }
 
     @Override
@@ -72,16 +99,19 @@ public class IntellijVirtualFileSystemAdaptor implements VirtualFileSystem {
 
         @Override
         public Option<WeaveResource> resolve(NameIdentifier name) {
-            String fileRelativePath = NameIdentifierHelper.toWeaveFilePath(name);
-            String relativePath = fileRelativePath.startsWith("/") ? fileRelativePath : "/" + fileRelativePath;
-            Set<FileType> fileTypes = Collections.singleton(FileTypeManager.getInstance().getFileTypeByFileName(relativePath));
             final List<VirtualFile> fileList = new ArrayList<>();
-            FileBasedIndex.getInstance().processFilesContainingAllKeys(FileTypeIndex.NAME, fileTypes, GlobalSearchScope.allScope(project), null, virtualFile -> {
-                if (virtualFile.getPath().endsWith(relativePath)) {
-                    fileList.add(virtualFile);
-                }
-                return true;
+            ApplicationManager.getApplication().runReadAction(() -> {
+                FileTypeIndex.processFiles(WeaveFileType.getInstance(), virtualFile -> {
+                    NameIdentifier nameIdentifier = VirtualFileSystemUtils.calculateNameIdentifier(project, virtualFile);
+                    if (name.equals(nameIdentifier)) {
+                        fileList.add(virtualFile);
+                        return false;
+                    } else {
+                        return true;
+                    }
+                }, GlobalSearchScope.allScope(project));
             });
+
             if (fileList.isEmpty()) {
                 return Option.empty();
             } else {
@@ -143,20 +173,12 @@ public class IntellijVirtualFileSystemAdaptor implements VirtualFileSystem {
         @Override
         public NameIdentifier getNameIdentifier() {
             if (this.name == null) {
-                this.name = calculateNameIdentifier();
+                this.name = VirtualFileSystemUtils.calculateNameIdentifier(project, vfs);
             }
             return this.name;
 
         }
 
-        private NameIdentifier calculateNameIdentifier() {
-            final VirtualFile contentRootForFile = ProjectFileIndex.SERVICE.getInstance(project).getSourceRootForFile(vfs);
-            if (contentRootForFile != null) {
-                final String relPath = VfsUtil.getRelativePath(vfs, contentRootForFile);
-                return NameIdentifierHelper.fromWeaveFilePath(relPath);
-            } else {
-                return NameIdentifierHelper.fromWeaveFilePath(path());
-            }
-        }
+
     }
 }

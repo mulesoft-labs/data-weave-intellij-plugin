@@ -7,12 +7,14 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.components.AbstractProjectComponent;
 import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.util.PsiUtil;
+import com.intellij.util.concurrency.FutureResult;
 import org.intellij.markdown.ast.ASTNode;
 import org.intellij.markdown.flavours.gfm.GFMFlavourDescriptor;
 import org.intellij.markdown.html.HtmlGenerator;
@@ -24,21 +26,33 @@ import org.mule.tooling.lang.dw.parser.psi.WeaveIdentifier;
 import org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.qn.WeaveQualifiedNameProvider;
+import org.mule.tooling.lang.dw.service.agent.ModuleLoadedCallback;
+import org.mule.tooling.lang.dw.service.agent.WeaveAgentComponent;
 import org.mule.weave.v2.completion.EmptyDataFormatDescriptorProvider$;
 import org.mule.weave.v2.completion.Suggestion;
 import org.mule.weave.v2.completion.SuggestionType;
-import org.mule.weave.v2.editor.ImplicitInput;
-import org.mule.weave.v2.editor.VirtualFile;
-import org.mule.weave.v2.editor.WeaveDocumentToolingService;
-import org.mule.weave.v2.editor.WeaveToolingService;
+import org.mule.weave.v2.debugger.event.ModuleResolvedEvent;
+import org.mule.weave.v2.editor.*;
 import org.mule.weave.v2.hover.HoverMessage;
+import org.mule.weave.v2.parser.ast.module.ModuleNode;
 import org.mule.weave.v2.parser.ast.variables.NameIdentifier;
+import org.mule.weave.v2.parser.phase.ModuleLoader;
+import org.mule.weave.v2.parser.phase.ParsingContext;
+import org.mule.weave.v2.parser.phase.ParsingResult;
+import org.mule.weave.v2.parser.phase.PhaseResult;
 import org.mule.weave.v2.scope.Reference;
+import org.mule.weave.v2.sdk.WeaveResource;
+import org.mule.weave.v2.sdk.WeaveResource$;
+import org.mule.weave.v2.sdk.WeaveResourceResolver;
 import org.mule.weave.v2.ts.WeaveType;
 import scala.Option;
+import scala.collection.Seq$;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class DWIntellijToolingAdapter extends AbstractProjectComponent {
 
@@ -52,7 +66,24 @@ public class DWIntellijToolingAdapter extends AbstractProjectComponent {
     @Override
     public void initComponent() {
         projectVirtualFileSystem = new IntellijVirtualFileSystemAdaptor(myProject);
-        dwTextDocumentService = new WeaveToolingService(projectVirtualFileSystem, EmptyDataFormatDescriptorProvider$.MODULE$);
+        final SpecificModuleResourceResolver java = SpecificModuleResourceResolver.apply("java", name -> {
+            FutureResult<Option<WeaveResource>> futureResource = new FutureResult<>();
+            WeaveAgentComponent.getInstance(myProject).resolveModule(name.name(), name.loader().get(), myProject, event -> {
+                if (event.content().isDefined()) {
+                    String content = event.content().get();
+                    futureResource.set(Option.apply(WeaveResource$.MODULE$.apply(name.name(), content)));
+                } else {
+                    futureResource.set(Option.empty());
+                }
+            });
+            try {
+                return futureResource.get(1, TimeUnit.SECONDS);
+            } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                return Option.empty();
+            }
+        });
+
+        dwTextDocumentService = WeaveToolingService.apply(projectVirtualFileSystem, EmptyDataFormatDescriptorProvider$.MODULE$, new SpecificModuleResourceResolver[]{});
     }
 
     public List<LookupElement> completion(CompletionParameters completionParameters) {
@@ -71,7 +102,7 @@ public class DWIntellijToolingAdapter extends AbstractProjectComponent {
     }
 
     public WeaveType parseType(String weaveType) {
-        Option<WeaveType> weaveTypeOption = dwTextDocumentService.parseType(weaveType);
+        Option<WeaveType> weaveTypeOption = dwTextDocumentService.loadType(weaveType);
         if (weaveTypeOption.isDefined()) {
             return weaveTypeOption.get();
         } else {

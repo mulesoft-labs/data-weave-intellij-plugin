@@ -322,7 +322,7 @@ public class WeavePreviewComponent implements Disposable {
 
     public boolean runAvailable() {
         if (currentFile != null && scenariosComboBox != null) {
-            VirtualFile selectedItem = (VirtualFile) scenariosComboBox.getSelectedItem();
+            Scenario selectedItem = (Scenario) scenariosComboBox.getSelectedItem();
             return selectedItem != null;
         } else {
             return false;
