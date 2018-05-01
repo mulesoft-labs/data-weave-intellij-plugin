@@ -299,8 +299,9 @@ LeftShiftExpression
 
 MultiplicationDivisionExpression ::= Expression  ( '*' | '/' ) Expression {pin=2}
 
-FunctionCallExpression ::= Expression '(' ( Expression ( ',' Expression )* )? ')'
+FunctionCallExpression ::= Expression FunctionCallArguments
 
+FunctionCallArguments ::= '(' ( Expression ( ',' Expression )* )? (',')? ')'
 
 UsingExpression ::=USING '(' VariableDefinition ( ',' VariableDefinition )* ')' Expression {pin=1}
 

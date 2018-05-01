@@ -1,5 +1,9 @@
 Intellij snippets
 
+<codeInsight.lineMarkerProvider language="JAVA" implementationClass="com.simpleplugin.SimpleLineMarkerProvider"/>
+
+ParameterInfoHandler
+
 Replace error message panel with
 com.intellij.notification.EventLogConsole.createLogEditor
 

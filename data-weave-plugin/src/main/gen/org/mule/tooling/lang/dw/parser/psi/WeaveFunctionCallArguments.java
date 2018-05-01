@@ -5,12 +5,9 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface WeaveFunctionCallExpression extends WeaveExpression {
+public interface WeaveFunctionCallArguments extends PsiElement {
 
   @NotNull
-  WeaveExpression getExpression();
-
-  @NotNull
-  WeaveFunctionCallArguments getFunctionCallArguments();
+  List<WeaveExpression> getExpressionList();
 
 }

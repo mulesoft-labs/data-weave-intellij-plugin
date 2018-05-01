@@ -178,6 +178,10 @@ public class WeaveVisitor extends PsiElementVisitor {
     visitNamedElement(o);
   }
 
+  public void visitFunctionCallArguments(@NotNull WeaveFunctionCallArguments o) {
+    visitPsiElement(o);
+  }
+
   public void visitFunctionCallExpression(@NotNull WeaveFunctionCallExpression o) {
     visitExpression(o);
   }

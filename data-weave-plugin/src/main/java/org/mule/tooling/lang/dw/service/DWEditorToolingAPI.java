@@ -8,9 +8,9 @@ import com.intellij.icons.AllIcons;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.components.AbstractProjectComponent;
 import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
+import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -28,27 +28,19 @@ import org.mule.tooling.lang.dw.parser.psi.WeaveIdentifier;
 import org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.qn.WeaveQualifiedNameProvider;
-import org.mule.tooling.lang.dw.service.agent.ModuleLoadedCallback;
 import org.mule.tooling.lang.dw.service.agent.WeaveAgentComponent;
 import org.mule.weave.v2.completion.EmptyDataFormatDescriptorProvider$;
 import org.mule.weave.v2.completion.Suggestion;
 import org.mule.weave.v2.completion.SuggestionType;
-import org.mule.weave.v2.debugger.event.ModuleResolvedEvent;
 import org.mule.weave.v2.editor.*;
 import org.mule.weave.v2.hover.HoverMessage;
-import org.mule.weave.v2.parser.ast.module.ModuleNode;
 import org.mule.weave.v2.parser.ast.variables.NameIdentifier;
-import org.mule.weave.v2.parser.phase.ModuleLoader;
-import org.mule.weave.v2.parser.phase.ParsingContext;
-import org.mule.weave.v2.parser.phase.ParsingResult;
-import org.mule.weave.v2.parser.phase.PhaseResult;
 import org.mule.weave.v2.scope.Reference;
 import org.mule.weave.v2.sdk.WeaveResource;
 import org.mule.weave.v2.sdk.WeaveResource$;
 import org.mule.weave.v2.sdk.WeaveResourceResolver;
 import org.mule.weave.v2.ts.WeaveType;
 import scala.Option;
-import scala.collection.Seq$;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -58,18 +50,18 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-public class DWIntellijToolingAdapter extends AbstractProjectComponent implements Disposable {
+public class DWEditorToolingAPI extends AbstractProjectComponent implements Disposable {
 
-    private IntellijVirtualFileSystemAdaptor projectVirtualFileSystem;
+    private VirtualFileSystemAdaptor projectVirtualFileSystem;
     private WeaveToolingService dwTextDocumentService;
 
-    protected DWIntellijToolingAdapter(Project project) {
+    protected DWEditorToolingAPI(Project project) {
         super(project);
     }
 
     @Override
     public void initComponent() {
-        projectVirtualFileSystem = new IntellijVirtualFileSystemAdaptor(myProject);
+        projectVirtualFileSystem = new VirtualFileSystemAdaptor(myProject);
         RemoteResourceResolver resourceResolver = new RemoteResourceResolver(myProject);
         final SpecificModuleResourceResolver java = SpecificModuleResourceResolver.apply("java", resourceResolver);
         final SpecificModuleResourceResolver[] moduleResourceResolvers = {java};
@@ -88,6 +80,14 @@ public class DWIntellijToolingAdapter extends AbstractProjectComponent implement
         return createElements(items);
     }
 
+    public ValidationMessages typeCheck(PsiFile file) {
+        return didOpen(file).typeCheck();
+    }
+
+    public ValidationMessages parseCheck(PsiFile file) {
+        return didOpen(file).parseCheck();
+    }
+
     private WeaveDocumentToolingService didOpen(Document document) {
         final PsiFile psiFile = PsiDocumentManager.getInstance(myProject).getPsiFile(document);
         assert psiFile != null;
@@ -101,6 +101,12 @@ public class DWIntellijToolingAdapter extends AbstractProjectComponent implement
         } else {
             return null;
         }
+    }
+
+    public WeaveType typeOf(PsiElement element) {
+        WeaveDocumentToolingService weaveDocument = didOpen(element.getContainingFile());
+        TextRange textRange = element.getTextRange();
+        return weaveDocument.typeOf(textRange.getStartOffset(), textRange.getEndOffset());
     }
 
     private WeaveDocumentToolingService didOpen(PsiFile psiFile) {
@@ -202,8 +208,8 @@ public class DWIntellijToolingAdapter extends AbstractProjectComponent implement
         return elementBuilder.withAutoCompletionPolicy(AutoCompletionPolicy.SETTINGS_DEPENDENT);
     }
 
-    public static DWIntellijToolingAdapter getInstance(@NotNull Project project) {
-        return project.getComponent(DWIntellijToolingAdapter.class);
+    public static DWEditorToolingAPI getInstance(@NotNull Project project) {
+        return project.getComponent(DWEditorToolingAPI.class);
     }
 
     @Nullable

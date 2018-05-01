@@ -151,7 +151,7 @@ public class DataWeaveScenariosManager extends AbstractProjectComponent implemen
                     WeaveAgentComponent.getInstance(myProject).calculateImplicitInputTypes(inputs.getPath(), event -> {
                         ImplicitInput implicitInput = new ImplicitInput();
                         WeaveTypeEntry[] weaveTypeEntries = event.types();
-                        final DWIntellijToolingAdapter dataWeaveServiceManager = getWeaveServiceManager();
+                        final DWEditorToolingAPI dataWeaveServiceManager = getWeaveServiceManager();
                         for (WeaveTypeEntry weaveTypeEntry : weaveTypeEntries) {
                             WeaveType weaveType = dataWeaveServiceManager.parseType(weaveTypeEntry.wtypeString());
                             if (weaveType == null) {
@@ -175,8 +175,8 @@ public class DataWeaveScenariosManager extends AbstractProjectComponent implemen
         }
     }
 
-    public DWIntellijToolingAdapter getWeaveServiceManager() {
-        return DWIntellijToolingAdapter.getInstance(myProject);
+    public DWEditorToolingAPI getWeaveServiceManager() {
+        return DWEditorToolingAPI.getInstance(myProject);
     }
 
     @Nullable

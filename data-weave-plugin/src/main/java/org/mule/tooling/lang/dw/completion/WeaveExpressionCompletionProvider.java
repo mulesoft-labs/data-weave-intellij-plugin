@@ -7,7 +7,7 @@ import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ProcessingContext;
 import org.jetbrains.annotations.NotNull;
-import org.mule.tooling.lang.dw.service.DWIntellijToolingAdapter;
+import org.mule.tooling.lang.dw.service.DWEditorToolingAPI;
 
 import java.util.List;
 
@@ -17,7 +17,7 @@ public class WeaveExpressionCompletionProvider extends CompletionProvider<Comple
     @Override
     protected void addCompletions(@NotNull CompletionParameters completionParameters, ProcessingContext processingContext, @NotNull CompletionResultSet completionResultSet) {
         Project project = completionParameters.getPosition().getProject();
-        List<LookupElement> completion = DWIntellijToolingAdapter.getInstance(project).completion(completionParameters);
+        List<LookupElement> completion = DWEditorToolingAPI.getInstance(project).completion(completionParameters);
         completionResultSet.addAllElements(completion);
     }
 }

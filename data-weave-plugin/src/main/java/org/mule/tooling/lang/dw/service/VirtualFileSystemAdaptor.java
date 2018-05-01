@@ -2,12 +2,8 @@ package org.mule.tooling.lang.dw.service;
 
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.Result;
-import com.intellij.openapi.application.RunResult;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
-import com.intellij.openapi.fileTypes.FileType;
-import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.vfs.*;
@@ -17,7 +13,6 @@ import com.intellij.psi.PsiTreeAnyChangeAbstractAdapter;
 import com.intellij.psi.search.FileTypeIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.Alarm;
-import com.intellij.util.indexing.FileBasedIndex;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.WeaveConstants;
@@ -26,25 +21,22 @@ import org.mule.tooling.lang.dw.util.VirtualFileSystemUtils;
 import org.mule.weave.v2.editor.ChangeListener;
 import org.mule.weave.v2.editor.VirtualFileSystem;
 import org.mule.weave.v2.parser.ast.variables.NameIdentifier;
-import org.mule.weave.v2.sdk.NameIdentifierHelper;
 import org.mule.weave.v2.sdk.WeaveResource;
 import org.mule.weave.v2.sdk.WeaveResource$;
 import org.mule.weave.v2.sdk.WeaveResourceResolver;
 import scala.Option;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
-public class IntellijVirtualFileSystemAdaptor implements VirtualFileSystem, Disposable {
+public class VirtualFileSystemAdaptor implements VirtualFileSystem, Disposable {
 
     private Project project;
 
     private Alarm myDocumentAlarm;
     private List<ChangeListener> listeners;
 
-    public IntellijVirtualFileSystemAdaptor(Project project) {
+    public VirtualFileSystemAdaptor(Project project) {
         this.project = project;
         this.myDocumentAlarm = new Alarm(Alarm.ThreadToUse.POOLED_THREAD, this);
         this.listeners = new ArrayList<>();
@@ -86,7 +78,7 @@ public class IntellijVirtualFileSystemAdaptor implements VirtualFileSystem, Disp
                 final VirtualFile contentRootForFile = ProjectFileIndex.SERVICE.getInstance(project).getSourceRootForFile(virtualFile);
                 if (contentRootForFile != null) {
                     //If it is a file from the project
-                    final IntellijVirtualFileAdaptor intellijVirtualFile = new IntellijVirtualFileAdaptor(IntellijVirtualFileSystemAdaptor.this, virtualFile, project, null);
+                    final IntellijVirtualFileAdaptor intellijVirtualFile = new IntellijVirtualFileAdaptor(VirtualFileSystemAdaptor.this, virtualFile, project, null);
                     for (ChangeListener listener : listeners) {
                         listener.onChanged(intellijVirtualFile);
                     }

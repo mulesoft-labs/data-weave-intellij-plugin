@@ -91,11 +91,15 @@
 
 
         <toolWindow id="Weave Preview" anchor="bottom" icon="AllIcons.Actions.Preview" factoryClass="org.mule.tooling.lang.dw.preview.PreviewToolWindowFactory" />
+        <codeInsight.parameterInfo language="Weave"
+                                   implementationClass="org.mule.tooling.lang.dw.hints.WeaveParameterInfoHandler"/>
+        <externalAnnotator language="Weave"
+                           implementationClass="org.mule.tooling.lang.dw.annotator.WeaveValidatorAnnotator"/>
     </extensions>
 
     <project-components>
         <component>
-            <implementation-class>org.mule.tooling.lang.dw.service.DWIntellijToolingAdapter</implementation-class>
+            <implementation-class>org.mule.tooling.lang.dw.service.DWEditorToolingAPI</implementation-class>
         </component>
         <component>
             <implementation-class>org.mule.tooling.lang.dw.service.agent.WeaveAgentComponent</implementation-class>

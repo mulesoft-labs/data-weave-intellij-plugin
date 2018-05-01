@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.parser.psi.WeaveVariable;
-import org.mule.tooling.lang.dw.service.DWIntellijToolingAdapter;
+import org.mule.tooling.lang.dw.service.DWEditorToolingAPI;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +34,7 @@ public class WeaveIdentifierPsiReference extends PsiReferenceBase<PsiElement> {
     }
 
     public PsiElement resolveInner() {
-        final DWIntellijToolingAdapter instance = DWIntellijToolingAdapter.getInstance(myElement.getProject());
+        final DWEditorToolingAPI instance = DWEditorToolingAPI.getInstance(myElement.getProject());
         return instance.resolveReference(namedElement.getIdentifier());
     }
 
