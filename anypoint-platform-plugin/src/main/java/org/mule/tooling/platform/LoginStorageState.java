@@ -7,7 +7,7 @@ import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.Nullable;
 
-@State(name = "LoginStorageState", storages = @Storage(id = "LoginStorageState", file = "Anypoint/LoginStorageState.xml"))
+@State(name = "LoginStorageState", storages = @Storage(file = "Anypoint/LoginStorageState.xml"))
 public class LoginStorageState implements PersistentStateComponent<LoginStorageState> {
 
     //TODO for the future we may need to support multiple users

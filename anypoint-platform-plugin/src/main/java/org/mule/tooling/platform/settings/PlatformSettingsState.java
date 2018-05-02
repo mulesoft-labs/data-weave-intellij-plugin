@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.platform.PlatformRegion;
 import org.mule.tooling.platform.PlatformUrls;
 
-@State(name = "AnypointPlatform", storages = @Storage(id = "AnypointPlatform", file = "Anypoint/Settings.xml"))
+@State(name = "AnypointPlatform", storages = @Storage(file = "Anypoint/Settings.xml"))
 public class PlatformSettingsState implements PersistentStateComponent<PlatformSettingsState> {
 
     private Boolean onPremise = false;
