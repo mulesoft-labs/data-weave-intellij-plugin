@@ -3,6 +3,8 @@ package org.mule.tooling.lang.dw.annotator;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.ExternalAnnotator;
 import com.intellij.lang.annotation.HighlightSeverity;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
@@ -31,15 +33,17 @@ public class WeaveValidatorAnnotator extends ExternalAnnotator<PsiFile, Validati
     @Nullable
     @Override
     public ValidationMessages doAnnotate(PsiFile file) {
-        WeaveDocument weaveDocument = WeavePsiUtils.getWeaveDocument(file);
+        WeaveDocument weaveDocument = ApplicationManager.getApplication().runReadAction((Computable<WeaveDocument>) () -> WeavePsiUtils.getWeaveDocument(file));
         if (weaveDocument != null) {
-            DataWeaveScenariosManager scenariosManager = DataWeaveScenariosManager.getInstance(file.getProject());
-            DWEditorToolingAPI toolingAPI = DWEditorToolingAPI.getInstance(file.getProject());
-            if (weaveDocument.isModuleDocument() || scenariosManager.getCurrentScenarioFor(WeavePsiUtils.getWeaveDocument(file)) != null) {
-                return toolingAPI.typeCheck(file);
-            } else {
-                return toolingAPI.parseCheck(file);
-            }
+            return ApplicationManager.getApplication().runReadAction((Computable<ValidationMessages>) () -> {
+                DataWeaveScenariosManager scenariosManager = DataWeaveScenariosManager.getInstance(file.getProject());
+                DWEditorToolingAPI toolingAPI = DWEditorToolingAPI.getInstance(file.getProject());
+                if (weaveDocument.isModuleDocument() || scenariosManager.getCurrentImplicitTypes(WeavePsiUtils.getWeaveDocument(file)) != null) {
+                    return toolingAPI.typeCheck(file);
+                } else {
+                    return toolingAPI.parseCheck(file);
+                }
+            });
         } else {
             return null;
         }

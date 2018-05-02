@@ -1,5 +1,6 @@
 package org.mule.tooling.lang.dw.preview;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
@@ -19,6 +20,7 @@ import com.intellij.psi.*;
 import com.intellij.ui.JBSplitter;
 import com.intellij.ui.JBTabsPaneImpl;
 import com.intellij.ui.ListCellRendererWrapper;
+import com.intellij.ui.tabs.JBTabs;
 import com.intellij.ui.tabs.TabInfo;
 import com.intellij.util.Alarm;
 import com.intellij.util.ui.JBUI;
@@ -34,6 +36,7 @@ import org.mule.tooling.lang.dw.service.agent.RunPreviewCallback;
 import org.mule.tooling.lang.dw.service.agent.WeaveAgentComponent;
 import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
 import org.mule.tooling.lang.dw.ui.MessagePanel;
+import org.mule.tooling.lang.dw.util.ScalaUtils;
 import org.mule.weave.v2.debugger.event.PreviewExecutedFailedEvent;
 import org.mule.weave.v2.debugger.event.PreviewExecutedSuccessfulEvent;
 
@@ -49,7 +52,6 @@ public class WeavePreviewComponent implements Disposable {
     private JBTabsPaneImpl inputTabs;
     private Project myProject;
     private ComboBox<Scenario> scenariosComboBox;
-    private BorderLayoutPanel outputEditorPanel;
     private BorderLayoutPanel previewPanel;
     private final Document outputDocument;
     private Editor outputEditor;
@@ -58,6 +60,8 @@ public class WeavePreviewComponent implements Disposable {
     private boolean runOnChange = true;
 
     private Alarm myDocumentAlarm = new Alarm(Alarm.ThreadToUse.POOLED_THREAD, this);
+    private JBTabsPaneImpl outputTabs;
+    private PreviewLogsViewer previewLogsViewer;
 
     public WeavePreviewComponent() {
         outputDocument = EditorFactory.getInstance().createDocument("");
@@ -107,27 +111,28 @@ public class WeavePreviewComponent implements Disposable {
                 @Override
                 public void onPreviewSuccessful(PreviewExecutedSuccessfulEvent result) {
                     onPreviewResult(result);
+                    previewLogsViewer.setLogs(ScalaUtils.toList(result.messages()));
                 }
 
                 @Override
                 public void onPreviewFailed(PreviewExecutedFailedEvent message) {
                     disposeOutputEditorIfExists();
-                    Component component = outputEditorPanel.getComponent(0);
-                    if (component instanceof PreviewErrorPanel) {
-                        ((PreviewErrorPanel) component).updateMessage(message.message());
-                    } else {
-                        PreviewErrorPanel errorPanel = new PreviewErrorPanel(message.message());
-                        changeMainPanel(errorPanel);
-                    }
+                    PreviewErrorPanel errorPanel = new PreviewErrorPanel(message.message());
+                    changeOutputPanel(errorPanel, "Error", AllIcons.General.Error);
+                    previewLogsViewer.setLogs(ScalaUtils.toList(message.messages()));
                 }
             });
         });
 
     }
 
-    public void changeMainPanel(JComponent errorPanel2) {
-        outputEditorPanel.removeAll();
-        outputEditorPanel.addToCenter(errorPanel2);
+    public void changeOutputPanel(JComponent outputPanel, String title, Icon icon) {
+        outputTabs.removeTabAt(0);
+        TabInfo outputTabInfo = new TabInfo(outputPanel);
+        outputTabInfo.setText(title);
+        outputTabInfo.setIcon(icon);
+        outputTabs.getTabs().addTab(outputTabInfo, 0);
+        outputTabs.getTabs().select(outputTabInfo, false);
     }
 
     private ComboBoxModel<Scenario> createModel(List<Scenario> scenarios) {
@@ -138,11 +143,21 @@ public class WeavePreviewComponent implements Disposable {
         previewPanel = new BorderLayoutPanel();
         final JBSplitter splitter = new JBSplitter(false);
         inputTabs = new JBTabsPaneImpl(myProject, SwingConstants.TOP, myProject);
-        outputEditorPanel = new BorderLayoutPanel();
-        outputEditorPanel.addToCenter(new MessagePanel("No preview result to show yet."));
+        outputTabs = new JBTabsPaneImpl(myProject, SwingConstants.TOP, myProject);
         splitter.setProportion(0.5f);
         splitter.setFirstComponent(inputTabs.getComponent());
-        splitter.setSecondComponent(outputEditorPanel);
+        splitter.setSecondComponent(outputTabs.getComponent());
+
+        TabInfo outputTabInfo = new TabInfo(new MessagePanel("Waiting for preview execution to finish"));
+        outputTabInfo.setText("Output");
+        outputTabInfo.setIcon(AllIcons.General.Information);
+        outputTabs.getTabs().addTab(outputTabInfo);
+        previewLogsViewer = new PreviewLogsViewer();
+        TabInfo logTabInfo = new TabInfo(previewLogsViewer);
+        logTabInfo.setText("Logs");
+        logTabInfo.setIcon(AllIcons.Debugger.Console_log);
+
+        outputTabs.getTabs().addTab(logTabInfo);
 
         final JPanel chooserPanel = createScenarioSelectorPanel();
         previewPanel.addToTop(chooserPanel);
@@ -231,12 +246,12 @@ public class WeavePreviewComponent implements Disposable {
             setDocumentContent(content);
             FileType fileTypeByExtension = FileTypeManager.getInstance().getFileTypeByExtension(extension);
             outputEditor = EditorFactory.getInstance().createEditor(outputDocument, myProject, fileTypeByExtension, true);
-            changeMainPanel(outputEditor.getComponent());
+            changeOutputPanel(outputEditor.getComponent(), "Output", fileTypeByExtension.getIcon());
             outputEditorFileExtension = extension;
         } else if (extension != null) {
             setDocumentContent(content);
         } else {
-            changeMainPanel(new MessagePanel("Unable to render the output for extension " + extension));
+            changeOutputPanel(new MessagePanel("Unable to render the output for extension " + extension), "Error", AllIcons.General.Error);
         }
 
     }

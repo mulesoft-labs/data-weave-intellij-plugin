@@ -11,13 +11,13 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.parser.psi.WeaveFunctionCallExpression;
 import org.mule.tooling.lang.dw.service.DWEditorToolingAPI;
+import org.mule.tooling.lang.dw.util.ScalaUtils;
 import org.mule.weave.v2.ts.FunctionType;
 import org.mule.weave.v2.ts.FunctionTypeParameter;
 import org.mule.weave.v2.ts.WeaveType;
 import scala.collection.JavaConversions;
 import scala.collection.Seq;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -61,7 +61,7 @@ public class WeaveParameterInfoHandler implements ParameterInfoHandler<WeaveFunc
             List<FunctionType> functionTypes;
             if (functionType.isOverloaded()) {
                 Seq<FunctionType> overloads = functionType.overloads();
-                functionTypes = toList(overloads);
+                functionTypes = ScalaUtils.toList(overloads);
             } else {
                 functionTypes = Collections.singletonList(functionType);
             }
@@ -71,16 +71,6 @@ public class WeaveParameterInfoHandler implements ParameterInfoHandler<WeaveFunc
             context.showHint(element.getFunctionCallArguments(), element.getFunctionCallArguments().getTextRange().getStartOffset(), this);
         }
 
-    }
-
-    @NotNull
-    public static <T> T[] toArray(Seq<T> overloads, T[] a) {
-        return JavaConversions.asJavaCollection(overloads).toArray(a);
-    }
-
-    @NotNull
-    public static <T> List<T> toList(Seq<T> overloads) {
-        return new ArrayList<>(JavaConversions.asJavaCollection(overloads));
     }
 
     @Nullable
@@ -100,7 +90,7 @@ public class WeaveParameterInfoHandler implements ParameterInfoHandler<WeaveFunc
 
     @Override
     public void updateUI(ArgumentCallInfo p, @NotNull ParameterInfoUIContext context) {
-        List<FunctionTypeParameter> functionTypeParameters = toList(p.getFunctionType().params());
+        List<FunctionTypeParameter> functionTypeParameters = ScalaUtils.toList(p.getFunctionType().params());
         String hint = functionTypeParameters
                 .stream()
                 .map((param) -> param.name() + (param.optional() ? "? :" : " :") + param.wtype().toString(false, true))
