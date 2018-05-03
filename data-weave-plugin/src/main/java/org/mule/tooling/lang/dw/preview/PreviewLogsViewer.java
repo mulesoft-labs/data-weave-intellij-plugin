@@ -1,53 +1,42 @@
 package org.mule.tooling.lang.dw.preview;
 
-import com.intellij.ui.table.JBTable;
-import com.intellij.util.ui.ColumnInfo;
-import com.intellij.util.ui.ListTableModel;
+import com.intellij.execution.filters.TextConsoleBuilder;
+import com.intellij.execution.filters.TextConsoleBuilderFactory;
+import com.intellij.execution.ui.ConsoleView;
+import com.intellij.execution.ui.ConsoleViewContentType;
+import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.components.BorderLayoutPanel;
-import org.jetbrains.annotations.Nullable;
 import org.mule.weave.v2.debugger.event.WeaveLogMessage;
 
 import java.util.List;
+import java.util.Optional;
 
 public class PreviewLogsViewer extends BorderLayoutPanel {
 
-    private ListTableModel<WeaveLogMessage> model;
+    private ConsoleView console;
 
-    public PreviewLogsViewer() {
-        initUI();
+    public PreviewLogsViewer(Project project) {
+        initUI(project);
     }
 
-    void initUI() {
-        final JBTable logTable = new JBTable();
-        logTable.setShowColumns(true);
-
-
-        final ColumnInfo timeStamp = new ColumnInfo<WeaveLogMessage, String>("Time") {
-            @Nullable
-            @Override
-            public String valueOf(WeaveLogMessage message) {
-                return message.timestamp();
-
-            }
-        };
-        final ColumnInfo message = new ColumnInfo<WeaveLogMessage, String>("Message") {
-            @Nullable
-            @Override
-            public String valueOf(WeaveLogMessage message) {
-                return message.message();
-
-            }
-
-
-        };
-        model = new ListTableModel<>(timeStamp, message);
-
-        logTable.setModel(model);
-
-        this.addToCenter(logTable);
+    void initUI(Project project) {
+        TextConsoleBuilder builder = TextConsoleBuilderFactory.getInstance().createBuilder(project);
+        console = builder.getConsole();
+        addToCenter(console.getComponent());
     }
 
-    public void setLogs(List<WeaveLogMessage> weaveLogMessages) {
-        model.setItems(weaveLogMessages);
+    public void clear() {
+        console.clear();
+    }
+
+    public void logInfo(List<WeaveLogMessage> weaveLogMessages) {
+        Optional<String> result = weaveLogMessages.stream().map((logMessage) -> "[INFO] " + logMessage.timestamp() + " : " + logMessage.message()).reduce((s, s2) -> s + "\n" + s2);
+        if (result.isPresent()) {
+            console.print(result.get(), ConsoleViewContentType.SYSTEM_OUTPUT);
+        }
+    }
+
+    public void logError(String message) {
+        console.print(message, ConsoleViewContentType.ERROR_OUTPUT);
     }
 }

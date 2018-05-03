@@ -20,7 +20,6 @@ import com.intellij.psi.*;
 import com.intellij.ui.JBSplitter;
 import com.intellij.ui.JBTabsPaneImpl;
 import com.intellij.ui.ListCellRendererWrapper;
-import com.intellij.ui.tabs.JBTabs;
 import com.intellij.ui.tabs.TabInfo;
 import com.intellij.util.Alarm;
 import com.intellij.util.ui.JBUI;
@@ -111,15 +110,15 @@ public class WeavePreviewComponent implements Disposable {
                 @Override
                 public void onPreviewSuccessful(PreviewExecutedSuccessfulEvent result) {
                     onPreviewResult(result);
-                    previewLogsViewer.setLogs(ScalaUtils.toList(result.messages()));
+                    previewLogsViewer.clear();
+                    previewLogsViewer.logInfo(ScalaUtils.toList(result.messages()));
                 }
 
                 @Override
                 public void onPreviewFailed(PreviewExecutedFailedEvent message) {
-                    disposeOutputEditorIfExists();
-                    PreviewErrorPanel errorPanel = new PreviewErrorPanel(message.message());
-                    changeOutputPanel(errorPanel, "Error", AllIcons.General.Error);
-                    previewLogsViewer.setLogs(ScalaUtils.toList(message.messages()));
+                    previewLogsViewer.clear();
+                    previewLogsViewer.logInfo(ScalaUtils.toList(message.messages()));
+                    previewLogsViewer.logError(message.message());
                 }
             });
         });
@@ -132,7 +131,6 @@ public class WeavePreviewComponent implements Disposable {
         outputTabInfo.setText(title);
         outputTabInfo.setIcon(icon);
         outputTabs.getTabs().addTab(outputTabInfo, 0);
-        outputTabs.getTabs().select(outputTabInfo, false);
     }
 
     private ComboBoxModel<Scenario> createModel(List<Scenario> scenarios) {
@@ -148,13 +146,13 @@ public class WeavePreviewComponent implements Disposable {
         splitter.setFirstComponent(inputTabs.getComponent());
         splitter.setSecondComponent(outputTabs.getComponent());
 
-        TabInfo outputTabInfo = new TabInfo(new MessagePanel("Waiting for preview execution to finish"));
+        final TabInfo outputTabInfo = new TabInfo(new MessagePanel("Waiting for preview execution to finish"));
         outputTabInfo.setText("Output");
         outputTabInfo.setIcon(AllIcons.General.Information);
         outputTabs.getTabs().addTab(outputTabInfo);
-        previewLogsViewer = new PreviewLogsViewer();
+        previewLogsViewer = new PreviewLogsViewer(myProject);
         TabInfo logTabInfo = new TabInfo(previewLogsViewer);
-        logTabInfo.setText("Logs");
+        logTabInfo.setText("Console");
         logTabInfo.setIcon(AllIcons.Debugger.Console_log);
 
         outputTabs.getTabs().addTab(logTabInfo);
