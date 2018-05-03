@@ -116,24 +116,11 @@ public class VirtualFileSystemAdaptor implements VirtualFileSystem, Disposable {
 
         @Override
         public Option<WeaveResource> resolve(NameIdentifier name) {
-            final List<VirtualFile> fileList = new ArrayList<>();
-            ApplicationManager.getApplication().runReadAction(() -> {
-                FileTypeIndex.processFiles(WeaveFileType.getInstance(), virtualFile -> {
-                    NameIdentifier nameIdentifier = VirtualFileSystemUtils.calculateNameIdentifier(project, virtualFile);
-                    if (name.equals(nameIdentifier)) {
-                        fileList.add(virtualFile);
-                        return false;
-                    } else {
-                        return true;
-                    }
-                }, GlobalSearchScope.allScope(project));
-            });
-
-            if (fileList.isEmpty()) {
+            VirtualFile resolve = VirtualFileSystemUtils.resolve(name, project);
+            if (resolve == null) {
                 return Option.empty();
             } else {
-                VirtualFile virtualFile = fileList.get(0);
-                IntellijVirtualFileAdaptor intellijVirtualFileAdaptor = new IntellijVirtualFileAdaptor(this.fs, virtualFile, project, name);
+                IntellijVirtualFileAdaptor intellijVirtualFileAdaptor = new IntellijVirtualFileAdaptor(this.fs, resolve, project, name);
                 return Option.apply(intellijVirtualFileAdaptor.asResource());
             }
         }

@@ -2,10 +2,12 @@ package org.mule.tooling.lang.dw.preview;
 
 import com.intellij.execution.filters.TextConsoleBuilder;
 import com.intellij.execution.filters.TextConsoleBuilderFactory;
+import com.intellij.execution.filters.UrlFilter;
 import com.intellij.execution.ui.ConsoleView;
 import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.components.BorderLayoutPanel;
+import org.mule.tooling.lang.dw.filter.DataWeaveFilter;
 import org.mule.weave.v2.debugger.event.WeaveLogMessage;
 
 import java.util.List;
@@ -21,6 +23,8 @@ public class PreviewLogsViewer extends BorderLayoutPanel {
 
     void initUI(Project project) {
         TextConsoleBuilder builder = TextConsoleBuilderFactory.getInstance().createBuilder(project);
+        builder.addFilter(new DataWeaveFilter(project));
+        builder.addFilter(new UrlFilter());
         console = builder.getConsole();
         addToCenter(console.getComponent());
     }
