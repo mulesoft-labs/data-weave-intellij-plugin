@@ -26,9 +26,6 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     if (t == ANY_DATE_LITERAL) {
       r = AnyDateLiteral(b, 0);
     }
-    else if (t == ANY_REGEX_LITERAL) {
-      r = AnyRegexLiteral(b, 0);
-    }
     else if (t == ARRAY_DECONSTRUCT_PATTERN) {
       r = ArrayDeconstructPattern(b, 0);
     }
@@ -224,6 +221,9 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     else if (t == REFERENCE_TYPE) {
       r = ReferenceType(b, 0);
     }
+    else if (t == REGEX_LITERAL) {
+      r = RegexLiteral(b, 0);
+    }
     else if (t == REGEX_PATTERN) {
       r = RegexPattern(b, 0);
     }
@@ -302,14 +302,14 @@ public class WeaveParser implements PsiParser, LightPsiParser {
       KEY_TYPE, KEY_VALUE_PAIR_TYPE, LAMBDA_TYPE, NAME_TYPE,
       OBJECT_TYPE, ORDERED_OBJECT_TYPE, REFERENCE_TYPE, TYPE,
       UNION_TYPE),
-    create_token_set_(ADDITION_SUBTRACTION_EXPRESSION, AND_EXPRESSION, ANY_DATE_LITERAL, ANY_REGEX_LITERAL,
-      ARRAY_EXPRESSION, AS_EXPRESSION, BINARY_EXPRESSION, BOOLEAN_LITERAL,
-      BRACKET_SELECTOR_EXPRESSION, CONDITIONAL_EXPRESSION, CUSTOM_INTERPOLATOR_EXPRESSION, DEFAULT_VALUE_EXPRESSION,
-      DOT_SELECTOR_EXPRESSION, DO_EXPRESSION, ENCLOSED_EXPRESSION, EQUALITY_EXPRESSION,
-      EXPRESSION, FUNCTION_CALL_EXPRESSION, GREATER_THAN_EXPRESSION, IS_EXPRESSION,
-      LAMBDA_LITERAL, LEFT_SHIFT_EXPRESSION, LITERAL_EXPRESSION, MATCH_EXPRESSION,
-      MULTIPLICATION_DIVISION_EXPRESSION, NOT_EXPRESSION, NULL_LITERAL, NUMBER_LITERAL,
-      OBJECT_DECONSTRUCT_EXPRESSION, OBJECT_EXPRESSION, OR_EXPRESSION, PATTERN_MATCHER_EXPRESSION,
+    create_token_set_(ADDITION_SUBTRACTION_EXPRESSION, AND_EXPRESSION, ANY_DATE_LITERAL, ARRAY_EXPRESSION,
+      AS_EXPRESSION, BINARY_EXPRESSION, BOOLEAN_LITERAL, BRACKET_SELECTOR_EXPRESSION,
+      CONDITIONAL_EXPRESSION, CUSTOM_INTERPOLATOR_EXPRESSION, DEFAULT_VALUE_EXPRESSION, DOT_SELECTOR_EXPRESSION,
+      DO_EXPRESSION, ENCLOSED_EXPRESSION, EQUALITY_EXPRESSION, EXPRESSION,
+      FUNCTION_CALL_EXPRESSION, GREATER_THAN_EXPRESSION, IS_EXPRESSION, LAMBDA_LITERAL,
+      LEFT_SHIFT_EXPRESSION, LITERAL_EXPRESSION, MATCH_EXPRESSION, MULTIPLICATION_DIVISION_EXPRESSION,
+      NOT_EXPRESSION, NULL_LITERAL, NUMBER_LITERAL, OBJECT_DECONSTRUCT_EXPRESSION,
+      OBJECT_EXPRESSION, OR_EXPRESSION, PATTERN_MATCHER_EXPRESSION, REGEX_LITERAL,
       RIGHT_SHIFT_EXPRESSION, STRING_LITERAL, UNARY_MINUS_EXPRESSION, UNDEFINED_LITERAL,
       USING_EXPRESSION, VARIABLE_REFERENCE_EXPRESSION),
   };
@@ -323,18 +323,6 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     Marker m = enter_section_(b);
     r = consumeToken(b, RULE_ANY_DATE);
     exit_section_(b, m, ANY_DATE_LITERAL, r);
-    return r;
-  }
-
-  /* ********************************************************** */
-  // RULE_ANY_REGEX
-  public static boolean AnyRegexLiteral(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "AnyRegexLiteral")) return false;
-    if (!nextTokenIs(b, RULE_ANY_REGEX)) return false;
-    boolean r;
-    Marker m = enter_section_(b);
-    r = consumeToken(b, RULE_ANY_REGEX);
-    exit_section_(b, m, ANY_REGEX_LITERAL, r);
     return r;
   }
 
@@ -1919,14 +1907,14 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // Identifier 'matches' AnyRegexLiteral '->' Expression
+  // Identifier 'matches' RegexLiteral '->' Expression
   public static boolean NamedRegexPattern(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "NamedRegexPattern")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, NAMED_REGEX_PATTERN, "<named regex pattern>");
     r = Identifier(b, l + 1);
     r = r && consumeToken(b, MATCHES_KEYWORD);
-    r = r && AnyRegexLiteral(b, l + 1);
+    r = r && RegexLiteral(b, l + 1);
     r = r && consumeToken(b, ARROW_TOKEN);
     r = r && Expression(b, l + 1, -1);
     exit_section_(b, l, m, r, false, null);
@@ -2534,14 +2522,26 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // 'matches' AnyRegexLiteral '->' Expression
+  // RULE_ANY_REGEX
+  public static boolean RegexLiteral(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "RegexLiteral")) return false;
+    if (!nextTokenIs(b, RULE_ANY_REGEX)) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, RULE_ANY_REGEX);
+    exit_section_(b, m, REGEX_LITERAL, r);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // 'matches' RegexLiteral '->' Expression
   public static boolean RegexPattern(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "RegexPattern")) return false;
     if (!nextTokenIs(b, MATCHES_KEYWORD)) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, MATCHES_KEYWORD);
-    r = r && AnyRegexLiteral(b, l + 1);
+    r = r && RegexLiteral(b, l + 1);
     r = r && consumeToken(b, ARROW_TOKEN);
     r = r && Expression(b, l + 1, -1);
     exit_section_(b, m, REGEX_PATTERN, r);
@@ -3664,7 +3664,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   //            | StringLiteral
   //            | NumberLiteral
   //            | AnyDateLiteral
-  //            | AnyRegexLiteral
+  //            | RegexLiteral
   public static boolean LiteralExpression(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "LiteralExpression")) return false;
     boolean r;
@@ -3674,7 +3674,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     if (!r) r = StringLiteral(b, l + 1);
     if (!r) r = NumberLiteral(b, l + 1);
     if (!r) r = AnyDateLiteral(b, l + 1);
-    if (!r) r = AnyRegexLiteral(b, l + 1);
+    if (!r) r = RegexLiteral(b, l + 1);
     exit_section_(b, l, m, r, false, null);
     return r;
   }

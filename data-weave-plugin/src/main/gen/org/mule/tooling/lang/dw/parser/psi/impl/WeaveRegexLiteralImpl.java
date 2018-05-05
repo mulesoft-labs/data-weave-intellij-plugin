@@ -8,16 +8,17 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.*;
+import org.mule.tooling.lang.dw.parser.psi.WeaveRegexLiteralMixin;
 import org.mule.tooling.lang.dw.parser.psi.*;
 
-public class WeaveAnyRegexLiteralImpl extends WeaveLiteralExpressionImpl implements WeaveAnyRegexLiteral {
+public class WeaveRegexLiteralImpl extends WeaveRegexLiteralMixin implements WeaveRegexLiteral {
 
-  public WeaveAnyRegexLiteralImpl(ASTNode node) {
+  public WeaveRegexLiteralImpl(ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull WeaveVisitor visitor) {
-    visitor.visitAnyRegexLiteral(this);
+    visitor.visitRegexLiteral(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {

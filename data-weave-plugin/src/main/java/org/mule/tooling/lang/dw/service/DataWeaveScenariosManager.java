@@ -82,8 +82,10 @@ public class DataWeaveScenariosManager extends AbstractProjectComponent implemen
     }
 
     private void onModified(PsiFile psiFile) {
-        final VirtualFile modifiedFile = psiFile.getVirtualFile();
-        onFileChanged(modifiedFile);
+        if (psiFile != null) {
+            final VirtualFile modifiedFile = psiFile.getVirtualFile();
+            onFileChanged(modifiedFile);
+        }
     }
 
     private void onFileChanged(VirtualFile modifiedFile) {

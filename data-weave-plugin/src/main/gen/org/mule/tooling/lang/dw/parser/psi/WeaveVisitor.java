@@ -21,10 +21,6 @@ public class WeaveVisitor extends PsiElementVisitor {
     visitLiteralExpression(o);
   }
 
-  public void visitAnyRegexLiteral(@NotNull WeaveAnyRegexLiteral o) {
-    visitLiteralExpression(o);
-  }
-
   public void visitArrayDeconstructPattern(@NotNull WeaveArrayDeconstructPattern o) {
     visitPattern(o);
   }
@@ -384,6 +380,10 @@ public class WeaveVisitor extends PsiElementVisitor {
 
   public void visitReferenceType(@NotNull WeaveReferenceType o) {
     visitType(o);
+  }
+
+  public void visitRegexLiteral(@NotNull WeaveRegexLiteral o) {
+    visitLiteralExpression(o);
   }
 
   public void visitRegexPattern(@NotNull WeaveRegexPattern o) {

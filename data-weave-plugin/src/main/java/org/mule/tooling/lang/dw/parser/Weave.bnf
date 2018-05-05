@@ -361,9 +361,9 @@ NamedTypePattern ::= Identifier "is" TypeLiteral '->' Expression {
     mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
 }
 
-RegexPattern ::= 'matches' AnyRegexLiteral '->' Expression
+RegexPattern ::= 'matches' RegexLiteral '->' Expression
 
-NamedRegexPattern ::= Identifier 'matches' AnyRegexLiteral '->' Expression {
+NamedRegexPattern ::= Identifier 'matches' RegexLiteral '->' Expression {
     methods = [getName setName getNameIdentifier]
     implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
     mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
@@ -409,7 +409,7 @@ LiteralExpression
            | StringLiteral
            | NumberLiteral
            | AnyDateLiteral
-           | AnyRegexLiteral
+           | RegexLiteral
 
 DoExpression ::= 'do' '{' (DoDirectives+ '---')?  Expression'}'
 
@@ -449,7 +449,9 @@ StringLiteral ::= DOUBLE_QUOTED_STRING
 
 AnyDateLiteral::= RULE_ANY_DATE
 
-AnyRegexLiteral::= RULE_ANY_REGEX
+RegexLiteral::= RULE_ANY_REGEX {
+mixin = "org.mule.tooling.lang.dw.parser.psi.WeaveRegexLiteralMixin"
+}
 
 ObjectDeconstructExpression ::= '{' KeyValuePair '~' Expression '}' {pin=3}
 

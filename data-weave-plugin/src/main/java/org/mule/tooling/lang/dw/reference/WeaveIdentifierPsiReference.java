@@ -5,9 +5,8 @@ import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.util.TextRange;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiReference;
-import com.intellij.psi.PsiReferenceBase;
+import com.intellij.psi.*;
+import com.intellij.psi.impl.compiled.ClsJavaCodeReferenceElementImpl;
 import com.intellij.psi.impl.source.resolve.ResolveCache;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -18,8 +17,9 @@ import org.mule.tooling.lang.dw.service.DWEditorToolingAPI;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
-public class WeaveIdentifierPsiReference extends PsiReferenceBase<PsiElement> {
+public class WeaveIdentifierPsiReference extends PsiPolyVariantReferenceBase<PsiElement> {
     private WeaveNamedElement namedElement;
 
     public WeaveIdentifierPsiReference(@NotNull WeaveNamedElement element) {
@@ -27,13 +27,7 @@ public class WeaveIdentifierPsiReference extends PsiReferenceBase<PsiElement> {
         namedElement = element;
     }
 
-    @Nullable
-    @Override
-    public PsiElement resolve() {
-        return ResolveCache.getInstance(getElement().getProject()).resolveWithCaching(this, MyResolver.INSTANCE, false, false);
-    }
-
-    public PsiElement resolveInner() {
+    public PsiElement[] resolveInner() {
         final DWEditorToolingAPI instance = DWEditorToolingAPI.getInstance(myElement.getProject());
         return instance.resolveReference(namedElement.getIdentifier());
     }
@@ -55,12 +49,20 @@ public class WeaveIdentifierPsiReference extends PsiReferenceBase<PsiElement> {
         return variants.toArray();
     }
 
-    private static class MyResolver implements ResolveCache.Resolver {
+    @NotNull
+    @Override
+    public ResolveResult[] multiResolve(boolean incompleteCode) {
+        ResolveCache resolveCache = ResolveCache.getInstance(getElement().getProject());
+        return resolveCache.resolveWithCaching(this, MyResolver.INSTANCE, true, incompleteCode, namedElement.getContainingFile());
+    }
+
+    private static class MyResolver implements ResolveCache.PolyVariantContextResolver<WeaveIdentifierPsiReference> {
         private static final MyResolver INSTANCE = new MyResolver();
 
-        @Nullable
-        public PsiElement resolve(@NotNull PsiReference ref, boolean incompleteCode) {
-            return ((WeaveIdentifierPsiReference) ref).resolveInner();
+        @NotNull
+        @Override
+        public ResolveResult[] resolve(@NotNull WeaveIdentifierPsiReference ref, @NotNull PsiFile containingFile, boolean incompleteCode) {
+            return Stream.of(ref.resolveInner()).map(PsiElementResolveResult::new).toArray(ResolveResult[]::new);
         }
 
     }

@@ -13,7 +13,6 @@ public interface WeaveTypes {
   IElementType ADDITION_SUBTRACTION_EXPRESSION = new WeaveElementType("ADDITION_SUBTRACTION_EXPRESSION");
   IElementType AND_EXPRESSION = new WeaveElementType("AND_EXPRESSION");
   IElementType ANY_DATE_LITERAL = new WeaveElementType("ANY_DATE_LITERAL");
-  IElementType ANY_REGEX_LITERAL = new WeaveElementType("ANY_REGEX_LITERAL");
   IElementType ARRAY_DECONSTRUCT_PATTERN = new WeaveElementType("ARRAY_DECONSTRUCT_PATTERN");
   IElementType ARRAY_EXPRESSION = new WeaveElementType("ARRAY_EXPRESSION");
   IElementType AS_EXPRESSION = new WeaveElementType("AS_EXPRESSION");
@@ -102,6 +101,7 @@ public interface WeaveTypes {
   IElementType PATTERN_MATCHER_EXPRESSION = new WeaveElementType("PATTERN_MATCHER_EXPRESSION");
   IElementType QUALIFIED_NAME = new WeaveElementType("QUALIFIED_NAME");
   IElementType REFERENCE_TYPE = new WeaveElementType("REFERENCE_TYPE");
+  IElementType REGEX_LITERAL = new WeaveElementType("REGEX_LITERAL");
   IElementType REGEX_PATTERN = new WeaveElementType("REGEX_PATTERN");
   IElementType RIGHT_SHIFT_EXPRESSION = new WeaveElementType("RIGHT_SHIFT_EXPRESSION");
   IElementType SCHEMA = new WeaveElementType("SCHEMA");
@@ -218,9 +218,6 @@ public interface WeaveTypes {
       }
       else if (type == ANY_DATE_LITERAL) {
         return new WeaveAnyDateLiteralImpl(node);
-      }
-      else if (type == ANY_REGEX_LITERAL) {
-        return new WeaveAnyRegexLiteralImpl(node);
       }
       else if (type == ARRAY_DECONSTRUCT_PATTERN) {
         return new WeaveArrayDeconstructPatternImpl(node);
@@ -470,6 +467,9 @@ public interface WeaveTypes {
       }
       else if (type == REFERENCE_TYPE) {
         return new WeaveReferenceTypeImpl(node);
+      }
+      else if (type == REGEX_LITERAL) {
+        return new WeaveRegexLiteralImpl(node);
       }
       else if (type == REGEX_PATTERN) {
         return new WeaveRegexPatternImpl(node);

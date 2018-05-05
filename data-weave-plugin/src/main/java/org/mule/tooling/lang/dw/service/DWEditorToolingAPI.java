@@ -6,6 +6,7 @@ import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.AbstractProjectComponent;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
@@ -49,6 +50,8 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class DWEditorToolingAPI extends AbstractProjectComponent implements Disposable {
 
@@ -133,16 +136,16 @@ public class DWEditorToolingAPI extends AbstractProjectComponent implements Disp
         }
     }
 
-    @Nullable
-    public PsiElement resolveReference(WeaveIdentifier identifier) {
+    @NotNull
+    public PsiElement[] resolveReference(WeaveIdentifier identifier) {
         final PsiFile containerFile = identifier.getContainingFile();
         final WeaveDocumentToolingService weaveDocumentService = didOpen(containerFile);
         final Option<Reference> referenceOption = weaveDocumentService.definition(identifier.getTextOffset());
         if (referenceOption.isDefined()) {
             final Reference reference = referenceOption.get();
-            return resolveReference(reference, containerFile);
+            return new PsiElement[]{resolveReference(reference, containerFile)};
         } else {
-            return null;
+            return new PsiElement[0];
         }
     }
 
@@ -240,6 +243,13 @@ public class DWEditorToolingAPI extends AbstractProjectComponent implements Disp
     @Override
     public void dispose() {
         Disposer.dispose(projectVirtualFileSystem);
+    }
+
+    public void reformat(Document document) {
+        Option<ReformatResult> formatting = didOpen(document).formatting();
+        if (formatting.isDefined()) {
+            ApplicationManager.getApplication().runWriteAction(() -> document.setText(formatting.get().newFormat()));
+        }
     }
 
     public static class CompletionData {

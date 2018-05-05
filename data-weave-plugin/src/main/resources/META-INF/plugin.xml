@@ -68,7 +68,7 @@
         <lang.elementManipulator forClass="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
                                  implementationClass="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementManipulator"/>
         <lang.findUsagesProvider language="Weave"
-                                 implementationClass="org.mule.tooling.lang.dw.parser.psi.WeaveFindUsagesProvider"/>
+                                 implementationClass="org.mule.tooling.lang.dw.reference.WeaveFindUsagesProvider"/>
         <lang.foldingBuilder language="Weave" implementationClass="org.mule.tooling.lang.dw.folding.WeaveFolding"/>
         <annotator language="Weave" implementationClass="org.mule.tooling.lang.dw.annotator.WeaveAnnotator"/>
         <lang.psiStructureViewFactory language="Weave"
@@ -97,6 +97,10 @@
         <externalAnnotator language="Weave"
                            implementationClass="org.mule.tooling.lang.dw.annotator.WeaveValidatorAnnotator"/>
         <consoleFilterProvider implementation="org.mule.tooling.lang.dw.filter.DataWeaveConsoleFilterProvider"/>
+        <elementDescriptionProvider
+                implementation="org.mule.tooling.lang.dw.reference.WeaveElementDescriptionProvider"/>
+        <regExpLanguageHost forClass="org.mule.tooling.lang.dw.parser.psi.WeaveRegexLiteral" implementationClass="org.mule.tooling.lang.dw.regex.WeaveRegExpLanguageHost"/>
+        <languageInjector implementation="org.mule.tooling.lang.dw.regex.WeaveRegExpInjector"/>
     </extensions>
 
     <project-components>
@@ -109,7 +113,7 @@
         <component>
             <implementation-class>org.mule.tooling.lang.dw.service.DataWeaveScenariosManager</implementation-class>
         </component>
-    </project-components>
+    </project-components>A
     <application-components>
         <!-- Add your application components here -->
     </application-components>
@@ -117,6 +121,13 @@
 
     <actions>
 
+        <action id="org.mule.tooling.lang.dw.actions.WeaveFmtAction"
+                class="org.mule.tooling.lang.dw.actions.WeaveFmtAction"
+                text="Reformat Weave Document"
+                description="Reformats the Weave document using the weave formatter tool.">
+            <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt r"/>
+            <add-to-group group-id="CodeFormatGroup" anchor="last"/>
+        </action>
     </actions>
 
 </idea-plugin>

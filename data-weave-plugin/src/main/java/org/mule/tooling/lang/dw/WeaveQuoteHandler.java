@@ -8,6 +8,6 @@ import org.mule.tooling.lang.dw.parser.psi.WeaveTypes;
 public class WeaveQuoteHandler extends SimpleTokenSetQuoteHandler {
 
   public WeaveQuoteHandler() {
-    super(TokenSet.create(WeaveTypes.DOUBLE_QUOTED_STRING, WeaveTypes.SINGLE_QUOTED_STRING));
+    super(TokenSet.create(WeaveTypes.DOUBLE_QUOTED_STRING, WeaveTypes.SINGLE_QUOTED_STRING, WeaveTypes.BACKTIKED_QUOTED_STRING));
   }
 }
