@@ -101,7 +101,11 @@ public class WeavePreviewComponent implements Disposable {
                 return;
 
             final Document document = PsiDocumentManager.getInstance(myProject).getDocument(currentFile);
-            final WeaveDocument weaveDocument = (WeaveDocument) currentFile.getChildren()[0];
+            PsiElement psiElement = currentFile.getChildren()[0];
+            if (!(psiElement instanceof WeaveDocument)) {
+                return;
+            }
+            final WeaveDocument weaveDocument = (WeaveDocument) psiElement;
             final WeaveAgentComponent agentComponent = WeaveAgentComponent.getInstance(myProject);
             final String inputsPath = selectedItem.getInputs().getPath();
             final Module module = ModuleUtil.findModuleForFile(currentFile.getVirtualFile(), myProject);
