@@ -7,11 +7,15 @@ import com.intellij.execution.ui.ConsoleView;
 import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.components.BorderLayoutPanel;
+import org.jetbrains.annotations.NotNull;
 import org.mule.tooling.lang.dw.filter.DataWeaveFilter;
 import org.mule.weave.v2.debugger.event.WeaveLogMessage;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.StringJoiner;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 public class PreviewLogsViewer extends BorderLayoutPanel {
 
@@ -34,9 +38,9 @@ public class PreviewLogsViewer extends BorderLayoutPanel {
     }
 
     public void logInfo(List<WeaveLogMessage> weaveLogMessages) {
-        Optional<String> result = weaveLogMessages.stream().map((logMessage) -> "[INFO] " + logMessage.timestamp() + " : " + logMessage.message()).reduce((s, s2) -> s + "\n" + s2);
-        if (result.isPresent()) {
-            console.print(result.get(), ConsoleViewContentType.SYSTEM_OUTPUT);
+        String result = weaveLogMessages.stream().map((logMessage) -> "[INFO] " + logMessage.timestamp() + " : " + logMessage.message()).collect(Collectors.joining("\n"));
+        if (!result.isEmpty()) {
+            console.print(result, ConsoleViewContentType.SYSTEM_OUTPUT);
         }
     }
 
