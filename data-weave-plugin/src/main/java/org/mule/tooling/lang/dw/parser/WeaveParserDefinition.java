@@ -22,6 +22,7 @@ import org.mule.tooling.lang.dw.parser.psi.WeaveTypes;
 public class WeaveParserDefinition implements ParserDefinition {
 
     public static final IElementType MULTILINE_COMMENT = new WeaveElementType("WEAVE_MULTILINE_COMMENT");
+    public static final TokenSet STRING_TYPES = TokenSet.create(WeaveTypes.DOUBLE_QUOTED_STRING, WeaveTypes.SINGLE_QUOTED_STRING, WeaveTypes.BACKTIKED_QUOTED_STRING);
     public static TokenSet WHITE_SPACES = TokenSet.create(TokenType.WHITE_SPACE);
     public static TokenSet COMMENTS = TokenSet.create(WeaveTypes.LINE_COMMENT, MULTILINE_COMMENT);
 
@@ -59,7 +60,7 @@ public class WeaveParserDefinition implements ParserDefinition {
     @NotNull
     @Override
     public TokenSet getStringLiteralElements() {
-        return TokenSet.create(WeaveTypes.DOUBLE_QUOTED_STRING, WeaveTypes.SINGLE_QUOTED_STRING, WeaveTypes.BACKTIKED_QUOTED_STRING);
+        return STRING_TYPES;
     }
 
     @NotNull

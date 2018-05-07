@@ -44,18 +44,6 @@ subprojects {
 
     assemble.dependsOn jarSources
 
-    intellij {
-        version = "LATEST-EAP-SNAPSHOT"
-        updateSinceUntilBuild = false
-        downloadSources = false
-        sandboxDirectory = "${rootProject.buildDir}/idea-sandbox"
-        publish {
-            username System.getenv('IJ_REPO_USERNAME')
-            password System.getenv('IJ_REPO_PASSWORD')
-            pluginId '10362'
-            channel ijPluginRepoChannel
-        }
-    }
 }
 
 

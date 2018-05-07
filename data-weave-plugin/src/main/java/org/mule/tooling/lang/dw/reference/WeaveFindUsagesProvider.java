@@ -20,7 +20,7 @@ public class WeaveFindUsagesProvider implements FindUsagesProvider {
             new DefaultWordsScanner(new WeaveLexer(),
                     TokenSet.create(WeaveTypes.IDENTIFIER),
                     WeaveParserDefinition.COMMENTS,
-                    TokenSet.create(WeaveTypes.STRING_LITERAL)
+                    WeaveParserDefinition.STRING_TYPES
             );
 
 

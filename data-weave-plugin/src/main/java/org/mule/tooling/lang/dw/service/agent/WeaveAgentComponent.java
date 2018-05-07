@@ -18,6 +18,7 @@ import com.intellij.openapi.components.AbstractProjectComponent;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
+import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.OrderEnumerator;
 import com.intellij.openapi.util.Computable;
@@ -50,11 +51,13 @@ public class WeaveAgentComponent extends AbstractProjectComponent {
 
     @Override
     public void projectOpened() {
-        Boolean isInstalled = ApplicationManager.getApplication().runReadAction((Computable<Boolean>) () -> isWeaveRuntimeInstalled());
-        if (isInstalled) {
-            //We initialized if it is installed
-            init();
-        }
+        DumbService.getInstance(myProject).runWithAlternativeResolveEnabled(() -> {
+            if (isWeaveRuntimeInstalled()) {
+                //We initialized if it is installed
+                init();
+            }
+        });
+
     }
 
     public synchronized void init() {

@@ -38,6 +38,8 @@
     ]]>
     </change-notes>
 
+    <depends>org.jetbrains.idea.maven</depends>
+
     <extensions defaultExtensionNs="com.intellij">
 
         <!--Data Weave-->
@@ -99,8 +101,11 @@
         <consoleFilterProvider implementation="org.mule.tooling.lang.dw.filter.DataWeaveConsoleFilterProvider"/>
         <elementDescriptionProvider
                 implementation="org.mule.tooling.lang.dw.reference.WeaveElementDescriptionProvider"/>
-        <regExpLanguageHost forClass="org.mule.tooling.lang.dw.parser.psi.WeaveRegexLiteral" implementationClass="org.mule.tooling.lang.dw.regex.WeaveRegExpLanguageHost"/>
+        <regExpLanguageHost forClass="org.mule.tooling.lang.dw.parser.psi.WeaveRegexLiteral"
+                            implementationClass="org.mule.tooling.lang.dw.regex.WeaveRegExpLanguageHost"/>
         <languageInjector implementation="org.mule.tooling.lang.dw.regex.WeaveRegExpInjector"/>
+        <fileTemplateGroup implementation="org.mule.tooling.lang.dw.templates.WeaveFilesTemplateManager"/>
+        <moduleBuilder builderClass="org.mule.tooling.lang.dw.wizard.WeaveModuleBuilder"/>
     </extensions>
 
     <project-components>
@@ -113,7 +118,7 @@
         <component>
             <implementation-class>org.mule.tooling.lang.dw.service.DataWeaveScenariosManager</implementation-class>
         </component>
-    </project-components>A
+    </project-components>
     <application-components>
         <!-- Add your application components here -->
     </application-components>
