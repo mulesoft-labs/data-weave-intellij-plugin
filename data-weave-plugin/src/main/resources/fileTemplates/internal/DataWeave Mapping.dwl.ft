@@ -1,5 +1,5 @@
 %dw 2.0
-out application/json
+output application/json
 ---
 {
   foo: "bar"
