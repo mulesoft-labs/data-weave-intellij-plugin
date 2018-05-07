@@ -18,6 +18,10 @@ import com.intellij.openapi.components.AbstractProjectComponent;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
+import com.intellij.openapi.progress.EmptyProgressIndicator;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.OrderEnumerator;
@@ -25,10 +29,12 @@ import com.intellij.openapi.util.Computable;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.tasks.TaskManager;
 import com.intellij.util.PathsList;
 import com.intellij.util.net.NetUtils;
 import org.jetbrains.annotations.NotNull;
 import org.mule.tooling.lang.dw.launcher.configuration.runner.WeaveRunnerHelper;
+import org.mule.weave.v2.debugger.client.ConnectionRetriesListener;
 import org.mule.weave.v2.debugger.client.DefaultWeaveAgentClientListener;
 import org.mule.weave.v2.debugger.client.WeaveAgentClient;
 import org.mule.weave.v2.debugger.client.tcp.TcpClientProtocol;
@@ -51,16 +57,29 @@ public class WeaveAgentComponent extends AbstractProjectComponent {
 
     @Override
     public void projectOpened() {
+        super.projectOpened();
         DumbService.getInstance(myProject).runWithAlternativeResolveEnabled(() -> {
             if (isWeaveRuntimeInstalled()) {
                 //We initialized if it is installed
-                init();
+                ProgressManager.getInstance().run(new Task.Backgroundable(myProject, "Initializing Weave Agent", true) {
+                    @Override
+                    public void run(@NotNull ProgressIndicator indicator) {
+                        init(indicator);
+                    }
+
+                });
             }
         });
 
     }
 
-    public synchronized void init() {
+    @Override
+    public void projectClosed() {
+        super.projectClosed();
+        tearDown();
+    }
+
+    public synchronized void init(ProgressIndicator indicator) {
         try {
             if (client == null || !client.isConnected()) {
                 int freePort;
@@ -98,7 +117,29 @@ public class WeaveAgentComponent extends AbstractProjectComponent {
                 processHandler.startNotify();
                 TcpClientProtocol clientProtocol = new TcpClientProtocol("localhost", freePort);
                 client = new WeaveAgentClient(clientProtocol, new DefaultWeaveAgentClientListener());
-                client.connect(MAX_RETRIES, 1000L);
+
+                final int finalFreePort = freePort;
+                client.connect(MAX_RETRIES, 1000L, new ConnectionRetriesListener() {
+                    @Override
+                    public void failToConnect(String reason) {
+                        indicator.setText2("Fail to connect to the agent client at port " + finalFreePort + " reason " + reason);
+                    }
+
+                    @Override
+                    public void connectedSuccessfully() {
+                        indicator.setText2("Agent connected successfully");
+                    }
+
+                    @Override
+                    public void startConnecting() {
+                        indicator.setText2("Trying to connect to the agent client at port " + finalFreePort);
+                    }
+
+                    @Override
+                    public boolean onRetry(int count, int total) {
+                        return !indicator.isCanceled();
+                    }
+                });
                 if (client.isConnected()) {
                     System.out.println("Weave agent connected to server.");
                 }
@@ -163,7 +204,7 @@ public class WeaveAgentComponent extends AbstractProjectComponent {
 
     public void checkClientConnected(Runnable onConnected) {
         if (client == null || !client.isConnected()) {
-            init();
+            init(new EmptyProgressIndicator());
         }
         if (client.isConnected()) {
             onConnected.run();

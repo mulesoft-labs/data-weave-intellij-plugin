@@ -82,11 +82,16 @@ public class WeaveBreadcrumbsInfoProvider extends BreadcrumbsInfoProvider {
             return StringUtil.first(e.getText(), SCALAR_MAX_LENGTH, true);
         } else {
             final PsiElement parent = e.getParent();
-            if (!(parent instanceof WeaveArrayExpression)) {
-                result = "Item";
-            } else {
+            if (parent instanceof WeaveArrayExpression) {
+
                 final List<WeaveExpression> items = ((WeaveArrayExpression) parent).getExpressionList();
-                result = "Item " + getIndexOf(items, e);
+                if (e instanceof WeaveExpression) {
+                    result = "Item " + getIndexOf(items, e);
+                } else {
+                    result = "Item " + getIndexOf(items, e.getPrevSibling());
+                }
+            } else {
+                result = "Item";
             }
         }
         return result;
@@ -100,6 +105,11 @@ public class WeaveBreadcrumbsInfoProvider extends BreadcrumbsInfoProvider {
 
     @NotNull
     private static String getIndexOf(@NotNull List<?> list, Object o) {
-        return String.valueOf(1 + list.indexOf(o)) + '/' + list.size();
+        int i = list.indexOf(o);
+        if (i >= 0) {
+            return String.valueOf(1 + i) + '/' + list.size();
+        } else {
+            return "";
+        }
     }
 }

@@ -75,6 +75,9 @@ public class VirtualFileSystemAdaptor implements VirtualFileSystem, Disposable {
         myDocumentAlarm.cancelAllRequests();
         myDocumentAlarm.addRequest(() -> {
             ApplicationManager.getApplication().runReadAction(() -> {
+                if (project.isDisposed()) {
+                    return;
+                }
                 final VirtualFile contentRootForFile = ProjectFileIndex.SERVICE.getInstance(project).getSourceRootForFile(virtualFile);
                 if (contentRootForFile != null) {
                     //If it is a file from the project
