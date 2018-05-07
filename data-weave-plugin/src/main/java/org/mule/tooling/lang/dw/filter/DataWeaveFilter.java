@@ -45,7 +45,7 @@ public class DataWeaveFilter implements Filter {
             } else {
                 final int startLocation = entireLength - textLine.length() + matcher.start();
                 final int endLocation = entireLength - textLine.length() + matcher.end();
-                final HyperlinkInfo info = new OpenFileHyperlinkInfo(myProject, virtualFile, Integer.parseInt(lineNumber) - 1, Integer.parseInt(columnNumber));
+                final HyperlinkInfo info = new OpenFileHyperlinkInfo(myProject, virtualFile, Integer.parseInt(lineNumber) - 1, Integer.parseInt(columnNumber) - 1);
                 return new Result(startLocation, endLocation, info);
             }
         }

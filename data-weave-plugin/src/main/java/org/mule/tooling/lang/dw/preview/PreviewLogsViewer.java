@@ -7,14 +7,10 @@ import com.intellij.execution.ui.ConsoleView;
 import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.components.BorderLayoutPanel;
-import org.jetbrains.annotations.NotNull;
 import org.mule.tooling.lang.dw.filter.DataWeaveFilter;
 import org.mule.weave.v2.debugger.event.WeaveLogMessage;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.StringJoiner;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 public class PreviewLogsViewer extends BorderLayoutPanel {
