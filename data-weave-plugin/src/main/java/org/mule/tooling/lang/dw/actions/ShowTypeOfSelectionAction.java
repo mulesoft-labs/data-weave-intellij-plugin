@@ -6,6 +6,8 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.SelectionModel;
+import com.intellij.openapi.editor.VisualPosition;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.LightweightHint;
 import org.mule.tooling.lang.dw.service.DWEditorToolingAPI;
@@ -20,12 +22,7 @@ public class ShowTypeOfSelectionAction extends AnAction {
         super.update(e);
         Editor editor = e.getData(CommonDataKeys.EDITOR);
         Project project = e.getData(CommonDataKeys.PROJECT);
-        if (editor != null && project != null) {
-            boolean blockSelection = editor.getSelectionModel().getSelectionStart() != editor.getSelectionModel().getSelectionEnd();
-            e.getPresentation().setEnabled(blockSelection);
-        } else {
-            e.getPresentation().setEnabled(false);
-        }
+        e.getPresentation().setEnabled(editor != null && project != null);
     }
 
     @Override
@@ -33,14 +30,20 @@ public class ShowTypeOfSelectionAction extends AnAction {
         Editor editor = e.getData(CommonDataKeys.EDITOR);
         Project project = e.getData(CommonDataKeys.PROJECT);
         if (editor != null && project != null) {
-            int selectionStart = editor.getSelectionModel().getSelectionStart();
-            int selectionEnd = editor.getSelectionModel().getSelectionEnd();
+            SelectionModel selectionModel = editor.getSelectionModel();
+            int selectionStart = selectionModel.getSelectionStart();
+            int selectionEnd = selectionModel.getSelectionEnd();
             String weaveType = DWEditorToolingAPI.getInstance(project).typeOf(editor.getDocument(), selectionStart, selectionEnd);
             if (weaveType != null) {
-                editor.getSelectionModel().getSelectionEnd();
+                selectionModel.getSelectionEnd();
                 LightweightHint hint = new LightweightHint(new JLabel(weaveType));
-                Point hintPosition = HintManagerImpl.getHintPosition(hint, editor, editor.getSelectionModel().getLeadSelectionPosition(), HintManager.ABOVE);
-                HintManagerImpl.getInstanceImpl().showEditorHint(hint, editor, hintPosition, HintManager.HIDE_BY_ANY_KEY | HintManager.HIDE_BY_TEXT_CHANGE, 0, false);
+                VisualPosition selectionStartPosition = selectionModel.getSelectionStartPosition();
+                VisualPosition selectionEndPosition = selectionModel.getSelectionEndPosition();
+                if (selectionStartPosition != null && selectionEndPosition != null) {
+                    VisualPosition visualPosition = selectionStartPosition.line == selectionEndPosition.line ? new VisualPosition(selectionStartPosition.line, (selectionStartPosition.column + selectionEndPosition.column) / 2, selectionStartPosition.leansRight) : selectionStartPosition;
+                    Point hintPosition = HintManagerImpl.getHintPosition(hint, editor, visualPosition, HintManager.ABOVE);
+                    HintManagerImpl.getInstanceImpl().showEditorHint(hint, editor, hintPosition, HintManager.HIDE_BY_ANY_KEY | HintManager.HIDE_BY_TEXT_CHANGE, 0, false);
+                }
             }
         }
 
