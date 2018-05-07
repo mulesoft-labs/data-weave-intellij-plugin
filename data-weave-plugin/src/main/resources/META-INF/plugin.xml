@@ -133,6 +133,12 @@
             <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt r"/>
             <add-to-group group-id="CodeFormatGroup" anchor="last"/>
         </action>
+        <action id="org.mule.tooling.lang.dw.actions.CreateNewFileAction"
+                class="org.mule.tooling.lang.dw.actions.CreateNewFileAction" text="DataWeave Component"
+                description="Create New DataWeave">
+            <add-to-group group-id="NewGroup" anchor="first"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="shift ctrl W"/>
+        </action>
     </actions>
 
 </idea-plugin>

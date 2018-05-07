@@ -49,7 +49,7 @@ public class WeaveModulePsiReference extends PsiPolyVariantReferenceBase<PsiElem
             PsiElementProcessor.CollectElements<PsiFileSystemItem> elementProcessor = new PsiElementProcessor.CollectFilteredElements<>(filter);
             psiPackage.processChildren(elementProcessor);
             elementProcessor.getCollection().stream().map((item) -> item.getVirtualFile().getNameWithoutExtension()).forEach((name) -> {
-                subPackages.add(LookupElementBuilder.create(name).withIcon(WeaveIcons.DataFileType));
+                subPackages.add(LookupElementBuilder.create(name).withIcon(WeaveIcons.WeaveFileType));
             });
         }
         return subPackages.toArray();

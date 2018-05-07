@@ -1,0 +1,11 @@
+%dw 2.0
+import * from bat::BDD
+import * from bat::Assertions
+---
+suite("Basic www.google.com test") in [
+  it must 'answer 200' in [
+    GET `http://www.google.com/pepe` with {} assert [
+      $.response.status mustEqual 200 /*Ok*/
+    ]
+  ]
+]

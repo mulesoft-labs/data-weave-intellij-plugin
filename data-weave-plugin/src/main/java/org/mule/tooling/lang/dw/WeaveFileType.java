@@ -37,7 +37,7 @@ public class WeaveFileType extends LanguageFileType {
   @Nullable
   @Override
   public Icon getIcon() {
-    return WeaveIcons.DataFileType;
+    return WeaveIcons.WeaveFileType;
   }
 
 

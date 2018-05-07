@@ -5,12 +5,10 @@ import com.intellij.icons.AllIcons;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectFileIndex;
-import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
-import com.intellij.ui.ListUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.WeaveFileType;
@@ -46,7 +44,7 @@ public class WeavePsiImplUtils {
             @Nullable
             @Override
             public Icon getIcon(boolean b) {
-                return WeaveIcons.DataFileType;
+                return WeaveIcons.WeaveFileType;
             }
         };
     }

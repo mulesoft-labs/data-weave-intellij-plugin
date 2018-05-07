@@ -42,7 +42,7 @@ public class WeaveModuleBuilder extends MavenModuleBuilder implements SourcePath
 
     private VirtualFile createAndGetContentEntry() {
         String path = FileUtil.toSystemIndependentName(this.getContentEntryPath());
-        (new File(path)).mkdirs();
+        new File(path).mkdirs();
         return LocalFileSystem.getInstance().refreshAndFindFileByPath(path);
     }
 
