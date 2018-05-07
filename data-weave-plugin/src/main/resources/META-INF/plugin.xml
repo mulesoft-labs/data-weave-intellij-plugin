@@ -125,10 +125,9 @@
 
 
     <actions>
-
         <action id="org.mule.tooling.lang.dw.actions.WeaveFmtAction"
                 class="org.mule.tooling.lang.dw.actions.WeaveFmtAction"
-                text="Reformat Weave Document"
+                text="Reformat DataWeave"
                 description="Reformats the Weave document using the weave formatter tool.">
             <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt r"/>
             <add-to-group group-id="CodeFormatGroup" anchor="last"/>
@@ -138,6 +137,11 @@
                 description="Create New DataWeave">
             <add-to-group group-id="NewGroup" anchor="first"/>
             <keyboard-shortcut keymap="$default" first-keystroke="shift ctrl W"/>
+        </action>
+        <action id="org.mule.tooling.lang.dw.actions.ShowTypeOfSelectionAction" class="org.mule.tooling.lang.dw.actions.ShowTypeOfSelectionAction"
+                text="Show Weave Type of Selection" description="Shows the type of the selected code">
+            <keyboard-shortcut keymap="$default" first-keystroke="meta shift T"/>
+            <add-to-group group-id="AnalyzeMenu" anchor="last"/>
         </action>
     </actions>
 

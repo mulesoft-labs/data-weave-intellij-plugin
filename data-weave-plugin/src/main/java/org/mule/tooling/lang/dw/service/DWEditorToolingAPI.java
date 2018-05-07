@@ -252,6 +252,16 @@ public class DWEditorToolingAPI extends AbstractProjectComponent implements Disp
         }
     }
 
+    @Nullable
+    public String typeOf(Document document, int selectionStart, int selectionEnd) {
+        WeaveType weaveType = didOpen(document).typeOf(selectionStart, selectionEnd);
+        if (weaveType != null) {
+            return weaveType.toString(true, true);
+        } else {
+            return null;
+        }
+    }
+
     public static class CompletionData {
         private String label;
         private String documentation;
