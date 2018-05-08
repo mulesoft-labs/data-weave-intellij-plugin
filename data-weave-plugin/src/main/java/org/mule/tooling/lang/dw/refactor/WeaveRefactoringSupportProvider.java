@@ -16,6 +16,18 @@ public class WeaveRefactoringSupportProvider extends RefactoringSupportProvider 
     return new IntroduceConstantHandler();
   }
 
+  @Nullable
+  @Override
+  public RefactoringActionHandler getIntroduceVariableHandler() {
+    return super.getIntroduceVariableHandler();
+  }
+
+  @Nullable
+  @Override
+  public RefactoringActionHandler getIntroduceVariableHandler(PsiElement element) {
+    return super.getIntroduceVariableHandler(element);
+  }
+
   @Override
   public boolean isSafeDeleteAvailable(@NotNull PsiElement element) {
     return element instanceof WeaveNamedElement;

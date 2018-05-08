@@ -12,20 +12,11 @@ import com.intellij.openapi.util.Computable;
 import com.intellij.psi.*;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.refactoring.RefactoringActionHandler;
-import com.intellij.refactoring.introduce.inplace.InplaceVariableIntroducer;
-import com.intellij.ui.LightweightHint;
-import com.intellij.util.ArrayUtil;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.parser.psi.*;
-import org.mule.tooling.lang.dw.service.DWEditorToolingAPI;
-import org.mule.weave.v2.ts.WeaveType;
 
-import javax.swing.*;
-import java.awt.*;
 import java.util.*;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.intellij.openapi.util.text.StringUtil.toUpperCase;
 
@@ -40,7 +31,7 @@ public class IntroduceConstantHandler implements RefactoringActionHandler {
         if (weaveDocument != null) {
             PsiElement valueToReplace = PsiTreeUtil.findElementOfClassAtRange(psiFile, selectionStart, selectionEnd, PsiElement.class);
             if (valueToReplace != null) {
-                List<String> possibleNames = possibleNamesOf(valueToReplace);
+                List<String> possibleNames = NameProviderHelper.possibleNamesOf(valueToReplace);
                 String name = possibleNames.get(0);
                 WeaveVariableDirective varDirective = WeaveElementFactory.createVarDirective(project, name, valueToReplace);
                 WeaveVariableReferenceExpression expressionToReplace = WeaveElementFactory.createVariable(project, name);
@@ -82,84 +73,6 @@ public class IntroduceConstantHandler implements RefactoringActionHandler {
         }
     }
 
-    @NotNull
-    private static String[] getSuggestionsByValue(@NotNull String stringValue) {
-        List<String> result = new ArrayList<>();
-        StringBuffer currentWord = new StringBuffer();
-
-        boolean prevIsUpperCase = false;
-
-        for (int i = 0; i < stringValue.length(); i++) {
-            final char c = stringValue.charAt(i);
-            if (Character.isUpperCase(c)) {
-                if (currentWord.length() > 0 && !prevIsUpperCase) {
-                    result.add(currentWord.toString());
-                    currentWord = new StringBuffer();
-                }
-                currentWord.append(c);
-            } else if (Character.isLowerCase(c)) {
-                currentWord.append(Character.toUpperCase(c));
-            } else if (Character.isJavaIdentifierPart(c) && c != '_') {
-                if (Character.isJavaIdentifierStart(c) || currentWord.length() > 0 || !result.isEmpty()) {
-                    currentWord.append(c);
-                }
-            } else {
-                if (currentWord.length() > 0) {
-                    result.add(currentWord.toString());
-                    currentWord = new StringBuffer();
-                }
-            }
-
-            prevIsUpperCase = Character.isUpperCase(c);
-        }
-
-        if (currentWord.length() > 0) {
-            result.add(currentWord.toString());
-        }
-        return ArrayUtil.toStringArray(result);
-    }
-
-    @NotNull
-    public List<String> possibleNamesOf(PsiElement valueToReplace) {
-        ArrayList<String> result = new ArrayList<>();
-        if (valueToReplace instanceof WeaveStringLiteral) {
-            String stringText = ((WeaveStringLiteral) valueToReplace).getValue();
-            String[] suggestionsByValue = getSuggestionsByValue(stringText);
-            if (suggestionsByValue.length > 0) {
-                result.addAll(Arrays.asList(suggestionsByValue));
-            } else {
-                result.add("myString");
-            }
-        } else if (valueToReplace instanceof WeaveBooleanLiteral) {
-            result.add("myBoolean");
-        } else if (valueToReplace instanceof WeaveRegexLiteral) {
-            result.add("myRegex");
-        } else if (valueToReplace instanceof WeaveAnyDateLiteral) {
-            result.add("myDate");
-        } else if (valueToReplace instanceof WeaveObjectExpression) {
-            result.add("myObject");
-        } else if (valueToReplace instanceof WeaveArrayExpression) {
-            result.add("myArray");
-        } else if (valueToReplace instanceof WeaveNumberLiteral) {
-            result.add("myNumber");
-        } else {
-            result.add("myVar");
-        }
-        //We should get a non repated name
-        return result.stream().map((name) -> makeNameUnike(valueToReplace, name)).collect(Collectors.toList());
-    }
-
-    public String makeNameUnike(PsiElement valueToReplace, String baseName) {
-        WeaveDocument document = WeavePsiUtils.getDocument(valueToReplace);
-        List<String> allGlobalNames = WeavePsiUtils.getAllGlobalNames(document);
-        String name = baseName;
-        int i = 0;
-        while (allGlobalNames.contains(name)) {
-            name = baseName + i;
-            i = i + 1;
-        }
-        return name;
-    }
 
     public WeaveVariableDirective addDirectiveBefore(@NotNull Project project, WeaveDocument weaveDocument, WeaveVariableDirective varDirective, WeaveDirective anchor) {
         WeaveHeader header = weaveDocument.getHeader();
@@ -187,16 +100,4 @@ public class IntroduceConstantHandler implements RefactoringActionHandler {
     }
 
 
-    public static class WeaveInplaceVariableIntroducer extends InplaceVariableIntroducer<PsiElement> {
-
-        public WeaveInplaceVariableIntroducer(PsiNamedElement elementToRename, Editor editor, Project project, String title, PsiElement[] occurrences) {
-            super(elementToRename, editor, project, title, occurrences, null);
-        }
-
-        @Nullable
-        @Override
-        protected PsiElement checkLocalScope() {
-            return WeavePsiUtils.getWeaveDocument(myElementToRename.getContainingFile());
-        }
-    }
 }
