@@ -89,6 +89,10 @@ public class DataWeaveScenariosManager extends AbstractProjectComponent implemen
     }
 
     private void onFileChanged(VirtualFile modifiedFile) {
+        if (myProject.isDisposed()) {
+            return;
+        }
+
         final Module moduleForFile = ModuleUtil.findModuleForFile(modifiedFile, myProject);
         final VirtualFile testFolder = getScenariosTestFolder(moduleForFile);
         if (testFolder != null && VfsUtil.isAncestor(testFolder, modifiedFile, true)) {
