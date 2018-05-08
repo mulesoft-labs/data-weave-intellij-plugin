@@ -13,7 +13,7 @@ public class WeaveRefactoringSupportProvider extends RefactoringSupportProvider 
   @Nullable
   @Override
   public RefactoringActionHandler getIntroduceConstantHandler() {
-    return super.getIntroduceConstantHandler();
+    return new IntroduceConstantHandler();
   }
 
   @Override

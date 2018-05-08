@@ -116,6 +116,29 @@ public class WeavePsiUtils {
         return result;
     }
 
+    public static List<String> getAllGlobalNames(WeaveDocument document) {
+        WeaveHeader header = document.getHeader();
+        if (header != null) {
+            return header.getDirectiveList().stream()
+                    .map((directive) -> {
+                        if (directive instanceof WeaveFunctionDirective) {
+                            return ((WeaveFunctionDirective) directive).getFunctionDefinition().getName();
+                        } else if (directive instanceof WeaveVariableDirective) {
+                            return ((WeaveVariableDirective) directive).getVariableDefinition().getName();
+                        } else if (directive instanceof WeaveTypeDirective) {
+                            return ((WeaveTypeDirective) directive).getName();
+                        } else if (directive instanceof WeaveNamespaceDirective) {
+                            return ((WeaveNamespaceDirective) directive).getIdentifier().getName();
+                        } else {
+                            return null;
+                        }
+                    })
+                    .filter(Objects::nonNull).collect(Collectors.toList());
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
     public static List<WeaveNamedElement> findFunctions(@NotNull PsiElement element) {
         final List<WeaveNamedElement> result = new ArrayList<>();
         PsiElement parent = element.getParent();
