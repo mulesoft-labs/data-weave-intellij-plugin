@@ -34,7 +34,7 @@ public class DataWeaveScenariosManager extends AbstractProjectComponent implemen
     //TODO we should set this into a settings
     public static final String INTEGRATION_TEST_FOLDER_NAME = "dwit";
 
-    private Map<WeaveDocument, Scenario> selectedScenario = new HashMap<>();
+    private Map<String, Scenario> selectedScenario = new HashMap<>();
     private Map<Scenario, ImplicitInput> implicitInputTypes = new HashMap<>();
     private Map<Scenario, WeaveType> expectedOutputType = new HashMap<>();
 
@@ -106,7 +106,7 @@ public class DataWeaveScenariosManager extends AbstractProjectComponent implemen
     }
 
     public void setCurrentScenario(WeaveDocument weaveDocument, Scenario scenario) {
-        this.selectedScenario.put(weaveDocument, scenario);
+        this.selectedScenario.put(weaveDocument.getQualifiedName(), scenario);
     }
 
     @Nullable
@@ -139,16 +139,16 @@ public class DataWeaveScenariosManager extends AbstractProjectComponent implemen
 
     @Nullable
     public ImplicitInput getCurrentImplicitTypes(WeaveDocument weaveDocument) {
-        final Scenario currentScenarioFor = getCurrentScenarioFor(weaveDocument);
+        final Scenario currentScenario = getCurrentScenarioFor(weaveDocument);
         if (weaveDocument == null) {
             return null;
         }
-        if (implicitInputTypes.containsKey(currentScenarioFor)) {
-            return implicitInputTypes.get(currentScenarioFor);
+        if (implicitInputTypes.containsKey(currentScenario)) {
+            return implicitInputTypes.get(currentScenario);
         } else {
             final FutureResult<ImplicitInput> futureResult = new FutureResult<>();
-            if (currentScenarioFor != null && WeaveAgentComponent.getInstance(myProject).isWeaveRuntimeInstalled()) {
-                VirtualFile inputs = currentScenarioFor.getInputs();
+            if (currentScenario != null && WeaveAgentComponent.getInstance(myProject).isWeaveRuntimeInstalled()) {
+                VirtualFile inputs = currentScenario.getInputs();
                 if (inputs != null) {
                     WeaveAgentComponent.getInstance(myProject).calculateImplicitInputTypes(inputs.getPath(), event -> {
                         ImplicitInput implicitInput = new ImplicitInput();
@@ -162,7 +162,7 @@ public class DataWeaveScenariosManager extends AbstractProjectComponent implemen
                             }
                             implicitInput.addInput(weaveTypeEntry.name(), weaveType);
                         }
-                        implicitInputTypes.put(currentScenarioFor, implicitInput);
+                        implicitInputTypes.put(currentScenario, implicitInput);
                         futureResult.set(implicitInput);
                     });
                     try {
@@ -186,7 +186,7 @@ public class DataWeaveScenariosManager extends AbstractProjectComponent implemen
         if (weaveDocument == null) {
             return null;
         }
-        Scenario scenario = selectedScenario.get(weaveDocument);
+        Scenario scenario = selectedScenario.get(weaveDocument.getQualifiedName());
         if (scenario == null) {
             List<Scenario> scenariosFor = getScenariosFor(weaveDocument);
             if (!scenariosFor.isEmpty()) {
