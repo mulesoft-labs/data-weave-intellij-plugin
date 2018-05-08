@@ -16,6 +16,7 @@ import org.mule.tooling.lang.dw.service.DWEditorToolingAPI;
 import org.mule.tooling.lang.dw.service.DataWeaveScenariosManager;
 import org.mule.weave.v2.editor.ValidationMessage;
 import org.mule.weave.v2.editor.ValidationMessages;
+import org.mule.weave.v2.parser.location.Position;
 import org.mule.weave.v2.parser.location.WeaveLocation;
 
 public class WeaveValidatorAnnotator extends ExternalAnnotator<PsiFile, ValidationMessages> {
@@ -62,9 +63,18 @@ public class WeaveValidatorAnnotator extends ExternalAnnotator<PsiFile, Validati
     public void apply(@NotNull AnnotationHolder holder, ValidationMessage[] errorMessage, HighlightSeverity severity) {
         for (ValidationMessage validationMessage : errorMessage) {
             WeaveLocation location = validationMessage.location();
-            int startIndex = location.startPosition().index();
-            int endIndex = location.endPosition().index();
+            int startIndex = getValidIndex(location.startPosition());
+            int endIndex = getValidIndex(location.endPosition());
             holder.createAnnotation(severity, new TextRange(startIndex, endIndex), validationMessage.message().message());
+        }
+    }
+
+    private int getValidIndex(Position position) {
+        int index = position.index();
+        if (index < 0) {
+            return 0;
+        } else {
+            return index;
         }
     }
 
