@@ -35,8 +35,10 @@ import org.mule.weave.v2.completion.Suggestion;
 import org.mule.weave.v2.completion.SuggestionType;
 import org.mule.weave.v2.editor.*;
 import org.mule.weave.v2.hover.HoverMessage;
+import org.mule.weave.v2.parser.ast.AstNode;
 import org.mule.weave.v2.parser.ast.variables.NameIdentifier;
 import org.mule.weave.v2.scope.Reference;
+import org.mule.weave.v2.scope.VariableScope;
 import org.mule.weave.v2.sdk.WeaveResource;
 import org.mule.weave.v2.sdk.WeaveResource$;
 import org.mule.weave.v2.sdk.WeaveResourceResolver;
@@ -229,6 +231,25 @@ public class DWEditorToolingAPI extends AbstractProjectComponent implements Disp
         }
         return result;
     }
+
+    @Nullable
+    public PsiElement scopeOf(PsiFile file, int location) {
+        Option<VariableScope> variableScopeOption = didOpen(file).scopeOf(location);
+        if (variableScopeOption.isDefined()) {
+            VariableScope variableScope = variableScopeOption.get();
+            AstNode astNode = variableScope.astNode();
+            PsiElement elementOfClassAtRange = PsiTreeUtil.findElementOfClassAtRange(file, astNode.location().startPosition().index(), astNode.location().endPosition().index(), PsiElement.class);
+            if(elementOfClassAtRange instanceof PsiFile){
+                return WeavePsiUtils.getWeaveDocument(file);
+            }else {
+                return elementOfClassAtRange;
+            }
+        } else {
+            return null;
+        }
+    }
+
+
 
     @Nullable
     public static String toHtml(@Nullable String text) {

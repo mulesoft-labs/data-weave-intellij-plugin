@@ -31,11 +31,11 @@ public class IntroduceConstantHandler implements RefactoringActionHandler {
         if (weaveDocument != null) {
             PsiElement valueToReplace = PsiTreeUtil.findElementOfClassAtRange(psiFile, selectionStart, selectionEnd, PsiElement.class);
             if (valueToReplace != null) {
-                List<String> possibleNames = NameProviderHelper.possibleNamesOf(valueToReplace);
-                String name = possibleNames.get(0);
-                WeaveVariableDirective varDirective = WeaveElementFactory.createVarDirective(project, name, valueToReplace);
-                WeaveVariableReferenceExpression expressionToReplace = WeaveElementFactory.createVariable(project, name);
-                WeaveInplaceVariableIntroducer variableIntroducer = WriteCommandAction.runWriteCommandAction(project, (Computable<WeaveInplaceVariableIntroducer>) () -> {
+                final List<String> possibleNames = NameProviderHelper.possibleNamesOf(valueToReplace);
+                final String name = possibleNames.get(0);
+                final WeaveVariableDirective varDirective = WeaveElementFactory.createVarDirective(project, name, valueToReplace);
+                final WeaveVariableReferenceExpression expressionToReplace = WeaveElementFactory.createVariableRef(project, name);
+                final WeaveInplaceVariableIntroducer variableIntroducer = WriteCommandAction.runWriteCommandAction(project, (Computable<WeaveInplaceVariableIntroducer>) () -> {
                     PsiElement variableReference = valueToReplace.replace(expressionToReplace);
 
                     if (weaveDocument.getHeader() == null) {
@@ -64,11 +64,7 @@ public class IntroduceConstantHandler implements RefactoringActionHandler {
                 variableIntroducer.performInplaceRefactoring(new LinkedHashSet<>(possibleNames));
 
             } else {
-                VisualPosition selectionStartPosition = selectionModel.getSelectionStartPosition();
-                VisualPosition selectionEndPosition = selectionModel.getSelectionEndPosition();
-                if (selectionStartPosition != null && selectionEndPosition != null) {
-                    HintManagerImpl.getInstanceImpl().showErrorHint(editor, "Unable to extract constant from selection", selectionStart, selectionEnd, HintManager.ABOVE, HintManager.HIDE_BY_ANY_KEY | HintManager.HIDE_BY_TEXT_CHANGE, 0);
-                }
+                HintManagerImpl.getInstanceImpl().showErrorHint(editor, "Selection doesn't represent an expression.");
             }
         }
     }
@@ -82,17 +78,11 @@ public class IntroduceConstantHandler implements RefactoringActionHandler {
         } else {
             variable = header.add(varDirective);
         }
-        header.addAfter(createNewLine(project), variable);
-        header.addBefore(createNewLine(project), variable);
+        header.addAfter(WeaveElementFactory.createNewLine(project), variable);
+        header.addBefore(WeaveElementFactory.createNewLine(project), variable);
         return (WeaveVariableDirective) variable;
     }
 
-
-    @NotNull
-    public PsiElement createNewLine(Project project) {
-        PsiParserFacade helper = PsiParserFacade.SERVICE.getInstance(project);
-        return helper.createWhiteSpaceFromText("\n");
-    }
 
     @Override
     public void invoke(@NotNull Project project, @NotNull PsiElement[] psiElements, DataContext dataContext) {
