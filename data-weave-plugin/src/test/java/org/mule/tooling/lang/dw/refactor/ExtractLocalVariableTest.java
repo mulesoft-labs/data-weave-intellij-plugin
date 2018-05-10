@@ -11,6 +11,7 @@ import com.intellij.testFramework.fixtures.LightPlatformCodeInsightFixtureTestCa
 import org.apache.commons.io.FilenameUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -52,6 +53,7 @@ public class ExtractLocalVariableTest extends LightPlatformCodeInsightFixtureTes
     }
 
     @Test
+    @Ignore
     public void checkRefactor() throws Throwable {
 
         final ResultHolder<Throwable> result = new ResultHolder<>();
