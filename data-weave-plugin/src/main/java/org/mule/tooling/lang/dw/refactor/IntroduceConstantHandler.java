@@ -17,6 +17,8 @@ import java.util.*;
 import java.util.List;
 
 import static com.intellij.openapi.util.text.StringUtil.toUpperCase;
+import static org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils.findElementRange;
+import static org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils.getWeaveDocument;
 
 
 public class IntroduceConstantHandler implements RefactoringActionHandler {
@@ -25,16 +27,16 @@ public class IntroduceConstantHandler implements RefactoringActionHandler {
         SelectionModel selectionModel = editor.getSelectionModel();
         final int selectionStart = selectionModel.getSelectionStart();
         final int selectionEnd = selectionModel.getSelectionEnd();
-        WeaveDocument weaveDocument = WeavePsiUtils.getWeaveDocument(psiFile);
+        WeaveDocument weaveDocument = getWeaveDocument(psiFile);
         if (weaveDocument != null) {
-            PsiElement valueToReplace = PsiTreeUtil.findElementOfClassAtRange(psiFile, selectionStart, selectionEnd, PsiElement.class);
+            PsiElement valueToReplace = findElementRange(psiFile, selectionStart, selectionEnd, (filter) -> !(filter instanceof PsiFile));
             if (valueToReplace != null) {
                 final List<String> possibleNames = NameProviderHelper.possibleNamesForGlobalVariable(valueToReplace);
                 final String name = possibleNames.get(0);
                 final WeaveVariableDirective varDirective = WeaveElementFactory.createVarDirective(project, name, valueToReplace);
                 final WeaveVariableReferenceExpression expressionToReplace = WeaveElementFactory.createVariableRef(project, name);
                 final WeaveInplaceVariableIntroducer variableIntroducer = WriteCommandAction.runWriteCommandAction(project, (Computable<WeaveInplaceVariableIntroducer>) () -> {
-                    PsiElement variableReference = valueToReplace.replace(expressionToReplace);
+                    WeaveVariableReferenceExpression variableReference = (WeaveVariableReferenceExpression) valueToReplace.replace(expressionToReplace);
 
                     if (weaveDocument.getHeader() == null) {
                         WeaveHeader header = WeaveElementFactory.createHeader(project);
@@ -55,7 +57,9 @@ public class IntroduceConstantHandler implements RefactoringActionHandler {
                                 .findFirst();
                         newVarDirective = addDirectiveBefore(project, weaveDocument, varDirective, firstDirective.orElse(null));
                     }
-
+                    int startOffset = variableReference.getFqnIdentifier().getTextRange().getStartOffset();
+                    //If we don't move the  cursor then the Introducer doesn't work :(
+                    editor.getCaretModel().moveToOffset(startOffset);
                     return new WeaveInplaceVariableIntroducer(newVarDirective.getVariableDefinition(), editor, project, "choose a variable", new PsiElement[]{variableReference});
                 });
                 PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(editor.getDocument());
@@ -71,12 +75,12 @@ public class IntroduceConstantHandler implements RefactoringActionHandler {
     public WeaveVariableDirective addDirectiveBefore(@NotNull Project project, WeaveDocument weaveDocument, WeaveVariableDirective varDirective, WeaveDirective anchor) {
         WeaveHeader header = weaveDocument.getHeader();
         PsiElement variable;
+        assert header != null;
         if (anchor != null) {
             variable = header.addBefore(varDirective, anchor);
         } else {
             variable = header.add(varDirective);
         }
-//        header.addAfter(WeaveElementFactory.createNewLine(project), variable);
         header.addBefore(WeaveElementFactory.createNewLine(project), variable);
         return (WeaveVariableDirective) variable;
     }

@@ -35,6 +35,6 @@ intellij {
     updateSinceUntilBuild = false
     downloadSources = false
     sandboxDirectory = "${rootProject.buildDir}/idea-sandbox"
-    plugins = ['maven']
+    plugins = ['maven', 'properties']
 
 }

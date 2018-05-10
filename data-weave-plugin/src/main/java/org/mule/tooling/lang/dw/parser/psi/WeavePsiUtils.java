@@ -1,16 +1,19 @@
 package org.mule.tooling.lang.dw.parser.psi;
 
+import com.intellij.lang.Language;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Ref;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.psi.util.PsiUtil;
 import com.intellij.xdebugger.XDebuggerUtil;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -164,21 +167,6 @@ public class WeavePsiUtils {
         return variables.stream().filter(weaveVariableDefinition -> functionName.equals(weaveVariableDefinition.getName())).findFirst();
     }
 
-    @Nullable
-    public static PsiElement findImplicitVariable(PsiElement myElement) {
-        PsiElement parent = myElement.getParent();
-        while (isNotWeaveFile(parent)) {
-            if (parent instanceof WeaveBinaryExpression) {
-                final List<WeaveExpression> expressionList = ((WeaveBinaryExpression) parent).getExpressionList();
-                if (expressionList.size() == 2) {
-                    return expressionList.get(1);
-                }
-            }
-            parent = parent.getParent();
-        }
-        return null;
-    }
-
     public static boolean isArrayItem(PsiElement element) {
         return element.getParent() instanceof WeaveArrayExpression;
     }
@@ -233,19 +221,62 @@ public class WeavePsiUtils {
 
 
     public static PsiElement getParent(@Nullable PsiElement element, Predicate<PsiElement> filter) {
+
         if (element == null) {
             return null;
         }
-        while (element != null) {
-            if (filter.test(element)) {
-                return element;
+        PsiElement current = element.getParent();
+        while (current != null) {
+            if (filter.test(current)) {
+                return current;
             }
-            if (element instanceof PsiFile) {
+            if (current instanceof PsiFile) {
                 return null;
             }
-            element = element.getParent();
+            current = current.getParent();
         }
         return null;
+    }
+
+    @Nullable
+    public static PsiElement findElementRange(@NotNull PsiFile file,
+                                              int startOffset, int endOffset) {
+        PsiElement elementAtOffset = PsiUtil.getElementAtOffset(file, startOffset);
+        while (elementAtOffset.getTextRange().getStartOffset() == startOffset && elementAtOffset.getTextRange().getEndOffset() < endOffset) {
+            elementAtOffset = elementAtOffset.getParent();
+        }
+        if (elementAtOffset instanceof PsiFile) {
+            return null;
+        }
+        return elementAtOffset;
+    }
+
+    @Nullable
+    public static PsiElement findElementRange(@NotNull PsiFile file,
+                                              int startOffset,
+                                              int endOffset, Predicate<PsiElement> filter) {
+        final FileViewProvider viewProvider = file.getViewProvider();
+        PsiElement result = null;
+        for (Language lang : viewProvider.getLanguages()) {
+            PsiElement elementAt = viewProvider.findElementAt(startOffset, lang);
+            PsiElement run = getParent(elementAt, filter);
+            PsiElement prev = run;
+            while (run != null && run.getTextRange().getStartOffset() == startOffset &&
+                    run.getTextRange().getEndOffset() <= endOffset) {
+                prev = run;
+                run = getParent(run, filter);
+            }
+            if (prev == null) continue;
+            final int elementStartOffset = prev.getTextRange().getStartOffset();
+            final int elementEndOffset = prev.getTextRange().getEndOffset();
+            if (elementStartOffset != startOffset || elementEndOffset > endOffset) continue;
+
+            if (result == null || result.getTextRange().getEndOffset() < elementEndOffset) {
+                result = prev;
+            }
+        }
+
+        return result;
     }
 
 }

@@ -38,6 +38,7 @@
     ]]>
     </change-notes>
 
+    <depends>com.intellij.properties</depends>
     <depends>org.jetbrains.idea.maven</depends>
 
     <extensions defaultExtensionNs="com.intellij">
