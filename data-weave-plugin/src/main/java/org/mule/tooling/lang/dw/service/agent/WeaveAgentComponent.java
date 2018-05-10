@@ -45,11 +45,12 @@ import java.io.IOException;
 public class WeaveAgentComponent extends AbstractProjectComponent {
 
 
-    public static final int MAX_RETRIES = 100;
+    public static final int MAX_RETRIES = 10;
     public static final long ONE_SECOND_DELAY = 1000L;
 
     private WeaveAgentClient client;
     private ProcessHandler processHandler;
+    private boolean disabled = false;
 
     protected WeaveAgentComponent(Project project) {
         super(project);
@@ -73,6 +74,14 @@ public class WeaveAgentComponent extends AbstractProjectComponent {
 
     }
 
+    public void disable() {
+        this.disabled = true;
+    }
+
+    public void enable() {
+        this.disabled = false;
+    }
+
     @Override
     public void projectClosed() {
         super.projectClosed();
@@ -80,73 +89,73 @@ public class WeaveAgentComponent extends AbstractProjectComponent {
     }
 
     public synchronized void init(ProgressIndicator indicator) {
-        try {
-            if (client == null || !client.isConnected()) {
-                int freePort;
-                if (processHandler != null) {
-                    tearDown();
-                }
-                try {
-                    freePort = NetUtils.findAvailableSocketPort();
-                } catch (IOException e) {
-                    freePort = 2333;
-                }
-                final ProgramRunner runner = new DefaultProgramRunner() {
-                    @Override
-                    @NotNull
-                    public String getRunnerId() {
-                        return "Weave Agent Runner";
-                    }
-
-                    @Override
-                    public boolean canRun(@NotNull String executorId, @NotNull RunProfile profile) {
-                        return true;
-                    }
-                };
-                final Executor executor = DefaultRunExecutor.getRunExecutorInstance();
-                try {
-                    final RunProfileState state = createRunProfileState(freePort);
-                    final ExecutionResult result = state.execute(executor, runner);
-                    //noinspection ConstantConditions
-                    processHandler = result.getProcessHandler();
-                    //Wait for it to init
-                    processHandler.waitFor(ONE_SECOND_DELAY);
-                } catch (Throwable e) {
-                    return;
-                }
-                processHandler.startNotify();
-                TcpClientProtocol clientProtocol = new TcpClientProtocol("localhost", freePort);
-                client = new WeaveAgentClient(clientProtocol, new DefaultWeaveAgentClientListener());
-
-                final int finalFreePort = freePort;
-                client.connect(MAX_RETRIES, 1000L, new ConnectionRetriesListener() {
-                    @Override
-                    public void failToConnect(String reason) {
-                        indicator.setText2("Fail to connect to the agent client at port " + finalFreePort + " reason " + reason);
-                    }
-
-                    @Override
-                    public void connectedSuccessfully() {
-                        indicator.setText2("Agent connected successfully");
-                    }
-
-                    @Override
-                    public void startConnecting() {
-                        indicator.setText2("Trying to connect to the agent client at port " + finalFreePort);
-                    }
-
-                    @Override
-                    public boolean onRetry(int count, int total) {
-                        return !indicator.isCanceled();
-                    }
-                });
-                if (client.isConnected()) {
-                    System.out.println("Weave agent connected to server.");
-                }
+        if (!disabled && (client == null || !client.isConnected())) {
+            int freePort;
+            if (processHandler != null) {
+                tearDown();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+            try {
+                freePort = NetUtils.findAvailableSocketPort();
+            } catch (IOException e) {
+                freePort = 2333;
+            }
+            final ProgramRunner runner = new DefaultProgramRunner() {
+                @Override
+                @NotNull
+                public String getRunnerId() {
+                    return "Weave Agent Runner";
+                }
+
+                @Override
+                public boolean canRun(@NotNull String executorId, @NotNull RunProfile profile) {
+                    return true;
+                }
+            };
+            final Executor executor = DefaultRunExecutor.getRunExecutorInstance();
+            try {
+                final RunProfileState state = createRunProfileState(freePort);
+                final ExecutionResult result = state.execute(executor, runner);
+                //noinspection ConstantConditions
+                processHandler = result.getProcessHandler();
+                //Wait for it to init
+                processHandler.waitFor(ONE_SECOND_DELAY);
+            } catch (Throwable e) {
+                return;
+            }
+            processHandler.startNotify();
+            TcpClientProtocol clientProtocol = new TcpClientProtocol("localhost", freePort);
+            client = new WeaveAgentClient(clientProtocol, new DefaultWeaveAgentClientListener());
+
+            final int finalFreePort = freePort;
+            client.connect(MAX_RETRIES, 1000L, new ConnectionRetriesListener() {
+                @Override
+                public void failToConnect(String reason) {
+                    indicator.setText2("Fail to connect to the agent client at port " + finalFreePort + " reason " + reason);
+                }
+
+                @Override
+                public void connectedSuccessfully() {
+                    indicator.setText2("Agent connected successfully");
+                }
+
+                @Override
+                public void startConnecting() {
+                    indicator.setText2("Trying to connect to the agent client at port " + finalFreePort);
+                }
+
+                @Override
+                public boolean onRetry(int count, int total) {
+                    return !indicator.isCanceled();
+                }
+            });
+            if (client.isConnected()) {
+                System.out.println("Weave agent connected to server.");
+            } else {
+                //disable the service as for some weird reason it can not be started
+                disable();
+            }
         }
+
     }
 
     public void runPreview(String inputsPath, String script, String identifier, String url, Long maxTime, Module module, RunPreviewCallback callback) {
@@ -298,10 +307,15 @@ public class WeaveAgentComponent extends AbstractProjectComponent {
 
     public void tearDown() {
         //Kill the process
-        processHandler.destroyProcess();
-        client.disconnect();
-        client = null;
-        processHandler = null;
+        if (processHandler != null) {
+            processHandler.destroyProcess();
+            processHandler = null;
+        }
+
+        if (client != null) {
+            client.disconnect();
+            client = null;
+        }
     }
 
 
@@ -309,7 +323,9 @@ public class WeaveAgentComponent extends AbstractProjectComponent {
         return new CommandLineState(null) {
             private SimpleJavaParameters createJavaParameters() {
                 final SimpleJavaParameters params = WeaveRunnerHelper.createJavaParameters(myProject);
-                params.getVMParametersList().add("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5678");
+                if(Boolean.getBoolean("debugWeaveAgent")) {
+                    params.getVMParametersList().add("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5678");
+                }
                 ParametersList parametersList = params.getProgramParametersList();
                 parametersList.add("--agent");
                 parametersList.add("-p");
