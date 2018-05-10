@@ -10,6 +10,7 @@ import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.parser.psi.WeaveFunctionCallExpression;
+import org.mule.tooling.lang.dw.parser.psi.WeaveTypes;
 import org.mule.tooling.lang.dw.service.DWEditorToolingAPI;
 import org.mule.tooling.lang.dw.util.ScalaUtils;
 import org.mule.weave.v2.ts.FunctionType;
@@ -20,6 +21,8 @@ import scala.collection.Seq;
 
 import java.util.Collections;
 import java.util.List;
+
+import static com.intellij.lang.parameterInfo.ParameterInfoUtils.getCurrentParameterIndex;
 
 public class WeaveParameterInfoHandler implements ParameterInfoHandler<WeaveFunctionCallExpression, WeaveParameterInfoHandler.ArgumentCallInfo> {
 
@@ -81,30 +84,49 @@ public class WeaveParameterInfoHandler implements ParameterInfoHandler<WeaveFunc
 
     @Override
     public void updateParameterInfo(@NotNull WeaveFunctionCallExpression parameterOwner, @NotNull UpdateParameterInfoContext context) {
-        if (context.getParameterOwner() == null || parameterOwner.equals(context.getParameterOwner())) {
-            context.setParameterOwner(parameterOwner);
-        } else {
-            context.removeHint();
-        }
+        context.setCurrentParameter(getCurrentParameterIndex(parameterOwner.getFunctionCallArguments().getNode(), context.getOffset(), WeaveTypes.COMMA));
     }
 
     @Override
     public void updateUI(ArgumentCallInfo p, @NotNull ParameterInfoUIContext context) {
         List<FunctionTypeParameter> functionTypeParameters = ScalaUtils.toList(p.getFunctionType().params());
-        String hint = functionTypeParameters
-                .stream()
-                .map((param) -> param.name() + (param.optional() ? "? :" : " :") + param.wtype().toString(false, true))
-                .reduce((acc, value) -> acc + ", " + value).orElse("<no parameters>");
-        TextRange textRange = p.getFunctionCallExpression().getFunctionCallArguments().getTextRange();
+
+
+        // Figure out what particular presentation is actually selected. Take in
+        // account possibility of the last variadic parameter.
+        int selected = context.getCurrentParameterIndex();
+        int start = 0;
+        int end = 0;
+
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < functionTypeParameters.size(); ++i) {
+            if (i != 0) {
+                builder.append(", ");
+            }
+            if (i == selected) {
+                start = builder.length();
+            }
+            builder.append(toUIString(functionTypeParameters.get(i)));
+
+            if (i == selected) {
+                end = builder.length();
+            }
+        }
+
         context.setupUIComponentPresentation(
-                hint,
-                textRange.getStartOffset(),
-                textRange.getEndOffset(),
-                !context.isUIComponentEnabled(),
+                builder.toString(),
+                start,
+                end,
+                false,
                 false,
                 false,
                 context.getDefaultParameterColor());
 
+    }
+
+    @NotNull
+    public String toUIString(FunctionTypeParameter param) {
+        return param.name() + (param.optional() ? "? :" : " :") + param.wtype().toString(false, true);
     }
 
     public static class ArgumentCallInfo {
