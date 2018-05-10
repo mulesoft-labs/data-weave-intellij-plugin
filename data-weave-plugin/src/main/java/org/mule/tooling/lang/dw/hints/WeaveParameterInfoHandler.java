@@ -2,29 +2,26 @@ package org.mule.tooling.lang.dw.hints;
 
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.lang.parameterInfo.*;
-import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiWhiteSpace;
-import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.mule.tooling.lang.dw.parser.psi.WeaveBinaryExpression;
 import org.mule.tooling.lang.dw.parser.psi.WeaveFunctionCallExpression;
+import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.parser.psi.WeaveTypes;
 import org.mule.tooling.lang.dw.service.DWEditorToolingAPI;
 import org.mule.tooling.lang.dw.util.ScalaUtils;
 import org.mule.weave.v2.ts.FunctionType;
 import org.mule.weave.v2.ts.FunctionTypeParameter;
 import org.mule.weave.v2.ts.WeaveType;
-import scala.collection.JavaConversions;
 import scala.collection.Seq;
 
 import java.util.Collections;
 import java.util.List;
 
-import static com.intellij.lang.parameterInfo.ParameterInfoUtils.getCurrentParameterIndex;
-
-public class WeaveParameterInfoHandler implements ParameterInfoHandler<WeaveFunctionCallExpression, WeaveParameterInfoHandler.ArgumentCallInfo> {
+public class WeaveParameterInfoHandler implements ParameterInfoHandler<WeaveParameterInfoHandler.FunctionCallInformation, WeaveParameterInfoHandler.ArgumentCallInfo> {
 
 
     @Override
@@ -40,25 +37,32 @@ public class WeaveParameterInfoHandler implements ParameterInfoHandler<WeaveFunc
 
     @Nullable
     @Override
-    public WeaveFunctionCallExpression findElementForParameterInfo(@NotNull CreateParameterInfoContext context) {
+    public FunctionCallInformation findElementForParameterInfo(@NotNull CreateParameterInfoContext context) {
         return getFunctionCallExpression(context);
     }
 
     @Nullable
-    public WeaveFunctionCallExpression getFunctionCallExpression(@NotNull ParameterInfoContext context) {
+    public FunctionCallInformation getFunctionCallExpression(@NotNull ParameterInfoContext context) {
         final PsiFile file = context.getFile();
         final int offset = context.getEditor().getCaretModel().getOffset();
         final PsiElement elementAt = file.findElementAt(offset);
         if (elementAt instanceof PsiWhiteSpace) {
             return null;
         }
-        return PsiTreeUtil.getParentOfType(elementAt, WeaveFunctionCallExpression.class);
+        PsiElement parent = WeavePsiUtils.getParent(elementAt, (element) -> element instanceof WeaveFunctionCallExpression || element instanceof WeaveBinaryExpression);
+        if (parent instanceof WeaveFunctionCallExpression) {
+            return new WeaveFunctionCallInfo(((WeaveFunctionCallExpression) parent));
+        } else if (parent instanceof WeaveBinaryExpression)
+            return new BinaryFunctionCallInfo((WeaveBinaryExpression) parent);
+        else {
+            return null;
+        }
     }
 
     @Override
-    public void showParameterInfo(@NotNull WeaveFunctionCallExpression element, @NotNull CreateParameterInfoContext context) {
+    public void showParameterInfo(@NotNull FunctionCallInformation element, @NotNull CreateParameterInfoContext context) {
         DWEditorToolingAPI instance = DWEditorToolingAPI.getInstance(context.getProject());
-        WeaveType weaveType = instance.typeOf(element.getExpression());
+        WeaveType weaveType = instance.typeOf(element.getFunction());
         if (weaveType instanceof FunctionType) {
             FunctionType functionType = (FunctionType) weaveType;
             List<FunctionType> functionTypes;
@@ -71,20 +75,20 @@ public class WeaveParameterInfoHandler implements ParameterInfoHandler<WeaveFunc
 
             ArgumentCallInfo[] argumentCallInfos = functionTypes.stream().map((funType) -> new ArgumentCallInfo(element, funType)).toArray(ArgumentCallInfo[]::new);
             context.setItemsToShow(argumentCallInfos);
-            context.showHint(element.getFunctionCallArguments(), element.getFunctionCallArguments().getTextRange().getStartOffset(), this);
+            context.showHint(element.getHintElement(), element.getStartOffset(), this);
         }
 
     }
 
     @Nullable
     @Override
-    public WeaveFunctionCallExpression findElementForUpdatingParameterInfo(@NotNull UpdateParameterInfoContext context) {
+    public FunctionCallInformation findElementForUpdatingParameterInfo(@NotNull UpdateParameterInfoContext context) {
         return getFunctionCallExpression(context);
     }
 
     @Override
-    public void updateParameterInfo(@NotNull WeaveFunctionCallExpression parameterOwner, @NotNull UpdateParameterInfoContext context) {
-        context.setCurrentParameter(getCurrentParameterIndex(parameterOwner.getFunctionCallArguments().getNode(), context.getOffset(), WeaveTypes.COMMA));
+    public void updateParameterInfo(@NotNull FunctionCallInformation parameterOwner, @NotNull UpdateParameterInfoContext context) {
+        context.setCurrentParameter(parameterOwner.getCurrentParameterIndex(context));
     }
 
     @Override
@@ -130,20 +134,93 @@ public class WeaveParameterInfoHandler implements ParameterInfoHandler<WeaveFunc
     }
 
     public static class ArgumentCallInfo {
-        private WeaveFunctionCallExpression functionCallExpression;
+        private FunctionCallInformation functionCallExpression;
         private FunctionType functionType;
 
-        public ArgumentCallInfo(WeaveFunctionCallExpression functionCallExpression, FunctionType functionType) {
+        public ArgumentCallInfo(FunctionCallInformation functionCallExpression, FunctionType functionType) {
             this.functionCallExpression = functionCallExpression;
             this.functionType = functionType;
         }
 
-        public WeaveFunctionCallExpression getFunctionCallExpression() {
+        public FunctionCallInformation getFunctionCallExpression() {
             return functionCallExpression;
         }
 
         public FunctionType getFunctionType() {
             return functionType;
+        }
+    }
+
+    public interface FunctionCallInformation {
+        PsiElement getFunction();
+
+        PsiElement getHintElement();
+
+        int getStartOffset();
+
+        int getCurrentParameterIndex(UpdateParameterInfoContext context);
+    }
+
+    public static class WeaveFunctionCallInfo implements FunctionCallInformation {
+
+        WeaveFunctionCallExpression functionCall;
+
+        public WeaveFunctionCallInfo(WeaveFunctionCallExpression functionCall) {
+            this.functionCall = functionCall;
+        }
+
+        @Override
+        public PsiElement getFunction() {
+            return functionCall.getExpression();
+        }
+
+        @Override
+        public PsiElement getHintElement() {
+            return functionCall.getFunctionCallArguments();
+        }
+
+        @Override
+        public int getStartOffset() {
+            return functionCall.getFunctionCallArguments().getTextRange().getStartOffset();
+        }
+
+        @Override
+        public int getCurrentParameterIndex(UpdateParameterInfoContext context) {
+            return ParameterInfoUtils.getCurrentParameterIndex(functionCall.getFunctionCallArguments().getNode(), context.getOffset(), WeaveTypes.COMMA);
+        }
+    }
+
+    public static class BinaryFunctionCallInfo implements FunctionCallInformation {
+        WeaveBinaryExpression binaryExpression;
+
+        public BinaryFunctionCallInfo(WeaveBinaryExpression binaryExpression) {
+            this.binaryExpression = binaryExpression;
+        }
+
+        @Override
+        public PsiElement getFunction() {
+            return binaryExpression.getIdentifier();
+        }
+
+        @Override
+        public PsiElement getHintElement() {
+            return binaryExpression.getIdentifier();
+        }
+
+        @Override
+        public int getStartOffset() {
+            return binaryExpression.getIdentifier().getTextRange().getStartOffset();
+        }
+
+        @Override
+        public int getCurrentParameterIndex(UpdateParameterInfoContext context) {
+            int offset = context.getEditor().getCaretModel().getOffset();
+            int endOffset = binaryExpression.getIdentifier().getTextRange().getEndOffset();
+            if (endOffset < offset) {
+                return 1;
+            } else {
+                return 0;
+            }
         }
     }
 

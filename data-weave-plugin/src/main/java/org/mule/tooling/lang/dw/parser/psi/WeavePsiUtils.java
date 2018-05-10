@@ -12,12 +12,14 @@ import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.xdebugger.XDebuggerUtil;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.WeaveFile;
 import org.mule.weave.v2.parser.ast.header.directives.NamespaceDirective;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 
@@ -228,4 +230,22 @@ public class WeavePsiUtils {
         }
         return null;
     }
+
+
+    public static PsiElement getParent(@Nullable PsiElement element, Predicate<PsiElement> filter) {
+        if (element == null) {
+            return null;
+        }
+        while (element != null) {
+            if (filter.test(element)) {
+                return element;
+            }
+            if (element instanceof PsiFile) {
+                return null;
+            }
+            element = element.getParent();
+        }
+        return null;
+    }
+
 }
