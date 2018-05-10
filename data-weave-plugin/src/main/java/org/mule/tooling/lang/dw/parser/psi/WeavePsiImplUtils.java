@@ -72,7 +72,11 @@ public class WeavePsiImplUtils {
         final VirtualFile contentRootForFile = ProjectFileIndex.SERVICE.getInstance(project).getSourceRootForFile(vfs);
         if (contentRootForFile != null) {
             final String relPath = VfsUtil.getRelativePath(vfs, contentRootForFile);
-            return NameIdentifierHelper.fromWeaveFilePath(relPath);
+            if (relPath != null) {
+                return NameIdentifierHelper.fromWeaveFilePath(relPath);
+            } else {
+                return null;
+            }
         } else {
             return null;
         }
@@ -162,11 +166,11 @@ public class WeavePsiImplUtils {
         };
     }
 
-    public static boolean isMappingDocument(WeaveDocument document){
+    public static boolean isMappingDocument(WeaveDocument document) {
         return document.getBody() != null;
     }
 
-    public static boolean isModuleDocument(WeaveDocument document){
+    public static boolean isModuleDocument(WeaveDocument document) {
         return document.getBody() == null;
     }
 
