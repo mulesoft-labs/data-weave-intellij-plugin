@@ -71,6 +71,9 @@ public class VirtualFileSystemAdaptor implements VirtualFileSystem, Disposable {
     }
 
     private void onFileChanged(VirtualFile virtualFile) {
+        if (myDocumentAlarm.isDisposed()) {
+            return;
+        }
         //We cancel all request
         myDocumentAlarm.cancelAllRequests();
         myDocumentAlarm.addRequest(() -> {
