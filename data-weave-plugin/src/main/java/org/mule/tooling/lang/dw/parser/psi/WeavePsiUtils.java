@@ -86,57 +86,40 @@ public class WeavePsiUtils {
         return (WeaveDocument) result;
     }
 
-
-    public static Optional<? extends PsiElement> getVariableDeclarationFor(@NotNull PsiElement element, @NotNull final String name) {
-        final List<WeaveVariable> variables = collectLocalVisibleVariables(element);
-        return variables.stream().filter(weaveVariableDefinition -> name.equals(weaveVariableDefinition.getVariableName())).findFirst();
-    }
-
-    public static List<WeaveVariable> collectLocalVisibleVariables(@NotNull PsiElement element) {
-        final List<WeaveVariable> result = new ArrayList<>();
-        PsiElement parent = element.getParent();
-        while (isNotWeaveFile(parent)) {
-            if (parent instanceof WeaveUsingExpression) {
-                final List<WeaveVariableDefinition> vars = ((WeaveUsingExpression) parent).getVariableDefinitionList();
-                result.addAll(vars);
-            }
-            if (parent instanceof WeaveDocument) {
-                final Collection<WeaveVariableDefinition> vars = PsiTreeUtil.findChildrenOfType(((WeaveDocument) parent).getHeader(), WeaveVariableDefinition.class);
-                result.addAll(vars);
-            }
-            if (parent instanceof WeaveLambdaLiteral) {
-                result.addAll(((WeaveLambdaLiteral) parent).getFunctionParameterList());
-            }
-            if (parent instanceof WeaveFunctionDefinition) {
-                result.addAll(((WeaveFunctionDefinition) parent).getFunctionParameterList());
-            }
-            parent = parent.getParent();
+    public static List<String> getAllLocalNames(WeaveDoExpression document) {
+        if (document == null) {
+            return Collections.emptyList();
+        } else {
+            return collectVariables(document.getDirectiveList());
         }
-
-        return result;
     }
 
     public static List<String> getAllGlobalNames(WeaveDocument document) {
         WeaveHeader header = document.getHeader();
         if (header != null) {
-            return header.getDirectiveList().stream()
-                    .map((directive) -> {
-                        if (directive instanceof WeaveFunctionDirective) {
-                            return ((WeaveFunctionDirective) directive).getFunctionDefinition().getName();
-                        } else if (directive instanceof WeaveVariableDirective) {
-                            return ((WeaveVariableDirective) directive).getVariableDefinition().getName();
-                        } else if (directive instanceof WeaveTypeDirective) {
-                            return ((WeaveTypeDirective) directive).getName();
-                        } else if (directive instanceof WeaveNamespaceDirective) {
-                            return ((WeaveNamespaceDirective) directive).getIdentifier().getName();
-                        } else {
-                            return null;
-                        }
-                    })
-                    .filter(Objects::nonNull).collect(Collectors.toList());
+            final List<WeaveDirective> directiveList = header.getDirectiveList();
+            return collectVariables(directiveList);
         } else {
             return Collections.emptyList();
         }
+    }
+
+    public static List<String> collectVariables(List<WeaveDirective> directiveList) {
+        return directiveList.stream()
+                .map((directive) -> {
+                    if (directive instanceof WeaveFunctionDirective) {
+                        return ((WeaveFunctionDirective) directive).getFunctionDefinition().getName();
+                    } else if (directive instanceof WeaveVariableDirective) {
+                        return ((WeaveVariableDirective) directive).getVariableDefinition().getName();
+                    } else if (directive instanceof WeaveTypeDirective) {
+                        return ((WeaveTypeDirective) directive).getName();
+                    } else if (directive instanceof WeaveNamespaceDirective) {
+                        return ((WeaveNamespaceDirective) directive).getIdentifier().getName();
+                    } else {
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull).collect(Collectors.toList());
     }
 
     public static List<WeaveNamedElement> findFunctions(@NotNull PsiElement element) {

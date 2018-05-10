@@ -14,6 +14,7 @@ import com.intellij.refactoring.RefactoringActionHandler;
 import org.jetbrains.annotations.NotNull;
 import org.mule.tooling.lang.dw.parser.psi.*;
 import org.mule.tooling.lang.dw.service.DWEditorToolingAPI;
+import org.mule.weave.v2.parser.ast.variables.VariableReferenceNode;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -33,19 +34,20 @@ public class IntroduceLocalVariableHandler implements RefactoringActionHandler {
             if (rootScope instanceof WeaveDocument) {
                 new IntroduceConstantHandler().invoke(project, editor, psiFile, dataContext);
             } else if (rootScope != null) {
-                final List<String> possibleNames = NameProviderHelper.possibleNamesOf(valueToReplace);
+                final WeaveDoExpression doExpression = rootScope instanceof WeaveDoExpression ? (WeaveDoExpression) rootScope : null;
+                final List<String> possibleNames = NameProviderHelper.possibleNamesForLocalVariable(valueToReplace, doExpression);
                 final String defaultName = possibleNames.get(0);
-                final WeaveVariableDirective newVarDirective = WeaveElementFactory.createVarDirective(project, defaultName, valueToReplace);
+                final WeaveVariableDirective varDirective = WeaveElementFactory.createVarDirective(project, defaultName, valueToReplace);
                 final WeaveVariableReferenceExpression variableRef = WeaveElementFactory.createVariableRef(project, defaultName);
 
                 final WeaveInplaceVariableIntroducer variableIntroducer = WriteCommandAction.runWriteCommandAction(project, (Computable<WeaveInplaceVariableIntroducer>) () -> {
-                    WeaveDoExpression doBlock;
-                    PsiElement variableRefReplaced;
+                    final WeaveDoExpression doBlock;
+                    final WeaveVariableReferenceExpression newVariableRef;
                     if (valueToReplace == rootScope) {
                         doBlock = (WeaveDoExpression) valueToReplace.replace(WeaveElementFactory.createDoBlock(project, variableRef));
-                        variableRefReplaced = doBlock.getExpression();
+                        newVariableRef = (WeaveVariableReferenceExpression) doBlock.getExpression();
                     } else {
-                        variableRefReplaced = valueToReplace.replace(variableRef);
+                        newVariableRef = (WeaveVariableReferenceExpression) valueToReplace.replace(variableRef);
                         if (rootScope instanceof WeaveDoExpression) {
                             doBlock = (WeaveDoExpression) rootScope;
                         } else {
@@ -55,28 +57,30 @@ public class IntroduceLocalVariableHandler implements RefactoringActionHandler {
                     }
 
 
-                    WeaveVariableDirective varDirective;
+                    final WeaveVariableDirective newVarDirective;
                     if (doBlock.getDirectiveList().size() > 0) {
-                        WeaveDirective weaveDirective = doBlock.getDirectiveList().get(doBlock.getDirectiveList().size() - 1);
-
-                        varDirective = (WeaveVariableDirective) doBlock.addAfter(newVarDirective, weaveDirective);
-                        doBlock.addBefore(createNewLine(project), varDirective);
-                        doBlock.addAfter(createNewLine(project), varDirective);
+                        final WeaveDirective weaveDirective = doBlock.getDirectiveList().get(doBlock.getDirectiveList().size() - 1);
+                        newVarDirective = (WeaveVariableDirective) doBlock.addAfter(varDirective, weaveDirective);
+                        doBlock.addBefore(createNewLine(project), newVarDirective);
+                        doBlock.addAfter(createNewLine(project), newVarDirective);
                     } else {
-                        PsiElement anchor = doBlock.addBefore(createBlockSeparator(project), doBlock.getExpression());
+                        final PsiElement anchor = doBlock.addBefore(createBlockSeparator(project), doBlock.getExpression());
                         doBlock.addAfter(createNewLine(project), anchor);
-                        varDirective = (WeaveVariableDirective) doBlock.addBefore(newVarDirective, doBlock.addBefore(createNewLine(project), anchor));
-                        doBlock.addBefore(createNewLine(project), varDirective);
+                        newVarDirective = (WeaveVariableDirective) doBlock.addBefore(varDirective, doBlock.addBefore(createNewLine(project), anchor));
+                        doBlock.addBefore(createNewLine(project), newVarDirective);
                     }
 
-                    return new WeaveInplaceVariableIntroducer(varDirective.getVariableDefinition(), editor, project, "choose a variable", new PsiElement[]{variableRefReplaced});
+                    int startOffset = newVariableRef.getFqnIdentifier().getTextRange().getStartOffset();
+                    //If we don't move the  cursor then the Introducer doesn't work :(
+                    editor.getCaretModel().moveToOffset(startOffset);
+                    return new WeaveInplaceVariableIntroducer(newVarDirective.getVariableDefinition(), editor, project, "choose a variable", new PsiElement[]{newVariableRef});
 
                 });
 
                 PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(editor.getDocument());
                 variableIntroducer.performInplaceRefactoring(new LinkedHashSet<>(possibleNames));
             } else {
-
+                HintManagerImpl.getInstanceImpl().showErrorHint(editor, "Unable to perform the refactor.");
             }
         } else {
             HintManagerImpl.getInstanceImpl().showErrorHint(editor, "Selection doesn't represent an expression.");

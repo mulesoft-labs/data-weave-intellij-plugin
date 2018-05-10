@@ -36,17 +36,7 @@ public class WeaveIdentifierPsiReference extends PsiPolyVariantReferenceBase<Psi
     @NotNull
     @Override
     public Object[] getVariants() {
-        final List<WeaveVariable> variables = WeavePsiUtils.collectLocalVisibleVariables(myElement);
-        final List<LookupElement> variants = new ArrayList<>();
-        for (final WeaveVariable property : variables) {
-            if (property.getName() != null && property.getName().length() > 0) {
-                variants.add(LookupElementBuilder.create(property).
-                        withIcon(AllIcons.Nodes.Variable).
-                        withTypeText(property.getContainingFile().getName())
-                );
-            }
-        }
-        return variants.toArray();
+        return new Object[0];
     }
 
     @NotNull

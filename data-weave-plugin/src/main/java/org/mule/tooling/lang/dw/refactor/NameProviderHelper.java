@@ -3,6 +3,7 @@ package org.mule.tooling.lang.dw.refactor;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.ArrayUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.parser.psi.*;
 
 import java.util.ArrayList;
@@ -12,8 +13,21 @@ import java.util.stream.Collectors;
 
 public class NameProviderHelper {
     @NotNull
-    public static List<String> possibleNamesOf(PsiElement valueToReplace) {
-        ArrayList<String> result = new ArrayList<>();
+    public static List<String> possibleNamesForGlobalVariable(PsiElement valueToReplace) {
+        final WeaveDocument document = WeavePsiUtils.getDocument(valueToReplace);
+        final List<String> allGlobalNames = WeavePsiUtils.getAllGlobalNames(document);
+        return possibleNamesFor(valueToReplace, allGlobalNames);
+    }
+
+
+    @NotNull
+    public static List<String> possibleNamesForLocalVariable(PsiElement valueToReplace, @Nullable WeaveDoExpression doBlock) {
+        final List<String> allGlobalNames = WeavePsiUtils.getAllLocalNames(doBlock);
+        return possibleNamesFor(valueToReplace, allGlobalNames);
+    }
+
+    public static List<String> possibleNamesFor(PsiElement valueToReplace, List<String> alreadyUsedNames) {
+        final ArrayList<String> result = new ArrayList<>();
         if (valueToReplace instanceof WeaveStringLiteral) {
             String stringText = ((WeaveStringLiteral) valueToReplace).getValue();
             String[] suggestionsByValue = getSuggestionsByValue(stringText);
@@ -38,7 +52,7 @@ public class NameProviderHelper {
             result.add("myVar");
         }
         //We should get a non repated name
-        return result.stream().map((name) -> makeNameUnike(valueToReplace, name)).collect(Collectors.toList());
+        return result.stream().map((name) -> makeNameUnike(valueToReplace, name, alreadyUsedNames)).collect(Collectors.toList());
     }
 
     @NotNull
@@ -57,7 +71,7 @@ public class NameProviderHelper {
                 }
                 currentWord.append(c);
             } else if (Character.isLowerCase(c)) {
-                currentWord.append(Character.toUpperCase(c));
+                currentWord.append(c);
             } else if (Character.isJavaIdentifierPart(c) && c != '_') {
                 if (Character.isJavaIdentifierStart(c) || currentWord.length() > 0 || !result.isEmpty()) {
                     currentWord.append(c);
@@ -79,9 +93,8 @@ public class NameProviderHelper {
     }
 
 
-    public static String makeNameUnike(PsiElement valueToReplace, String baseName) {
-        WeaveDocument document = WeavePsiUtils.getDocument(valueToReplace);
-        List<String> allGlobalNames = WeavePsiUtils.getAllGlobalNames(document);
+    public static String makeNameUnike(PsiElement valueToReplace, String baseName, List<String> allGlobalNames) {
+
         String name = baseName;
         int i = 0;
         while (allGlobalNames.contains(name)) {

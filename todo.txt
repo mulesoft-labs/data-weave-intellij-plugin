@@ -1,5 +1,17 @@
 Intellij snippets
 
+//refactor multiple targets
+ IntroduceTargetChooser.showChooser(operation.getEditor(), expressions, new Pass<GoExpression>() {
+        @Override
+        public void pass(GoExpression expression) {
+          if (expression.isValid()) {
+            operation.setExpression(expression);
+            performOnElement(operation);
+          }
+        }
+      }, expression1 -> expression1.isValid() ? expression1.getText() : "<invalid expression>");
+
+
 <codeInsight.lineMarkerProvider language="JAVA" implementationClass="com.simpleplugin.SimpleLineMarkerProvider"/>
 
 ParameterInfoHandler

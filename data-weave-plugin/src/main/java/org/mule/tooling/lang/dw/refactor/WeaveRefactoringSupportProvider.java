@@ -28,6 +28,18 @@ public class WeaveRefactoringSupportProvider extends RefactoringSupportProvider 
         return new IntroduceLocalVariableHandler();
     }
 
+    @Nullable
+    @Override
+    public RefactoringActionHandler getExtractMethodHandler() {
+        return new IntroduceFunctionHandler();
+    }
+
+    @Nullable
+    @Override
+    public RefactoringActionHandler getExtractModuleHandler() {
+        return new IntroduceModuleHandler();
+    }
+
     @Override
     public boolean isSafeDeleteAvailable(@NotNull PsiElement element) {
         return element instanceof WeaveNamedElement;

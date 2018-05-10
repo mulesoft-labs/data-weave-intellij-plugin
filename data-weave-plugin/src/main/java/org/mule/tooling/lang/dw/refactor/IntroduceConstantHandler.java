@@ -1,12 +1,10 @@
 package org.mule.tooling.lang.dw.refactor;
 
-import com.intellij.codeInsight.hint.HintManager;
 import com.intellij.codeInsight.hint.HintManagerImpl;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.SelectionModel;
-import com.intellij.openapi.editor.VisualPosition;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Computable;
 import com.intellij.psi.*;
@@ -31,7 +29,7 @@ public class IntroduceConstantHandler implements RefactoringActionHandler {
         if (weaveDocument != null) {
             PsiElement valueToReplace = PsiTreeUtil.findElementOfClassAtRange(psiFile, selectionStart, selectionEnd, PsiElement.class);
             if (valueToReplace != null) {
-                final List<String> possibleNames = NameProviderHelper.possibleNamesOf(valueToReplace);
+                final List<String> possibleNames = NameProviderHelper.possibleNamesForGlobalVariable(valueToReplace);
                 final String name = possibleNames.get(0);
                 final WeaveVariableDirective varDirective = WeaveElementFactory.createVarDirective(project, name, valueToReplace);
                 final WeaveVariableReferenceExpression expressionToReplace = WeaveElementFactory.createVariableRef(project, name);
@@ -78,7 +76,7 @@ public class IntroduceConstantHandler implements RefactoringActionHandler {
         } else {
             variable = header.add(varDirective);
         }
-        header.addAfter(WeaveElementFactory.createNewLine(project), variable);
+//        header.addAfter(WeaveElementFactory.createNewLine(project), variable);
         header.addBefore(WeaveElementFactory.createNewLine(project), variable);
         return (WeaveVariableDirective) variable;
     }
