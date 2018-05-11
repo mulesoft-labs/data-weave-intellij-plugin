@@ -115,8 +115,15 @@ public class DWEditorToolingAPI extends AbstractProjectComponent implements Disp
     }
 
     private WeaveDocumentToolingService didOpen(PsiFile psiFile) {
-        final String url = psiFile.getVirtualFile().getUrl();
-        final VirtualFile file = projectVirtualFileSystem.file(url);
+        com.intellij.openapi.vfs.VirtualFile virtualFile = psiFile.getVirtualFile();
+        final VirtualFile file;
+        if (!virtualFile.isInLocalFileSystem()) {
+            //We create a dummy virtual file
+            file = new VirtualFileSystemAdaptor.IntellijVirtualFileAdaptor(projectVirtualFileSystem, virtualFile, myProject, NameIdentifier.ANONYMOUS_NAME());
+        } else {
+            final String url = virtualFile.getUrl();
+            file = projectVirtualFileSystem.file(url);
+        }
         final DataWeaveScenariosManager instance = DataWeaveScenariosManager.getInstance(myProject);
         final WeaveDocument weaveDocument = WeavePsiUtils.getWeaveDocument(psiFile);
         final ImplicitInput currentImplicitTypes = instance.getCurrentImplicitTypes(weaveDocument);

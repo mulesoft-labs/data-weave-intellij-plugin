@@ -212,13 +212,15 @@ public class WeaveAgentComponent extends AbstractProjectComponent {
     }
 
     public void checkClientConnected(Runnable onConnected) {
-        if (client == null || !client.isConnected()) {
-            init(new EmptyProgressIndicator());
-        }
-        if (client.isConnected()) {
-            onConnected.run();
-        } else {
-            Notifications.Bus.notify(new Notification("Data Weave", "Unable to connect", "Client is not able to connect to runtime", NotificationType.ERROR));
+        if (!disabled && isWeaveRuntimeInstalled()) {
+            if (client == null || !client.isConnected()) {
+                init(new EmptyProgressIndicator());
+            }
+            if (client.isConnected()) {
+                onConnected.run();
+            } else {
+                Notifications.Bus.notify(new Notification("Data Weave", "Unable to connect", "Client is not able to connect to runtime", NotificationType.ERROR));
+            }
         }
     }
 
@@ -323,7 +325,7 @@ public class WeaveAgentComponent extends AbstractProjectComponent {
         return new CommandLineState(null) {
             private SimpleJavaParameters createJavaParameters() {
                 final SimpleJavaParameters params = WeaveRunnerHelper.createJavaParameters(myProject);
-                if(Boolean.getBoolean("debugWeaveAgent")) {
+                if (Boolean.getBoolean("debugWeaveAgent")) {
                     params.getVMParametersList().add("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5678");
                 }
                 ParametersList parametersList = params.getProgramParametersList();

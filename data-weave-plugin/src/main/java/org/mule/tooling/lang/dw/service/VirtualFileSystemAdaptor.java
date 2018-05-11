@@ -62,7 +62,12 @@ public class VirtualFileSystemAdaptor implements VirtualFileSystem, Disposable {
     @Override
     public org.mule.weave.v2.editor.VirtualFile file(String path) {
         final VirtualFile fileByUrl = VirtualFileManager.getInstance().findFileByUrl(path);
-        return new IntellijVirtualFileAdaptor(this, fileByUrl, this.project, null);
+        if (fileByUrl == null) {
+            return null;
+        } else {
+            return new IntellijVirtualFileAdaptor(this, fileByUrl, this.project, null);
+        }
+
     }
 
     @Override
@@ -140,7 +145,7 @@ public class VirtualFileSystemAdaptor implements VirtualFileSystem, Disposable {
         private Project project;
         private NameIdentifier name;
 
-        public IntellijVirtualFileAdaptor(VirtualFileSystem fs, VirtualFile vfs, Project project, NameIdentifier name) {
+        public IntellijVirtualFileAdaptor(VirtualFileSystem fs, @NotNull VirtualFile vfs, @NotNull Project project, NameIdentifier name) {
             this.fs = fs;
             this.vfs = vfs;
             this.document = FileDocumentManager.getInstance().getDocument(vfs);
