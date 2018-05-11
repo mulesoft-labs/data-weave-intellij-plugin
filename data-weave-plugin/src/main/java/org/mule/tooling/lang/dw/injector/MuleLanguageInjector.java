@@ -5,10 +5,7 @@ import com.intellij.openapi.fileTypes.StdFileTypes;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.psi.InjectedLanguagePlaces;
-import com.intellij.psi.LanguageInjector;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiLanguageInjectionHost;
+import com.intellij.psi.*;
 import com.intellij.psi.xml.XmlAttributeValue;
 import com.intellij.psi.xml.XmlFile;
 import com.intellij.psi.xml.XmlTag;
@@ -47,7 +44,7 @@ public class MuleLanguageInjector implements LanguageInjector {
         if (isMuleFile(host.getContainingFile())) {
             if (host instanceof XmlAttributeValue) {
                 // Try to inject a language, somewhat abusing the lazy evaluation of predicates :(
-                injectExpressionLanguage(WeaveLanguage.WEAVE_LANGUAGE_ID, host, injectedLanguagePlaces);
+                injectExpressionLanguage(host, injectedLanguagePlaces);
             } else if (host instanceof XmlText) {
                 final XmlTag tag = ((XmlText) host).getParentTag();
                 if (tag != null) {
@@ -59,11 +56,13 @@ public class MuleLanguageInjector implements LanguageInjector {
                         }
                     } else if (tagName.equals(dwSetPayload) || tagName.equals(dwSetProperty) || tagName.equals(dwSetAttributes)) {
                         injectLanguage(host, injectedLanguagePlaces, WeaveLanguage.WEAVE_LANGUAGE_ID);
-                    } else if (host.getText().startsWith(EXPRESSION_PREFIX) && host.getText().endsWith(EXPRESSION_SUFFIX)) {
-                        injectLanguage(host, injectedLanguagePlaces, WeaveLanguage.WEAVE_LANGUAGE_ID);
+                    } else {
+                        injectExpressionLanguage(host, injectedLanguagePlaces);
                     }
                 }
             }
+        } else if (host instanceof PsiLiteralExpression) {
+            injectExpressionLanguage(host, injectedLanguagePlaces);
         }
     }
 
@@ -96,25 +95,28 @@ public class MuleLanguageInjector implements LanguageInjector {
     }
 
 
-    private void injectExpressionLanguage(@NotNull String languageId,
-                                          @NotNull PsiLanguageInjectionHost host,
+    private void injectExpressionLanguage(@NotNull PsiLanguageInjectionHost host,
                                           @NotNull InjectedLanguagePlaces injectedLanguagePlaces) {
+        // Find the required Language
+        final Language requiredLanguage = WeaveLanguage.getInstance();
         if (host instanceof XmlText) {
-            final Language requiredLanguage = Language.findLanguageByID(languageId);
-            if (requiredLanguage != null) {
-                final TextRange range = TextRange.from(0, host.getTextRange().getLength());
-                injectedLanguagePlaces.addPlace(requiredLanguage, range, null, null);
-            }
+            injectLanguageIn(((XmlText) host).getValue(), requiredLanguage, injectedLanguagePlaces, 0);
         } else if (host instanceof XmlAttributeValue) {
-            XmlAttributeValue attributeValue = (XmlAttributeValue) host;
-            if (attributeValue.getValue().startsWith(EXPRESSION_PREFIX) && attributeValue.getValue().endsWith(EXPRESSION_SUFFIX) && !attributeValue.getValue().startsWith("#[mel:")) {
-                // Find the required Language
-                final Language requiredLanguage = Language.findLanguageByID(languageId);
-                if (requiredLanguage == null) {
-                    return;
-                }
-                final TextRange textRange = attributeValue.getValueTextRange();
-                final TextRange expressionTextRange = TextRange.from(EXPRESSION_PREFIX.length() + 1, textRange.getLength() - (EXPRESSION_PREFIX.length() + 1));
+            injectLanguageIn(StringUtil.unquoteString(host.getText()), requiredLanguage, injectedLanguagePlaces, 1);
+        } else if (host instanceof PsiLiteralExpression) {
+            if (host.getText().startsWith("\"")) {
+                injectLanguageIn(StringUtil.unquoteString(host.getText()), requiredLanguage, injectedLanguagePlaces, 1);
+            }
+        }
+    }
+
+    private void injectLanguageIn(String text, Language requiredLanguage, @NotNull InjectedLanguagePlaces injectedLanguagePlaces, int startOffset) {
+        if (text != null) {
+            final String trimmedText = text.trim();
+            if (trimmedText.startsWith(EXPRESSION_PREFIX) && trimmedText.endsWith(EXPRESSION_SUFFIX) && !trimmedText.startsWith("#[mel:")) {
+                int startIndex = text.indexOf(EXPRESSION_PREFIX) + EXPRESSION_PREFIX.length();
+                int endIndex = text.lastIndexOf(EXPRESSION_SUFFIX);
+                final TextRange expressionTextRange = TextRange.from(startOffset + startIndex, endIndex - startIndex);
                 injectedLanguagePlaces.addPlace(requiredLanguage, expressionTextRange, null, null);
             }
         }
