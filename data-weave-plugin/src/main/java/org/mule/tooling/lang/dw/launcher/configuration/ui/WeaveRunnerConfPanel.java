@@ -148,7 +148,7 @@ public class WeaveRunnerConfPanel {
         myModel.fireTableRowsDeleted(idx, idx);
       }
       myModel.setItems(weaveInputs);
-      myInputsTable.requestFocus();
+//      myInputsTable.requestFocus();
     }
   }
 

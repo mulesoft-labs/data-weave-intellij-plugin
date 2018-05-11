@@ -18,9 +18,9 @@ import com.intellij.util.ui.components.BorderLayoutPanel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.WeaveFileType;
-import org.mule.tooling.lang.dw.service.agent.WeaveAgentComponent;
 import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
+import org.mule.tooling.lang.dw.service.agent.WeaveAgentComponent;
 import org.mule.tooling.lang.dw.ui.MessagePanel;
 
 import javax.swing.*;
@@ -137,7 +137,7 @@ public class PreviewToolWindowPanel extends SimpleToolWindowPanel implements Dis
             WeaveDocument weaveDocument = WeavePsiUtils.getWeaveDocument(psiFile);
             if (weaveDocument != null && weaveDocument.isMappingDocument()) {
                 if (previewComponent != null) {
-                    weavePreviewComponent.close();
+                    weavePreviewComponent.dispose();
                     mainPanel.remove(previewComponent);
                     previewComponent = null;
                 }

@@ -5,6 +5,7 @@ import com.intellij.execution.filters.TextConsoleBuilderFactory;
 import com.intellij.execution.filters.UrlFilter;
 import com.intellij.execution.ui.ConsoleView;
 import com.intellij.execution.ui.ConsoleViewContentType;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.components.BorderLayoutPanel;
 import org.mule.tooling.lang.dw.filter.DataWeaveFilter;
@@ -13,7 +14,7 @@ import org.mule.weave.v2.debugger.event.WeaveLogMessage;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class PreviewLogsViewer extends BorderLayoutPanel {
+public class PreviewLogsViewer extends BorderLayoutPanel implements Disposable {
 
     private ConsoleView console;
 
@@ -26,7 +27,7 @@ public class PreviewLogsViewer extends BorderLayoutPanel {
         builder.addFilter(new DataWeaveFilter(project));
         builder.addFilter(new UrlFilter());
         console = builder.getConsole();
-        addToCenter(console.getComponent());
+        add(console.getComponent());
     }
 
     public void clear() {
@@ -42,5 +43,10 @@ public class PreviewLogsViewer extends BorderLayoutPanel {
 
     public void logError(String message) {
         console.print(message, ConsoleViewContentType.ERROR_OUTPUT);
+    }
+
+    @Override
+    public void dispose() {
+        console.dispose();
     }
 }

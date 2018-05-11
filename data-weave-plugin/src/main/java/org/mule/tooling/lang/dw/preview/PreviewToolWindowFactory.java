@@ -14,8 +14,13 @@ public class PreviewToolWindowFactory implements ToolWindowFactory, DumbAware {
 
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
-        ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
+        ContentFactory contentFactory = getContentFactory();
         Content preview = contentFactory.createContent(new PreviewToolWindowPanel(project), "Preview", false);
         toolWindow.getContentManager().addContent(preview);
     }
+
+    private ContentFactory getContentFactory() {
+        return ContentFactory.SERVICE.getInstance();
+    }
+
 }
