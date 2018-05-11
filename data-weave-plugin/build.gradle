@@ -22,12 +22,6 @@ dependencies {
     compile(group: 'org.mule.weave', name: 'parser', version: weaveVersion)
 }
 
-publishPlugin {
-    username System.getenv('IJ_REPO_USERNAME')
-    password System.getenv('IJ_REPO_PASSWORD')
-    channels = [ijPluginRepoChannel]
-}
-
 
 intellij {
     pluginName = 'data-weave-plugin-v2'

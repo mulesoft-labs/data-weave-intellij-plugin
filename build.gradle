@@ -1,12 +1,27 @@
+import java.time.Instant
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
+
+
 plugins {
     id "org.jetbrains.intellij" version "0.2.17"
 }
+
+version = pluginVersion
+
 
 subprojects {
 
     apply plugin: 'org.jetbrains.intellij'
     apply plugin: 'java'
 
+    if (ijPluginRepoChannel.equalsIgnoreCase("Develop")) {
+        version = pluginVersion + "-" + DateTimeFormatter.ofPattern("yyyyMMdd.HHmmss").withZone(ZoneOffset.UTC).format(Instant.now())
+    } else {
+        version = pluginVersion
+    }
+
+    System.out.println(version)
 
     configurations {
         gen
