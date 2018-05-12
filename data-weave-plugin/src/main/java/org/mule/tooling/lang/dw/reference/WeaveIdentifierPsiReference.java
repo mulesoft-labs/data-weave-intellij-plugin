@@ -17,6 +17,7 @@ import org.mule.tooling.lang.dw.service.DWEditorToolingAPI;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 public class WeaveIdentifierPsiReference extends PsiPolyVariantReferenceBase<PsiElement> {
@@ -52,7 +53,7 @@ public class WeaveIdentifierPsiReference extends PsiPolyVariantReferenceBase<Psi
         @NotNull
         @Override
         public ResolveResult[] resolve(@NotNull WeaveIdentifierPsiReference ref, @NotNull PsiFile containingFile, boolean incompleteCode) {
-            return Stream.of(ref.resolveInner()).map(PsiElementResolveResult::new).toArray(ResolveResult[]::new);
+            return Stream.of(ref.resolveInner()).filter(Objects::nonNull).map(PsiElementResolveResult::new).toArray(ResolveResult[]::new);
         }
 
     }

@@ -10,6 +10,9 @@ import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtil;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
@@ -69,37 +72,44 @@ public class OutputComponent implements Disposable {
     }
 
     public void runPreview(Scenario selectedItem, PsiFile currentFile) {
-        ApplicationManager.getApplication().runReadAction(() -> {
-            if (selectedItem == null)
-                return;
+        ProgressManager.getInstance().run(new Task.Backgroundable(myProject, "Run Preview of DataWEave") {
+            @Override
+            public void run(@NotNull ProgressIndicator indicator) {
+                ApplicationManager.getApplication().runReadAction(() -> {
+                    if (selectedItem == null)
+                        return;
 
-            final Document document = PsiDocumentManager.getInstance(myProject).getDocument(currentFile);
-            PsiElement psiElement = currentFile.getChildren()[0];
-            if (!(psiElement instanceof WeaveDocument)) {
-                // When there are errors it may not be a WeaveDocument
-                return;
+                    final Document document = PsiDocumentManager.getInstance(myProject).getDocument(currentFile);
+                    PsiElement psiElement = currentFile.getChildren()[0];
+                    if (!(psiElement instanceof WeaveDocument)) {
+                        // When there are errors it may not be a WeaveDocument
+                        return;
+                    }
+                    final WeaveDocument weaveDocument = (WeaveDocument) psiElement;
+                    final WeaveAgentComponent agentComponent = WeaveAgentComponent.getInstance(myProject);
+                    final String inputsPath = selectedItem.getInputs().getPath();
+                    final Module module = ModuleUtil.findModuleForFile(currentFile.getVirtualFile(), myProject);
+                    agentComponent.runPreview(inputsPath, document.getText(), weaveDocument.getQualifiedName(), currentFile.getVirtualFile().getUrl(), 10000L, module, new RunPreviewCallback() {
+
+                        @Override
+                        public void onPreviewSuccessful(PreviewExecutedSuccessfulEvent result) {
+                            onPreviewResult(result);
+                            previewLogsViewer.clear();
+                            previewLogsViewer.logInfo(ScalaUtils.toList(result.messages()));
+                        }
+
+                        @Override
+                        public void onPreviewFailed(PreviewExecutedFailedEvent message) {
+                            previewLogsViewer.clear();
+                            previewLogsViewer.logInfo(ScalaUtils.toList(message.messages()));
+                            previewLogsViewer.logError(message.message());
+                        }
+                    });
+                });
+
             }
-            final WeaveDocument weaveDocument = (WeaveDocument) psiElement;
-            final WeaveAgentComponent agentComponent = WeaveAgentComponent.getInstance(myProject);
-            final String inputsPath = selectedItem.getInputs().getPath();
-            final Module module = ModuleUtil.findModuleForFile(currentFile.getVirtualFile(), myProject);
-            agentComponent.runPreview(inputsPath, document.getText(), weaveDocument.getQualifiedName(), currentFile.getVirtualFile().getUrl(), 10000L, module, new RunPreviewCallback() {
-
-                @Override
-                public void onPreviewSuccessful(PreviewExecutedSuccessfulEvent result) {
-                    onPreviewResult(result);
-                    previewLogsViewer.clear();
-                    previewLogsViewer.logInfo(ScalaUtils.toList(result.messages()));
-                }
-
-                @Override
-                public void onPreviewFailed(PreviewExecutedFailedEvent message) {
-                    previewLogsViewer.clear();
-                    previewLogsViewer.logInfo(ScalaUtils.toList(message.messages()));
-                    previewLogsViewer.logError(message.message());
-                }
-            });
         });
+
 
     }
 

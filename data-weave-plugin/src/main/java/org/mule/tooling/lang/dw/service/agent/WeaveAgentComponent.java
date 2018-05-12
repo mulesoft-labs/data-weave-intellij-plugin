@@ -23,6 +23,7 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.DumbService;
+import com.intellij.openapi.project.IndexNotReadyException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.OrderEnumerator;
 import com.intellij.psi.JavaPsiFacade;
@@ -223,9 +224,14 @@ public class WeaveAgentComponent extends AbstractProjectComponent {
     }
 
     public boolean isWeaveRuntimeInstalled() {
-        GlobalSearchScope scope = GlobalSearchScope.allScope(myProject);
+        try {
+            GlobalSearchScope scope = GlobalSearchScope.allScope(myProject);
             PsiClass c = JavaPsiFacade.getInstance(myProject).findClass(getMarkerClassFQName(), scope);
-        return c != null;
+            return c != null;
+        } catch (IndexNotReadyException e) {
+            //If index is not yes available just try it out
+            return true;
+        }
     }
 
     private String getMarkerClassFQName() {

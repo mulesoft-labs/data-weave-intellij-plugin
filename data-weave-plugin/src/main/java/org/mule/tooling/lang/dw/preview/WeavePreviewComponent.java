@@ -3,6 +3,7 @@ package org.mule.tooling.lang.dw.preview;
 import com.intellij.execution.ui.RunnerLayoutUi;
 import com.intellij.execution.ui.layout.PlaceInGrid;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
@@ -51,8 +52,39 @@ public class WeavePreviewComponent implements Disposable {
         myProject = project;
 
         PsiManager.getInstance(project).addPsiTreeChangeListener(new PsiTreeChangeAdapter() {
+
+            @Override
+            public void childAdded(@NotNull PsiTreeChangeEvent event) {
+                super.childAdded(event);
+                doRunPreview();
+            }
+
+            @Override
+            public void childRemoved(@NotNull PsiTreeChangeEvent event) {
+                super.childRemoved(event);
+                doRunPreview();
+            }
+
+            @Override
+            public void childMoved(@NotNull PsiTreeChangeEvent event) {
+                super.childMoved(event);
+                doRunPreview();
+            }
+
+            @Override
+            public void childrenChanged(@NotNull PsiTreeChangeEvent event) {
+                super.childrenChanged(event);
+                doRunPreview();
+            }
+
             @Override
             public void childReplaced(@NotNull PsiTreeChangeEvent event) {
+                doRunPreview();
+
+                //We know the change came from this file now
+            }
+
+            public void doRunPreview() {
                 if (currentFile == null || !runOnChange) {
                     return;
                 }
@@ -62,10 +94,9 @@ public class WeavePreviewComponent implements Disposable {
                 myDocumentAlarm.addRequest(() -> {
                     if (myDocumentAlarm.isDisposed())
                         return;
-                    runPreview();
-                }, WeaveConstants.MODIFICATIONS_DELAY);
+                    ApplicationManager.getApplication().runReadAction(() -> runPreview());
 
-                //We know the change came from this file now
+                }, WeaveConstants.MODIFICATIONS_DELAY);
             }
         }, this);
 

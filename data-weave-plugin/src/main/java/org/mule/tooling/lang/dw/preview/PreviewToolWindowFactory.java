@@ -17,7 +17,7 @@ import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.service.DataWeaveScenariosManager;
 import org.mule.tooling.lang.dw.service.Scenario;
 
-public class PreviewToolWindowFactory implements ToolWindowFactory, DumbAware {
+public class PreviewToolWindowFactory implements ToolWindowFactory {
 
     public static String ID = "Weave Preview";
 
