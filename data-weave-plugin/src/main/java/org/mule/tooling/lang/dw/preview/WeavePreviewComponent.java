@@ -4,7 +4,6 @@ import com.intellij.execution.ui.RunnerLayoutUi;
 import com.intellij.execution.ui.layout.PlaceInGrid;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
@@ -13,7 +12,6 @@ import com.intellij.psi.PsiTreeChangeEvent;
 import com.intellij.ui.ListCellRendererWrapper;
 import com.intellij.ui.content.Content;
 import com.intellij.util.Alarm;
-import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.components.BorderLayoutPanel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -26,7 +24,6 @@ import org.mule.tooling.lang.dw.service.Scenario;
 import org.mule.weave.v2.debugger.event.PreviewExecutedSuccessfulEvent;
 
 import javax.swing.*;
-import java.awt.*;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
@@ -34,7 +31,7 @@ public class WeavePreviewComponent implements Disposable {
 
 
     private Project myProject;
-    private ComboBox<Scenario> scenariosComboBox;
+//    private ComboBox<Scenario> scenariosComboBox;
     private BorderLayoutPanel previewPanel;
     private PsiFile currentFile;
     private boolean runOnChange = true;
@@ -43,6 +40,7 @@ public class WeavePreviewComponent implements Disposable {
 
     private InputsComponent inputsComponent;
     private final OutputComponent outputComponent;
+    private PreviewToolWindowFactory.NameChanger callback;
 
     public WeavePreviewComponent() {
         inputsComponent = new InputsComponent();
@@ -85,7 +83,7 @@ public class WeavePreviewComponent implements Disposable {
     private JComponent createPreviewPanel() {
         previewPanel = new BorderLayoutPanel();
 
-        final JPanel chooserPanel = createScenarioSelectorPanel();
+//        final JPanel chooserPanel = createScenarioSelectorPanel();
 
         RunnerLayoutUi layoutUi = RunnerLayoutUi.Factory.getInstance(myProject).create("DW-Preview", "DW Preview", myProject.getName(), myProject);
         Content inputsContent = layoutUi.createContent("inputs", inputsComponent.createComponent(myProject), "Inputs", null, null);
@@ -96,7 +94,7 @@ public class WeavePreviewComponent implements Disposable {
         outputContent.setCloseable(false);
         layoutUi.addContent(outputContent, 1, PlaceInGrid.right, false);
 
-        previewPanel.addToTop(chooserPanel);
+//        previewPanel.addToTop(chooserPanel);
         previewPanel.addToCenter(layoutUi.getComponent());
         return previewPanel;
     }
@@ -109,73 +107,78 @@ public class WeavePreviewComponent implements Disposable {
         if (currentFile == psiFile) {
             return;
         }
-        if (psiFile != null && psiFile.getFileType() == WeaveFileType.getInstance()) {
-            this.currentFile = psiFile;
-            DataWeaveScenariosManager instance = DataWeaveScenariosManager.getInstance(myProject);
-            WeaveDocument weaveDocument = WeavePsiUtils.getWeaveDocument(psiFile);
-            List<Scenario> scenarios = instance.getScenariosFor(weaveDocument);
-            scenariosComboBox.setModel(createModel(scenarios));
-            //Load first scenario
-            if (!scenarios.isEmpty()) {
-                Scenario currentScenarioFor = instance.getCurrentScenarioFor(weaveDocument);
-                if (currentScenarioFor != null) {
-                    loadScenario(currentScenarioFor);
-                }
-            }
+        if (psiFile == null || psiFile.getFileType() != WeaveFileType.getInstance()) {
+            return;
         }
+
+        this.currentFile = psiFile;
+        WeaveDocument weaveDocument = WeavePsiUtils.getWeaveDocument(psiFile);
+        DataWeaveScenariosManager instance = DataWeaveScenariosManager.getInstance(myProject);
+        List<Scenario> scenarios = instance.getScenariosFor(weaveDocument);
+
+//        scenariosComboBox.setModel(createModel(scenarios));
+        //Load first scenario
+        if (scenarios.isEmpty()) {
+            return;
+        }
+        Scenario currentScenarioFor = instance.getCurrentScenarioFor(weaveDocument);
+        if (currentScenarioFor == null) {
+            return;
+        }
+        loadScenario(currentScenarioFor);
     }
 
+//    @NotNull
+//    private JPanel createScenarioSelectorPanel() {
+//        scenariosComboBox = new ComboBox<>();
+//        scenariosComboBox.setRenderer(new ScenarioNameRenderer());
+//        scenariosComboBox.addActionListener(evt -> {
+//            Scenario scenario = (Scenario) scenariosComboBox.getSelectedItem();
+//            if (scenario != null) {
+//                DataWeaveScenariosManager.getInstance(myProject).setCurrentScenario(getCurrentWeaveDocument(), scenario);
+//                loadScenario(scenario);
+//            }
+//        });
+//
+//        final JPanel chooserPanel = new JPanel(new GridBagLayout());
+//        final JLabel scopesLabel = new JLabel("Scenario:");
+//        scopesLabel.setDisplayedMnemonic('S');
+//        scopesLabel.setLabelFor(scenariosComboBox);
+//        final GridBagConstraints gc =
+//                new GridBagConstraints(
+//                        GridBagConstraints.RELATIVE,
+//                        0,
+//                        1,
+//                        1,
+//                        0,
+//                        0,
+//                        GridBagConstraints.WEST,
+//                        GridBagConstraints.NONE,
+//                        JBUI.insets(2),
+//                        0,
+//                        0);
+//
+//        chooserPanel.add(scopesLabel, gc);
+//        chooserPanel.add(scenariosComboBox, gc);
+//        gc.fill = GridBagConstraints.HORIZONTAL;
+//        gc.weightx = 1;
+//        chooserPanel.add(Box.createHorizontalBox(), gc);
+//
+//        return chooserPanel;
+//    }
 
-    @NotNull
-    private JPanel createScenarioSelectorPanel() {
-        scenariosComboBox = new ComboBox<>();
-        scenariosComboBox.setRenderer(new ScenarioNameRenderer());
-        scenariosComboBox.addActionListener(evt -> {
-            Scenario scenario = (Scenario) scenariosComboBox.getSelectedItem();
-            if (scenario != null) {
-                DataWeaveScenariosManager.getInstance(myProject).setCurrentScenario(getCurrentWeaveDocument(), scenario);
-                loadScenario(scenario);
-            }
-        });
-
-        final JPanel chooserPanel = new JPanel(new GridBagLayout());
-        final JLabel scopesLabel = new JLabel("Scenario:");
-        scopesLabel.setDisplayedMnemonic('S');
-        scopesLabel.setLabelFor(scenariosComboBox);
-        final GridBagConstraints gc =
-                new GridBagConstraints(
-                        GridBagConstraints.RELATIVE,
-                        0,
-                        1,
-                        1,
-                        0,
-                        0,
-                        GridBagConstraints.WEST,
-                        GridBagConstraints.NONE,
-                        JBUI.insets(2),
-                        0,
-                        0);
-
-        chooserPanel.add(scopesLabel, gc);
-        chooserPanel.add(scenariosComboBox, gc);
-        gc.fill = GridBagConstraints.HORIZONTAL;
-        gc.weightx = 1;
-        chooserPanel.add(Box.createHorizontalBox(), gc);
-
-        return chooserPanel;
-    }
-
-    private WeaveDocument getCurrentWeaveDocument() {
+    public WeaveDocument getCurrentWeaveDocument() {
         return WeavePsiUtils.getWeaveDocument(currentFile);
     }
 
-    private void loadScenario(Scenario scenario) {
+    public void loadScenario(Scenario scenario) {
+        if (callback != null) {
+            callback.changeName("Scenario: " + scenario.getPresentableText());
+        }
         final VirtualFile inputs = scenario.getInputs();
         if (inputs != null && inputs.isDirectory()) {
             inputsComponent.loadInputFiles(inputs);
         }
-
-
         outputComponent.runPreview(scenario, currentFile);
     }
 
@@ -191,7 +194,7 @@ public class WeavePreviewComponent implements Disposable {
     @Override
     public void dispose() {
         //        this.previewPanel.grabFocus();
-        this.scenariosComboBox.removeAllItems();
+//        this.scenariosComboBox.removeAllItems();
         this.currentFile = null;
 
         inputsComponent.dispose();
@@ -199,17 +202,18 @@ public class WeavePreviewComponent implements Disposable {
     }
 
     public void runPreview() {
-        Scenario selectedItem = (Scenario) scenariosComboBox.getSelectedItem();
-        outputComponent.runPreview(selectedItem, currentFile);
+        Scenario currentScenario = getCurrentScenario();
+//        Scenario selectedItem = (Scenario) scenariosComboBox.getSelectedItem();
+        outputComponent.runPreview(currentScenario, currentFile);
+    }
+
+    private Scenario getCurrentScenario() {
+        WeaveDocument currentWeaveDocument = getCurrentWeaveDocument();
+        return DataWeaveScenariosManager.getInstance(myProject).getCurrentScenarioFor(currentWeaveDocument);
     }
 
     public boolean runAvailable() {
-        if (currentFile != null && scenariosComboBox != null) {
-            Scenario selectedItem = (Scenario) scenariosComboBox.getSelectedItem();
-            return selectedItem != null;
-        } else {
-            return false;
-        }
+        return currentFile != null && getCurrentScenario() != null;
     }
 
     public boolean runOnChange() {
@@ -218,6 +222,10 @@ public class WeavePreviewComponent implements Disposable {
 
     public void runOnChange(boolean state) {
         this.runOnChange = state;
+    }
+
+    public void setNameChanger(PreviewToolWindowFactory.NameChanger callback) {
+        this.callback = callback;
     }
 
 

@@ -1,8 +1,11 @@
 package org.mule.tooling.lang.dw.preview;
 
 import com.intellij.icons.AllIcons;
+import com.intellij.internal.statistic.customUsageCollectors.ui.ToolbarClicksCollector;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.actionSystem.impl.ActionManagerImpl;
+import com.intellij.openapi.actionSystem.impl.MenuItemPresentationFactory;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.fileEditor.FileEditorManagerListener;
@@ -11,20 +14,28 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.wm.impl.content.ToolWindowContentUi;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.components.BorderLayoutPanel;
+import org.fest.util.Lists;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.WeaveFileType;
 import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
+import org.mule.tooling.lang.dw.service.DataWeaveScenariosManager;
+import org.mule.tooling.lang.dw.service.Scenario;
 import org.mule.tooling.lang.dw.service.agent.WeaveAgentComponent;
 import org.mule.tooling.lang.dw.ui.MessagePanel;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.InputEvent;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PreviewToolWindowPanel extends SimpleToolWindowPanel implements Disposable {
     public static final String NOTHING_TO_SHOW = "NOTHING_TO_SHOW";
@@ -32,8 +43,8 @@ public class PreviewToolWindowPanel extends SimpleToolWindowPanel implements Dis
     public static final String NO_RUNTIME_AVAILABLE = "NO_RUNTIME_AVAILABLE";
     //TODO we should put this in a settings file
 
+    private PreviewToolWindowFactory.NameChanger callback;
     private Project myProject;
-
     private WeavePreviewComponent weavePreviewComponent;
     private JPanel mainPanel;
     private CardLayout cardLayout;
@@ -99,16 +110,26 @@ public class PreviewToolWindowPanel extends SimpleToolWindowPanel implements Dis
             }
         });
 
+        group.add(new SelectScenarioAction(getScenarios(getSelectedPsiFile())));
+
         final ActionManager actionManager = ActionManager.getInstance();
         final ActionToolbar actionToolBar = actionManager.createActionToolbar(PreviewToolWindowFactory.ID, group, false);
         return JBUI.Panels.simplePanel(actionToolBar.getComponent());
     }
 
+    @NotNull
+    private List<Scenario> getScenarios(@Nullable PsiFile selectedPsiFile) {
+        if (selectedPsiFile == null) {
+            return Lists.newArrayList();
+        }
+        WeaveDocument weaveDocument = WeavePsiUtils.getWeaveDocument(selectedPsiFile);
+        DataWeaveScenariosManager instance = DataWeaveScenariosManager.getInstance(myProject);
+        return instance.getScenariosFor(weaveDocument);
+    }
+
 
     private void initFileListener() {
-
-        VirtualFile[] files = FileEditorManager.getInstance(myProject).getSelectedFiles();
-        setFile(files.length == 0 ? null : PsiManager.getInstance(myProject).findFile(files[0]));
+        setFile(getSelectedPsiFile());
 
         myProject.getMessageBus().connect(this).subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, new FileEditorManagerListener() {
 
@@ -127,6 +148,12 @@ public class PreviewToolWindowPanel extends SimpleToolWindowPanel implements Dis
                 }
             }
         });
+    }
+
+    @Nullable
+    private PsiFile getSelectedPsiFile() {
+        VirtualFile[] files = FileEditorManager.getInstance(myProject).getSelectedFiles();
+        return files.length == 0 ? null : PsiManager.getInstance(myProject).findFile(files[0]);
     }
 
 
@@ -156,5 +183,53 @@ public class PreviewToolWindowPanel extends SimpleToolWindowPanel implements Dis
             Disposer.dispose(weavePreviewComponent);
             weavePreviewComponent = null;
         }
+    }
+
+
+    private class SelectScenarioAction extends AnAction {
+        private List<Scenario> scenarios;
+        public SelectScenarioAction(List<Scenario> scenarios) {
+            super(null, "Select scenario", AllIcons.General.Gear);
+            this.scenarios = scenarios;
+        }
+
+        @Override
+        public void actionPerformed(AnActionEvent e) {
+            DefaultActionGroup group = new DefaultActionGroup();
+
+            addScenarioActions(group, scenarios);
+
+            final InputEvent inputEvent = e.getInputEvent();
+            final ActionPopupMenu popupMenu =
+                    ((ActionManagerImpl)ActionManager.getInstance())
+                            .createActionPopupMenu(ToolWindowContentUi.POPUP_PLACE, group, new MenuItemPresentationFactory(true));
+
+            int x = 0;
+            int y = 0;
+            if (inputEvent instanceof MouseEvent) {
+                x = ((MouseEvent)inputEvent).getX();
+                y = ((MouseEvent)inputEvent).getY();
+            }
+            ToolbarClicksCollector.record("Show Options", "ToolWindowHeader");
+            popupMenu.getComponent().show(inputEvent.getComponent(), x, y);
+        }
+
+        private void addScenarioActions(DefaultActionGroup group, List<Scenario> scenarios) {
+            for(Scenario scenario : scenarios) {
+                group.add(new AnAction(scenario.getPresentableText(), scenario.getLocationString(), null) {
+                    @Override
+                    public void actionPerformed(AnActionEvent e) {
+                        WeaveDocument currentWeaveDocument = weavePreviewComponent.getCurrentWeaveDocument();
+                        DataWeaveScenariosManager.getInstance(myProject).setCurrentScenario(currentWeaveDocument, scenario);
+                        weavePreviewComponent.loadScenario(scenario);
+                    }
+                });
+            }
+
+        }
+    }
+
+    public void setNameChanger(PreviewToolWindowFactory.NameChanger callback) {
+        weavePreviewComponent.setNameChanger(callback);
     }
 }
