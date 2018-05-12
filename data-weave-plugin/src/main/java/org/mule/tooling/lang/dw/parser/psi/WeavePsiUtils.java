@@ -211,9 +211,10 @@ public class WeavePsiUtils {
     public static WeaveDocument getWeaveDocument(PsiFile psiFile) {
         PsiElement[] children = psiFile.getChildren();
         if (children.length > 0) {
-            PsiElement child = children[0];
-            if (child instanceof WeaveDocument) {
-                return (WeaveDocument) child;
+            for (PsiElement child : children) {
+                if(child instanceof WeaveDocument){
+                    return (WeaveDocument) child;
+                }
             }
         }
         return null;
@@ -246,7 +247,7 @@ public class WeavePsiUtils {
             elementAtOffset = elementAtOffset.getParent();
         }
         if (elementAtOffset instanceof PsiFile) {
-            return null;
+            return getWeaveDocument(file);
         }
         return elementAtOffset;
     }

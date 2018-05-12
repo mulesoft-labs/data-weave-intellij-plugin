@@ -25,11 +25,9 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.OrderEnumerator;
-import com.intellij.openapi.util.Computable;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.search.GlobalSearchScope;
-import com.intellij.tasks.TaskManager;
 import com.intellij.util.PathsList;
 import com.intellij.util.net.NetUtils;
 import org.jetbrains.annotations.NotNull;
@@ -226,7 +224,7 @@ public class WeaveAgentComponent extends AbstractProjectComponent {
 
     public boolean isWeaveRuntimeInstalled() {
         GlobalSearchScope scope = GlobalSearchScope.allScope(myProject);
-        PsiClass c = JavaPsiFacade.getInstance(myProject).findClass(getMarkerClassFQName(), scope);
+            PsiClass c = JavaPsiFacade.getInstance(myProject).findClass(getMarkerClassFQName(), scope);
         return c != null;
     }
 

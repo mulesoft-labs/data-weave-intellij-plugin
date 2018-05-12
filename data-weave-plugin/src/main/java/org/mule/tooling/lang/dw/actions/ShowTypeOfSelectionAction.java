@@ -15,14 +15,11 @@ import org.mule.tooling.lang.dw.service.DWEditorToolingAPI;
 import javax.swing.*;
 import java.awt.*;
 
-public class ShowTypeOfSelectionAction extends AnAction {
+public class ShowTypeOfSelectionAction extends AbstractWeaveAction {
 
-    @Override
-    public void update(AnActionEvent e) {
-        super.update(e);
-        Editor editor = e.getData(CommonDataKeys.EDITOR);
-        Project project = e.getData(CommonDataKeys.PROJECT);
-        e.getPresentation().setEnabled(editor != null && project != null);
+
+    public ShowTypeOfSelectionAction() {
+        setInjectedContext(true);
     }
 
     @Override
