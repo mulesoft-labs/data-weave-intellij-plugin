@@ -7,7 +7,6 @@ import com.intellij.ide.structureView.impl.common.PsiTreeElementBase;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.parser.psi.WeaveTypeDirective;
-import org.mule.tooling.lang.dw.parser.psi.WeaveVariableDirective;
 
 import javax.swing.*;
 import java.util.Arrays;

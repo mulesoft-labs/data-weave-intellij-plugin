@@ -10,10 +10,8 @@ import org.mule.tooling.lang.dw.parser.psi.WeaveFunctionDefinition;
 import org.mule.tooling.lang.dw.parser.psi.WeaveFunctionDirective;
 import org.mule.tooling.lang.dw.parser.psi.WeaveFunctionParameter;
 import org.mule.tooling.lang.dw.parser.psi.WeaveType;
-import org.mule.tooling.lang.dw.parser.psi.WeaveVariableDirective;
 
 import javax.swing.*;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;

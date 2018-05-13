@@ -6,9 +6,9 @@ import com.intellij.xdebugger.frame.XValue;
 import com.intellij.xdebugger.frame.XValueChildrenList;
 import com.intellij.xdebugger.frame.XValueNode;
 import com.intellij.xdebugger.frame.XValuePlace;
+import org.jetbrains.annotations.NotNull;
 import org.mule.weave.v2.debugger.DebuggerValue;
 import org.mule.weave.v2.debugger.OperatorDebuggerValue;
-import org.jetbrains.annotations.NotNull;
 
 public class OperatorWeaveValue extends XValue {
 

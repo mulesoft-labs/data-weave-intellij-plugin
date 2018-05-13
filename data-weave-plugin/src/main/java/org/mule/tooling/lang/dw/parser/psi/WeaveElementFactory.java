@@ -7,8 +7,6 @@ import com.intellij.psi.PsiFileFactory;
 import com.intellij.psi.PsiParserFacade;
 import org.jetbrains.annotations.NotNull;
 import org.mule.tooling.lang.dw.WeaveFileType;
-import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
-import org.mule.tooling.lang.dw.parser.psi.WeaveKeyValuePair;
 
 public class WeaveElementFactory {
 

@@ -10,11 +10,11 @@ import com.intellij.xdebugger.XSourcePosition;
 import com.intellij.xdebugger.breakpoints.XBreakpointHandler;
 import com.intellij.xdebugger.evaluation.XDebuggerEditorsProvider;
 import com.intellij.xdebugger.evaluation.XDebuggerEvaluator;
-import org.mule.weave.v2.debugger.client.DebuggerClient;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.debug.breakpoint.WeaveBreakpointHandler;
 import org.mule.tooling.lang.dw.debug.breakpoint.WeaveDebuggerEditorsProvider;
+import org.mule.weave.v2.debugger.client.DebuggerClient;
 
 public class WeaveDebugProcess extends XDebugProcess {
   private final DebuggerClient weaveDebuggerClient;

@@ -5,7 +5,10 @@ import com.intellij.ide.structureView.impl.common.PsiTreeElementBase;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.WeaveFile;
-import org.mule.tooling.lang.dw.parser.psi.*;
+import org.mule.tooling.lang.dw.parser.psi.WeaveBody;
+import org.mule.tooling.lang.dw.parser.psi.WeaveDirective;
+import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
+import org.mule.tooling.lang.dw.parser.psi.WeaveHeader;
 
 import java.util.ArrayList;
 import java.util.Collection;

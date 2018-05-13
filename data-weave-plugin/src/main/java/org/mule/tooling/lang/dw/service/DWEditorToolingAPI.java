@@ -33,7 +33,13 @@ import org.mule.tooling.lang.dw.service.agent.WeaveAgentComponent;
 import org.mule.weave.v2.completion.EmptyDataFormatDescriptorProvider$;
 import org.mule.weave.v2.completion.Suggestion;
 import org.mule.weave.v2.completion.SuggestionType;
-import org.mule.weave.v2.editor.*;
+import org.mule.weave.v2.editor.ImplicitInput;
+import org.mule.weave.v2.editor.ReformatResult;
+import org.mule.weave.v2.editor.SpecificModuleResourceResolver;
+import org.mule.weave.v2.editor.ValidationMessages;
+import org.mule.weave.v2.editor.VirtualFile;
+import org.mule.weave.v2.editor.WeaveDocumentToolingService;
+import org.mule.weave.v2.editor.WeaveToolingService;
 import org.mule.weave.v2.hover.HoverMessage;
 import org.mule.weave.v2.parser.ast.AstNode;
 import org.mule.weave.v2.parser.ast.variables.NameIdentifier;
@@ -52,8 +58,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class DWEditorToolingAPI extends AbstractProjectComponent implements Disposable {
 

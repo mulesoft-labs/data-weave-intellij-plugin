@@ -3,7 +3,13 @@ package org.mule.tooling.lang.dw.preview;
 import com.intellij.icons.AllIcons;
 import com.intellij.internal.statistic.customUsageCollectors.ui.ToolbarClicksCollector;
 import com.intellij.openapi.Disposable;
-import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.ActionPopupMenu;
+import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.actionSystem.ToggleAction;
 import com.intellij.openapi.actionSystem.impl.ActionManagerImpl;
 import com.intellij.openapi.actionSystem.impl.MenuItemPresentationFactory;
 import com.intellij.openapi.fileEditor.FileEditorManager;
@@ -34,7 +40,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
 import java.util.List;
 
 public class PreviewToolWindowPanel extends SimpleToolWindowPanel implements Disposable {

@@ -9,12 +9,18 @@ import com.intellij.openapi.util.Computable;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.refactoring.RefactoringActionHandler;
 import org.jetbrains.annotations.NotNull;
-import org.mule.tooling.lang.dw.parser.psi.*;
+import org.jetbrains.annotations.Nullable;
+import org.mule.tooling.lang.dw.parser.psi.WeaveBody;
+import org.mule.tooling.lang.dw.parser.psi.WeaveDirective;
+import org.mule.tooling.lang.dw.parser.psi.WeaveDoExpression;
+import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
+import org.mule.tooling.lang.dw.parser.psi.WeaveElementFactory;
+import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
+import org.mule.tooling.lang.dw.parser.psi.WeaveVariableDirective;
+import org.mule.tooling.lang.dw.parser.psi.WeaveVariableReferenceExpression;
 import org.mule.tooling.lang.dw.service.DWEditorToolingAPI;
-import org.mule.weave.v2.parser.ast.variables.VariableReferenceNode;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -45,10 +51,21 @@ public class IntroduceLocalVariableHandler implements RefactoringActionHandler {
         }
     }
 
+    @Nullable
     public PsiElement getValueToReplace(PsiFile psiFile, Editor editor) {
         int selectionStart = editor.getSelectionModel().getSelectionStart();
         int selectionEnd = editor.getSelectionModel().getSelectionEnd();
-        return PsiTreeUtil.findElementOfClassAtRange(psiFile, selectionStart, selectionEnd, PsiElement.class);
+        PsiElement elementRange = WeavePsiUtils.findElementRange(psiFile, selectionStart, selectionEnd);
+        if (elementRange instanceof WeaveDocument) {
+            WeaveBody body = ((WeaveDocument) elementRange).getBody();
+            if (body != null) {
+                return body.getExpression();
+            } else {
+                return null;
+            }
+        } else {
+            return elementRange;
+        }
     }
 
     public WeaveInplaceVariableIntroducer getWeaveInplaceVariableIntroducer(@NotNull Project project, Editor editor, PsiElement valueToReplace, PsiElement rootScope, List<String> possibleNames) {
@@ -78,7 +95,6 @@ public class IntroduceLocalVariableHandler implements RefactoringActionHandler {
                 final WeaveDirective weaveDirective = doBlock.getDirectiveList().get(doBlock.getDirectiveList().size() - 1);
                 newVarDirective = (WeaveVariableDirective) doBlock.addAfter(varDirective, weaveDirective);
                 doBlock.addBefore(createNewLine(project), newVarDirective);
-                doBlock.addAfter(createNewLine(project), newVarDirective);
             } else {
                 final PsiElement anchor = doBlock.addBefore(createBlockSeparator(project), doBlock.getExpression());
                 doBlock.addAfter(createNewLine(project), anchor);

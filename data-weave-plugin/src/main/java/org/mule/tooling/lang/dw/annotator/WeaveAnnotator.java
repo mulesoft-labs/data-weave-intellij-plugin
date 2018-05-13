@@ -5,7 +5,11 @@ import com.intellij.lang.annotation.Annotator;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.mule.tooling.lang.dw.highlighter.WeaveSyntaxHighlighter;
-import org.mule.tooling.lang.dw.parser.psi.*;
+import org.mule.tooling.lang.dw.parser.psi.WeaveBinaryExpression;
+import org.mule.tooling.lang.dw.parser.psi.WeaveFunctionCallExpression;
+import org.mule.tooling.lang.dw.parser.psi.WeaveFunctionDefinition;
+import org.mule.tooling.lang.dw.parser.psi.WeaveIdentifier;
+import org.mule.tooling.lang.dw.parser.psi.WeaveVariableDefinition;
 
 
 public class WeaveAnnotator implements Annotator {

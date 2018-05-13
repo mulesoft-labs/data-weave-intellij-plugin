@@ -4,7 +4,6 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SettingsEditor;
 import org.jetbrains.annotations.NotNull;
-import org.mule.tooling.lang.dw.launcher.configuration.ui.WeaveRunnerConfPanel;
 import org.mule.tooling.lang.dw.launcher.configuration.ui.WeaveTestRunnerConfPanel;
 
 import javax.swing.*;

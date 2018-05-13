@@ -10,7 +10,11 @@ import com.intellij.psi.PsiFile;
 import org.apache.commons.lang.StringUtils;
 import org.mule.tooling.lang.dw.WeaveFileType;
 import org.mule.tooling.lang.dw.launcher.configuration.ui.WeaveInput;
-import org.mule.tooling.lang.dw.parser.psi.*;
+import org.mule.tooling.lang.dw.parser.psi.WeaveDirective;
+import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
+import org.mule.tooling.lang.dw.parser.psi.WeaveHeader;
+import org.mule.tooling.lang.dw.parser.psi.WeaveIdentifier;
+import org.mule.tooling.lang.dw.parser.psi.WeaveInputDirective;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.util.WeaveUtils;
 

@@ -7,8 +7,8 @@ import com.intellij.xdebugger.frame.XValue;
 import com.intellij.xdebugger.frame.XValueChildrenList;
 import com.intellij.xdebugger.frame.XValueNode;
 import com.intellij.xdebugger.frame.XValuePlace;
-import org.mule.weave.v2.debugger.DebuggerFunction;
 import org.jetbrains.annotations.NotNull;
+import org.mule.weave.v2.debugger.DebuggerFunction;
 
 public class FunctionWeaveValue extends XValue {
 

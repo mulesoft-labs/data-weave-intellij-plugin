@@ -1,7 +1,13 @@
 package org.mule.tooling.lang.dw.util;
 
 import org.jetbrains.annotations.NotNull;
-import org.mule.tooling.lang.dw.parser.psi.*;
+import org.mule.tooling.lang.dw.parser.psi.WeaveDirective;
+import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
+import org.mule.tooling.lang.dw.parser.psi.WeaveHeader;
+import org.mule.tooling.lang.dw.parser.psi.WeaveImportDirective;
+import org.mule.tooling.lang.dw.parser.psi.WeaveInputDirective;
+import org.mule.tooling.lang.dw.parser.psi.WeaveModuleReference;
+import org.mule.tooling.lang.dw.parser.psi.WeaveOutputDirective;
 
 import java.util.ArrayList;
 import java.util.List;

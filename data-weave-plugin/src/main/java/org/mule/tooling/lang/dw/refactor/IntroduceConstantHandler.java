@@ -7,16 +7,23 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.SelectionModel;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Computable;
-import com.intellij.psi.*;
-import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.psi.PsiDocumentManager;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
 import com.intellij.refactoring.RefactoringActionHandler;
 import org.jetbrains.annotations.NotNull;
-import org.mule.tooling.lang.dw.parser.psi.*;
+import org.mule.tooling.lang.dw.parser.psi.WeaveDirective;
+import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
+import org.mule.tooling.lang.dw.parser.psi.WeaveElementFactory;
+import org.mule.tooling.lang.dw.parser.psi.WeaveFunctionDirective;
+import org.mule.tooling.lang.dw.parser.psi.WeaveHeader;
+import org.mule.tooling.lang.dw.parser.psi.WeaveVariableDirective;
+import org.mule.tooling.lang.dw.parser.psi.WeaveVariableReferenceExpression;
 
-import java.util.*;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 
-import static com.intellij.openapi.util.text.StringUtil.toUpperCase;
 import static org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils.findElementRange;
 import static org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils.getWeaveDocument;
 

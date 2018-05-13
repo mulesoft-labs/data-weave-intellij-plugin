@@ -1,22 +1,17 @@
 package org.mule.tooling.lang.dw.reference;
 
 
-import com.intellij.codeInsight.lookup.LookupElement;
-import com.intellij.codeInsight.lookup.LookupElementBuilder;
-import com.intellij.icons.AllIcons;
 import com.intellij.openapi.util.TextRange;
-import com.intellij.psi.*;
-import com.intellij.psi.impl.compiled.ClsJavaCodeReferenceElementImpl;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiElementResolveResult;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiPolyVariantReferenceBase;
+import com.intellij.psi.ResolveResult;
 import com.intellij.psi.impl.source.resolve.ResolveCache;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement;
-import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
-import org.mule.tooling.lang.dw.parser.psi.WeaveVariable;
 import org.mule.tooling.lang.dw.service.DWEditorToolingAPI;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 

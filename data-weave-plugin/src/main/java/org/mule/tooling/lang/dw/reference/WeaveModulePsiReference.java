@@ -3,14 +3,20 @@ package org.mule.tooling.lang.dw.reference;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.util.TextRange;
-import com.intellij.psi.*;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiElementResolveResult;
+import com.intellij.psi.PsiFileSystemItem;
+import com.intellij.psi.PsiPolyVariantReferenceBase;
+import com.intellij.psi.ResolveResult;
 import com.intellij.psi.search.PsiElementProcessor;
 import com.intellij.psi.util.PsiElementFilter;
 import org.jetbrains.annotations.NotNull;
 import org.mule.tooling.lang.dw.WeaveFileType;
 import org.mule.tooling.lang.dw.WeaveIcons;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 public class WeaveModulePsiReference extends PsiPolyVariantReferenceBase<PsiElement> {
 

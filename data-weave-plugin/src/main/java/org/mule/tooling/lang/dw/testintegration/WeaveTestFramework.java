@@ -14,9 +14,6 @@ import org.mule.tooling.lang.dw.WeaveFile;
 import org.mule.tooling.lang.dw.WeaveIcons;
 import org.mule.tooling.lang.dw.WeaveLanguage;
 import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
-import org.mule.tooling.lang.dw.parser.psi.WeaveHeader;
-import org.mule.tooling.lang.dw.parser.psi.WeaveImportDirective;
-import org.mule.tooling.lang.dw.parser.psi.WeaveModuleReference;
 import org.mule.tooling.lang.dw.util.WeaveUtils;
 
 import javax.swing.*;

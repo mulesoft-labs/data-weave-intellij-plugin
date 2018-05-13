@@ -1,7 +1,6 @@
 package org.mule.tooling.lang.dw.preview;
 
 import com.intellij.openapi.fileEditor.FileEditorManager;
-import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;

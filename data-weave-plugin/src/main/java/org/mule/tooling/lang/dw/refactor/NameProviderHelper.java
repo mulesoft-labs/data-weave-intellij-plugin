@@ -4,7 +4,16 @@ import com.intellij.psi.PsiElement;
 import com.intellij.util.ArrayUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.mule.tooling.lang.dw.parser.psi.*;
+import org.mule.tooling.lang.dw.parser.psi.WeaveAnyDateLiteral;
+import org.mule.tooling.lang.dw.parser.psi.WeaveArrayExpression;
+import org.mule.tooling.lang.dw.parser.psi.WeaveBooleanLiteral;
+import org.mule.tooling.lang.dw.parser.psi.WeaveDoExpression;
+import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
+import org.mule.tooling.lang.dw.parser.psi.WeaveNumberLiteral;
+import org.mule.tooling.lang.dw.parser.psi.WeaveObjectExpression;
+import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
+import org.mule.tooling.lang.dw.parser.psi.WeaveRegexLiteral;
+import org.mule.tooling.lang.dw.parser.psi.WeaveStringLiteral;
 
 import java.util.ArrayList;
 import java.util.Arrays;

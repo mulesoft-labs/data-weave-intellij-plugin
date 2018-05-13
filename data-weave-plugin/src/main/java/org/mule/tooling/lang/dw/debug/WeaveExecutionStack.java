@@ -5,10 +5,10 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.xdebugger.XDebugSession;
 import com.intellij.xdebugger.frame.XExecutionStack;
 import com.intellij.xdebugger.frame.XStackFrame;
+import org.jetbrains.annotations.Nullable;
 import org.mule.weave.v2.debugger.DebuggerFrame;
 import org.mule.weave.v2.debugger.client.DebuggerClient;
 import org.mule.weave.v2.debugger.event.OnFrameEvent;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;

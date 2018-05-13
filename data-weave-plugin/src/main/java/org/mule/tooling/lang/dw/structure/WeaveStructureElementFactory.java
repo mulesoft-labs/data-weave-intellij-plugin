@@ -4,7 +4,13 @@ package org.mule.tooling.lang.dw.structure;
 import com.intellij.ide.structureView.StructureViewTreeElement;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.Nullable;
-import org.mule.tooling.lang.dw.parser.psi.*;
+import org.mule.tooling.lang.dw.parser.psi.WeaveArrayExpression;
+import org.mule.tooling.lang.dw.parser.psi.WeaveBinaryExpression;
+import org.mule.tooling.lang.dw.parser.psi.WeaveFunctionDirective;
+import org.mule.tooling.lang.dw.parser.psi.WeaveObjectExpression;
+import org.mule.tooling.lang.dw.parser.psi.WeaveTypeDirective;
+import org.mule.tooling.lang.dw.parser.psi.WeaveUsingExpression;
+import org.mule.tooling.lang.dw.parser.psi.WeaveVariableDirective;
 
 public class WeaveStructureElementFactory {
 

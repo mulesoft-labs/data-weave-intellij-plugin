@@ -7,7 +7,6 @@ import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.fileTypes.SyntaxHighlighterBase;
 import com.intellij.psi.tree.IElementType;
 import org.jetbrains.annotations.NotNull;
-
 import org.mule.tooling.lang.dw.lexer.WeaveLexer;
 import org.mule.tooling.lang.dw.parser.WeaveParserDefinition;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;

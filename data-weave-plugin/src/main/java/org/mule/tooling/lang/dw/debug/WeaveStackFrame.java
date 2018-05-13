@@ -8,13 +8,13 @@ import com.intellij.xdebugger.frame.XCompositeNode;
 import com.intellij.xdebugger.frame.XStackFrame;
 import com.intellij.xdebugger.frame.XValueChildrenList;
 import com.intellij.xdebugger.impl.XSourcePositionImpl;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.mule.tooling.lang.dw.debug.value.WeaveValueFactory;
 import org.mule.weave.v2.debugger.DebuggerFrame;
 import org.mule.weave.v2.debugger.DebuggerPosition;
 import org.mule.weave.v2.debugger.DebuggerValue;
 import org.mule.weave.v2.debugger.client.DebuggerClient;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.mule.tooling.lang.dw.debug.value.WeaveValueFactory;
 import scala.Tuple2;
 
 public class WeaveStackFrame extends XStackFrame {

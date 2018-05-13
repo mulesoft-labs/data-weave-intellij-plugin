@@ -2,12 +2,12 @@ package org.mule.tooling.lang.dw.debug;
 
 import com.intellij.xdebugger.XSourcePosition;
 import com.intellij.xdebugger.evaluation.XDebuggerEvaluator;
-import org.mule.weave.v2.debugger.client.DebuggerClient;
-import org.mule.weave.v2.debugger.client.ScriptEvaluationListener;
-import org.mule.weave.v2.debugger.event.ScriptResultEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.debug.value.WeaveValueFactory;
+import org.mule.weave.v2.debugger.client.DebuggerClient;
+import org.mule.weave.v2.debugger.client.ScriptEvaluationListener;
+import org.mule.weave.v2.debugger.event.ScriptResultEvent;
 
 public class WeaveScriptEvaluator extends XDebuggerEvaluator {
 

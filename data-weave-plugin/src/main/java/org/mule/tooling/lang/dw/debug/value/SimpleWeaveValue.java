@@ -4,8 +4,8 @@ import com.intellij.util.PlatformIcons;
 import com.intellij.xdebugger.frame.XValue;
 import com.intellij.xdebugger.frame.XValueNode;
 import com.intellij.xdebugger.frame.XValuePlace;
-import org.mule.weave.v2.debugger.SimpleDebuggerValue;
 import org.jetbrains.annotations.NotNull;
+import org.mule.weave.v2.debugger.SimpleDebuggerValue;
 
 public class SimpleWeaveValue extends XValue {
 

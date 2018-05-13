@@ -11,7 +11,16 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.lexer.WeaveLexer;
 import org.mule.tooling.lang.dw.parser.WeaveParserDefinition;
-import org.mule.tooling.lang.dw.parser.psi.*;
+import org.mule.tooling.lang.dw.parser.psi.WeaveBinaryExpression;
+import org.mule.tooling.lang.dw.parser.psi.WeaveCustomInterpolatorExpression;
+import org.mule.tooling.lang.dw.parser.psi.WeaveFunctionCallExpression;
+import org.mule.tooling.lang.dw.parser.psi.WeaveFunctionDefinition;
+import org.mule.tooling.lang.dw.parser.psi.WeaveFunctionParameter;
+import org.mule.tooling.lang.dw.parser.psi.WeaveReferenceType;
+import org.mule.tooling.lang.dw.parser.psi.WeaveTypeDirective;
+import org.mule.tooling.lang.dw.parser.psi.WeaveTypes;
+import org.mule.tooling.lang.dw.parser.psi.WeaveVariableDefinition;
+import org.mule.tooling.lang.dw.parser.psi.WeaveVariableReferenceExpression;
 
 
 public class WeaveFindUsagesProvider implements FindUsagesProvider {

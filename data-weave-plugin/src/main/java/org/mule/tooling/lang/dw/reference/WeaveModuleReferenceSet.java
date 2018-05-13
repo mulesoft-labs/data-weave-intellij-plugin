@@ -3,12 +3,21 @@ package org.mule.tooling.lang.dw.reference;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
-import com.intellij.psi.*;
+import com.intellij.psi.PsiDirectory;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFileSystemItem;
+import com.intellij.psi.PsiPackage;
+import com.intellij.psi.PsiReference;
 import com.intellij.psi.impl.JavaPsiFacadeImpl;
 import org.jetbrains.annotations.NotNull;
 import org.mule.weave.v2.parser.ast.variables.NameIdentifier;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 
 public class WeaveModuleReferenceSet {

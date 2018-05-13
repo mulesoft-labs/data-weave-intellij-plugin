@@ -5,14 +5,17 @@ import com.intellij.openapi.fileTypes.StdFileTypes;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.psi.*;
+import com.intellij.psi.InjectedLanguagePlaces;
+import com.intellij.psi.LanguageInjector;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiLanguageInjectionHost;
+import com.intellij.psi.PsiLiteralExpression;
 import com.intellij.psi.xml.XmlAttributeValue;
 import com.intellij.psi.xml.XmlFile;
 import com.intellij.psi.xml.XmlTag;
 import com.intellij.psi.xml.XmlText;
 import org.jetbrains.annotations.NotNull;
 import org.mule.tooling.lang.dw.WeaveLanguage;
-
 
 import javax.xml.namespace.QName;
 import java.util.Arrays;

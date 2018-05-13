@@ -4,10 +4,10 @@ import com.intellij.xdebugger.XExpression;
 import com.intellij.xdebugger.breakpoints.XBreakpointHandler;
 import com.intellij.xdebugger.breakpoints.XBreakpointProperties;
 import com.intellij.xdebugger.breakpoints.XLineBreakpoint;
-import org.mule.weave.v2.debugger.WeaveBreakpoint;
-import org.mule.weave.v2.debugger.client.DebuggerClient;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.mule.weave.v2.debugger.WeaveBreakpoint;
+import org.mule.weave.v2.debugger.client.DebuggerClient;
 
 public class WeaveBreakpointHandler extends XBreakpointHandler<XLineBreakpoint<XBreakpointProperties>> {
   private final DebuggerClient debuggerClient;
