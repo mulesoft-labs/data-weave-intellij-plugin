@@ -1,5 +1,6 @@
 package org.mule.tooling.lang.dw.refactor;
 
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiUtil;
@@ -9,6 +10,7 @@ import com.intellij.testFramework.TestLoggerFactory;
 import com.intellij.testFramework.fixtures.DefaultLightProjectDescriptor;
 import com.intellij.testFramework.fixtures.LightPlatformCodeInsightFixtureTestCase;
 import org.apache.commons.io.FilenameUtils;
+import org.jetbrains.annotations.NotNull;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -39,6 +41,19 @@ public class ExtractLocalVariableTest extends LightPlatformCodeInsightFixtureTes
     @Before
     public void before() throws Throwable {
         super.setUp();
+        EdtTestUtilKt.runInEdtAndWait(() -> {
+            String sourceFilePath = getSdkRelativePath();
+            myFixture.copyDirectoryToProject(sourceFilePath, "");
+            return null;
+        });
+    }
+
+    @NotNull
+    public String getSdkRelativePath() {
+        String name = ExtractLocalVariableTest.class.getPackage().getName();
+        int i = StringUtil.countChars(name, '.');
+        String repeat = StringUtil.repeat("../", i + 1);
+        return repeat + "sdk";
     }
 
     @After
@@ -53,37 +68,14 @@ public class ExtractLocalVariableTest extends LightPlatformCodeInsightFixtureTes
     }
 
     @Test
-    @Ignore
     public void checkRefactor() throws Throwable {
 
         final ResultHolder<Throwable> result = new ResultHolder<>();
 
         EdtTestUtilKt.runInEdtAndWait(() -> {
             myFixture.configureByFile(new File(testName + ".dwl").getName());
-            IntroduceLocalVariableHandler introduceLocalVariableHandler = new IntroduceLocalVariableHandler() {
-                @Override
-                public PsiElement getRootScope(PsiFile psiFile, int selectionStart) {
-                    PsiElement elementAtOffset = PsiUtil.getElementAtOffset(psiFile, selectionStart);
-                    //Dummy implementation of scope search
-                    return WeavePsiUtils.getParent(elementAtOffset, element -> {
-                        if (element instanceof WeaveDocument) {
-                            return true;
-                        } else if (element instanceof WeaveDoExpression) {
-                            return true;
-                        } else if (element.getParent() instanceof WeaveFunctionDefinition) {
-                            return true;
-                        } else if (element.getParent() instanceof WeaveBinaryExpression) {
-                            return ((WeaveBinaryExpression) element.getParent()).getRight() == element;
-                        }
-
-                        return false;
-                    });
-
-                }
-            };
-            PsiElement valueToReplace = introduceLocalVariableHandler.getValueToReplace(myFixture.getFile(), myFixture.getEditor());
-            PsiElement rootScope = introduceLocalVariableHandler.getRootScope(myFixture.getFile(), myFixture.getEditor().getSelectionModel().getSelectionStart());
-            introduceLocalVariableHandler.getWeaveInplaceVariableIntroducer(myFixture.getProject(), myFixture.getEditor(), valueToReplace, rootScope, Collections.singletonList("myVar"));
+            IntroduceLocalVariableHandler introduceLocalVariableHandler = new IntroduceLocalVariableHandler();
+            introduceLocalVariableHandler.invoke(myFixture.getProject(), myFixture.getEditor(), myFixture.getFile(), null);
             myFixture.checkResultByFile(new File(testName + "_post.dwl").getName(), true);
             TestLoggerFactory.onTestFinished(true);
             return null;
@@ -99,7 +91,7 @@ public class ExtractLocalVariableTest extends LightPlatformCodeInsightFixtureTes
         return super.getBasePath();
     }
 
-    @Parameterized.Parameters(name = "Parsing {0}")
+    @Parameterized.Parameters(name = "Extract Variable in {0}")
     public static Iterable<Object[]> data() {
         Class<?> dataWeaveLangParserTestClass = ExtractLocalVariableTest.class;
         String path = dataWeaveLangParserTestClass.getPackage().getName().replace('.', File.separatorChar);
@@ -122,6 +114,11 @@ public class ExtractLocalVariableTest extends LightPlatformCodeInsightFixtureTes
 
 
     protected String getTestDataPath() {
-        return new File(getClass().getResource("ExtractLocalVariableTest.txt").getPath()).getParent();
+        return getTestFolder().getParent();
+    }
+
+    @NotNull
+    private File getTestFolder() {
+        return new File(getClass().getResource("ExtractLocalVariableTest.txt").getPath());
     }
 }

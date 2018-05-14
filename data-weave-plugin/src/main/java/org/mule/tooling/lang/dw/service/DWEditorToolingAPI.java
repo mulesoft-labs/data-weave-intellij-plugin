@@ -249,11 +249,10 @@ public class DWEditorToolingAPI extends AbstractProjectComponent implements Disp
         if (variableScopeOption.isDefined()) {
             VariableScope variableScope = variableScopeOption.get();
             AstNode astNode = variableScope.astNode();
-            PsiElement elementOfClassAtRange = WeavePsiUtils.findElementRange(file, astNode.location().startPosition().index(), astNode.location().endPosition().index());
-            if (elementOfClassAtRange instanceof PsiFile) {
+            if (astNode instanceof WeaveDocument) {
                 return WeavePsiUtils.getWeaveDocument(file);
             } else {
-                return elementOfClassAtRange;
+                return WeavePsiUtils.findInnerElementRange(file, astNode.location().startPosition().index(), astNode.location().endPosition().index());
             }
         } else {
             return null;

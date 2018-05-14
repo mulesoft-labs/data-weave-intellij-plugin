@@ -55,7 +55,7 @@ public class IntroduceLocalVariableHandler implements RefactoringActionHandler {
     public PsiElement getValueToReplace(PsiFile psiFile, Editor editor) {
         int selectionStart = editor.getSelectionModel().getSelectionStart();
         int selectionEnd = editor.getSelectionModel().getSelectionEnd();
-        PsiElement elementRange = WeavePsiUtils.findElementRange(psiFile, selectionStart, selectionEnd);
+        PsiElement elementRange = WeavePsiUtils.findInnerElementRange(psiFile, selectionStart, selectionEnd);
         if (elementRange instanceof WeaveDocument) {
             WeaveBody body = ((WeaveDocument) elementRange).getBody();
             if (body != null) {

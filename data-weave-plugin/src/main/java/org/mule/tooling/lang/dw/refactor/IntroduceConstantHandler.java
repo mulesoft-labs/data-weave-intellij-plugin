@@ -24,7 +24,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 
-import static org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils.findElementRange;
+import static org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils.findInnerElementRange;
 import static org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils.getWeaveDocument;
 
 
@@ -36,7 +36,7 @@ public class IntroduceConstantHandler implements RefactoringActionHandler {
         final int selectionEnd = selectionModel.getSelectionEnd();
         WeaveDocument weaveDocument = getWeaveDocument(psiFile);
         if (weaveDocument != null) {
-            PsiElement valueToReplace = findElementRange(psiFile, selectionStart, selectionEnd, (filter) -> !(filter instanceof PsiFile));
+            PsiElement valueToReplace = findInnerElementRange(psiFile, selectionStart, selectionEnd);
             if (valueToReplace != null) {
                 final List<String> possibleNames = NameProviderHelper.possibleNamesForGlobalVariable(valueToReplace);
                 final String name = possibleNames.get(0);
@@ -50,7 +50,10 @@ public class IntroduceConstantHandler implements RefactoringActionHandler {
                         if (weaveDocument.getBody() == null) {
                             weaveDocument.add(header);
                         } else {
-                            weaveDocument.addBefore(header, weaveDocument.getBody());
+                            header = (WeaveHeader) weaveDocument.addBefore(header, weaveDocument.getBody());
+                            weaveDocument.addAfter(WeaveElementFactory.createNewLine(project), header);
+                            weaveDocument.addBefore(WeaveElementFactory.createBlockSeparator(project), weaveDocument.getBody());
+                            weaveDocument.addBefore(WeaveElementFactory.createNewLine(project), weaveDocument.getBody());
                         }
                     }
                     WeaveVariableDirective newVarDirective;

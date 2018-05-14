@@ -1,10 +1,9 @@
 package org.mule.tooling.lang.dw.parser.psi;
 
-import com.intellij.lang.Language;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Ref;
-import com.intellij.psi.FileViewProvider;
+import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiWhiteSpace;
@@ -213,7 +212,7 @@ public class WeavePsiUtils {
         PsiElement[] children = psiFile.getChildren();
         if (children.length > 0) {
             for (PsiElement child : children) {
-                if(child instanceof WeaveDocument){
+                if (child instanceof WeaveDocument) {
                     return (WeaveDocument) child;
                 }
             }
@@ -241,8 +240,9 @@ public class WeavePsiUtils {
     }
 
     @Nullable
-    public static PsiElement findElementRange(@NotNull PsiFile file,
-                                              int startOffset, int endOffset) {
+    public static PsiElement findInnerElementRange(@NotNull PsiFile file,
+                                                   int startOffset,
+                                                   int endOffset) {
         PsiElement elementAtOffset = PsiUtil.getElementAtOffset(file, startOffset);
         while (elementAtOffset.getTextRange().getStartOffset() == startOffset && elementAtOffset.getTextRange().getEndOffset() < endOffset) {
             elementAtOffset = elementAtOffset.getParent();
@@ -254,31 +254,22 @@ public class WeavePsiUtils {
     }
 
     @Nullable
-    public static PsiElement findElementRange(@NotNull PsiFile file,
-                                              int startOffset,
-                                              int endOffset, Predicate<PsiElement> filter) {
-        final FileViewProvider viewProvider = file.getViewProvider();
-        PsiElement result = null;
-        for (Language lang : viewProvider.getLanguages()) {
-            PsiElement elementAt = viewProvider.findElementAt(startOffset, lang);
-            PsiElement run = getParent(elementAt, filter);
-            PsiElement prev = run;
-            while (run != null && run.getTextRange().getStartOffset() == startOffset &&
-                    run.getTextRange().getEndOffset() <= endOffset) {
-                prev = run;
-                run = getParent(run, filter);
-            }
-            if (prev == null) continue;
-            final int elementStartOffset = prev.getTextRange().getStartOffset();
-            final int elementEndOffset = prev.getTextRange().getEndOffset();
-            if (elementStartOffset != startOffset || elementEndOffset > endOffset) continue;
-
-            if (result == null || result.getTextRange().getEndOffset() < elementEndOffset) {
-                result = prev;
-            }
+    public static PsiElement findUpperElementRange(@NotNull PsiFile file,
+                                                   int startOffset,
+                                                   int endOffset) {
+        PsiElement elementAtOffset = PsiUtil.getElementAtOffset(file, startOffset);
+        while (!(elementAtOffset.getParent() instanceof PsiFile) && elementAtOffset.getParent() != null && isParentBetweenRange(startOffset, endOffset, elementAtOffset)) {
+            elementAtOffset = elementAtOffset.getParent();
         }
+        if (elementAtOffset instanceof PsiFile) {
+            return getWeaveDocument(file);
+        }
+        return elementAtOffset;
+    }
 
-        return result;
+    private static boolean isParentBetweenRange(int startOffset, int endOffset, PsiElement elementAtOffset) {
+        TextRange textRange = elementAtOffset.getParent().getTextRange();
+        return textRange.getStartOffset() == startOffset && textRange.getEndOffset() <= endOffset;
     }
 
 }
