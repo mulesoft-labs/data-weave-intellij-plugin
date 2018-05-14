@@ -33,12 +33,10 @@ public class VirtualFileSystemAdaptor implements VirtualFileSystem, Disposable {
 
     private Project project;
 
-    private Alarm myDocumentAlarm;
     private List<ChangeListener> listeners;
 
     public VirtualFileSystemAdaptor(Project project) {
         this.project = project;
-        this.myDocumentAlarm = new Alarm(Alarm.ThreadToUse.POOLED_THREAD, this);
         this.listeners = new ArrayList<>();
 
         PsiManager.getInstance(this.project).addPsiTreeChangeListener(new PsiTreeAnyChangeAbstractAdapter() {
@@ -60,6 +58,11 @@ public class VirtualFileSystemAdaptor implements VirtualFileSystem, Disposable {
     }
 
     @Override
+    public void removeChangeListener(ChangeListener listener) {
+        this.listeners.remove(listener);
+    }
+
+    @Override
     public org.mule.weave.v2.editor.VirtualFile file(String path) {
         final VirtualFile fileByUrl = VirtualFileManager.getInstance().findFileByUrl(path);
         if (fileByUrl == null) {
@@ -76,28 +79,19 @@ public class VirtualFileSystemAdaptor implements VirtualFileSystem, Disposable {
     }
 
     private void onFileChanged(VirtualFile virtualFile) {
-        if (myDocumentAlarm.isDisposed()) {
-            return;
-        }
-        //We cancel all request
-        myDocumentAlarm.cancelAllRequests();
-        myDocumentAlarm.addRequest(() -> {
-            ApplicationManager.getApplication().runReadAction(() -> {
-                if (project.isDisposed()) {
-                    return;
+        ApplicationManager.getApplication().runReadAction(() -> {
+            if (project.isDisposed()) {
+                return;
+            }
+            final VirtualFile contentRootForFile = ProjectFileIndex.SERVICE.getInstance(project).getSourceRootForFile(virtualFile);
+            if (contentRootForFile != null) {
+                //If it is a file from the project
+                final IntellijVirtualFileAdaptor intellijVirtualFile = new IntellijVirtualFileAdaptor(VirtualFileSystemAdaptor.this, virtualFile, project, null);
+                for (ChangeListener listener : listeners) {
+                    listener.onChanged(intellijVirtualFile);
                 }
-                final VirtualFile contentRootForFile = ProjectFileIndex.SERVICE.getInstance(project).getSourceRootForFile(virtualFile);
-                if (contentRootForFile != null) {
-                    //If it is a file from the project
-                    final IntellijVirtualFileAdaptor intellijVirtualFile = new IntellijVirtualFileAdaptor(VirtualFileSystemAdaptor.this, virtualFile, project, null);
-                    for (ChangeListener listener : listeners) {
-                        listener.onChanged(intellijVirtualFile);
-                    }
-                }
-            });
-
-        }, WeaveConstants.MODIFICATIONS_DELAY);
-
+            }
+        });
     }
 
     @Override
@@ -181,19 +175,12 @@ public class VirtualFileSystemAdaptor implements VirtualFileSystem, Disposable {
         }
 
         @Override
-        public WeaveResource asResource() {
-            return WeaveResource$.MODULE$.apply(path(), read());
-        }
-
-        @Override
         public NameIdentifier getNameIdentifier() {
             if (this.name == null) {
                 this.name = VirtualFileSystemUtils.calculateNameIdentifier(project, vfs);
             }
             return this.name;
-
         }
-
 
     }
 }
