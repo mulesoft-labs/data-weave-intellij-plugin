@@ -48,7 +48,6 @@ public class PreviewToolWindowPanel extends SimpleToolWindowPanel implements Dis
     public static final String NO_RUNTIME_AVAILABLE = "NO_RUNTIME_AVAILABLE";
     //TODO we should put this in a settings file
 
-    private PreviewToolWindowFactory.NameChanger callback;
     private Project myProject;
     private WeavePreviewComponent weavePreviewComponent;
     private JPanel mainPanel;
