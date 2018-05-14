@@ -114,7 +114,7 @@ public class PreviewToolWindowPanel extends SimpleToolWindowPanel implements Dis
             }
         });
 
-        group.add(new SelectScenarioAction(getScenarios(getSelectedPsiFile())));
+        group.add(new SelectScenarioAction());
 
         final ActionManager actionManager = ActionManager.getInstance();
         final ActionToolbar actionToolBar = actionManager.createActionToolbar(PreviewToolWindowFactory.ID, group, false);
@@ -191,15 +191,14 @@ public class PreviewToolWindowPanel extends SimpleToolWindowPanel implements Dis
 
 
     private class SelectScenarioAction extends AnAction {
-        private List<Scenario> scenarios;
-        public SelectScenarioAction(List<Scenario> scenarios) {
+        public SelectScenarioAction() {
             super(null, "Select scenario", AllIcons.General.Gear);
-            this.scenarios = scenarios;
         }
 
         @Override
         public void actionPerformed(AnActionEvent e) {
             DefaultActionGroup group = new DefaultActionGroup();
+            List<Scenario> scenarios = getScenarios(getSelectedPsiFile());
 
             addScenarioActions(group, scenarios);
 
