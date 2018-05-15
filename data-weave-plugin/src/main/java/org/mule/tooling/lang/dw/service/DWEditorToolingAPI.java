@@ -18,10 +18,9 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.util.PsiUtil;
 import com.intellij.util.concurrency.FutureResult;
-import org.intellij.markdown.ast.ASTNode;
-import org.intellij.markdown.flavours.gfm.GFMFlavourDescriptor;
-import org.intellij.markdown.html.HtmlGenerator;
-import org.intellij.markdown.parser.MarkdownParser;
+import org.commonmark.node.Node;
+import org.commonmark.parser.Parser;
+import org.commonmark.renderer.html.HtmlRenderer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
@@ -265,9 +264,10 @@ public class DWEditorToolingAPI extends AbstractProjectComponent implements Disp
         if (text == null) {
             return null;
         }
-        GFMFlavourDescriptor flavour = new GFMFlavourDescriptor();
-        ASTNode astNode = new MarkdownParser(flavour).buildMarkdownTreeFromString(text);
-        return new HtmlGenerator(text, astNode, flavour, true).generateHtml();
+        Parser parser = Parser.builder().build();
+        Node document = parser.parse(text);
+        HtmlRenderer renderer = HtmlRenderer.builder().build();
+        return renderer.render(document);
     }
 
     @Override

@@ -4,7 +4,7 @@ import java.time.format.DateTimeFormatter
 
 
 plugins {
-    id "org.jetbrains.intellij" version "0.2.17"
+    id "org.jetbrains.intellij" version "0.3.1"
 }
 
 version = pluginVersion
@@ -20,8 +20,6 @@ subprojects {
     } else {
         version = pluginVersion
     }
-
-    System.out.println(version)
 
     configurations {
         gen

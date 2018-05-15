@@ -6,14 +6,16 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiErrorElement;
 import com.intellij.testFramework.LightVirtualFile;
 import com.intellij.testFramework.ParsingTestCase;
+import com.intellij.testFramework.TestRunnerUtil;
 import org.jetbrains.annotations.NotNull;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.mule.tooling.lang.dw.util.ResultHolder;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -36,19 +38,40 @@ public class DataWeaveLangParserTest extends ParsingTestCase {
         super.setUp();
     }
 
+
+    @After
+    public void after() throws Throwable {
+        super.tearDown();
+    }
+
+    public void runTest(Runnable runnable) throws Throwable {
+        final ResultHolder<Throwable> result = new ResultHolder<>();
+        TestRunnerUtil.replaceIdeEventQueueSafely();
+        invokeTestRunnable(runnable);
+        if (result.nonEmpty()) {
+            throw result.get();
+        }
+    }
+
     @Test
-    public void checkNoError() throws IOException {
-        System.out.println("name = " + name);
-        String text = loadFile(name);
-        myFile = createPsiFile(name, text);
-        ensureParsed(myFile);
-        assertEquals("light virtual file text mismatch", text, ((LightVirtualFile) myFile.getVirtualFile()).getContent().toString());
-        assertEquals("virtual file text mismatch", text, LoadTextUtil.loadText(myFile.getVirtualFile()));
-        assertEquals("doc text mismatch", text, myFile.getViewProvider().getDocument().getText());
-        assertEquals("psi text mismatch", text, myFile.getText());
-        ensureCorrectReparse(myFile);
-        List<PsiErrorElement> errors = getErrors(myFile);
-        assertEmpty(name + " has errors \n" + toParseTreeText(myFile, true, true), errors);
+    public void checkNoError() throws Throwable {
+        runTest(() -> {
+            try {
+                System.out.println("name = " + name);
+                String text = loadFile(name);
+                myFile = createPsiFile(name, text);
+                ensureParsed(myFile);
+                assertEquals("light virtual file text mismatch", text, ((LightVirtualFile) myFile.getVirtualFile()).getContent().toString());
+                assertEquals("virtual file text mismatch", text, LoadTextUtil.loadText(myFile.getVirtualFile()));
+                assertEquals("doc text mismatch", text, myFile.getViewProvider().getDocument().getText());
+                assertEquals("psi text mismatch", text, myFile.getText());
+                ensureCorrectReparse(myFile);
+                List<PsiErrorElement> errors = getErrors(myFile);
+                assertEmpty(name + " has errors \n" + toParseTreeText(myFile, true, true), errors);
+            } catch (Exception e) {
+                fail(e.getMessage());
+            }
+        });
     }
 
     public static List<PsiErrorElement> getErrors(@NotNull PsiElement element) {
