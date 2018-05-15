@@ -15,14 +15,13 @@ import org.jetbrains.annotations.NotNull;
 import org.mule.tooling.lang.dw.parser.psi.WeaveDirective;
 import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
 import org.mule.tooling.lang.dw.parser.psi.WeaveElementFactory;
-import org.mule.tooling.lang.dw.parser.psi.WeaveFunctionDirective;
 import org.mule.tooling.lang.dw.parser.psi.WeaveHeader;
+import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.parser.psi.WeaveVariableDirective;
 import org.mule.tooling.lang.dw.parser.psi.WeaveVariableReferenceExpression;
 
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Optional;
 
 import static org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils.findInnerElementRange;
 import static org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils.getWeaveDocument;
@@ -61,11 +60,17 @@ public class IntroduceConstantHandler implements RefactoringActionHandler {
                     if (directiveList.isEmpty()) {
                         newVarDirective = addDirectiveBefore(project, weaveDocument, varDirective, null);
                     } else {
-                        Optional<WeaveDirective> firstDirective = directiveList
-                                .stream()
-                                .filter((directive) -> directive instanceof WeaveVariableDirective || directive instanceof WeaveFunctionDirective)
-                                .findFirst();
-                        newVarDirective = addDirectiveBefore(project, weaveDocument, varDirective, firstDirective.orElse(null));
+                        PsiElement parentDirective = WeavePsiUtils.getParent(variableReference,
+                                (psiElement) -> psiElement instanceof WeaveDirective && psiElement.getParent() instanceof WeaveHeader);
+                        WeaveDirective anchor;
+                        if (parentDirective != null) {
+                            anchor = (WeaveDirective) parentDirective;
+                            newVarDirective = addDirectiveBefore(project, weaveDocument, varDirective, anchor);
+                        } else {
+                            anchor = directiveList.get(directiveList.size() - 1);
+                            newVarDirective = addDirectiveAfter(project, weaveDocument, varDirective, anchor);
+                        }
+
                     }
                     int startOffset = variableReference.getFqnIdentifier().getTextRange().getStartOffset();
                     //If we don't move the  cursor then the Introducer doesn't work :(
@@ -88,9 +93,18 @@ public class IntroduceConstantHandler implements RefactoringActionHandler {
         assert header != null;
         if (anchor != null) {
             variable = header.addBefore(varDirective, anchor);
+            header.addAfter(WeaveElementFactory.createNewLine(project), variable);
         } else {
             variable = header.add(varDirective);
+            header.addBefore(WeaveElementFactory.createNewLine(project), variable);
         }
+        return (WeaveVariableDirective) variable;
+    }
+
+    public WeaveVariableDirective addDirectiveAfter(@NotNull Project project, WeaveDocument weaveDocument, WeaveVariableDirective varDirective, WeaveDirective anchor) {
+        WeaveHeader header = weaveDocument.getHeader();
+        PsiElement variable;
+        variable = header.addAfter(varDirective, anchor);
         header.addBefore(WeaveElementFactory.createNewLine(project), variable);
         return (WeaveVariableDirective) variable;
     }
