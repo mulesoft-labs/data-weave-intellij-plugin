@@ -92,9 +92,18 @@ public class IntroduceLocalVariableHandler implements RefactoringActionHandler {
 
             final WeaveVariableDirective newVarDirective;
             if (doBlock.getDirectiveList().size() > 0) {
-                final WeaveDirective weaveDirective = doBlock.getDirectiveList().get(doBlock.getDirectiveList().size() - 1);
-                newVarDirective = (WeaveVariableDirective) doBlock.addAfter(varDirective, weaveDirective);
-                doBlock.addBefore(createNewLine(project), newVarDirective);
+                WeaveDirective getLastDirective;
+                PsiElement parentDirective = WeavePsiUtils.getParent(newVariableRef,
+                        (psiElement) -> psiElement instanceof WeaveDirective && psiElement.getParent() == doBlock);
+                if (parentDirective != null) {
+                    newVarDirective = (WeaveVariableDirective) doBlock.addBefore(varDirective, parentDirective);
+                    doBlock.addAfter(createNewLine(project), newVarDirective);
+                } else {
+                    getLastDirective = doBlock.getDirectiveList().get(doBlock.getDirectiveList().size() - 1);
+                    newVarDirective = (WeaveVariableDirective) doBlock.addAfter(varDirective, getLastDirective);
+                    doBlock.addBefore(createNewLine(project), newVarDirective);
+                }
+
             } else {
                 final PsiElement anchor = doBlock.addBefore(createBlockSeparator(project), doBlock.getExpression());
                 doBlock.addAfter(createNewLine(project), anchor);
