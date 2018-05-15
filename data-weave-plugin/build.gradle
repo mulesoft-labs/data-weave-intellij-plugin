@@ -15,9 +15,6 @@ repositories {
 }
 
 dependencies {
-//    testCompile 'junit:junit:4.+'
-
-//    compile("org.jetbrains:markdown:0.1.12")
     compile group: 'com.atlassian.commonmark', name: 'commonmark', version: '0.11.0'
     compile(group: 'org.mule.weave', name: 'debugger', version: weaveVersion)
     compile(group: 'org.mule.weave', name: 'parser', version: weaveVersion)
@@ -26,7 +23,7 @@ dependencies {
 
 intellij {
     pluginName = 'data-weave-plugin-v2'
-    version = "LATEST-EAP-SNAPSHOT"
+    version = ideaVersion
     updateSinceUntilBuild = false
     downloadSources = false
     sandboxDirectory = "${rootProject.buildDir}/idea-sandbox"
