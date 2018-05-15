@@ -4,6 +4,9 @@ import com.intellij.execution.ui.RunnerLayoutUi;
 import com.intellij.execution.ui.layout.PlaceInGrid;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.module.Module;
@@ -12,6 +15,7 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.ComponentWithActions;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.ui.ListCellRendererWrapper;
@@ -57,54 +61,7 @@ public class WeavePreviewComponent implements Disposable {
     public JComponent createComponent(Project project) {
         myProject = project;
 
-        PsiManager.getInstance(project).addPsiTreeChangeListener(new PsiTreeChangeAdapter() {
-
-            @Override
-            public void childAdded(@NotNull PsiTreeChangeEvent event) {
-                super.childAdded(event);
-                doRunPreview();
-            }
-
-            @Override
-            public void childRemoved(@NotNull PsiTreeChangeEvent event) {
-                super.childRemoved(event);
-                doRunPreview();
-            }
-
-            @Override
-            public void childMoved(@NotNull PsiTreeChangeEvent event) {
-                super.childMoved(event);
-                doRunPreview();
-            }
-
-            @Override
-            public void childrenChanged(@NotNull PsiTreeChangeEvent event) {
-                super.childrenChanged(event);
-                doRunPreview();
-            }
-
-            @Override
-            public void childReplaced(@NotNull PsiTreeChangeEvent event) {
-                doRunPreview();
-
-                //We know the change came from this file now
-            }
-
-            public void doRunPreview() {
-                if (currentFile == null || !runOnChange) {
-                    return;
-                }
-
-                //We call all the request and add a new one if in 200 milliseconds no change was introduced then trigger preview
-                myDocumentAlarm.cancelAllRequests();
-                myDocumentAlarm.addRequest(() -> {
-                    if (myDocumentAlarm.isDisposed())
-                        return;
-                    ApplicationManager.getApplication().runReadAction(() -> runPreview());
-
-                }, WeaveConstants.MODIFICATIONS_DELAY);
-            }
-        }, this);
+        PsiManager.getInstance(project).addPsiTreeChangeListener(new PreviewRunnerListener(), this);
 
         return createPreviewPanel();
     }
@@ -124,12 +81,13 @@ public class WeavePreviewComponent implements Disposable {
 //        final JPanel chooserPanel = createScenarioSelectorPanel();
 
         RunnerLayoutUi layoutUi = RunnerLayoutUi.Factory.getInstance(myProject).create("DW-Preview", "DW Preview", myProject.getName(), myProject);
-        Content inputsContent = layoutUi.createContent("inputs", inputsComponent.createComponent(myProject), "Inputs", null, null);
+        Content inputsContent = layoutUi.createContent("inputs", createInputComponent(), "Inputs", null, null);
         inputsContent.setCloseable(false);
+
         layoutUi.addContent(inputsContent, 0, PlaceInGrid.left, false);
         Content outputContent = layoutUi.createContent("output", outputComponent.createComponent(myProject), "Output", AllIcons.General.Information, null);
         outputContent.setCloseable(false);
-        layoutUi.addContent(outputContent, 1, PlaceInGrid.center, false);
+        layoutUi.addContent(outputContent, 1, PlaceInGrid.right, false);
 
         previewLogsViewer = new PreviewLogsViewer(myProject);
         Content logsContent = layoutUi.createContent("logs", previewLogsViewer, "Logs/Errors", AllIcons.Debugger.Console_log, null);
@@ -138,6 +96,25 @@ public class WeavePreviewComponent implements Disposable {
 //        previewPanel.addToTop(chooserPanel);
         previewPanel.addToCenter(layoutUi.getComponent());
         return previewPanel;
+    }
+
+    @NotNull
+    private ComponentWithActions.Impl createInputComponent() {
+        JComponent component = inputsComponent.createComponent(myProject);
+        DefaultActionGroup group = new DefaultActionGroup();
+        group.add(new AnAction("Add new input", "Adds a new input to the scenario", AllIcons.General.Add) {
+            @Override
+            public void actionPerformed(AnActionEvent e) {
+//                weavePreviewComponent.runPreview();
+            }
+
+            @Override
+            public void update(AnActionEvent e) {
+                super.update(e);
+//                setEnabled(weavePreviewComponent.runAvailable());
+            }
+        });
+        return new ComponentWithActions.Impl(group, null, null, null, component);
     }
 
 
@@ -318,6 +295,58 @@ public class WeavePreviewComponent implements Disposable {
             if (value != null) {
                 setText(value.getPresentableText());
             }
+        }
+    }
+
+    /**
+     * This listener runs the preview each time a change occurred in the PSI tree
+     */
+    private class PreviewRunnerListener extends PsiTreeChangeAdapter {
+
+        @Override
+        public void childAdded(@NotNull PsiTreeChangeEvent event) {
+            super.childAdded(event);
+            doRunPreview();
+        }
+
+        @Override
+        public void childRemoved(@NotNull PsiTreeChangeEvent event) {
+            super.childRemoved(event);
+            doRunPreview();
+        }
+
+        @Override
+        public void childMoved(@NotNull PsiTreeChangeEvent event) {
+            super.childMoved(event);
+            doRunPreview();
+        }
+
+        @Override
+        public void childrenChanged(@NotNull PsiTreeChangeEvent event) {
+            super.childrenChanged(event);
+            doRunPreview();
+        }
+
+        @Override
+        public void childReplaced(@NotNull PsiTreeChangeEvent event) {
+            doRunPreview();
+
+            //We know the change came from this file now
+        }
+
+        public void doRunPreview() {
+            if (currentFile == null || !runOnChange) {
+                return;
+            }
+
+            //We call all the request and add a new one if in 200 milliseconds no change was introduced then trigger preview
+            myDocumentAlarm.cancelAllRequests();
+            myDocumentAlarm.addRequest(() -> {
+                if (myDocumentAlarm.isDisposed())
+                    return;
+                ApplicationManager.getApplication().runReadAction(() -> runPreview());
+
+            }, WeaveConstants.MODIFICATIONS_DELAY);
         }
     }
 }

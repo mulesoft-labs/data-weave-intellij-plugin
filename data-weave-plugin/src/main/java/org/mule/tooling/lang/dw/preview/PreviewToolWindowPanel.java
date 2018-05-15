@@ -203,20 +203,20 @@ public class PreviewToolWindowPanel extends SimpleToolWindowPanel implements Dis
 
             final InputEvent inputEvent = e.getInputEvent();
             final ActionPopupMenu popupMenu =
-                    ((ActionManagerImpl)ActionManager.getInstance())
+                    ((ActionManagerImpl) ActionManager.getInstance())
                             .createActionPopupMenu(ToolWindowContentUi.POPUP_PLACE, group, new MenuItemPresentationFactory(true));
 
             int x = 0;
             int y = 0;
             if (inputEvent instanceof MouseEvent) {
-                x = ((MouseEvent)inputEvent).getX();
-                y = ((MouseEvent)inputEvent).getY();
+                x = ((MouseEvent) inputEvent).getX();
+                y = ((MouseEvent) inputEvent).getY();
             }
             popupMenu.getComponent().show(inputEvent.getComponent(), x, y);
         }
 
         private void addScenarioActions(DefaultActionGroup group, List<Scenario> scenarios) {
-            for(Scenario scenario : scenarios) {
+            for (Scenario scenario : scenarios) {
                 group.add(new AnAction(scenario.getPresentableText(), scenario.getLocationString(), null) {
                     @Override
                     public void actionPerformed(AnActionEvent e) {
