@@ -37,6 +37,7 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.PathsList;
 import com.intellij.util.net.NetUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.launcher.configuration.runner.WeaveRunnerHelper;
 import org.mule.weave.v2.debugger.client.ConnectionRetriesListener;
 import org.mule.weave.v2.debugger.client.DefaultWeaveAgentClientListener;
@@ -59,6 +60,7 @@ public class WeaveAgentComponent extends AbstractProjectComponent {
     public static final int MAX_RETRIES = 10;
     public static final long ONE_SECOND_DELAY = 1000L;
 
+    @Nullable
     private WeaveAgentClient client;
     private ProcessHandler processHandler;
     private boolean disabled = false;
@@ -227,7 +229,7 @@ public class WeaveAgentComponent extends AbstractProjectComponent {
             if (client == null || !client.isConnected()) {
                 init(new EmptyProgressIndicator());
             }
-            if (client.isConnected()) {
+            if (client != null && client.isConnected()) {
                 onConnected.run();
             } else {
                 Notifications.Bus.notify(new Notification("Data Weave", "Unable to connect", "Client is not able to connect to runtime", NotificationType.ERROR));
