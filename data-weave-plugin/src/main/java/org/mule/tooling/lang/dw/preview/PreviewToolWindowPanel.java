@@ -1,7 +1,6 @@
 package org.mule.tooling.lang.dw.preview;
 
 import com.intellij.icons.AllIcons;
-import com.intellij.internal.statistic.customUsageCollectors.ui.ToolbarClicksCollector;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionPopupMenu;
@@ -213,7 +212,6 @@ public class PreviewToolWindowPanel extends SimpleToolWindowPanel implements Dis
                 x = ((MouseEvent)inputEvent).getX();
                 y = ((MouseEvent)inputEvent).getY();
             }
-            ToolbarClicksCollector.record("Show Options", "ToolWindowHeader");
             popupMenu.getComponent().show(inputEvent.getComponent(), x, y);
         }
 
