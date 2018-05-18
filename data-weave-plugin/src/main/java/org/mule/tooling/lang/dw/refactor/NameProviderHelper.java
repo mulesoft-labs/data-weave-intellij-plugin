@@ -17,6 +17,7 @@ import org.mule.tooling.lang.dw.parser.psi.WeaveStringLiteral;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,18 +25,20 @@ public class NameProviderHelper {
     @NotNull
     public static List<String> possibleNamesForGlobalVariable(PsiElement valueToReplace) {
         final WeaveDocument document = WeavePsiUtils.getDocument(valueToReplace);
+        assert document != null;
         final List<String> allGlobalNames = WeavePsiUtils.getAllGlobalNames(document);
-        return possibleNamesFor(valueToReplace, allGlobalNames);
+        return possibleNamesFor(valueToReplace, allGlobalNames, "my", "myVar");
     }
 
 
     @NotNull
     public static List<String> possibleNamesForLocalVariable(PsiElement valueToReplace, @Nullable WeaveDoExpression doBlock) {
         final List<String> allGlobalNames = WeavePsiUtils.getAllLocalNames(doBlock);
-        return possibleNamesFor(valueToReplace, allGlobalNames);
+        return possibleNamesFor(valueToReplace, allGlobalNames, "my", "myVar");
     }
 
-    public static List<String> possibleNamesFor(PsiElement valueToReplace, List<String> alreadyUsedNames) {
+    @NotNull
+    private static List<String> possibleNamesFor(PsiElement valueToReplace, List<String> alreadyUsedNames, String prefix, String defaultName) {
         final ArrayList<String> result = new ArrayList<>();
         if (valueToReplace instanceof WeaveStringLiteral) {
             String stringText = ((WeaveStringLiteral) valueToReplace).getValue();
@@ -43,25 +46,25 @@ public class NameProviderHelper {
             if (suggestionsByValue.length > 0) {
                 result.addAll(Arrays.asList(suggestionsByValue));
             } else {
-                result.add("myString");
+                result.add(prefix + "String");
             }
         } else if (valueToReplace instanceof WeaveBooleanLiteral) {
-            result.add("myBoolean");
+            result.add(prefix + "Boolean");
         } else if (valueToReplace instanceof WeaveRegexLiteral) {
-            result.add("myRegex");
+            result.add(prefix + "Regex");
         } else if (valueToReplace instanceof WeaveAnyDateLiteral) {
-            result.add("myDate");
+            result.add(prefix + "Date");
         } else if (valueToReplace instanceof WeaveObjectExpression) {
-            result.add("myObject");
+            result.add(prefix + "Object");
         } else if (valueToReplace instanceof WeaveArrayExpression) {
-            result.add("myArray");
+            result.add(prefix + "Array");
         } else if (valueToReplace instanceof WeaveNumberLiteral) {
-            result.add("myNumber");
+            result.add(prefix + "Number");
         } else {
-            result.add("myVar");
+            result.add(defaultName);
         }
         //We should get a non repated name
-        return result.stream().map((name) -> makeNameUnike(valueToReplace, name, alreadyUsedNames)).collect(Collectors.toList());
+        return result.stream().map((name) -> makeNameUnike(name, alreadyUsedNames)).collect(Collectors.toList());
     }
 
     @NotNull
@@ -102,7 +105,7 @@ public class NameProviderHelper {
     }
 
 
-    public static String makeNameUnike(PsiElement valueToReplace, String baseName, List<String> allGlobalNames) {
+    private static String makeNameUnike(String baseName, List<String> allGlobalNames) {
 
         String name = baseName;
         int i = 0;
@@ -111,5 +114,12 @@ public class NameProviderHelper {
             i = i + 1;
         }
         return name;
+    }
+
+    @NotNull
+    public static List<String> possibleFunctionNames(PsiElement valueToReplace) {
+        final WeaveDocument document = WeavePsiUtils.getDocument(valueToReplace);
+        final List<String> allGlobalNames = WeavePsiUtils.getAllGlobalNames(document);
+        return possibleNamesFor(valueToReplace, allGlobalNames, "get", "myFunction");
     }
 }

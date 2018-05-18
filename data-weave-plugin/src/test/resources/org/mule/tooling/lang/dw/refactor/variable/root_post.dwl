@@ -1,4 +1,4 @@
 %dw 2.0
-var myVar = "a"
+var a = "a"
 ---
-myVar
+a

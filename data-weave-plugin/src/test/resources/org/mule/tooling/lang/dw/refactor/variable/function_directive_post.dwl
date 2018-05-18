@@ -1,5 +1,5 @@
 fun a() = do {
-var myVar = "a"
+var a = "a"
 ---
-myVar
+a
  }

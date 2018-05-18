@@ -2,11 +2,14 @@ package org.mule.tooling.lang.dw.parser.psi;
 
 
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFileFactory;
 import com.intellij.psi.PsiParserFacade;
 import org.jetbrains.annotations.NotNull;
 import org.mule.tooling.lang.dw.WeaveFileType;
+
+import java.util.List;
 
 public class WeaveElementFactory {
 
@@ -52,5 +55,17 @@ public class WeaveElementFactory {
     public static PsiElement createNewLine(Project project) {
         PsiParserFacade helper = PsiParserFacade.SERVICE.getInstance(project);
         return helper.createWhiteSpaceFromText("\n");
+    }
+
+    @NotNull
+    public static WeaveFunctionCallExpression createFunctionCall(Project project, String functionName, List<String> names) {
+        WeaveDocument file = createFile(project, functionName + "(" + StringUtil.join(names, ",") + ")");
+        return (WeaveFunctionCallExpression) file.getBody().getExpression();
+    }
+
+    @NotNull
+    public static WeaveFunctionDirective createFunctionDirective(Project project, String functionName, List<String> names, PsiElement body) {
+        WeaveDocument file = createFile(project, "fun " + functionName + "(" + StringUtil.join(names, ",") + ") = " + body.getText());
+        return (WeaveFunctionDirective) file.getHeader().getDirectiveList().get(0);
     }
 }

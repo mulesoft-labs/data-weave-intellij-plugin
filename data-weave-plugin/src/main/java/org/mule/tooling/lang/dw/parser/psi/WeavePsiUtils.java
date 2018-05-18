@@ -7,6 +7,7 @@ import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiWhiteSpace;
+import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.util.PsiUtil;
@@ -239,6 +240,14 @@ public class WeavePsiUtils {
         return null;
     }
 
+    /**
+     * Return the most inner element at that range. If the selected element is a whitespace it return null
+     *
+     * @param file        the file
+     * @param startOffset The start
+     * @param endOffset   the end
+     * @return The most inner element that is at the start and the end offset is less or equals
+     */
     @Nullable
     public static PsiElement findInnerElementRange(@NotNull PsiFile file,
                                                    int startOffset,
@@ -249,6 +258,12 @@ public class WeavePsiUtils {
         }
         if (elementAtOffset instanceof PsiFile) {
             return getWeaveDocument(file);
+        }
+        if(elementAtOffset instanceof LeafPsiElement){
+            return elementAtOffset.getParent();
+        }
+        if (elementAtOffset instanceof PsiWhiteSpace) {
+            return null;
         }
         return elementAtOffset;
     }

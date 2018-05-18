@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>org.mule.tooling.intellij.dataweave.v2</id>
     <name>DataWeave 2.0 Intellij Plugin.</name>
-    <version>2.0.3</version>
+    <version>2.0.4</version>
     <vendor email="mariano.achaval@mulesoft.com" url="https://github.com/mulesoft-labs/data-weave-intellij-plugin">
         Mulesoft
     </vendor>
@@ -26,12 +26,30 @@
           </ul>
         </li>
       </ul>
-      <h1>v2.0.2</h1>
+    <h1>v2.0.2</h1>
       <ul>
        <li>
           <p>DataWeave 2.0 Support</p>
           <ul>
             <li>Initial Testing Framework</li>
+          </ul>
+        </li>
+      </ul>
+    <h1>v2.0.4</h1>
+      <ul>
+       <li>
+          <p>DataWeave 2.0 Support</p>
+          <ul>
+            <li>Autocomplete</li>
+            <li>Introduce Variable</li>
+            <li>Introduce Constant</li>
+            <li>Documentation</li>
+            <li>Show Inferred Type</li>
+            <li>Reformat Weave Document</li>
+            <li>Spell checking</li>
+            <li>Weave Preview support</li>
+            <li>Regex validation</li>
+            <li>Improved language injection in mule configuration and java literals</li>
           </ul>
         </li>
       </ul>
@@ -89,6 +107,7 @@
 
         <documentationProvider implementation="org.mule.tooling.lang.dw.documentation.WeaveDocumentationProvider"/>
         <breadcrumbsInfoProvider implementation="org.mule.tooling.lang.dw.breadcrums.WeaveBreadcrumbsInfoProvider"/>
+        <spellchecker.support language="Weave" implementationClass="org.mule.tooling.lang.dw.spellchecker.WeaveSpellCheckerStrategy"/>
         <!--<toolWindow id="Design Center" anchor="bottom"-->
         <!--factoryClass="org.mule.tooling.lang.browser.BrowserToolWindowFactory"/>-->
 

@@ -1,5 +1,5 @@
 var c = "123"
 var b = c ++ "a"
-var myVar = "test"
+var test = "test"
 ---
-myVar
+test

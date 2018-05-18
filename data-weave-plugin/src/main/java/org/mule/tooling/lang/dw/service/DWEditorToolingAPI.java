@@ -36,6 +36,7 @@ import org.mule.weave.v2.editor.ImplicitInput;
 import org.mule.weave.v2.editor.ReformatResult;
 import org.mule.weave.v2.editor.SpecificModuleResourceResolver;
 import org.mule.weave.v2.editor.ValidationMessages;
+import org.mule.weave.v2.editor.VariableDependency;
 import org.mule.weave.v2.editor.VirtualFile;
 import org.mule.weave.v2.editor.WeaveDocumentToolingService;
 import org.mule.weave.v2.editor.WeaveToolingService;
@@ -243,10 +244,9 @@ public class DWEditorToolingAPI extends AbstractProjectComponent implements Disp
     }
 
     @Nullable
-    public PsiElement scopeOf(PsiFile file, int location) {
-        Option<VariableScope> variableScopeOption = didOpen(file).scopeOf(location);
-        if (variableScopeOption.isDefined()) {
-            VariableScope variableScope = variableScopeOption.get();
+    public PsiElement scopeOf(PsiFile file, PsiElement element) {
+        VariableScope variableScope = scopeOf(element);
+        if (variableScope != null) {
             AstNode astNode = variableScope.astNode();
             if (astNode instanceof WeaveDocument) {
                 return WeavePsiUtils.getWeaveDocument(file);
@@ -268,6 +268,23 @@ public class DWEditorToolingAPI extends AbstractProjectComponent implements Disp
         Node document = parser.parse(text);
         HtmlRenderer renderer = HtmlRenderer.builder().build();
         return renderer.render(document);
+    }
+
+    @Nullable
+    public VariableScope scopeOf(PsiElement element) {
+        WeaveDocumentToolingService weaveDocumentToolingService = didOpen(element.getContainingFile());
+        Option<VariableScope> scopeOf = weaveDocumentToolingService.scopeOf(element.getTextRange().getStartOffset(), element.getTextRange().getEndOffset());
+        if (scopeOf.isDefined()) {
+            return scopeOf.get();
+        } else {
+            return null;
+        }
+    }
+
+    public VariableDependency[] externalScopeDependencies(PsiElement element, @Nullable VariableScope parent) {
+        WeaveDocumentToolingService weaveDocumentToolingService = didOpen(element.getContainingFile());
+        TextRange textRange = element.getTextRange();
+        return weaveDocumentToolingService.externalScopeDependencies(textRange.getStartOffset(), textRange.getEndOffset(), Option.apply(parent));
     }
 
     @Override

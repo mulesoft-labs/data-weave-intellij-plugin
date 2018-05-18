@@ -6,13 +6,13 @@ sourceSets {
     }
 }
 
-repositories {
-    maven {
-        name "jetbrains-markdown"
-        url "https://dl.bintray.com/jetbrains/markdown"
-    }
-    mavenLocal()
-}
+//repositories {
+//    maven {
+//        name "jetbrains-markdown"
+//        url "https://dl.bintray.com/jetbrains/markdown"
+//    }
+//    mavenLocal()
+//}
 
 dependencies {
     compile group: 'com.atlassian.commonmark', name: 'commonmark', version: '0.11.0'
@@ -23,10 +23,6 @@ dependencies {
 
 intellij {
     pluginName = 'data-weave-plugin-v2'
-    version = ideaVersion
-    updateSinceUntilBuild = false
-    downloadSources = false
-    sandboxDirectory = "${rootProject.buildDir}/idea-sandbox"
     plugins = ['maven', 'properties']
 
 }

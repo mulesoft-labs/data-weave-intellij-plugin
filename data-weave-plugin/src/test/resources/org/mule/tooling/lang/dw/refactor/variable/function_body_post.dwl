@@ -1,5 +1,5 @@
 [] map do {
-var myVar = "a"
+var a = "a"
 ---
-myVar
+a
  }

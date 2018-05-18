@@ -10,7 +10,7 @@ plugins {
 version = pluginVersion
 
 
-subprojects {
+allprojects {
 
     apply plugin: 'org.jetbrains.intellij'
     apply plugin: 'java'
@@ -53,6 +53,13 @@ subprojects {
     task jarSources(type: Jar) {
         from sourceSets.main.allSource
         classifier = 'sources'
+    }
+
+    intellij {
+        version = "2018.1.3"
+        updateSinceUntilBuild = false
+        downloadSources = true
+        sandboxDirectory = "${rootProject.buildDir}/idea-sandbox"
     }
 
     publishPlugin {

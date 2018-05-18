@@ -30,11 +30,11 @@ import static org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils.getWeaveDocument
 public class IntroduceConstantHandler implements RefactoringActionHandler {
     @Override
     public void invoke(@NotNull Project project, Editor editor, PsiFile psiFile, DataContext dataContext) {
-        SelectionModel selectionModel = editor.getSelectionModel();
-        final int selectionStart = selectionModel.getSelectionStart();
-        final int selectionEnd = selectionModel.getSelectionEnd();
         WeaveDocument weaveDocument = getWeaveDocument(psiFile);
         if (weaveDocument != null) {
+            SelectionModel selectionModel = editor.getSelectionModel();
+            final int selectionStart = selectionModel.getSelectionStart();
+            final int selectionEnd = selectionModel.getSelectionEnd();
             PsiElement valueToReplace = findInnerElementRange(psiFile, selectionStart, selectionEnd);
             if (valueToReplace != null) {
                 final List<String> possibleNames = NameProviderHelper.possibleNamesForGlobalVariable(valueToReplace);

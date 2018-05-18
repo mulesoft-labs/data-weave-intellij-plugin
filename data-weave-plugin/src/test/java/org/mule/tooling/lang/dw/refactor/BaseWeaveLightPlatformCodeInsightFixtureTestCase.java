@@ -46,7 +46,7 @@ public abstract class BaseWeaveLightPlatformCodeInsightFixtureTestCase extends L
         String anchorFileName = path + File.separatorChar + dataWeaveLangParserTestClass.getSimpleName() + ".txt";
         URL resource = dataWeaveLangParserTestClass.getClassLoader().getResource(anchorFileName);
         if (resource == null) {
-            throw new RuntimeException("Unable to resolve anchor file " + anchorFileName);
+            throw new RuntimeException("Anchor not found " + anchorFileName + " create this file so that test cases can be located.");
         }
         return new File(resource.getPath()).getParentFile();
     }

@@ -1,6 +1,6 @@
 do {
 var c = "123"
-var myVar = "a"
+var a = "a"
 ---
-myVar
+a
 }
