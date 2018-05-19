@@ -19,11 +19,11 @@ import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
 import org.mule.tooling.lang.dw.parser.psi.WeaveElementFactory;
 import org.mule.tooling.lang.dw.parser.psi.WeaveHeader;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
-import org.mule.tooling.lang.dw.service.DWEditorToolingAPI;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static org.mule.tooling.lang.dw.parser.psi.WeaveElementFactory.createBlockSeparator;
 import static org.mule.tooling.lang.dw.parser.psi.WeaveElementFactory.createNewLine;
@@ -32,12 +32,9 @@ import static org.mule.tooling.lang.dw.util.ListUtils.last;
 public abstract class AbstractIntroduceDirectiveHandler implements RefactoringActionHandler {
     @Override
     public void invoke(@NotNull Project project, Editor editor, PsiFile psiFile, DataContext dataContext) {
-        DWEditorToolingAPI editorToolingAPI = DWEditorToolingAPI.getInstance(psiFile.getProject());
         PsiElement valueToReplace = getValueToReplace(psiFile, editor);
         if (valueToReplace != null) {
-
             invoke(project, editor, psiFile, dataContext, valueToReplace);
-
         } else {
             HintManagerImpl.getInstanceImpl().showErrorHint(editor, "Selection doesn't represent an expression.");
         }
@@ -63,8 +60,10 @@ public abstract class AbstractIntroduceDirectiveHandler implements RefactoringAc
     }
 
 
-    public <T extends PsiElement> IntroduceLocalVariableHandler.RefactorResult simpleRefactor(T extracted, PsiElement replacement, PsiElement toReplace, PsiElement scope, @NotNull Project project, Function<T, PsiNamedElement> mapper) {
+    public <T extends PsiElement> IntroduceLocalVariableHandler.RefactorResult simpleRefactor(Supplier<T> extractedSupplier, Supplier<PsiElement> replacementSupplier, PsiElement toReplace, PsiElement scope, @NotNull Project project, Function<T, PsiNamedElement> mapper) {
         return WriteCommandAction.runWriteCommandAction(project, (Computable<IntroduceLocalVariableHandler.RefactorResult>) () -> {
+            T extracted = extractedSupplier.get();
+            final PsiElement replacement = replacementSupplier.get();
             final PsiElement scopeElement;
             final PsiElement newVariableRef;
             if (toReplace == scope) {

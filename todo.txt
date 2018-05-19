@@ -1,5 +1,14 @@
 Intellij snippets
 
+//For the DW 1.0 to 2.0 migrator we should implement SingularCopyPastePostProcessor[TextBlockTransferableData] look at the scala plugin
+
+TextJavaCopyPastePostProcessor
+
+//Para reformatear un nodo
+
+ val manager = CodeStyleManager.getInstance(method.getProject)
+      manager.reformat(method)
+
 //refactor multiple targets
  IntroduceTargetChooser.showChooser(operation.getEditor(), expressions, new Pass<GoExpression>() {
         @Override

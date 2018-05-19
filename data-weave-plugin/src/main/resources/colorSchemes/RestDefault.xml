@@ -1,7 +1,7 @@
 <list>
-  <option name="Weave_KEYWORD">
+    <option paramName="Weave_KEYWORD">
     <value>
-      <option name="FONT_TYPE" value="1" />
+        <option paramName="FONT_TYPE" value="1"/>
     </value>
   </option>
 </list>

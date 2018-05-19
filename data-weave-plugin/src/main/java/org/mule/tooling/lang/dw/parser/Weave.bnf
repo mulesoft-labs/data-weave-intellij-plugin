@@ -397,7 +397,7 @@ VariableDefinition ::= VARIABLE_DECLARATION '='  Expression  {
             methods=[getVariableName getVariableValue getName setName getNameIdentifier]
             mixin="org.mule.tooling.lang.dw.parser.psi.WeaveVariableImpl"
             implements="org.mule.tooling.lang.dw.parser.psi.WeaveVariable"
-            name="Variable"
+            paramName="Variable"
         }
 
 private VARIABLE_DECLARATION ::= Identifier (":" Type)?

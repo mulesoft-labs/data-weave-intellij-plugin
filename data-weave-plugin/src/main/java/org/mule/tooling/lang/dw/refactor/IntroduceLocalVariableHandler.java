@@ -46,7 +46,7 @@ public class IntroduceLocalVariableHandler extends AbstractIntroduceDirectiveHan
         final String defaultName = possibleNames.get(0);
         final WeaveVariableDirective varDirective = WeaveElementFactory.createVarDirective(project, defaultName, valueToReplace);
         final WeaveVariableReferenceExpression variableRef = WeaveElementFactory.createVariableRef(project, defaultName);
-        return simpleRefactor(varDirective, variableRef, valueToReplace, rootScope, project, WeaveVariableDirective::getVariableDefinition);
+        return simpleRefactor(() -> varDirective, () -> variableRef, valueToReplace, rootScope, project, WeaveVariableDirective::getVariableDefinition);
     }
 
 

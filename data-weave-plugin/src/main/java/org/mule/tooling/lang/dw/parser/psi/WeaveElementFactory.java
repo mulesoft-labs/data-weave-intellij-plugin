@@ -8,6 +8,8 @@ import com.intellij.psi.PsiFileFactory;
 import com.intellij.psi.PsiParserFacade;
 import org.jetbrains.annotations.NotNull;
 import org.mule.tooling.lang.dw.WeaveFileType;
+import org.mule.tooling.lang.dw.refactor.utils.RefactorUtils;
+import org.mule.tooling.lang.dw.refactor.utils.WeaveRefactorFunctionData;
 
 import java.util.List;
 
@@ -58,14 +60,14 @@ public class WeaveElementFactory {
     }
 
     @NotNull
-    public static WeaveFunctionCallExpression createFunctionCall(Project project, String functionName, List<String> names) {
-        WeaveDocument file = createFile(project, functionName + "(" + StringUtil.join(names, ",") + ")");
+    public static WeaveFunctionCallExpression createFunctionCall(Project project, String functionName, List<String> argNames) {
+        WeaveDocument file = createFile(project, functionName + "(" + StringUtil.join(argNames, ",") + ")");
         return (WeaveFunctionCallExpression) file.getBody().getExpression();
     }
 
     @NotNull
-    public static WeaveFunctionDirective createFunctionDirective(Project project, String functionName, List<String> names, PsiElement body) {
-        WeaveDocument file = createFile(project, "fun " + functionName + "(" + StringUtil.join(names, ",") + ") = " + body.getText());
+    public static WeaveFunctionDirective createFunctionDirective(Project project, WeaveRefactorFunctionData functionDefinition, PsiElement body) {
+        WeaveDocument file = createFile(project, RefactorUtils.calculateSignature(functionDefinition) + " = " + body.getText());
         return (WeaveFunctionDirective) file.getHeader().getDirectiveList().get(0);
     }
 }
