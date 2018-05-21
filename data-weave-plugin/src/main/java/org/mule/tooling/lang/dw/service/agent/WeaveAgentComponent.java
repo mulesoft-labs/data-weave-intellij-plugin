@@ -102,7 +102,7 @@ public class WeaveAgentComponent extends AbstractProjectComponent {
     }
 
     public synchronized void init(ProgressIndicator indicator) {
-        if (!disabled && (client == null || !client.isConnected())) {
+        if (isEnabled() && (client == null || !client.isConnected())) {
             int freePort;
             if (processHandler != null) {
                 tearDown();
@@ -133,6 +133,9 @@ public class WeaveAgentComponent extends AbstractProjectComponent {
                 //Wait for it to init
                 processHandler.waitFor(ONE_SECOND_DELAY);
             } catch (Throwable e) {
+                Notifications.Bus.notify(new Notification("Data Weave", "Unable to start agent", "Unable to start agent. Reason: \n" + e.getMessage(), NotificationType.ERROR));
+                e.printStackTrace();
+                disable();
                 return;
             }
             processHandler.startNotify();
@@ -162,7 +165,7 @@ public class WeaveAgentComponent extends AbstractProjectComponent {
                 }
             });
             if (client.isConnected()) {
-                System.out.println("Weave agent connected to server.");
+                System.out.println("Weave agent connected to server. Port: " + finalFreePort);
             } else {
                 //disable the service as for some weird reason it can not be started
                 disable();
@@ -225,16 +228,22 @@ public class WeaveAgentComponent extends AbstractProjectComponent {
     }
 
     public void checkClientConnected(Runnable onConnected) {
-        if (!disabled && isWeaveRuntimeInstalled()) {
+        if (isEnabled()) {
             if (client == null || !client.isConnected()) {
-                init(new EmptyProgressIndicator());
+                if (isWeaveRuntimeInstalled()) {
+                    init(new EmptyProgressIndicator());
+                }
             }
             if (client != null && client.isConnected()) {
                 onConnected.run();
             } else {
-                Notifications.Bus.notify(new Notification("Data Weave", "Unable to connect", "Client is not able to connect to runtime", NotificationType.ERROR));
+                Notifications.Bus.notify(new Notification("Data Weave", "Unable to connect", "Client is not able to connect to runtime", NotificationType.WARNING));
             }
         }
+    }
+
+    private boolean isEnabled() {
+        return !disabled;
     }
 
     public boolean isWeaveRuntimeInstalled() {
