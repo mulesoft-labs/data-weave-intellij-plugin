@@ -6,9 +6,9 @@ import com.intellij.codeInsight.lookup.AutoCompletionPolicy;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.codeInsight.template.Expression;
+import com.intellij.codeInsight.template.Template;
 import com.intellij.codeInsight.template.TemplateManager;
 import com.intellij.codeInsight.template.impl.MacroParser;
-import com.intellij.codeInsight.template.impl.TemplateImpl;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
@@ -225,8 +225,9 @@ public class DWEditorToolingAPI extends AbstractProjectComponent implements Disp
             elementBuilder = elementBuilder.bold();
         }
 
+
         final IntellijTemplate intellijTemplate = item.template().toIntellijTemplate();
-        final TemplateImpl myTemplate = new TemplateImpl("dw_suggest_" + item.name(), intellijTemplate.text(), "dw_suggest");
+        final Template myTemplate = TemplateManager.getInstance(myProject).createTemplate("dw_suggest_" + item.name(), "dw_suggest", intellijTemplate.text());
         final IntellijTemplateVariable[] variables = intellijTemplate.variables();
         for (IntellijTemplateVariable variable : variables) {
             Expression defaultExpression = variable.defaultValue().isDefined() ? MacroParser.parse("\"" + variable.defaultValue().get() + "\"") : null;

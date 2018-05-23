@@ -126,6 +126,8 @@
         <languageInjector implementation="org.mule.tooling.lang.dw.regex.WeaveRegExpInjector"/>
         <fileTemplateGroup implementation="org.mule.tooling.lang.dw.templates.WeaveFilesTemplateManager"/>
         <moduleBuilder builderClass="org.mule.tooling.lang.dw.wizard.WeaveModuleBuilder"/>
+        <lang.surroundDescriptor language="Weave"
+                                 implementationClass="org.mule.tooling.lang.dw.surround.WeaveSurroundDescriptor"/>
     </extensions>
 
     <project-components>
