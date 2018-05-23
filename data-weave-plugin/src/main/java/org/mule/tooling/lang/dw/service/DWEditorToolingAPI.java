@@ -1,9 +1,14 @@
 package org.mule.tooling.lang.dw.service;
 
 import com.intellij.codeInsight.completion.CompletionParameters;
+import com.intellij.codeInsight.daemon.impl.quickfix.EmptyExpression;
 import com.intellij.codeInsight.lookup.AutoCompletionPolicy;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
+import com.intellij.codeInsight.template.Expression;
+import com.intellij.codeInsight.template.TemplateManager;
+import com.intellij.codeInsight.template.impl.MacroParser;
+import com.intellij.codeInsight.template.impl.TemplateImpl;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
@@ -30,6 +35,8 @@ import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.qn.WeaveQualifiedNameProvider;
 import org.mule.tooling.lang.dw.service.agent.WeaveAgentComponent;
 import org.mule.weave.v2.completion.EmptyDataFormatDescriptorProvider$;
+import org.mule.weave.v2.completion.IntellijTemplate;
+import org.mule.weave.v2.completion.IntellijTemplateVariable;
 import org.mule.weave.v2.completion.Suggestion;
 import org.mule.weave.v2.completion.SuggestionType;
 import org.mule.weave.v2.editor.ImplicitInput;
@@ -196,7 +203,7 @@ public class DWEditorToolingAPI extends AbstractProjectComponent implements Disp
     private LookupElement createLookupItem(Suggestion item) {
 
         LookupElementBuilder elementBuilder;
-        Option<String> documentationMayBe = item.markdownDocumentation();
+        final Option<String> documentationMayBe = item.markdownDocumentation();
         String documentation = null;
         if (documentationMayBe.isDefined()) {
             documentation = documentationMayBe.get();
@@ -217,6 +224,20 @@ public class DWEditorToolingAPI extends AbstractProjectComponent implements Disp
         } else if (itemType == SuggestionType.Keyword()) {
             elementBuilder = elementBuilder.bold();
         }
+
+        final IntellijTemplate intellijTemplate = item.template().toIntellijTemplate();
+        final TemplateImpl myTemplate = new TemplateImpl("dw_suggest_" + item.name(), intellijTemplate.text(), "dw_suggest");
+        final IntellijTemplateVariable[] variables = intellijTemplate.variables();
+        for (IntellijTemplateVariable variable : variables) {
+            Expression defaultExpression = variable.defaultValue().isDefined() ? MacroParser.parse("\"" + variable.defaultValue().get() + "\"") : null;
+            Expression expression = variable.defaultValue().isEmpty() ? MacroParser.parse("complete()") : new EmptyExpression();
+            myTemplate.addVariable(variable.name(), expression, defaultExpression, true);
+        }
+        elementBuilder = elementBuilder.withInsertHandler((context, item1) -> {
+            context.getDocument().deleteString(context.getStartOffset(), context.getTailOffset());
+            context.setAddCompletionChar(false);
+            TemplateManager.getInstance(context.getProject()).startTemplate(context.getEditor(), myTemplate);
+        });
 
         if (item.wtype().isDefined()) {
             elementBuilder = elementBuilder.withTypeText(item.wtype().get().toString(false, true));
