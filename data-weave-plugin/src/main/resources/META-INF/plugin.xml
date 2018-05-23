@@ -1,6 +1,6 @@
 <idea-plugin>
     <id>org.mule.tooling.intellij.dataweave.v2</id>
-    <paramName>DataWeave 2.0 Intellij Plugin.</paramName>
+    <name>DataWeave 2.0 Intellij Plugin.</name>
     <version>2.0.4</version>
     <vendor email="mariano.achaval@mulesoft.com" url="https://github.com/mulesoft-labs/data-weave-intellij-plugin">
         Mulesoft
