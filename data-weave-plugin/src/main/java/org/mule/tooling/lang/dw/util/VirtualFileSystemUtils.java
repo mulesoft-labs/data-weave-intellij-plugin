@@ -7,6 +7,7 @@ import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.search.FileTypeIndex;
 import com.intellij.psi.search.GlobalSearchScope;
+import org.jetbrains.annotations.NotNull;
 import org.mule.tooling.lang.dw.WeaveFileType;
 import org.mule.weave.v2.parser.ast.variables.NameIdentifier;
 import org.mule.weave.v2.sdk.NameIdentifierHelper;
@@ -16,6 +17,7 @@ import java.util.List;
 
 public class VirtualFileSystemUtils {
 
+    @NotNull
     public static NameIdentifier calculateNameIdentifier(Project project, VirtualFile vfs) {
         final VirtualFile contentRootForFile = ProjectFileIndex.SERVICE.getInstance(project).getSourceRootForFile(vfs);
         if (contentRootForFile != null) {

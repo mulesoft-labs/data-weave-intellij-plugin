@@ -50,6 +50,8 @@
             <li>Weave Preview support</li>
             <li>Regex validation</li>
             <li>Improved language injection in mule configuration and java literals</li>
+            <li>Surround with log and DoBlock</li>
+            <li>Go To Class support</li>
           </ul>
         </li>
       </ul>

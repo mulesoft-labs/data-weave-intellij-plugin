@@ -3,10 +3,6 @@ package org.mule.tooling.lang.dw.parser.psi;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.navigation.ItemPresentation;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ProjectFileIndex;
-import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
 import org.jetbrains.annotations.NotNull;
@@ -15,8 +11,8 @@ import org.mule.tooling.lang.dw.WeaveFileType;
 import org.mule.tooling.lang.dw.WeaveIcons;
 import org.mule.tooling.lang.dw.reference.WeaveIdentifierPsiReference;
 import org.mule.tooling.lang.dw.reference.WeaveModuleReferenceSet;
+import org.mule.tooling.lang.dw.util.VirtualFileSystemUtils;
 import org.mule.weave.v2.parser.ast.variables.NameIdentifier;
-import org.mule.weave.v2.sdk.NameIdentifierHelper;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -32,13 +28,13 @@ public class WeavePsiImplUtils {
             @Nullable
             @Override
             public String getPresentableText() {
-                return "Document";
+                return document.getName();
             }
 
             @Nullable
             @Override
             public String getLocationString() {
-                return null;
+                return document.getQualifiedName();
             }
 
             @Nullable
@@ -49,47 +45,26 @@ public class WeavePsiImplUtils {
         };
     }
 
-    @Nullable
+    @NotNull
     public static String getName(WeaveDocument document) {
         final NameIdentifier nameIdentifier = getNameIdentifier(document);
-        if (nameIdentifier != null) {
-            return nameIdentifier.name();
-        } else {
-            return null;
-        }
+        return nameIdentifier.localName().name();
     }
 
-    @Nullable
+    @NotNull
     private static NameIdentifier getNameIdentifier(WeaveDocument document) {
         final PsiFile containingFile = document.getContainingFile();
         return getNameIdentifier(containingFile);
     }
 
-    @Nullable
     public static NameIdentifier getNameIdentifier(PsiFile containingFile) {
-        final Project project = containingFile.getProject();
-        final VirtualFile vfs = containingFile.getVirtualFile();
-        final VirtualFile contentRootForFile = ProjectFileIndex.SERVICE.getInstance(project).getSourceRootForFile(vfs);
-        if (contentRootForFile != null) {
-            final String relPath = VfsUtil.getRelativePath(vfs, contentRootForFile);
-            if (relPath != null) {
-                return NameIdentifierHelper.fromWeaveFilePath(relPath);
-            } else {
-                return null;
-            }
-        } else {
-            return null;
-        }
+        return VirtualFileSystemUtils.calculateNameIdentifier(containingFile.getProject(), containingFile.getVirtualFile());
     }
 
-    @Nullable
+    @NotNull
     public static String getQualifiedName(WeaveDocument document) {
         final NameIdentifier nameIdentifier = getNameIdentifier(document);
-        if (nameIdentifier != null) {
-            return nameIdentifier.toString();
-        } else {
-            return null;
-        }
+        return nameIdentifier.name();
     }
 
     public static WeaveDocument setName(WeaveDocument document, String name) {
