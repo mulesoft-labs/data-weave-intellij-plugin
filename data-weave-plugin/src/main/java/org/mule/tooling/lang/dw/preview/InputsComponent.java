@@ -92,7 +92,7 @@ public class InputsComponent implements Disposable {
         return tabInfo;
     }
 
-    private void closeAllInputs() {
+    public void closeAllInputs() {
 //        inputPanel.grabFocus();
         inputTabs.getTabs().removeAllTabs();
     }

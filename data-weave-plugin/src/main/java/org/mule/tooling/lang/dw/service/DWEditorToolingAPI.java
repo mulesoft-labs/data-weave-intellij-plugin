@@ -12,6 +12,7 @@ import com.intellij.codeInsight.template.impl.MacroParser;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.components.AbstractProjectComponent;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
@@ -22,7 +23,6 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.util.PsiUtil;
-import com.intellij.util.concurrency.FutureResult;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
@@ -34,6 +34,7 @@ import org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.qn.WeaveQualifiedNameProvider;
 import org.mule.tooling.lang.dw.service.agent.WeaveAgentComponent;
+import org.mule.tooling.lang.dw.util.AsyncCache;
 import org.mule.weave.v2.completion.EmptyDataFormatDescriptorProvider$;
 import org.mule.weave.v2.completion.IntellijTemplate;
 import org.mule.weave.v2.completion.IntellijTemplateVariable;
@@ -59,12 +60,7 @@ import org.mule.weave.v2.ts.WeaveType;
 import scala.Option;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 public class DWEditorToolingAPI extends AbstractProjectComponent implements Disposable {
 
@@ -126,20 +122,22 @@ public class DWEditorToolingAPI extends AbstractProjectComponent implements Disp
     }
 
     private WeaveDocumentToolingService didOpen(PsiFile psiFile) {
-        com.intellij.openapi.vfs.VirtualFile virtualFile = psiFile.getVirtualFile();
-        final VirtualFile file;
-        if (!virtualFile.isInLocalFileSystem()) {
-            //We create a dummy virtual file
-            file = new VirtualFileSystemAdaptor.IntellijVirtualFileAdaptor(projectVirtualFileSystem, virtualFile, myProject, NameIdentifier.ANONYMOUS_NAME());
-        } else {
-            final String url = virtualFile.getUrl();
-            file = projectVirtualFileSystem.file(url);
-        }
-        final DataWeaveScenariosManager instance = DataWeaveScenariosManager.getInstance(myProject);
-        final WeaveDocument weaveDocument = WeavePsiUtils.getWeaveDocument(psiFile);
-        final ImplicitInput currentImplicitTypes = instance.getCurrentImplicitTypes(weaveDocument);
-        final WeaveType expectedOutput = instance.getExpectedOutput(weaveDocument);
-        return dwTextDocumentService.open(file, currentImplicitTypes != null ? currentImplicitTypes : new ImplicitInput(), Option.apply(expectedOutput));
+        return ReadAction.compute(() -> {
+            com.intellij.openapi.vfs.VirtualFile virtualFile = psiFile.getVirtualFile();
+            final VirtualFile file;
+            if (!virtualFile.isInLocalFileSystem()) {
+                //We create a dummy virtual file
+                file = new VirtualFileSystemAdaptor.IntellijVirtualFileAdaptor(projectVirtualFileSystem, virtualFile, myProject, NameIdentifier.ANONYMOUS_NAME());
+            } else {
+                final String url = virtualFile.getUrl();
+                file = projectVirtualFileSystem.file(url);
+            }
+            final DataWeaveScenariosManager instance = DataWeaveScenariosManager.getInstance(myProject);
+            final WeaveDocument weaveDocument = WeavePsiUtils.getWeaveDocument(psiFile);
+            final ImplicitInput currentImplicitTypes = instance.getCurrentImplicitTypes(weaveDocument);
+            final WeaveType expectedOutput = instance.getExpectedOutput(weaveDocument);
+            return dwTextDocumentService.open(file, currentImplicitTypes != null ? currentImplicitTypes : new ImplicitInput(), Option.apply(expectedOutput));
+        });
     }
 
     @Nullable
@@ -371,69 +369,32 @@ public class DWEditorToolingAPI extends AbstractProjectComponent implements Disp
     private static class RemoteResourceResolver implements WeaveResourceResolver {
 
         private Project myProject;
-        private Map<NameIdentifier, CacheEntry> cache = new HashMap<>();
+        private AsyncCache<NameIdentifier, Option<WeaveResource>> cache = new AsyncCache<>((name, callback) ->
+                WeaveAgentComponent.getInstance(myProject).resolveModule(name.name(), name.loader().get(), myProject, event -> {
+                    if (event.content().isDefined()) {
+                        String content = event.content().get();
+                        Option<WeaveResource> resourceOption = Option.apply(WeaveResource$.MODULE$.apply(name.name(), content));
+                        callback.accept(resourceOption);
+                    } else {
+                        Option<WeaveResource> empty = Option.empty();
+                        callback.accept(empty);
+                    }
+                })
+        );
 
         public RemoteResourceResolver(Project myProject) {
             this.myProject = myProject;
         }
 
         void invalidateCache(NameIdentifier name) {
-            if (cache.containsKey(name)) {
-                cache.get(name).invalidate();
-            }
+            cache.invalidate(name);
         }
 
         @Override
         public Option<WeaveResource> resolve(NameIdentifier name) {
-            CacheEntry weaveResourceOption = cache.get(name);
-            if (weaveResourceOption != null && weaveResourceOption.isValid()) {
-                return weaveResourceOption.getValue();
-            } else {
-                FutureResult<Option<WeaveResource>> futureResource = new FutureResult<>();
-                WeaveAgentComponent.getInstance(myProject).resolveModule(name.name(), name.loader().get(), myProject, event -> {
-                    if (event.content().isDefined()) {
-                        String content = event.content().get();
-                        Option<WeaveResource> resourceOption = Option.apply(WeaveResource$.MODULE$.apply(name.name(), content));
-                        cache.put(name, new CacheEntry(resourceOption));
-                        futureResource.set(resourceOption);
-                    } else {
-                        Option<WeaveResource> empty = Option.empty();
-                        futureResource.set(empty);
-                    }
-                });
-                try {
-                    return futureResource.get(500, TimeUnit.MILLISECONDS);
-                } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                    if (weaveResourceOption != null) {
-                        return weaveResourceOption.getValue();
-                    } else {
-                        return Option.empty();
-                    }
-                }
-            }
+            return cache.resolve(name).orElse(Option.empty());
         }
 
     }
 
-    private static class CacheEntry {
-        private Option<WeaveResource> value;
-        private boolean valid;
-
-        public CacheEntry(Option<WeaveResource> value) {
-            this.value = value;
-            this.valid = true;
-        }
-
-        public void invalidate() {
-            this.valid = false;
-        }
-
-        public Option<WeaveResource> getValue() {
-            return value;
-        }
-
-        public boolean isValid() {
-            return valid;
-        }
-    }
 }

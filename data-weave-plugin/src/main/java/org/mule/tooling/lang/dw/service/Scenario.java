@@ -7,12 +7,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Objects;
 
 
 public class Scenario implements ItemPresentation {
 
+    public static final String INPUTS_FOLDER = "inputs";
     private VirtualFile scenario;
 
     public Scenario(@NotNull VirtualFile scenario) {
@@ -26,11 +28,50 @@ public class Scenario implements ItemPresentation {
 
     @Nullable
     public VirtualFile getInputs() {
-        return scenario.findChild("inputs");
+        if (!isValid(scenario)) {
+            return null;
+        }
+        return scenario.findChild(INPUTS_FOLDER);
+    }
+
+    @Nullable
+    public VirtualFile addInput(String fileName) {
+        try {
+            VirtualFile inputs = getOrCreateInputs();
+            return inputs.createChildData(this, fileName);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @NotNull
+    private VirtualFile getOrCreateInputs() throws IOException {
+        VirtualFile inputs = getInputs();
+        if (!isValid(inputs)) {
+            inputs = scenario.createChildDirectory(this, INPUTS_FOLDER);
+        }
+        return inputs;
+    }
+
+    @Nullable
+    public VirtualFile addOutput(String fileName) {
+        if (!isValid(scenario)) {
+            return null;
+        }
+        try {
+            return scenario.createChildData(this, fileName);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Nullable
     public VirtualFile getExpected() {
+        if (!isValid(scenario)) {
+            return null;
+        }
         VirtualFile[] children = scenario.getChildren();
         return Arrays.stream(children).filter((vf) -> vf.getNameWithoutExtension().equals("out")).findFirst().orElse(null);
     }
@@ -61,9 +102,17 @@ public class Scenario implements ItemPresentation {
         return Objects.equals(scenario, scenario1.scenario);
     }
 
+    private boolean isValid(VirtualFile file) {
+        return file != null && file.isValid();
+    }
+
     @Override
     public int hashCode() {
 
         return Objects.hash(scenario);
+    }
+
+    public boolean isValid() {
+        return scenario.isValid();
     }
 }

@@ -170,35 +170,43 @@ public class WeaveAgentComponent extends AbstractProjectComponent {
                 //disable the service as for some weird reason it can not be started
                 disable();
             }
+
         }
 
     }
 
     public void runPreview(String inputsPath, String script, String identifier, String url, Long maxTime, Module module, RunPreviewCallback callback) {
+
+
         checkClientConnected(() -> {
                     //Make sure all files are persisted before running preview
+//                    ApplicationManager.getApplication().invokeLater(() -> {
                     ApplicationManager.getApplication().invokeLater(() -> {
-                        //Save all files
-                        FileDocumentManager.getInstance().saveAllDocuments();
-                        final String[] paths = getClasspath(module);
-                        client.runPreview(inputsPath, script, identifier, url, maxTime, paths, new DefaultWeaveAgentClientListener() {
-                            @Override
-                            public void onPreviewExecuted(PreviewExecutedEvent result) {
-                                ApplicationManager.getApplication().invokeLater(() -> {
-                                    if (result instanceof PreviewExecutedSuccessfulEvent) {
-                                        PreviewExecutedSuccessfulEvent successfulEvent = (PreviewExecutedSuccessfulEvent) result;
-                                        callback.onPreviewSuccessful(successfulEvent);
-                                    } else if (result instanceof PreviewExecutedFailedEvent) {
-                                        callback.onPreviewFailed((PreviewExecutedFailedEvent) result);
-                                    }
+                                //Save all files
+                                FileDocumentManager.getInstance().saveAllDocuments();
+                                ApplicationManager.getApplication().executeOnPooledThread(() -> {
+                                    final String[] paths = getClasspath(module);
+                                    client.runPreview(inputsPath, script, identifier, url, maxTime, paths, new DefaultWeaveAgentClientListener() {
+                                        @Override
+                                        public void onPreviewExecuted(PreviewExecutedEvent result) {
+                                            ApplicationManager.getApplication().invokeLater(() -> {
+                                                if (result instanceof PreviewExecutedSuccessfulEvent) {
+                                                    PreviewExecutedSuccessfulEvent successfulEvent = (PreviewExecutedSuccessfulEvent) result;
+                                                    callback.onPreviewSuccessful(successfulEvent);
+                                                } else if (result instanceof PreviewExecutedFailedEvent) {
+                                                    callback.onPreviewFailed((PreviewExecutedFailedEvent) result);
+                                                }
 
+                                            });
+                                        }
+                                    });
                                 });
 
                             }
-                        });
-                    });
+                    );
                 }
         );
+
     }
 
     @NotNull

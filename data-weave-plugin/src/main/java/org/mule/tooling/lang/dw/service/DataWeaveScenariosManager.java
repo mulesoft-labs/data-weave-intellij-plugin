@@ -4,6 +4,10 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.components.AbstractProjectComponent;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtil;
+import com.intellij.openapi.progress.ProcessCanceledException;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.util.ProgressIndicatorUtils;
+import com.intellij.openapi.progress.util.ReadTask;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VfsUtil;
@@ -20,13 +24,16 @@ import com.intellij.psi.PsiTreeChangeEvent;
 import com.intellij.util.concurrency.FutureResult;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.mule.tooling.lang.dw.WeaveConstants;
 import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
+import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.service.agent.WeaveAgentComponent;
 import org.mule.weave.v2.debugger.event.WeaveTypeEntry;
 import org.mule.weave.v2.editor.ImplicitInput;
 import org.mule.weave.v2.ts.AnyType;
 import org.mule.weave.v2.ts.WeaveType;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -44,9 +51,11 @@ public class DataWeaveScenariosManager extends AbstractProjectComponent implemen
     //TODO we should set this into a settings
     public static final String INTEGRATION_TEST_FOLDER_NAME = "dwit";
 
-    private Map<String, Scenario> selectedScenario = new HashMap<>();
+    private Map<String, Scenario> selectedScenariosByMapping = new HashMap<>();
     private Map<Scenario, ImplicitInput> implicitInputTypes = new HashMap<>();
     private Map<Scenario, WeaveType> expectedOutputType = new HashMap<>();
+    private Map<String, VirtualFile> dwitFolders = new HashMap<>();
+
 
     protected DataWeaveScenariosManager(Project project) {
         super(project);
@@ -63,7 +72,18 @@ public class DataWeaveScenariosManager extends AbstractProjectComponent implemen
         PsiManager.getInstance(myProject).addPsiTreeChangeListener(new PsiTreeChangeAdapter() {
             @Override
             public void childReplaced(@NotNull PsiTreeChangeEvent event) {
-                onModified(event.getFile());
+                ProgressIndicatorUtils.scheduleWithWriteActionPriority(new ReadTask() {
+                    @Override
+                    public void computeInReadAction(@NotNull ProgressIndicator indicator) throws ProcessCanceledException {
+                        onModified(event.getFile());
+                    }
+
+                    @Override
+                    public void onCanceled(@NotNull ProgressIndicator indicator) {
+
+                    }
+                });
+
             }
         }, this);
 
@@ -102,16 +122,25 @@ public class DataWeaveScenariosManager extends AbstractProjectComponent implemen
         if (myProject.isDisposed()) {
             return;
         }
-
         final Module moduleForFile = ModuleUtil.findModuleForFile(modifiedFile, myProject);
-        final VirtualFile testFolder = getScenariosTestFolder(moduleForFile);
-        if (testFolder != null && VfsUtil.isAncestor(testFolder, modifiedFile, true)) {
-            VirtualFile scenario = modifiedFile;
-            while (!scenario.getParent().getParent().equals(testFolder)) {
-                scenario = scenario.getParent();
-            }
+
+        final VirtualFile dwitFolder = getScenariosRootFolder(moduleForFile);
+        if (dwitFolder != null && VfsUtil.isAncestor(dwitFolder, modifiedFile, true)) {
+            VirtualFile scenario = findScenario(modifiedFile, dwitFolder);
             onModified(new Scenario(scenario));
         }
+    }
+
+    @NotNull
+    private VirtualFile findScenario(VirtualFile modifiedFile, VirtualFile dwitFolder) {
+        VirtualFile scenario = modifiedFile;
+        if (scenario.getParent().equals(dwitFolder)) {
+            return scenario;
+        }
+        while (!scenario.getParent().getParent().equals(dwitFolder)) {
+            scenario = scenario.getParent();
+        }
+        return scenario;
     }
 
     private void onModified(Scenario scenario) {
@@ -120,7 +149,7 @@ public class DataWeaveScenariosManager extends AbstractProjectComponent implemen
     }
 
     public void setCurrentScenario(WeaveDocument weaveDocument, Scenario scenario) {
-        this.selectedScenario.put(weaveDocument.getQualifiedName(), scenario);
+        this.selectedScenariosByMapping.put(weaveDocument.getQualifiedName(), scenario);
     }
 
     @Nullable
@@ -143,7 +172,7 @@ public class DataWeaveScenariosManager extends AbstractProjectComponent implemen
                     futureResult.set(result);
                 });
                 try {
-                    return futureResult.get(500, TimeUnit.MILLISECONDS);
+                    return futureResult.get(WeaveConstants.SERVER_TIMEOUT, TimeUnit.MILLISECONDS);
                 } catch (InterruptedException | ExecutionException | TimeoutException e) {
                     return null;
                 }
@@ -180,7 +209,7 @@ public class DataWeaveScenariosManager extends AbstractProjectComponent implemen
                         futureResult.set(implicitInput);
                     });
                     try {
-                        return futureResult.get(500, TimeUnit.MILLISECONDS);
+                        return futureResult.get(WeaveConstants.SERVER_TIMEOUT, TimeUnit.MILLISECONDS);
                     } catch (InterruptedException | ExecutionException | TimeoutException e) {
                         return null;
                     }
@@ -200,11 +229,13 @@ public class DataWeaveScenariosManager extends AbstractProjectComponent implemen
         if (weaveDocument == null) {
             return null;
         }
-        Scenario scenario = selectedScenario.get(weaveDocument.getQualifiedName());
-        if (scenario == null) {
-            List<Scenario> scenariosFor = getScenariosFor(weaveDocument);
-            if (!scenariosFor.isEmpty()) {
-                scenario = scenariosFor.get(0);
+        String qName = weaveDocument.getQualifiedName();
+        Scenario scenario = selectedScenariosByMapping.get(qName);
+        if (scenario == null || !scenario.isValid()) {
+            selectedScenariosByMapping.remove(qName);
+            List<Scenario> scenarios = getScenariosFor(weaveDocument);
+            if (!scenarios.isEmpty()) {
+                scenario = scenarios.get(0);
             }
         }
         return scenario;
@@ -217,37 +248,104 @@ public class DataWeaveScenariosManager extends AbstractProjectComponent implemen
         final PsiFile weaveFile = weaveDocument.getContainingFile();
         final Module moduleForFile = ModuleUtil.findModuleForFile(weaveFile.getVirtualFile(), weaveFile.getProject());
         if (moduleForFile != null) {
-            VirtualFile integrationTestFolder = getScenariosTestFolder(moduleForFile);
-            if (integrationTestFolder != null) {
-                List<VirtualFile> scenarios = findScenarios(weaveFile, integrationTestFolder);
-                result.addAll(scenarios.stream().map(Scenario::new).collect(Collectors.toList()));
-            }
+            List<VirtualFile> scenarios = findScenarios(weaveFile);
+            result.addAll(scenarios.stream().map(Scenario::new).collect(Collectors.toList()));
         }
         return result;
     }
 
-    private List<VirtualFile> findScenarios(PsiFile psiFile, VirtualFile integrationTestFolder) {
-        WeaveDocument weaveDocument = getWeaveDocument(psiFile);
-        if (weaveDocument != null) {
-            String qualifiedName = weaveDocument.getQualifiedName();
-            if (qualifiedName != null) {
-                VirtualFile testDirectory = integrationTestFolder.findChild(qualifiedName);
-                if (testDirectory != null) {
-                    return Arrays.asList(testDirectory.getChildren());
-                }
-            }
+    private List<VirtualFile> findScenarios(PsiFile psiFile) {
+        VirtualFile mappingTestFolder = findMappingTestFolder(psiFile);
+        if (mappingTestFolder != null) {
+            return Arrays.asList(mappingTestFolder.getChildren());
         }
         return new ArrayList<>();
     }
 
     @Nullable
-    private VirtualFile getScenariosTestFolder(@Nullable Module module) {
+    public VirtualFile findMappingTestFolder(PsiFile psiFile) {
+        WeaveDocument document = getWeaveDocument(psiFile);
+        if (document != null) {
+            String qualifiedName = document.getQualifiedName();
+            if (qualifiedName != null) {
+                VirtualFile scenariosRootFolder = getScenariosRootFolder(psiFile);
+                if (scenariosRootFolder != null) {
+                    return scenariosRootFolder.findChild(qualifiedName);
+                }
+            }
+        }
+        return null;
+    }
+
+    public VirtualFile findOrCreateMappingTestFolder(PsiFile psiFile) {
+        VirtualFile testFolder = findMappingTestFolder(psiFile);
+        if (testFolder == null) {
+            testFolder = createMappingTestFolder(psiFile);
+        }
+        return testFolder;
+    }
+
+
+//    @NotNull
+//    public VirtualFile getOrCreateTestFolder(PsiFile weaveFile) {
+//        VirtualFile scenariosTestFolder = getScenariosRootFolder(weaveFile);
+//        if (scenariosTestFolder != null) {
+//            return scenariosTestFolder;
+//        } else {
+//            //create
+//
+//        }
+//    }
+
+    @Nullable
+    public VirtualFile createScenario(PsiFile psiFile) {
+        VirtualFile testFolder = findOrCreateMappingTestFolder(psiFile);
+        try {
+            VirtualFile scenarioFolder = testFolder.createChildDirectory(this, "scenario_name");
+            // TODO: maybe create empty inputs folder.
+            return scenarioFolder;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Nullable
+    public VirtualFile createMappingTestFolder(PsiFile weaveFile) {
+        try {
+            VirtualFile dwitFolder = getScenariosRootFolder(weaveFile);
+            WeaveDocument document = WeavePsiUtils.getWeaveDocument(weaveFile);
+            String qName = document.getQualifiedName();
+            return dwitFolder.createChildDirectory(this, qName);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Nullable
+    public VirtualFile getScenariosRootFolder(PsiFile weaveFile) {
+        final Module module = ModuleUtil.findModuleForFile(weaveFile.getVirtualFile(), weaveFile.getProject());
+        if (module != null) {
+            return getScenariosRootFolder(module);
+        }
+        return null;
+    }
+
+    @Nullable
+    private VirtualFile getScenariosRootFolder(@Nullable Module module) {
         if (module == null) {
             return null;
+        }
+        String moduleName = module.getName();
+        VirtualFile maybeFolder = dwitFolders.get(moduleName);
+        if (maybeFolder != null) {
+            return maybeFolder;
         }
         VirtualFile[] sourceRoots = ModuleRootManager.getInstance(module).getSourceRoots(true);
         for (VirtualFile sourceRoot : sourceRoots) {
             if (sourceRoot.isDirectory() && sourceRoot.getName().endsWith(INTEGRATION_TEST_FOLDER_NAME)) {
+                dwitFolders.put(moduleName, sourceRoot);
                 return sourceRoot;
             }
         }

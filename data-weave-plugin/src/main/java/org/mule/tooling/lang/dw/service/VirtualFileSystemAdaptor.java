@@ -2,6 +2,8 @@ package org.mule.tooling.lang.dw.service;
 
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ReadAction;
+import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
@@ -142,7 +144,7 @@ public class VirtualFileSystemAdaptor implements VirtualFileSystem, Disposable {
         public IntellijVirtualFileAdaptor(VirtualFileSystem fs, @NotNull VirtualFile vfs, @NotNull Project project, NameIdentifier name) {
             this.fs = fs;
             this.vfs = vfs;
-            this.document = FileDocumentManager.getInstance().getDocument(vfs);
+            this.document = ReadAction.compute(() -> FileDocumentManager.getInstance().getDocument(vfs));
             this.project = project;
             this.name = name;
         }
@@ -154,13 +156,13 @@ public class VirtualFileSystemAdaptor implements VirtualFileSystem, Disposable {
 
         @Override
         public String read() {
-            return document.getText();
+            return ReadAction.compute(() -> document.getText());
         }
 
         @Override
         public void write(String content) {
             if (document != null) {
-                document.setText(content);
+                WriteAction.run(() -> document.setText(content));
             }
         }
 
