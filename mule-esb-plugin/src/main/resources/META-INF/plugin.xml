@@ -11,12 +11,16 @@
 
     <idea-version since-build="145"/>
 
+    <depends>com.intellij.properties</depends>
+    <depends>org.jetbrains.idea.maven</depends>
+
     <change-notes><![CDATA[
     ]]>
     </change-notes>
 
     <extensions defaultExtensionNs="com.intellij">
-        <moduleBuilder builderClass="org.mule.tooling.runtime.wizard.SmartConnectorModuleBuilder"/>
+        <moduleBuilder builderClass="org.mule.tooling.runtime.wizard.SdkModuleBuilder"/>
+        <fileTemplateGroup implementation="org.mule.tooling.runtime.template.RuntimeTemplateManager"/>
     </extensions>
 
     <project-components>

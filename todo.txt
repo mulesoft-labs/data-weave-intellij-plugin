@@ -1,4 +1,9 @@
 Intellij snippets
+
+ExpressionTypeProvider
+
+InlayParameterHintsExtension
+
 //In order to improve autcompletion
 
 LiveTemplateLookupElementImpl
