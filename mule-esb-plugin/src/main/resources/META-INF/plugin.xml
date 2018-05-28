@@ -1,0 +1,34 @@
+<idea-plugin>
+    <id>org.mule.tooling.intellij.muleruntime.v2</id>
+    <name>Mule 4 Runtime Intellij Plugin.</name>
+    <version>2.0.3</version>
+    <vendor email="mariano.achaval@mulesoft.com" url="https://github.com/mulesoft-labs/data-weave-intellij-plugin">
+        Mulesoft
+    </vendor>
+    <description><![CDATA[
+     Mule Runtime platform plugin
+    ]]></description>
+
+    <idea-version since-build="145"/>
+
+    <change-notes><![CDATA[
+    ]]>
+    </change-notes>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <moduleBuilder builderClass="org.mule.tooling.runtime.wizard.SmartConnectorModuleBuilder"/>
+    </extensions>
+
+    <project-components>
+
+    </project-components>
+    <application-components>
+
+    </application-components>
+
+
+    <actions>
+
+    </actions>
+
+</idea-plugin>

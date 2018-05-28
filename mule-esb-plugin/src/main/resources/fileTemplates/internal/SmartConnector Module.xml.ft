@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+
+    <groupId>${GROUP_ID}</groupId>
+    <artifactId>${ARTIFACT_ID}</artifactId>
+    <version>${VERSION}</version>
+    <packaging>mule-extension</packaging>
+
+    <name>${ARTIFACT_ID} Smart Connector</name>
+    <description>A Mule extension done with pure Mule DSL</description>
+
+    <properties>
+        <mule.version>${MULE_VERSION}</mule.version>
+        <mule.extensions.maven.plugin.version>${MULE_MAVEN_PLUGIN_VERSION}</mule.extensions.maven.plugin.version>
+        <munit.extensions.maven.plugin.version>${MTF_VERSION}</munit.extensions.maven.plugin.version>
+
+        <maven.resources.version>3.0.2</maven.resources.version>
+        <munit.version>2.1.0</munit.version>
+        <munit.input.directory>src/test/munit</munit.input.directory>
+        <munit.output.directory>${basedir}/target/test-mule/munit</munit.output.directory>
+    </properties>
+
+    <dependencies>
+        <!--Needed to discover the 'xml-based' XmlExtensionLoader for smart connectors-->
+        <dependency>
+            <groupId>org.mule.runtime</groupId>
+            <artifactId>mule-module-extensions-xml-support</artifactId>
+            <version>${mule.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <!--MUnit Dependencies-->
+        <dependency>
+            <groupId>com.mulesoft.munit</groupId>
+            <artifactId>munit-runner</artifactId>
+            <version>${munit.version}</version>
+            <classifier>mule-plugin</classifier>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>com.mulesoft.munit</groupId>
+                    <artifactId>munit-extensions-maven-plugin</artifactId>
+                    <version>${munit.extensions.maven.plugin.version}</version>
+                    <executions>
+                        <execution>
+                            <id>munit-extension-test</id>
+                            <phase>integration-test</phase>
+                            <goals>
+                                <goal>test</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <dynamicPorts>
+                            <dynamicPort>a.dynamic.port</dynamicPort>
+                        </dynamicPorts>
+                        <environmentVariables>
+                            <MY_ENV>envVar</MY_ENV>
+                        </environmentVariables>
+                        <!--<argLines>-->
+                        <!--&lt;!&ndash; To debug the runtime through MUnit &ndash;&gt;-->
+                        <!--<debugger.argline>-agentlib:jdwp=transport=dt_socket,server=y,address=8000,suspend=y</debugger.argline>-->
+                        <!--<argLine>-Djava.library.path=lib/</argLine>-->
+                        <!--<argLine>-Xmx8192m</argLine>-->
+                        <!--<argLine>-XX:-UseGCOverheadLimit</argLine>-->
+                        <!--</argLines>-->
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>${maven.resources.version}</version>
+                    <executions>
+                        <execution>
+                            <id>copy-munit-resources</id>
+                            <phase>process-test-resources</phase>
+                            <goals>
+                                <goal>copy-resources</goal>
+                            </goals>
+                            <configuration>
+                                <outputDirectory>${munit.output.directory}</outputDirectory>
+                                <resources>
+                                    <resource>
+                                        <directory>${munit.input.directory}</directory>
+                                        <filtering>true</filtering>
+                                    </resource>
+                                </resources>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+        <plugins>
+            <plugin>
+                <groupId>org.mule.runtime.plugins</groupId>
+                <artifactId>mule-extensions-maven-plugin</artifactId>
+                <version>${mule.extensions.maven.plugin.version}</version>
+                <extensions>true</extensions>
+            </plugin>
+            <plugin>
+                <groupId>com.mulesoft.munit</groupId>
+                <artifactId>munit-extensions-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>
