@@ -1,14 +1,17 @@
 package org.mule.tooling.lang.dw.annotator;
 
+import com.intellij.codeInsight.intention.IntentionAction;
+import com.intellij.lang.annotation.Annotation;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.ExternalAnnotator;
 import com.intellij.lang.annotation.HighlightSeverity;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ReadAction;
-import com.intellij.openapi.progress.util.ProgressIndicatorUtils;
-import com.intellij.openapi.util.Computable;
+import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiFile;
+import com.intellij.util.IncorrectOperationException;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.WeaveFileType;
@@ -16,8 +19,10 @@ import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.service.DWEditorToolingAPI;
 import org.mule.tooling.lang.dw.service.DataWeaveScenariosManager;
+import org.mule.tooling.lang.dw.service.IJWeaveTextDocument;
 import org.mule.tooling.lang.dw.util.AsyncCache;
 import org.mule.weave.v2.editor.ImplicitInput;
+import org.mule.weave.v2.editor.QuickFix;
 import org.mule.weave.v2.editor.ValidationMessage;
 import org.mule.weave.v2.editor.ValidationMessages;
 import org.mule.weave.v2.parser.location.Position;
@@ -39,7 +44,7 @@ public class WeaveValidatorAnnotator extends ExternalAnnotator<PsiFile, Validati
     @Nullable
     @Override
     public ValidationMessages doAnnotate(PsiFile file) {
-        WeaveDocument weaveDocument = ApplicationManager.getApplication().runReadAction((Computable<WeaveDocument>) () -> WeavePsiUtils.getWeaveDocument(file));
+        WeaveDocument weaveDocument = ReadAction.compute(() -> WeavePsiUtils.getWeaveDocument(file));
         if (weaveDocument == null) {
             return null;
         }
@@ -70,7 +75,10 @@ public class WeaveValidatorAnnotator extends ExternalAnnotator<PsiFile, Validati
             WeaveLocation location = validationMessage.location();
             int startIndex = getValidIndex(location.startPosition());
             int endIndex = getValidIndex(location.endPosition());
-            holder.createAnnotation(severity, new TextRange(startIndex, endIndex), validationMessage.message().message());
+            Annotation annotation = holder.createAnnotation(severity, new TextRange(startIndex, endIndex), validationMessage.message().message());
+            if (validationMessage.quickFix().isDefined()) {
+                annotation.registerFix(new WeaveIntentionAction(validationMessage.quickFix().get()));
+            }
         }
     }
 
@@ -81,6 +89,45 @@ public class WeaveValidatorAnnotator extends ExternalAnnotator<PsiFile, Validati
         } else {
             return index;
         }
+    }
+
+    private static class WeaveIntentionAction implements IntentionAction {
+
+        private QuickFix quickFix;
+
+        public WeaveIntentionAction(QuickFix quickFix) {
+            this.quickFix = quickFix;
+        }
+
+        @Nls(capitalization = Nls.Capitalization.Sentence)
+        @NotNull
+        @Override
+        public String getText() {
+            return quickFix.name();
+        }
+
+        @Nls(capitalization = Nls.Capitalization.Sentence)
+        @NotNull
+        @Override
+        public String getFamilyName() {
+            return quickFix.description();
+        }
+
+        @Override
+        public boolean isAvailable(@NotNull Project project, Editor editor, PsiFile file) {
+            return true;
+        }
+
+        @Override
+        public void invoke(@NotNull Project project, Editor editor, PsiFile file) throws IncorrectOperationException {
+            quickFix.quickFix().run(new IJWeaveTextDocument(editor, project));
+        }
+
+        @Override
+        public boolean startInWriteAction() {
+            return false;
+        }
+
     }
 
 }
