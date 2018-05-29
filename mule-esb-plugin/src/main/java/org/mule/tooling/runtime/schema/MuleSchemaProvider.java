@@ -93,12 +93,6 @@ public class MuleSchemaProvider extends XmlSchemaProvider {
                     if (metaData instanceof XmlNSDescriptorImpl) {
                         XmlNSDescriptorImpl descriptor = (XmlNSDescriptorImpl) metaData;
                         String defaultNamespace = descriptor.getDefaultNamespace();
-
-                        //Stupid HTTP module XSD weirdo
-                        if (xsd.getName().contains("mule-httpn"))
-                            defaultNamespace = "http://www.mulesoft.org/schema/mule/http";
-                        /////
-
                         if (StringUtils.isNotEmpty(defaultNamespace)) {
                             if (StringUtils.isNotEmpty(tagName)) {
                                 XmlElementDescriptor elementDescriptor = descriptor.getElementDescriptor(tagName, defaultNamespace);
@@ -113,7 +107,7 @@ public class MuleSchemaProvider extends XmlSchemaProvider {
                 }
             }
         } catch (Exception e) {
-            //e.printStackTrace();
+            LOG.warn(e);
         }
         return namespaces;
     }
@@ -130,12 +124,11 @@ public class MuleSchemaProvider extends XmlSchemaProvider {
             for (Map.Entry<String, XmlFile> entry : schemas.entrySet()) {
                 final String s = getNamespace(entry.getValue(), context.getProject());
                 if (s != null && s.equals(namespace)) {
-                    if (!entry.getKey().contains("mule-httpn.xsd"))
-                        locations.add(entry.getKey()); //Observe the formatting rules
+                    locations.add(entry.getKey());
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.warn(e);
         }
         return locations;
     }
@@ -163,12 +156,12 @@ public class MuleSchemaProvider extends XmlSchemaProvider {
         final Project project = module.getProject();
         final CachedValuesManager manager = CachedValuesManager.getManager(project);
 
-        Map<String, XmlFile> schemas = new HashMap<String, XmlFile>();
+        final Map<String, XmlFile> schemas = new HashMap<>();
 
-        ArrayList<Object> dependencies = new ArrayList<Object>();
+        final ArrayList<Object> dependencies = new ArrayList<>();
         dependencies.add(ProjectRootManager.getInstance(project));
 
-        Map<String, String> schemaUrlsAndFileNames = manager.getParameterizedCachedValue(module, SPRING_SCHEMA_NAMES_KEY, new SchemaFileNamesCachedProvider(), false, module);
+        final Map<String, String> schemaUrlsAndFileNames = manager.getParameterizedCachedValue(module, SPRING_SCHEMA_NAMES_KEY, new SchemaFileNamesCachedProvider(), false, module);
 
         for (String url : schemaUrlsAndFileNames.keySet()) {
             final String fileName = schemaUrlsAndFileNames.get(url);
@@ -203,11 +196,6 @@ public class MuleSchemaProvider extends XmlSchemaProvider {
 
     @Nullable
     private static String getNamespace(final XmlFile xmlFile, final Project project) {
-        //Stupid HTTP module XSD weirdo
-        if (xmlFile.getName().contains("mule-httpn.xsd"))
-            return "http://www.mulesoft.org/schema/mule/http";
-        /////
-
         final XmlDocument document = xmlFile.getDocument();
         if (document != null) {
             final PsiMetaData metaData = document.getMetaData();
@@ -279,10 +267,6 @@ public class MuleSchemaProvider extends XmlSchemaProvider {
                     schemasMap.putAll(parseSpringSchemas(springSchemasContent));
                 }
             }
-
-            //Fix for HTTP module schema vs old HTTP transport schema
-            schemasMap.put("http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd", "META-INF/mule-httpn.xsd");
-
             return schemasMap;
         }
     }

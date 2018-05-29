@@ -21,6 +21,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <moduleBuilder builderClass="org.mule.tooling.runtime.wizard.SdkModuleBuilder"/>
         <fileTemplateGroup implementation="org.mule.tooling.runtime.template.RuntimeTemplateManager"/>
+        <xml.schemaProvider implementation="org.mule.tooling.runtime.schema.MuleSchemaProvider"/>
     </extensions>
 
     <project-components>

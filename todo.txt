@@ -1,15 +1,19 @@
 Intellij snippets
-
+---------------------------------------
+Type Hints
 ExpressionTypeProvider
 
 InlayParameterHintsExtension
+-----------------------------------------
 
-//In order to improve autcompletion
+//In order to improve autcompletion and run templates
 
 LiveTemplateLookupElementImpl
 LiveTemplateCompletionContributor
 
 TemplateManager.createTemplate()
+
+---------------------------------------------
 
 
 //For the DW 1.0 to 2.0 migrator we should implement SingularCopyPastePostProcessor[TextBlockTransferableData] look at the scala plugin

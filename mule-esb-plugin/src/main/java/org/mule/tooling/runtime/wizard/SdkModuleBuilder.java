@@ -22,7 +22,7 @@ public class SdkModuleBuilder extends MavenModuleBuilder implements SourcePathsB
     private String mtfVersion = "1.0.0-SNAPSHOT";
 
     public SdkModuleBuilder() {
-        setProjectId(new MavenId("org.mule.connectors", "sdk-module", "1.0.0-SNAPSHOT"));
+        setProjectId(new MavenId("org.mule.connectors", "my-mule-module", "1.0.0-SNAPSHOT"));
     }
 
     @Override
@@ -39,7 +39,7 @@ public class SdkModuleBuilder extends MavenModuleBuilder implements SourcePathsB
     }
 
     private VirtualFile createAndGetContentEntry() {
-        String path = FileUtil.toSystemIndependentName(this.getContentEntryPath());
+        final String path = FileUtil.toSystemIndependentName(this.getContentEntryPath());
         new File(path).mkdirs();
         return LocalFileSystem.getInstance().refreshAndFindFileByPath(path);
     }

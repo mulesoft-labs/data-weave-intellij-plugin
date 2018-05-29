@@ -9,6 +9,7 @@ public class MuleConfigUtils {
     public static final String CONFIG_RELATIVE_PATH = "src/main/app";
 
     public static final String MULE_LOCAL_NAME = "mule";
+    public static final String MODULE_LOCAL_NAME = "module";
     public static final String MULE_FLOW_LOCAL_NAME = "flow";
     public static final String MULE_SUB_FLOW_LOCAL_NAME = "sub-flow";
     public static final String MUNIT_TEST_LOCAL_NAME = "test";
@@ -28,7 +29,7 @@ public class MuleConfigUtils {
         }
         final XmlFile psiFile1 = (XmlFile) psiFile;
         final XmlTag rootTag = psiFile1.getRootTag();
-        return isMuleTag(rootTag);
+        return isMuleTag(rootTag) || isModule(rootTag);
     }
 
     public static boolean isMUnitFile(PsiFile psiFile) {
@@ -49,6 +50,10 @@ public class MuleConfigUtils {
 
     public static boolean isMuleTag(XmlTag rootTag) {
         return rootTag.getLocalName().equalsIgnoreCase(MULE_LOCAL_NAME);
+    }
+
+    public static boolean isModule(XmlTag rootTag) {
+        return rootTag.getLocalName().equalsIgnoreCase(MODULE_LOCAL_NAME);
     }
 
     public static boolean isFlowTag(XmlTag rootTag) {
