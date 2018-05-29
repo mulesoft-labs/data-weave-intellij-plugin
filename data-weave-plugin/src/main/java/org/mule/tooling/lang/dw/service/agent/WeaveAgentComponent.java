@@ -19,6 +19,7 @@ import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.components.AbstractProjectComponent;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
@@ -257,7 +258,8 @@ public class WeaveAgentComponent extends AbstractProjectComponent {
     public boolean isWeaveRuntimeInstalled() {
         try {
             GlobalSearchScope scope = GlobalSearchScope.allScope(myProject);
-            PsiClass c = JavaPsiFacade.getInstance(myProject).findClass(getMarkerClassFQName(), scope);
+            JavaPsiFacade psiFacade = JavaPsiFacade.getInstance(myProject);
+            PsiClass c = ReadAction.compute(() -> psiFacade.findClass(getMarkerClassFQName(), scope));
             return c != null;
         } catch (IndexNotReadyException e) {
             //If index is not yes available just try it out
