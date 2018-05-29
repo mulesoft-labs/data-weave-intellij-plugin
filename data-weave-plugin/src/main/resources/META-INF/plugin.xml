@@ -130,6 +130,8 @@
         <moduleBuilder builderClass="org.mule.tooling.lang.dw.wizard.WeaveModuleBuilder"/>
         <lang.surroundDescriptor language="Weave"
                                  implementationClass="org.mule.tooling.lang.dw.surround.WeaveSurroundDescriptor"/>
+        <codeInsight.typeInfo language="Weave"
+                              implementationClass="org.mule.tooling.lang.dw.hints.WeaveExpressionTypeProvider"/>
     </extensions>
 
     <project-components>
@@ -161,11 +163,6 @@
                 description="Create New DataWeave">
             <add-to-group group-id="NewGroup" anchor="first"/>
             <keyboard-shortcut keymap="$default" first-keystroke="shift ctrl W"/>
-        </action>
-        <action id="org.mule.tooling.lang.dw.actions.ShowTypeOfSelectionAction" class="org.mule.tooling.lang.dw.actions.ShowTypeOfSelectionAction"
-                text="Show Weave Type of Selection" description="Shows the type of the selected code">
-            <keyboard-shortcut keymap="$default" first-keystroke="meta shift T"/>
-            <add-to-group group-id="AnalyzeMenu" anchor="last"/>
         </action>
     </actions>
 
