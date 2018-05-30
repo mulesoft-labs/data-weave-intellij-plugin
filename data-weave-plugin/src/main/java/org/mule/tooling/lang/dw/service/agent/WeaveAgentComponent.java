@@ -278,15 +278,18 @@ public class WeaveAgentComponent extends AbstractProjectComponent {
             //Make sure all files are persisted before running preview
             ApplicationManager.getApplication().invokeLater(() -> {
                 FileDocumentManager.getInstance().saveAllDocuments();
-                client.inferInputsWeaveType(inputsPath, new DefaultWeaveAgentClientListener() {
-                    @Override
-                    public void onImplicitWeaveTypesCalculated(ImplicitInputTypesEvent result) {
-                        ApplicationManager.getApplication().invokeLater(() -> {
-                            callback.onInputsTypesCalculated(result);
-                        });
-                    }
+                ApplicationManager.getApplication().executeOnPooledThread(() -> {
+                    client.inferInputsWeaveType(inputsPath, new DefaultWeaveAgentClientListener() {
+                        @Override
+                        public void onImplicitWeaveTypesCalculated(ImplicitInputTypesEvent result) {
+                            ApplicationManager.getApplication().invokeLater(() -> {
+                                callback.onInputsTypesCalculated(result);
+                            });
+                        }
+                    });
                 });
             });
+
         });
     }
 
