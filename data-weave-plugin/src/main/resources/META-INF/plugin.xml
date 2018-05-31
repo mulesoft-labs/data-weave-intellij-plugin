@@ -132,6 +132,7 @@
                                  implementationClass="org.mule.tooling.lang.dw.surround.WeaveSurroundDescriptor"/>
         <codeInsight.typeInfo language="Weave"
                               implementationClass="org.mule.tooling.lang.dw.hints.WeaveExpressionTypeProvider"/>
+        <copyPastePostProcessor implementation="org.mule.tooling.lang.dw.migrator.V1ToV2PostProcessor"/>
     </extensions>
 
     <project-components>

@@ -3,7 +3,9 @@ Intellij snippets
 Type Hints
 ExpressionTypeProvider
 
-InlayParameterHintsExtension
+EditorBoundHighlightingPass --> With this is done the scala one
+
+InlayParameterHintsProvider -->  This is for the paramet er name
 -----------------------------------------
 
 //In order to improve autcompletion and run templates
