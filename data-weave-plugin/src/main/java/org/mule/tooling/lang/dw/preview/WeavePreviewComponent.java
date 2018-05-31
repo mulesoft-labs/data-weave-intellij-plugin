@@ -7,20 +7,18 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
-import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ReadAction;
-import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtil;
-import com.intellij.openapi.progress.*;
-import com.intellij.openapi.progress.util.ProgressIndicatorUtils;
-import com.intellij.openapi.progress.util.ReadTask;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComponentWithActions;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.*;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
+import com.intellij.psi.PsiTreeChangeAdapter;
+import com.intellij.psi.PsiTreeChangeEvent;
 import com.intellij.ui.ListCellRendererWrapper;
 import com.intellij.ui.content.Content;
 import com.intellij.util.Alarm;
@@ -57,16 +55,15 @@ public class WeavePreviewComponent implements Disposable, DumbAware {
     private WeaveTreeChangeListener listener;
 
 
-    public WeavePreviewComponent() {
+    public WeavePreviewComponent(Project project) {
         inputsComponent = new InputsComponent();
         outputComponent = new OutputComponent();
+        myProject = project;
     }
 
-    public JComponent createComponent(Project project) {
-        myProject = project;
-
+    public JComponent createComponent() {
         listener = new WeaveTreeChangeListener();
-        PsiManager.getInstance(project).addPsiTreeChangeListener(listener, this);
+        PsiManager.getInstance(myProject).addPsiTreeChangeListener(listener, this);
 
         return createPreviewPanel();
     }

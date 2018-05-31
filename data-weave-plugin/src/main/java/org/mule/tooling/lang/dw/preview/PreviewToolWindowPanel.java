@@ -57,17 +57,17 @@ public class PreviewToolWindowPanel extends SimpleToolWindowPanel implements Dis
     public PreviewToolWindowPanel(Project project) {
         super(false);
         this.myProject = project;
-        setupUI();
+        setupUI(project);
         initFileListener();
     }
 
-    private void setupUI() {
+    private void setupUI(Project project) {
         cardLayout = new CardLayout();
         mainPanel = new JPanel(cardLayout);
         mainPanel.add(new MessagePanel("No DataWeave runtime found."), NO_RUNTIME_AVAILABLE);
         mainPanel.add(new MessagePanel("No live view available."), NOTHING_TO_SHOW);
-        weavePreviewComponent = new WeavePreviewComponent();
-        previewComponent = weavePreviewComponent.createComponent(myProject);
+        weavePreviewComponent = new WeavePreviewComponent(project);
+        previewComponent = weavePreviewComponent.createComponent();
         mainPanel.add(previewComponent, PREVIEW_EDITOR);
         setContent(mainPanel);
         setToolbar(createToolbar());
@@ -171,7 +171,7 @@ public class PreviewToolWindowPanel extends SimpleToolWindowPanel implements Dis
                     mainPanel.remove(previewComponent);
                     previewComponent = null;
                 }
-                previewComponent = weavePreviewComponent.createComponent(myProject);
+                previewComponent = weavePreviewComponent.createComponent();
                 mainPanel.add(previewComponent, PREVIEW_EDITOR);
                 weavePreviewComponent.open(psiFile);
                 cardLayout.show(mainPanel, PREVIEW_EDITOR);

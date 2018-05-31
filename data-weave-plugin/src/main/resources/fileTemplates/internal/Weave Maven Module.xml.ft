@@ -9,7 +9,7 @@
     <artifactId>${ARTIFACT_ID}</artifactId>
     <version>${VERSION}</version>
 
-    <paramName>DataWeave ${ARTIFACT_ID} Module</paramName>
+    <name>DataWeave ${ARTIFACT_ID} Module</name>
 
     <dependencies>
 
