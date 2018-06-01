@@ -52,6 +52,11 @@ public class VirtualFileSystemUtils {
 
     public static NameIdentifier getNameIdentifierWithRelative(VirtualFile vfs, VirtualFile contentRootForFile) {
         final String relPath = VfsUtil.getRelativePath(vfs, contentRootForFile);
-        return NameIdentifierHelper.fromWeaveFilePath(relPath);
+        if (relPath != null) {
+            return NameIdentifierHelper.fromWeaveFilePath(relPath);
+        } else {
+
+            return NameIdentifier.fromPath(contentRootForFile.getPath());
+        }
     }
 }
