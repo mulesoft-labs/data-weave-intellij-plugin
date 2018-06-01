@@ -9,12 +9,18 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ReadAction;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtil;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComponentWithActions;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiDocumentManager;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiTreeChangeAdapter;
@@ -220,12 +226,15 @@ public class WeavePreviewComponent implements Disposable, DumbAware {
         ApplicationManager.getApplication().executeOnPooledThread(() -> {
             if (selectedItem == null)
                 return;
-            WeaveDocument document = ReadAction.compute(() -> getCurrentWeaveDocument());
-            String documentQName = ReadAction.compute(document::getQualifiedName);
+            final Document document = PsiDocumentManager.getInstance(myProject).getDocument(currentFile);
+            WeaveDocument weaveDocument = ReadAction.compute(() -> getCurrentWeaveDocument());
+            String documentQName = ReadAction.compute(weaveDocument::getQualifiedName);
             final WeaveAgentComponent agentComponent = WeaveAgentComponent.getInstance(myProject);
             final String inputsPath = selectedItem.getInputs().getPath();
             final Module module = ModuleUtil.findModuleForFile(currentFile.getVirtualFile(), myProject);
             String url = ReadAction.compute(() -> currentFile.getVirtualFile().getUrl());
+
+            //IMPORTANT NOTE: sometimes our current WeaveDocument is not updated correctly, so always get text from Document
             String text = ReadAction.compute(document::getText);
 
             agentComponent.runPreview(inputsPath, text, documentQName, url, 10000L, module, new RunPreviewCallback() {
