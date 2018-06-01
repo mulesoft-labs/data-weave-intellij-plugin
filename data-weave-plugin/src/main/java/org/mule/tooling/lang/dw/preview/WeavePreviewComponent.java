@@ -12,15 +12,11 @@ import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtil;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.ProgressManager;
-import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComponentWithActions;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDocumentManager;
-import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiTreeChangeAdapter;
@@ -35,6 +31,7 @@ import org.mule.tooling.lang.dw.WeaveConstants;
 import org.mule.tooling.lang.dw.WeaveFileType;
 import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
+import org.mule.tooling.lang.dw.preview.ui.AddInputDialog;
 import org.mule.tooling.lang.dw.service.DataWeaveScenariosManager;
 import org.mule.tooling.lang.dw.service.Scenario;
 import org.mule.tooling.lang.dw.service.agent.RunPreviewCallback;
@@ -100,6 +97,7 @@ public class WeavePreviewComponent implements Disposable, DumbAware {
         return previewPanel;
     }
 
+
     @NotNull
     private ComponentWithActions.Impl createInputComponent() {
         JComponent component = inputsComponent.createComponent(myProject);
@@ -107,28 +105,11 @@ public class WeavePreviewComponent implements Disposable, DumbAware {
         group.add(new AnAction("Add new input", "Adds a new input to the scenario", AllIcons.General.Add) {
             @Override
             public void actionPerformed(AnActionEvent e) {
+                Scenario currentScenarioMaybe = ReadAction.compute(() -> getCurrentScenario());
+                DataWeaveScenariosManager manager = getScenariosManager();
 
-                ApplicationManager.getApplication().runWriteAction(() -> {
-                    PsiFile currentFile = getCurrentFile();
-                    DataWeaveScenariosManager manager = getScenariosManager();
-                    WeaveDocument document = getCurrentWeaveDocument();
-                    Scenario currentScenario = manager.getCurrentScenarioFor(document);
-
-                    //todo: prompt user for an input name
-                    String inputName = "payload.json";
-
-                    if (currentScenario == null || !currentScenario.isValid()) {
-                        //create scenario
-                        VirtualFile scenarioFolder = manager.createScenario(currentFile);
-                        currentScenario = new Scenario(scenarioFolder);
-                        manager.setCurrentScenario(document, currentScenario);
-                    }
-                    VirtualFile inputFile = currentScenario.addInput(inputName);
-                    setFileContent(inputFile, "{}");
-
-                    System.out.println("WeavePreviewComponent.addNewInput");
-                });
-
+                AddInputDialog dialog = new AddInputDialog(myProject, manager, currentScenarioMaybe, currentFile);
+                dialog.show();
             }
 
             @Override
@@ -140,21 +121,7 @@ public class WeavePreviewComponent implements Disposable, DumbAware {
         return new ComponentWithActions.Impl(group, null, null, null, component);
     }
 
-    private void setFileContent(VirtualFile inputFile, String content) {
-        if (inputFile == null) {
-            return;
-        }
-        if (!inputFile.isValid()) {
-            System.out.println("Input file is invalid. " + inputFile.toString());
-            return;
-        }
 
-        try {
-            inputFile.setBinaryContent(content.getBytes());
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
 
 
     /**
@@ -222,18 +189,21 @@ public class WeavePreviewComponent implements Disposable, DumbAware {
         runPreview(currentScenario, currentFile);
     }
 
-    public void runPreview(Scenario selectedItem, PsiFile currentFile) {
+    public void runPreview(Scenario scenario, PsiFile currentFile) {
         ApplicationManager.getApplication().executeOnPooledThread(() -> {
-            if (selectedItem == null)
-                return;
+            if (scenario == null) return;
             final Document document = PsiDocumentManager.getInstance(myProject).getDocument(currentFile);
             WeaveDocument weaveDocument = ReadAction.compute(() -> getCurrentWeaveDocument());
             String documentQName = ReadAction.compute(weaveDocument::getQualifiedName);
             final WeaveAgentComponent agentComponent = WeaveAgentComponent.getInstance(myProject);
-            final String inputsPath = selectedItem.getInputs().getPath();
+            VirtualFile inputs = scenario.getInputs();
+            if (inputs == null) return;
+
+            final String inputsPath = inputs.getPath();
             final Module module = ModuleUtil.findModuleForFile(currentFile.getVirtualFile(), myProject);
             String url = ReadAction.compute(() -> currentFile.getVirtualFile().getUrl());
 
+            if (document == null) return;
             //IMPORTANT NOTE: sometimes our current WeaveDocument is not updated correctly, so always get text from Document
             String text = ReadAction.compute(document::getText);
 
@@ -260,8 +230,7 @@ public class WeavePreviewComponent implements Disposable, DumbAware {
     }
 
     private Scenario getCurrentScenario() {
-        WeaveDocument currentWeaveDocument = getCurrentWeaveDocument();
-        return getScenariosManager().getCurrentScenarioFor(currentWeaveDocument);
+        return getScenariosManager().getCurrentScenarioFor(getCurrentWeaveDocument());
     }
 
     private DataWeaveScenariosManager getScenariosManager() {
@@ -299,12 +268,8 @@ public class WeavePreviewComponent implements Disposable, DumbAware {
      */
     private class WeaveTreeChangeListener extends PsiTreeChangeAdapter {
         private boolean isRelevantEvent(PsiTreeChangeEvent event) {
-            return !isFileEvent(event);
-        }
-
-        private boolean isFileEvent(PsiTreeChangeEvent event) {
             PsiFile file = event.getFile();
-            return file != null && file.isDirectory();
+            return file != null;
         }
 
         @Override

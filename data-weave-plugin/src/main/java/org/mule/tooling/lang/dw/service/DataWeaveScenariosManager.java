@@ -48,9 +48,6 @@ import static org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils.getWeaveDocument
 
 public class DataWeaveScenariosManager extends AbstractProjectComponent implements Disposable {
 
-    //TODO we should set this into a settings
-    public static final String INTEGRATION_TEST_FOLDER_NAME = "dwit";
-
     private Map<String, Scenario> selectedScenariosByMapping = new HashMap<>();
     private Map<Scenario, ImplicitInput> implicitInputTypes = new HashMap<>();
     private Map<Scenario, WeaveType> expectedOutputType = new HashMap<>();
@@ -216,7 +213,6 @@ public class DataWeaveScenariosManager extends AbstractProjectComponent implemen
                 }
             }
             return null;
-
         }
     }
 
@@ -344,7 +340,7 @@ public class DataWeaveScenariosManager extends AbstractProjectComponent implemen
         }
         VirtualFile[] sourceRoots = ModuleRootManager.getInstance(module).getSourceRoots(true);
         for (VirtualFile sourceRoot : sourceRoots) {
-            if (sourceRoot.isDirectory() && sourceRoot.getName().endsWith(INTEGRATION_TEST_FOLDER_NAME)) {
+            if (sourceRoot.isDirectory() && sourceRoot.getName().endsWith(WeaveConstants.INTEGRATION_TEST_FOLDER_NAME)) {
                 dwitFolders.put(moduleName, sourceRoot);
                 return sourceRoot;
             }

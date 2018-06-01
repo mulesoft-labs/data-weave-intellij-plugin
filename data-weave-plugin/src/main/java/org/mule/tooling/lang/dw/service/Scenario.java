@@ -34,6 +34,11 @@ public class Scenario implements ItemPresentation {
         return scenario.findChild(INPUTS_FOLDER);
     }
 
+    public boolean containsInput(String inputName) {
+        VirtualFile inputs = Objects.requireNonNull(getInputs());
+        return inputs.findChild(inputName) != null;
+    }
+
     @Nullable
     public VirtualFile addInput(String fileName) {
         try {
