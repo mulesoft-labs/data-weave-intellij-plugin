@@ -23,6 +23,7 @@ import com.intellij.psi.util.PsiUtil;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
+import org.fest.util.Lists;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
@@ -54,6 +55,7 @@ import org.mule.weave.v2.sdk.WeaveResourceResolver;
 import org.mule.weave.v2.ts.WeaveType;
 import scala.Option;
 
+import javax.management.AttributeList;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,6 +63,8 @@ public class DWEditorToolingAPI extends AbstractProjectComponent implements Disp
 
     private VirtualFileSystemAdaptor projectVirtualFileSystem;
     private WeaveToolingService dwTextDocumentService;
+    private final List<Runnable> onClose = Lists.newArrayList();
+    private final List<Runnable> onOpen = Lists.newArrayList();
 
     protected DWEditorToolingAPI(Project project) {
         super(project);
@@ -315,6 +319,28 @@ public class DWEditorToolingAPI extends AbstractProjectComponent implements Disp
             return weaveType.toString(true, true);
         } else {
             return null;
+        }
+    }
+
+    public void addOnOpenListener(Runnable runnable) {
+        onOpen.add(runnable);
+    }
+
+    public void addOnCloseListener(Runnable runnable) {
+        onClose.add(runnable);
+    }
+
+    @Override
+    public void projectOpened() {
+        for (Runnable runnable : onOpen) {
+            runnable.run();
+        }
+    }
+
+    @Override
+    public void projectClosed() {
+        for (Runnable runnable : onClose) {
+            runnable.run();
         }
     }
 

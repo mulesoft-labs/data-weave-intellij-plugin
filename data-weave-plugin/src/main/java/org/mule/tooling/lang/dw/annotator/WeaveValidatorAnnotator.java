@@ -45,17 +45,22 @@ public class WeaveValidatorAnnotator extends ExternalAnnotator<PsiFile, Validati
     @Override
     public ValidationMessages doAnnotate(PsiFile file) {
         WeaveDocument weaveDocument = ReadAction.compute(() -> WeavePsiUtils.getWeaveDocument(file));
-        if (weaveDocument == null) {
-            return null;
-        }
-        DataWeaveScenariosManager scenariosManager = DataWeaveScenariosManager.getInstance(file.getProject());
-        DWEditorToolingAPI toolingAPI = DWEditorToolingAPI.getInstance(file.getProject());
+        if (weaveDocument == null) return null;
+        Project project = file.getProject();
+        if (project.isDisposed()) return null;
+
+        DataWeaveScenariosManager scenariosManager = DataWeaveScenariosManager.getInstance(project);
+        DWEditorToolingAPI toolingAPI = DWEditorToolingAPI.getInstance(project);
         ImplicitInput currentImplicitTypes = ReadAction.compute(() -> scenariosManager.getCurrentImplicitTypes(weaveDocument));
         if (weaveDocument.isModuleDocument() || currentImplicitTypes != null) {
             return toolingAPI.typeCheck(file);
         } else {
             if (cache == null) {
                 cache = new AsyncCache<>(toolingAPI::parseCheck);
+                toolingAPI.addOnCloseListener(() -> {
+                    // throw away cache on project close.
+                    cache = null;
+                });
             }
             return cache.resolve(file).orElse(null);
         }

@@ -1,16 +1,6 @@
 package org.mule.tooling.lang.dw.preview;
 
-import com.intellij.icons.AllIcons;
 import com.intellij.openapi.Disposable;
-import com.intellij.openapi.actionSystem.ActionManager;
-import com.intellij.openapi.actionSystem.ActionPopupMenu;
-import com.intellij.openapi.actionSystem.ActionToolbar;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
-import com.intellij.openapi.actionSystem.ToggleAction;
-import com.intellij.openapi.actionSystem.impl.ActionManagerImpl;
-import com.intellij.openapi.actionSystem.impl.MenuItemPresentationFactory;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.fileEditor.FileEditorManagerListener;
@@ -19,27 +9,18 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.wm.impl.content.ToolWindowContentUi;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
-import com.intellij.util.ui.JBUI;
-import com.intellij.util.ui.components.BorderLayoutPanel;
-import org.fest.util.Lists;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.WeaveFileType;
 import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
-import org.mule.tooling.lang.dw.service.DataWeaveScenariosManager;
-import org.mule.tooling.lang.dw.service.Scenario;
 import org.mule.tooling.lang.dw.service.agent.WeaveAgentComponent;
 import org.mule.tooling.lang.dw.ui.MessagePanel;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.InputEvent;
-import java.awt.event.MouseEvent;
-import java.util.List;
 
 public class PreviewToolWindowPanel extends SimpleToolWindowPanel implements Disposable {
     public static final String NOTHING_TO_SHOW = "NOTHING_TO_SHOW";
@@ -57,79 +38,23 @@ public class PreviewToolWindowPanel extends SimpleToolWindowPanel implements Dis
     public PreviewToolWindowPanel(Project project) {
         super(false);
         this.myProject = project;
-        setupUI(project);
-        initFileListener();
-    }
-
-    private void setupUI(Project project) {
         cardLayout = new CardLayout();
         mainPanel = new JPanel(cardLayout);
         mainPanel.add(new MessagePanel("No DataWeave runtime found."), NO_RUNTIME_AVAILABLE);
         mainPanel.add(new MessagePanel("No live view available."), NOTHING_TO_SHOW);
         weavePreviewComponent = new WeavePreviewComponent(project);
+        DumbService.getInstance(myProject).smartInvokeLater(() -> {
+            setupUI(project);
+            initFileListener();
+        });
+    }
+
+    private void setupUI(Project project) {
         previewComponent = weavePreviewComponent.createComponent();
         mainPanel.add(previewComponent, PREVIEW_EDITOR);
-        setContent(mainPanel);
-        setToolbar(createToolbar());
         cardLayout.show(mainPanel, NOTHING_TO_SHOW);
+        setContent(mainPanel);
     }
-
-    private BorderLayoutPanel createToolbar() {
-        final DefaultActionGroup group = new DefaultActionGroup();
-        group.add(new ToggleAction(null, "Pin to this mapping", AllIcons.General.Pin_tab) {
-
-            @Override
-            public boolean isSelected(AnActionEvent e) {
-                return pinned;
-            }
-
-            @Override
-            public void setSelected(AnActionEvent e, boolean state) {
-                pinned = state;
-            }
-        });
-        group.add(new AnAction("Run", "Execute", AllIcons.General.Run) {
-            @Override
-            public void actionPerformed(AnActionEvent e) {
-                weavePreviewComponent.runPreview();
-            }
-
-            @Override
-            public void update(AnActionEvent e) {
-                super.update(e);
-                setEnabled(weavePreviewComponent.runAvailable());
-            }
-        });
-        group.add(new ToggleAction(null, "Run on editor changes", AllIcons.Ide.IncomingChangesOn) {
-
-            @Override
-            public boolean isSelected(AnActionEvent e) {
-                return weavePreviewComponent.runOnChange();
-            }
-
-            @Override
-            public void setSelected(AnActionEvent e, boolean state) {
-                weavePreviewComponent.runOnChange(state);
-            }
-        });
-
-        group.add(new SelectScenarioAction());
-
-        final ActionManager actionManager = ActionManager.getInstance();
-        final ActionToolbar actionToolBar = actionManager.createActionToolbar(PreviewToolWindowFactory.ID, group, false);
-        return JBUI.Panels.simplePanel(actionToolBar.getComponent());
-    }
-
-    @NotNull
-    private List<Scenario> getScenarios(@Nullable PsiFile selectedPsiFile) {
-        if (selectedPsiFile == null) {
-            return Lists.newArrayList();
-        }
-        WeaveDocument weaveDocument = WeavePsiUtils.getWeaveDocument(selectedPsiFile);
-        DataWeaveScenariosManager instance = DataWeaveScenariosManager.getInstance(myProject);
-        return instance.getScenariosFor(weaveDocument);
-    }
-
 
     private void initFileListener() {
         setFile(getSelectedPsiFile());
@@ -185,48 +110,6 @@ public class PreviewToolWindowPanel extends SimpleToolWindowPanel implements Dis
         if (weavePreviewComponent != null) {
             Disposer.dispose(weavePreviewComponent);
             weavePreviewComponent = null;
-        }
-    }
-
-
-    private class SelectScenarioAction extends AnAction {
-        public SelectScenarioAction() {
-            super(null, "Select scenario", AllIcons.General.Gear);
-        }
-
-        @Override
-        public void actionPerformed(AnActionEvent e) {
-            DefaultActionGroup group = new DefaultActionGroup();
-            List<Scenario> scenarios = getScenarios(getSelectedPsiFile());
-
-            addScenarioActions(group, scenarios);
-
-            final InputEvent inputEvent = e.getInputEvent();
-            final ActionPopupMenu popupMenu =
-                    ((ActionManagerImpl) ActionManager.getInstance())
-                            .createActionPopupMenu(ToolWindowContentUi.POPUP_PLACE, group, new MenuItemPresentationFactory(true));
-
-            int x = 0;
-            int y = 0;
-            if (inputEvent instanceof MouseEvent) {
-                x = ((MouseEvent) inputEvent).getX();
-                y = ((MouseEvent) inputEvent).getY();
-            }
-            popupMenu.getComponent().show(inputEvent.getComponent(), x, y);
-        }
-
-        private void addScenarioActions(DefaultActionGroup group, List<Scenario> scenarios) {
-            for (Scenario scenario : scenarios) {
-                group.add(new AnAction(scenario.getPresentableText(), scenario.getLocationString(), null) {
-                    @Override
-                    public void actionPerformed(AnActionEvent e) {
-                        WeaveDocument currentWeaveDocument = weavePreviewComponent.getCurrentWeaveDocument();
-                        DataWeaveScenariosManager.getInstance(myProject).setCurrentScenario(currentWeaveDocument, scenario);
-                        weavePreviewComponent.loadScenario(scenario);
-                    }
-                });
-            }
-
         }
     }
 

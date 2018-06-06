@@ -23,7 +23,6 @@ public class OutputComponent implements Disposable {
     private Editor outputEditor;
     private String outputEditorFileExtension;
     private JPanel mainPanel;
-    //    private boolean runOnChange = true;
 
     public OutputComponent() {
         outputDocument = EditorFactory.getInstance().createDocument("");
@@ -38,8 +37,6 @@ public class OutputComponent implements Disposable {
         mainPanel = new JPanel(new BorderLayout());
         mainPanel.add(new MessagePanel("Waiting for preview execution to finish"));
         return mainPanel;
-
-
     }
 
 
@@ -91,22 +88,4 @@ public class OutputComponent implements Disposable {
     public void dispose() {
         disposeOutputEditorIfExists();
     }
-
-//    public boolean runAvailable() {
-//        if (currentFile != null && scenariosComboBox != null) {
-//            Scenario selectedItem = (Scenario) scenariosComboBox.getSelectedItem();
-//            return selectedItem != null;
-//        } else {
-//            return false;
-//        }
-//    }
-//
-//    public boolean runOnChange() {
-//        return runOnChange;
-//    }
-//
-//    public void runOnChange(boolean state) {
-//        this.runOnChange = state;
-//    }
-
 }

@@ -22,7 +22,7 @@ import java.util.function.Function;
  * @param <V> The type of the value
  */
 public class AsyncCache<K, V> {
-    private final BiConsumer<K, Consumer<V>> resolver;
+    private BiConsumer<K, Consumer<V>> resolver;
     private Map<K, CacheEntry<V>> cache = Maps.newHashMap();
 
     /**
@@ -38,7 +38,7 @@ public class AsyncCache<K, V> {
      * This constructor should be used when the resolver is blocking
      */
     public AsyncCache(Function<K, V> resolverFn) {
-        this.resolver = (key, callback) -> callback.accept(resolverFn.apply(key));
+        this.resolver = toBiconsumer(resolverFn);
     }
 
     public void invalidate(K key) {
@@ -67,5 +67,17 @@ public class AsyncCache<K, V> {
                 return Optional.empty();
             }
         }
+    }
+
+    public void setResolver(BiConsumer<K, Consumer<V>> resolver) {
+        this.resolver = resolver;
+    }
+
+    public void setResolver(Function<K, V> resolverFn) {
+        this.resolver = toBiconsumer(resolverFn);
+    }
+
+    private static <K, V> BiConsumer<K, Consumer<V>> toBiconsumer(Function<K, V> resolverFn) {
+        return (key, callback) -> callback.accept(resolverFn.apply(key));
     }
 }

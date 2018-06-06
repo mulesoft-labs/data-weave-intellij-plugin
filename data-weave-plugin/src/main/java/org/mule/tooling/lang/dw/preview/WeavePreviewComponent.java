@@ -4,18 +4,24 @@ import com.intellij.execution.ui.RunnerLayoutUi;
 import com.intellij.execution.ui.layout.PlaceInGrid;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.ActionPopupMenu;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.actionSystem.ToggleAction;
+import com.intellij.openapi.actionSystem.impl.ActionManagerImpl;
+import com.intellij.openapi.actionSystem.impl.MenuItemPresentationFactory;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtil;
-import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComponentWithActions;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.wm.impl.content.ToolWindowContentUi;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
@@ -24,7 +30,7 @@ import com.intellij.psi.PsiTreeChangeEvent;
 import com.intellij.ui.ListCellRendererWrapper;
 import com.intellij.ui.content.Content;
 import com.intellij.util.Alarm;
-import com.intellij.util.ui.components.BorderLayoutPanel;
+import org.fest.util.Lists;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.WeaveConstants;
@@ -41,9 +47,11 @@ import org.mule.weave.v2.debugger.event.PreviewExecutedFailedEvent;
 import org.mule.weave.v2.debugger.event.PreviewExecutedSuccessfulEvent;
 
 import javax.swing.*;
+import java.awt.event.InputEvent;
+import java.awt.event.MouseEvent;
 import java.util.List;
 
-public class WeavePreviewComponent implements Disposable, DumbAware {
+public class WeavePreviewComponent implements Disposable {
 
     private Project myProject;
     private PsiFile currentFile;
@@ -57,6 +65,7 @@ public class WeavePreviewComponent implements Disposable, DumbAware {
     private PreviewLogsViewer previewLogsViewer;
     private WeaveTreeChangeListener listener;
 
+    private boolean pinned = false;
 
     public WeavePreviewComponent(Project project) {
         inputsComponent = new InputsComponent();
@@ -77,24 +86,67 @@ public class WeavePreviewComponent implements Disposable, DumbAware {
 
 
     private JComponent createPreviewPanel() {
-        BorderLayoutPanel previewPanel = new BorderLayoutPanel();
-
-
         RunnerLayoutUi layoutUi = RunnerLayoutUi.Factory.getInstance(myProject).create("DW-Preview", "DW Preview", myProject.getName(), myProject);
         Content inputsContent = layoutUi.createContent("inputs", createInputComponent(), "Inputs", null, null);
         inputsContent.setCloseable(false);
-
+        inputsContent.setShouldDisposeContent(true);
         layoutUi.addContent(inputsContent, 0, PlaceInGrid.left, false);
+
         Content outputContent = layoutUi.createContent("output", outputComponent.createComponent(myProject), "Output", AllIcons.General.Information, null);
         outputContent.setCloseable(false);
-        layoutUi.addContent(outputContent, 1, PlaceInGrid.right, false);
+        outputContent.setShouldDisposeContent(true);
+        layoutUi.addContent(outputContent, 0, PlaceInGrid.center, false);
 
         previewLogsViewer = new PreviewLogsViewer(myProject);
         Content logsContent = layoutUi.createContent("logs", previewLogsViewer, "Logs/Errors", AllIcons.Debugger.Console_log, null);
-        layoutUi.addContent(logsContent, 2, PlaceInGrid.right, false);
+        logsContent.setShouldDisposeContent(true);
+        layoutUi.addContent(logsContent, 0, PlaceInGrid.right, false);
 
-        previewPanel.addToCenter(layoutUi.getComponent());
-        return previewPanel;
+        DefaultActionGroup group = createActionGroup(layoutUi);
+        layoutUi.getOptions().setLeftToolbar(group, "unknown");
+
+        return layoutUi.getComponent();
+    }
+
+    @NotNull
+    private DefaultActionGroup createActionGroup(RunnerLayoutUi layoutUi) {
+        DefaultActionGroup group = new DefaultActionGroup();
+        group.add(new ToggleAction(null, "Pin to this mapping", AllIcons.General.Pin_tab) {
+
+            @Override
+            public boolean isSelected(AnActionEvent e) {
+                return pinned;
+            }
+
+            @Override
+            public void setSelected(AnActionEvent e, boolean state) {
+                pinned = state;
+            }
+        });
+        group.add(new AnAction("Run", "Execute", AllIcons.General.Run) {
+            @Override
+            public void actionPerformed(AnActionEvent e) {
+                runPreview();
+            }
+        });
+        group.add(new ToggleAction(null, "Run on editor changes", AllIcons.Ide.IncomingChangesOn) {
+
+            @Override
+            public boolean isSelected(AnActionEvent e) {
+                return runOnChange();
+            }
+
+            @Override
+            public void setSelected(AnActionEvent e, boolean state) {
+                runOnChange(state);
+            }
+        });
+
+        group.add(new SelectScenarioAction());
+
+        AnAction[] actionsList = layoutUi.getOptions().getLayoutActionsList();
+        group.addAll(actionsList);
+        return group;
     }
 
 
@@ -177,7 +229,6 @@ public class WeavePreviewComponent implements Disposable, DumbAware {
     @Override
     public void dispose() {
         this.currentFile = null;
-
         inputsComponent.dispose();
         outputComponent.dispose();
         previewLogsViewer.dispose();
@@ -277,7 +328,6 @@ public class WeavePreviewComponent implements Disposable, DumbAware {
             if (isRelevantEvent(event)) return;
             super.childAdded(event);
             loadScenario(getCurrentScenario());
-//            doRunPreview();
         }
 
         @Override
@@ -285,7 +335,6 @@ public class WeavePreviewComponent implements Disposable, DumbAware {
             if (isRelevantEvent(event)) return;
             super.childRemoved(event);
             loadScenario(getCurrentScenario());
-//            doRunPreview();
         }
 
         @Override
@@ -297,7 +346,6 @@ public class WeavePreviewComponent implements Disposable, DumbAware {
 
         @Override
         public void childrenChanged(@NotNull PsiTreeChangeEvent event) {
-//            if (isRelevantEvent(event)) return;
             super.childrenChanged(event);
             doRunPreview();
         }
@@ -328,6 +376,64 @@ public class WeavePreviewComponent implements Disposable, DumbAware {
                 runPreview(scenario, psiFile);
 
             }, WeaveConstants.MODIFICATIONS_DELAY);
+        }
+    }
+
+    @NotNull
+    private List<Scenario> getScenarios(@Nullable PsiFile selectedPsiFile) {
+        if (selectedPsiFile == null) {
+            return Lists.newArrayList();
+        }
+        WeaveDocument weaveDocument = WeavePsiUtils.getWeaveDocument(selectedPsiFile);
+        DataWeaveScenariosManager instance = DataWeaveScenariosManager.getInstance(myProject);
+        return instance.getScenariosFor(weaveDocument);
+    }
+
+    @Nullable
+    private PsiFile getSelectedPsiFile() {
+        VirtualFile[] files = FileEditorManager.getInstance(myProject).getSelectedFiles();
+        return files.length == 0 ? null : PsiManager.getInstance(myProject).findFile(files[0]);
+    }
+
+
+    private class SelectScenarioAction extends AnAction {
+        public SelectScenarioAction() {
+            super(null, "Select scenario", AllIcons.General.Gear);
+        }
+
+        @Override
+        public void actionPerformed(AnActionEvent e) {
+            DefaultActionGroup group = new DefaultActionGroup();
+            List<Scenario> scenarios = getScenarios(getSelectedPsiFile());
+
+            addScenarioActions(group, scenarios);
+
+            final InputEvent inputEvent = e.getInputEvent();
+            final ActionPopupMenu popupMenu =
+                    ((ActionManagerImpl) ActionManager.getInstance())
+                            .createActionPopupMenu(ToolWindowContentUi.POPUP_PLACE, group, new MenuItemPresentationFactory(true));
+
+            int x = 0;
+            int y = 0;
+            if (inputEvent instanceof MouseEvent) {
+                x = ((MouseEvent) inputEvent).getX();
+                y = ((MouseEvent) inputEvent).getY();
+            }
+            popupMenu.getComponent().show(inputEvent.getComponent(), x, y);
+        }
+
+        private void addScenarioActions(DefaultActionGroup group, List<Scenario> scenarios) {
+            for (Scenario scenario : scenarios) {
+                group.add(new AnAction(scenario.getPresentableText(), scenario.getLocationString(), null) {
+                    @Override
+                    public void actionPerformed(AnActionEvent e) {
+                        WeaveDocument currentWeaveDocument = getCurrentWeaveDocument();
+                        DataWeaveScenariosManager.getInstance(myProject).setCurrentScenario(currentWeaveDocument, scenario);
+                        loadScenario(scenario);
+                    }
+                });
+            }
+
         }
     }
 }
