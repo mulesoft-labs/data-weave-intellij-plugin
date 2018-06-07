@@ -10,11 +10,13 @@ import javax.swing.*;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Optional;
 
 
 public class Scenario implements ItemPresentation {
 
     public static final String INPUTS_FOLDER = "inputs";
+    public static final String OUTPUT_FILE_NAME = "out";
     private VirtualFile scenario;
 
     public Scenario(@NotNull VirtualFile scenario) {
@@ -32,6 +34,16 @@ public class Scenario implements ItemPresentation {
             return null;
         }
         return scenario.findChild(INPUTS_FOLDER);
+    }
+
+    public Optional<VirtualFile> getOutput() {
+        return getChildByName(scenario, OUTPUT_FILE_NAME);
+    }
+
+    private Optional<VirtualFile> getChildByName(VirtualFile parent, String nameWithoutExt) {
+        if (!isValid(parent)) return Optional.empty();
+        VirtualFile[] children = parent.getChildren();
+        return Arrays.stream(children).filter(x -> x.getNameWithoutExtension().equals(nameWithoutExt)).findAny();
     }
 
     public boolean containsInput(String inputName) {

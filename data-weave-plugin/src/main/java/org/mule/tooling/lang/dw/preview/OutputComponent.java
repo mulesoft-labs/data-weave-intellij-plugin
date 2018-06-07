@@ -1,6 +1,16 @@
 package org.mule.tooling.lang.dw.preview;
 
+import com.intellij.diff.DiffContentFactory;
+import com.intellij.diff.DiffManager;
+import com.intellij.diff.DiffRequestPanel;
+import com.intellij.diff.contents.DiffContent;
+import com.intellij.diff.requests.DiffRequest;
+import com.intellij.diff.requests.SimpleDiffRequest;
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.actionSystem.ToggleAction;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
@@ -8,6 +18,8 @@ import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
+import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 import org.mule.tooling.lang.dw.ui.MessagePanel;
 import org.mule.weave.v2.debugger.event.PreviewExecutedSuccessfulEvent;
@@ -18,11 +30,21 @@ import java.io.UnsupportedEncodingException;
 
 public class OutputComponent implements Disposable {
 
+    public static final String EDITOR_PANEL = "editorPanel";
+    public static final String DIFF_PANEL = "diffPanel";
+    public static final String MESSAGE_PANEL = "messagePanel";
     private Project myProject;
+    private JPanel mainPanel;
+    private CardLayout cardLayout;
+
     private final Document outputDocument;
     private Editor outputEditor;
     private String outputEditorFileExtension;
-    private JPanel mainPanel;
+    private FileType outputType;
+    private JPanel editorPanel;
+    private JPanel messagePanel;
+    private DiffRequestPanel diffPanel;
+    private ShowDiffAction showDiffAction;
 
     public OutputComponent() {
         outputDocument = EditorFactory.getInstance().createDocument("");
@@ -30,35 +52,66 @@ public class OutputComponent implements Disposable {
 
     public JComponent createComponent(Project project) {
         myProject = project;
+        showDiffAction = new ShowDiffAction();
         return createOutputPanel();
     }
 
     private JComponent createOutputPanel() {
-        mainPanel = new JPanel(new BorderLayout());
-        mainPanel.add(new MessagePanel("Waiting for preview execution to finish"));
+        cardLayout = new CardLayout();
+        mainPanel = new JPanel(cardLayout);
+
+        messagePanel = new JPanel(new BorderLayout());
+        messagePanel.add(new MessagePanel("Waiting for preview execution to finish"));
+        mainPanel.add(messagePanel, MESSAGE_PANEL);
+
+        editorPanel = new JPanel(new BorderLayout());
+        mainPanel.add(editorPanel, EDITOR_PANEL);
+
+        diffPanel = DiffManager.getInstance().createRequestPanel(myProject, this, null);
+        mainPanel.add(diffPanel.getComponent(), DIFF_PANEL);
+        show(MESSAGE_PANEL);
         return mainPanel;
     }
 
-
-    public void changeOutputPanel(JComponent editorComponent) {
-        mainPanel.remove(0);
-        mainPanel.add(editorComponent);
+    public DefaultActionGroup createActions() {
+        DefaultActionGroup group = new DefaultActionGroup();
+        group.add(showDiffAction);
+        return group;
     }
 
-    public void onPreviewResult(PreviewExecutedSuccessfulEvent result) {
+    public void add(JComponent component, String name) {
+        mainPanel.add(component, name);
+    }
+
+    public void changePanel(JComponent newComponent, JComponent parent, String name) {
+        if (parent.getComponentCount() > 0) {
+            parent.remove(0);
+        }
+        parent.add(newComponent);
+        cardLayout.show(mainPanel, name);
+    }
+
+    public void show(String name) {
+        cardLayout.show(mainPanel, name);
+    }
+
+    public void onPreviewResult(PreviewExecutedSuccessfulEvent result, VirtualFile expectedOutput) {
         final String extension = (result.extension().startsWith(".")) ? result.extension().substring(1) : result.extension();
         final String content = getContent(result);
+        diffPanel.setRequest(createDiffRequest(content, expectedOutput));
         if (extension != null && (outputEditor == null || !extension.equals(outputEditorFileExtension))) {
             disposeOutputEditorIfExists();
             setDocumentContent(content);
-            FileType fileTypeByExtension = FileTypeManager.getInstance().getFileTypeByExtension(extension);
-            outputEditor = EditorFactory.getInstance().createEditor(outputDocument, myProject, fileTypeByExtension, true);
-            changeOutputPanel(outputEditor.getComponent());
+            outputType = FileTypeManager.getInstance().getFileTypeByExtension(extension);
+            outputEditor = EditorFactory.getInstance().createEditor(outputDocument, myProject, outputType, true);
             outputEditorFileExtension = extension;
+            if (!showDiffAction.isSelected) {
+                changePanel(outputEditor.getComponent(), editorPanel, EDITOR_PANEL);
+            }
         } else if (extension != null) {
             setDocumentContent(content);
         } else {
-            changeOutputPanel(new MessagePanel("Unable to render the output for extension " + extension));
+            changePanel(new MessagePanel("Unable to render the output for extension " + extension), messagePanel, MESSAGE_PANEL);
         }
 
     }
@@ -84,8 +137,54 @@ public class OutputComponent implements Disposable {
         }
     }
 
+    public FileType getOutputType() {
+        return outputType;
+    }
+
     @Override
     public void dispose() {
         disposeOutputEditorIfExists();
+        if (diffPanel != null) {
+            Disposer.dispose(diffPanel);
+            diffPanel = null;
+        }
     }
+
+    private class ShowDiffAction extends ToggleAction {
+        private boolean isSelected;
+
+        public ShowDiffAction() {
+            super(null, "Show diff", AllIcons.Actions.Diff);
+        }
+
+        @Override
+        public void update(@NotNull AnActionEvent e) {
+            super.update(e);
+            e.getPresentation().setEnabled(outputEditor != null);
+        }
+
+        @Override
+        public boolean isSelected(AnActionEvent e) {
+            return isSelected;
+        }
+
+        @Override
+        public void setSelected(AnActionEvent e, boolean state) {
+            isSelected = state;
+            if (isSelected) {
+                show(DIFF_PANEL);
+            } else {
+                show(EDITOR_PANEL);
+            }
+        }
+    }
+
+    @NotNull
+    private DiffRequest createDiffRequest(String actualText, VirtualFile expectedOutput) {
+        DiffContent expectedContent = DiffContentFactory.getInstance().create(myProject, expectedOutput);
+        FileType outputType = getOutputType();
+        DiffContent actualContent = DiffContentFactory.getInstance().create(myProject, actualText, outputType);
+        return new SimpleDiffRequest("Diff", expectedContent, actualContent, "Expected", "Actual");
+    }
+
 }

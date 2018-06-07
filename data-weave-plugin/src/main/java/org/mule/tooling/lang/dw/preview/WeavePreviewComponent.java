@@ -2,6 +2,7 @@ package org.mule.tooling.lang.dw.preview;
 
 import com.intellij.execution.ui.RunnerLayoutUi;
 import com.intellij.execution.ui.layout.PlaceInGrid;
+import com.intellij.execution.ui.layout.actions.RestoreLayoutAction;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionManager;
@@ -9,6 +10,7 @@ import com.intellij.openapi.actionSystem.ActionPopupMenu;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.actionSystem.ToggleAction;
 import com.intellij.openapi.actionSystem.impl.ActionManagerImpl;
 import com.intellij.openapi.actionSystem.impl.MenuItemPresentationFactory;
@@ -27,7 +29,6 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiTreeChangeAdapter;
 import com.intellij.psi.PsiTreeChangeEvent;
-import com.intellij.ui.ListCellRendererWrapper;
 import com.intellij.ui.content.Content;
 import com.intellij.util.Alarm;
 import org.fest.util.Lists;
@@ -92,7 +93,7 @@ public class WeavePreviewComponent implements Disposable {
         inputsContent.setShouldDisposeContent(true);
         layoutUi.addContent(inputsContent, 0, PlaceInGrid.left, false);
 
-        Content outputContent = layoutUi.createContent("output", outputComponent.createComponent(myProject), "Output", AllIcons.General.Information, null);
+        Content outputContent = layoutUi.createContent("output", createOutputComponent(), "Output", AllIcons.General.Information, null);
         outputContent.setCloseable(false);
         outputContent.setShouldDisposeContent(true);
         layoutUi.addContent(outputContent, 0, PlaceInGrid.center, false);
@@ -102,14 +103,13 @@ public class WeavePreviewComponent implements Disposable {
         logsContent.setShouldDisposeContent(true);
         layoutUi.addContent(logsContent, 0, PlaceInGrid.right, false);
 
-        DefaultActionGroup group = createActionGroup(layoutUi);
+        DefaultActionGroup group = createActionGroup();
         layoutUi.getOptions().setLeftToolbar(group, "unknown");
-
         return layoutUi.getComponent();
     }
 
     @NotNull
-    private DefaultActionGroup createActionGroup(RunnerLayoutUi layoutUi) {
+    private DefaultActionGroup createActionGroup() {
         DefaultActionGroup group = new DefaultActionGroup();
         group.add(new ToggleAction(null, "Pin to this mapping", AllIcons.General.Pin_tab) {
 
@@ -143,10 +143,17 @@ public class WeavePreviewComponent implements Disposable {
         });
 
         group.add(new SelectScenarioAction());
-
-        AnAction[] actionsList = layoutUi.getOptions().getLayoutActionsList();
-        group.addAll(actionsList);
+        group.add(createRestoreLayoutAction());
         return group;
+    }
+
+    @NotNull
+    private RestoreLayoutAction createRestoreLayoutAction() {
+        RestoreLayoutAction layoutAction = new RestoreLayoutAction();
+        Presentation presentation = layoutAction.getTemplatePresentation();
+        presentation.setIcon(AllIcons.Debugger.RestoreLayout);
+        presentation.setText("Restore layout");
+        return layoutAction;
     }
 
 
@@ -159,21 +166,24 @@ public class WeavePreviewComponent implements Disposable {
             public void actionPerformed(AnActionEvent e) {
                 Scenario currentScenarioMaybe = ReadAction.compute(() -> getCurrentScenario());
                 DataWeaveScenariosManager manager = getScenariosManager();
-
                 AddInputDialog dialog = new AddInputDialog(myProject, manager, currentScenarioMaybe, currentFile);
                 dialog.show();
             }
 
             @Override
             public void update(AnActionEvent e) {
-                super.update(e);
-//                setEnabled(weavePreviewComponent.runAvailable());
+                e.getPresentation().setEnabled(runAvailable());
             }
         });
         return new ComponentWithActions.Impl(group, null, null, null, component);
     }
 
-
+    @NotNull
+    private ComponentWithActions.Impl createOutputComponent() {
+        JComponent component = outputComponent.createComponent(myProject);
+        DefaultActionGroup group = outputComponent.createActions();
+        return new ComponentWithActions.Impl(group, null, null, null, component);
+    }
 
 
     /**
@@ -262,7 +272,9 @@ public class WeavePreviewComponent implements Disposable {
 
                 @Override
                 public void onPreviewSuccessful(PreviewExecutedSuccessfulEvent result) {
-                    outputComponent.onPreviewResult(result);
+                    Scenario scenario = getCurrentScenario();
+                    VirtualFile file = scenario.getOutput().orElse(null);
+                    outputComponent.onPreviewResult(result, file);
                     previewLogsViewer.clear();
                     previewLogsViewer.logInfo(ScalaUtils.toList(result.messages()));
                 }
@@ -305,14 +317,14 @@ public class WeavePreviewComponent implements Disposable {
     }
 
 
-    private static class ScenarioNameRenderer extends ListCellRendererWrapper<Scenario> {
-        @Override
-        public void customize(JList list, Scenario value, int index, boolean selected, boolean hasFocus) {
-            if (value != null) {
-                setText(value.getPresentableText());
-            }
-        }
-    }
+//    private static class ScenarioNameRenderer extends ListCellRendererWrapper<Scenario> {
+//        @Override
+//        public void customize(JList list, Scenario value, int index, boolean selected, boolean hasFocus) {
+//            if (value != null) {
+//                setText(value.getPresentableText());
+//            }
+//        }
+//    }
 
     /**
      * This listener runs the preview each time a change occurred in the PSI tree
