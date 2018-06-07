@@ -332,39 +332,40 @@ public class WeavePreviewComponent implements Disposable {
     private class WeaveTreeChangeListener extends PsiTreeChangeAdapter {
         private boolean isRelevantEvent(PsiTreeChangeEvent event) {
             PsiFile file = event.getFile();
-            return file != null;
+            return file != null && !file.getVirtualFile().getNameWithoutExtension().equals("out");
         }
 
         @Override
         public void childAdded(@NotNull PsiTreeChangeEvent event) {
-            if (isRelevantEvent(event)) return;
+            if (!isRelevantEvent(event)) return;
             super.childAdded(event);
             loadScenario(getCurrentScenario());
         }
 
         @Override
         public void childRemoved(@NotNull PsiTreeChangeEvent event) {
-            if (isRelevantEvent(event)) return;
+            if (!isRelevantEvent(event)) return;
             super.childRemoved(event);
             loadScenario(getCurrentScenario());
         }
 
         @Override
         public void childMoved(@NotNull PsiTreeChangeEvent event) {
-            if (isRelevantEvent(event)) return;
+            if (!isRelevantEvent(event)) return;
             super.childMoved(event);
             doRunPreview();
         }
 
         @Override
         public void childrenChanged(@NotNull PsiTreeChangeEvent event) {
+            if (!isRelevantEvent(event)) return;
             super.childrenChanged(event);
             doRunPreview();
         }
 
         @Override
         public void childReplaced(@NotNull PsiTreeChangeEvent event) {
-            if (isRelevantEvent(event)) return;
+            if (!isRelevantEvent(event)) return;
             doRunPreview();
 
             //We know the change came from this file now

@@ -98,7 +98,9 @@ public class OutputComponent implements Disposable {
     public void onPreviewResult(PreviewExecutedSuccessfulEvent result, VirtualFile expectedOutput) {
         final String extension = (result.extension().startsWith(".")) ? result.extension().substring(1) : result.extension();
         final String content = getContent(result);
-        diffPanel.setRequest(createDiffRequest(content, expectedOutput));
+        if (expectedOutput != null) {
+            diffPanel.setRequest(createDiffRequest(content, expectedOutput));
+        }
         if (extension != null && (outputEditor == null || !extension.equals(outputEditorFileExtension))) {
             disposeOutputEditorIfExists();
             setDocumentContent(content);
