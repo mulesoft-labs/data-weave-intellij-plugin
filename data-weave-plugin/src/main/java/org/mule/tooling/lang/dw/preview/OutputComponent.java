@@ -8,6 +8,7 @@ import com.intellij.diff.requests.DiffRequest;
 import com.intellij.diff.requests.SimpleDiffRequest;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.ToggleAction;
@@ -20,7 +21,12 @@ import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
+import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
+import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
+import org.mule.tooling.lang.dw.service.DataWeaveScenariosManager;
+import org.mule.tooling.lang.dw.service.Scenario;
 import org.mule.tooling.lang.dw.ui.MessagePanel;
 import org.mule.weave.v2.debugger.event.PreviewExecutedSuccessfulEvent;
 
@@ -34,6 +40,7 @@ public class OutputComponent implements Disposable {
     public static final String DIFF_PANEL = "diffPanel";
     public static final String MESSAGE_PANEL = "messagePanel";
     private Project myProject;
+    private PsiFile currentFile;
     private JPanel mainPanel;
     private CardLayout cardLayout;
 
@@ -75,6 +82,7 @@ public class OutputComponent implements Disposable {
 
     public DefaultActionGroup createActions() {
         DefaultActionGroup group = new DefaultActionGroup();
+        group.add(new SaveOutputAction());
         group.add(showDiffAction);
         return group;
     }
@@ -152,11 +160,29 @@ public class OutputComponent implements Disposable {
         }
     }
 
+    private class SaveOutputAction extends AnAction {
+        public SaveOutputAction() {
+            super(null, "Save expected output", AllIcons.Actions.Menu_saveall);
+        }
+
+        @Override
+        public void actionPerformed(AnActionEvent e) {
+            Scenario scenario = getCurrentScenario();
+            String ext = outputType.getDefaultExtension();
+            scenario.addOutput("out." + ext, outputDocument.getText(), myProject);
+        }
+
+        private Scenario getCurrentScenario() {
+            WeaveDocument document = WeavePsiUtils.getWeaveDocument(currentFile);
+            return DataWeaveScenariosManager.getInstance(myProject).getCurrentScenarioFor(document);
+        }
+    }
+
     private class ShowDiffAction extends ToggleAction {
         private boolean isSelected;
 
         public ShowDiffAction() {
-            super(null, "Show diff", AllIcons.Actions.Diff);
+            super(null, "Show diff", AllIcons.Actions.DiffPreview);
         }
 
         @Override
@@ -189,4 +215,7 @@ public class OutputComponent implements Disposable {
         return new SimpleDiffRequest("Diff", expectedContent, actualContent, "Expected", "Actual");
     }
 
+    public void setCurrentFile(PsiFile currentFile) {
+        this.currentFile = currentFile;
+    }
 }

@@ -198,6 +198,7 @@ public class WeavePreviewComponent implements Disposable {
         }
 
         this.currentFile = psiFile;
+        outputComponent.setCurrentFile(psiFile);
         WeaveDocument weaveDocument = WeavePsiUtils.getWeaveDocument(psiFile);
         DataWeaveScenariosManager instance = getScenariosManager();
         List<Scenario> scenarios = instance.getScenariosFor(weaveDocument);
@@ -214,9 +215,6 @@ public class WeavePreviewComponent implements Disposable {
     }
 
 
-    public WeaveDocument getCurrentWeaveDocument() {
-        return WeavePsiUtils.getWeaveDocument(currentFile);
-    }
 
     public void loadScenario(Scenario scenario) {
         if (scenario == null) {
@@ -292,12 +290,17 @@ public class WeavePreviewComponent implements Disposable {
 
     }
 
-    private Scenario getCurrentScenario() {
-        return getScenariosManager().getCurrentScenarioFor(getCurrentWeaveDocument());
+
+    public WeaveDocument getCurrentWeaveDocument() {
+        return WeavePsiUtils.getWeaveDocument(currentFile);
     }
 
     private DataWeaveScenariosManager getScenariosManager() {
         return DataWeaveScenariosManager.getInstance(myProject);
+    }
+
+    private Scenario getCurrentScenario() {
+        return getScenariosManager().getCurrentScenarioFor(getCurrentWeaveDocument());
     }
 
     public boolean runAvailable() {

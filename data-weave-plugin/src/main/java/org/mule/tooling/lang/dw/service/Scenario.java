@@ -1,10 +1,16 @@
 package org.mule.tooling.lang.dw.service;
 
 import com.intellij.navigation.ItemPresentation;
+import com.intellij.openapi.application.Application;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.WriteAction;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Ref;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.mule.tooling.lang.dw.migrator.YesNoDialog;
 
 import javax.swing.*;
 import java.io.IOException;
@@ -72,16 +78,60 @@ public class Scenario implements ItemPresentation {
     }
 
     @Nullable
-    public VirtualFile addOutput(String fileName) {
+    public VirtualFile addOutput(String fileName, String content, Project project) {
         if (!isValid(scenario)) {
             return null;
         }
+        VirtualFile file = scenario.findChild(fileName);
+        if (file == null) {
+            return createFile(fileName, content);
+        }
+
+        //TODO: maybe instead of yes/no show a preview of before/after
+        if (promptOverwrite(project)) {
+            setFileContent(file, content);
+        }
+        return file;
+    }
+
+    private Boolean promptOverwrite(Project project) {
+        Ref<Boolean> overwriteRef = Ref.create();
+        ApplicationManager.getApplication().invokeAndWait(() -> {
+            YesNoDialog dialog = new YesNoDialog("Overwrite file", "Do you want to overwrite the existing expected output?", null, project);
+            overwriteRef.set(dialog.showAndGet());
+        });
+        return overwriteRef.get();
+    }
+
+    private VirtualFile createFile(String fileName, String content) {
         try {
-            return scenario.createChildData(this, fileName);
+            return WriteAction.compute(() -> {
+                VirtualFile newFile = scenario.createChildData(this, fileName);
+                setFileContent(newFile, content);
+                return newFile;
+            });
         } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
+    }
+
+    private void setFileContent(VirtualFile file, String content) {
+        WriteAction.run(() -> {
+            if (file == null) {
+                return;
+            }
+            if (!file.isValid()) {
+                System.out.println("Input file is invalid. " + file.toString());
+                return;
+            }
+
+            try {
+                file.setBinaryContent(content.getBytes());
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
     }
 
     @Nullable
