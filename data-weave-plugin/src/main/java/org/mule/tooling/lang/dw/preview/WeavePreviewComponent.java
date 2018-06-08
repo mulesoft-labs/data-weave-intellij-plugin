@@ -128,6 +128,11 @@ public class WeavePreviewComponent implements Disposable {
             public void actionPerformed(AnActionEvent e) {
                 runPreview();
             }
+
+            @Override
+            public void update(AnActionEvent e) {
+                e.getPresentation().setEnabled(runAvailable());
+            }
         });
         group.add(new ToggleAction(null, "Run on editor changes", AllIcons.Ide.IncomingChangesOn) {
 
@@ -172,7 +177,7 @@ public class WeavePreviewComponent implements Disposable {
 
             @Override
             public void update(AnActionEvent e) {
-                e.getPresentation().setEnabled(runAvailable());
+
             }
         });
         return new ComponentWithActions.Impl(group, null, null, null, component);
