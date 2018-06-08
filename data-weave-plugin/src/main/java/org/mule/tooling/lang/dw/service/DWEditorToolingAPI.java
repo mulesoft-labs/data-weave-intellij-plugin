@@ -142,13 +142,18 @@ public class DWEditorToolingAPI extends AbstractProjectComponent implements Disp
     @Nullable
     public String hover(PsiElement element) {
         Document document = PsiDocumentManager.getInstance(myProject).getDocument(element.getContainingFile());
-        WeaveDocumentToolingService weaveDocumentService = didOpen(document);
-        Option<HoverMessage> hoverResult = weaveDocumentService.hoverResult(element.getTextOffset());
-        if (hoverResult.isDefined()) {
-            HoverMessage hoverMessage = hoverResult.get();
-            String expressionString = hoverMessage.resultType().toString(true, true);
-            return toHtml("*Expression type* : `" + expressionString + "`");
+        if (document != null) {
+            WeaveDocumentToolingService weaveDocumentService = didOpen(document);
+            Option<HoverMessage> hoverResult = weaveDocumentService.hoverResult(element.getTextOffset());
+            if (hoverResult.isDefined()) {
+                HoverMessage hoverMessage = hoverResult.get();
+                String expressionString = hoverMessage.resultType().toString(true, true);
+                return toHtml("*Expression type* : `" + expressionString + "`");
+            } else {
+                return null;
+            }
         } else {
+            //TODO why the document is null?
             return null;
         }
     }

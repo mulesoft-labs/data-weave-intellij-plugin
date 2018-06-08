@@ -104,10 +104,11 @@ public class WeaveAgentComponent extends AbstractProjectComponent {
 
     public synchronized void init(ProgressIndicator indicator) {
         if (isEnabled() && (client == null || !client.isConnected())) {
-            int freePort;
+
             if (processHandler != null) {
                 tearDown();
             }
+            int freePort;
             try {
                 freePort = NetUtils.findAvailableSocketPort();
             } catch (IOException e) {

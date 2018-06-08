@@ -58,7 +58,7 @@ allprojects {
     intellij {
         version = "2018.1.3"
         updateSinceUntilBuild = false
-        downloadSources = true
+        downloadSources = false
         sandboxDirectory = "${rootProject.buildDir}/idea-sandbox"
     }
 

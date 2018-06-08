@@ -70,7 +70,11 @@ public class WeaveConfigurationProducer extends JavaRunConfigurationProducerBase
     @Override
     public boolean isConfigurationFromContext(WeaveConfiguration muleConfiguration, ConfigurationContext configurationContext) {
         final Module module = configurationContext.getModule();
-        final PsiFile containingFile = configurationContext.getPsiLocation().getContainingFile();
+        final PsiElement psiLocation = configurationContext.getPsiLocation();
+        if (psiLocation == null) {
+            return false;
+        }
+        final PsiFile containingFile = psiLocation.getContainingFile();
         if (containingFile == null) {
             return false;
         }

@@ -17,7 +17,6 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -76,35 +75,6 @@ public class V1ToV2PostProcessor extends CopyPastePostProcessor<TextBlockTransfe
         return super.extractTransferableData(content);
     }
 
-    String getTextBetweenOffsets(PsiFile file, int[] startOffsets, int[] endOffsets) {
-        StringBuilder builder = new java.lang.StringBuilder();
-        ArrayList<Integer> ranges = new ArrayList<>();
-        for (int startOffset : startOffsets) {
-            ranges.add(startOffset);
-        }
-
-        for (int endOffset : endOffsets) {
-            ranges.add(endOffset);
-        }
-
-        Collections.sort(ranges);
-        for (int i = 0; i < ranges.size(); i = i + 2) {
-            Integer startOffset = ranges.get(i);
-            if (i + 1 < ranges.size()) {
-                Integer endOffset = ranges.get(i + 1);
-                builder.append(charSequence(file).subSequence(startOffset, endOffset));
-            }
-        }
-        return builder.toString();
-    }
-
-    public static CharSequence charSequence(PsiFile file) {
-        if (file.isValid()) {
-            return file.getViewProvider().getContents();
-        }
-        return file.getText();
-    }
-
 
     public static class ConvertedCode implements TextBlockTransferableData {
         public static DataFlavor FLAVOR = new DataFlavor(ConvertedCode.class, "DWV1ToV2Migrator");
@@ -135,57 +105,3 @@ public class V1ToV2PostProcessor extends CopyPastePostProcessor<TextBlockTransfe
         }
     }
 }
-
-
-//class ConvertedCode(val data: String, val associations: Array[Association], val showDialog: Boolean = false) extends TextBlockTransferableData {
-//        def setOffsets(offsets: Array[Int], _index: Int): Int = {
-//        var index = _index
-//        for (association <- associations) {
-//        association.range = new TextRange(offsets(index), offsets(index + 1))
-//        index += 2
-//        }
-//        index
-//        }
-//
-//        def getOffsets(offsets: Array[Int], _index: Int): Int = {
-//        var index = _index
-//        for (association <- associations) {
-//        offsets(index) = association.range.getStartOffset
-//        index += 1
-//        offsets(index) = association.range.getEndOffset
-//        index += 1
-//        }
-//        index
-//        }
-//
-//        def getOffsetCount: Int = associations.length * 2
-//
-//        def getFlavor: DataFlavor = ConvertedCode.Flavor
-//        }
-//
-//        def replaceByConvertedCode(editor: Editor, bounds: RangeMarker, text: String): Unit = {
-//        val document = editor.getDocument
-//
-//        def hasQuoteAt(offset: Int) = {
-//        val chars = document.getCharsSequence
-//        offset >= 0 && offset <= chars.length() && chars.charAt(offset) == '\"'
-//        }
-//
-//        val start = bounds.getStartOffset
-//        val end = bounds.getEndOffset
-//        val isInsideStringLiteral = hasQuoteAt(start - 1) && hasQuoteAt(end)
-//        if (isInsideStringLiteral && text.startsWith("\"") && text.endsWith("\""))
-//        document.replaceString(start - 1, end + 1, text)
-//        else document.replaceString(start, end, text)
-//        }
-//
-//        object ConvertedCode {
-//        lazy val Flavor: DataFlavor = new DataFlavor(classOf[ConvertedCode], "JavaToScalaConvertedCode")
-//        }
-//
-//        def shownDialog(msg: String, project: Project): ScalaPasteFromJavaDialog = {
-//        val dialog = new ScalaPasteFromJavaDialog(project, msg)
-//        dialog.show()
-//        dialog
-//        }
-//        }

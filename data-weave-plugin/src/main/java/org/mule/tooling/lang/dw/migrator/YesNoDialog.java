@@ -1,6 +1,5 @@
 package org.mule.tooling.lang.dw.migrator;
 
-import com.intellij.openapi.help.HelpManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
@@ -33,10 +32,8 @@ public class YesNoDialog extends DialogWrapper {
         JPanel panel = new JPanel(new BorderLayout());
         panel.add(label, BorderLayout.CENTER);
         Icon icon = Messages.getQuestionIcon();
-        if (icon != null) {
-            label.setIcon(icon);
-            label.setIconTextGap(7);
-        }
+        label.setIcon(icon);
+        label.setIconTextGap(7);
         return panel;
     }
 

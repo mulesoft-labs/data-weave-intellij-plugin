@@ -24,11 +24,18 @@
         <xml.schemaProvider implementation="org.mule.tooling.runtime.schema.MuleSchemaProvider"/>
     </extensions>
 
-    <project-components>
 
-    </project-components>
     <application-components>
 
+        <component>
+            <implementation-class>org.mule.tooling.runtime.tooling.MuleRuntimeServerManager</implementation-class>
+        </component>
+        <component>
+            <implementation-class>org.mule.tooling.runtime.tooling.MavenConfigurationManager</implementation-class>
+        </component>
+        <component>
+            <implementation-class>org.mule.tooling.runtime.sdk.MuleSdkManager</implementation-class>
+        </component>
     </application-components>
 
 
@@ -36,4 +43,14 @@
 
     </actions>
 
+    <module-components>
+        <component>
+            <implementation-class>org.mule.tooling.runtime.schema.MuleSchemaManager</implementation-class>
+            <interface-class>org.mule.tooling.runtime.schema.MuleSchemaManager</interface-class>
+        </component>
+        <component>
+            <implementation-class>org.mule.tooling.runtime.tooling.ToolingClientManager</implementation-class>
+            <interface-class>org.mule.tooling.runtime.tooling.ToolingClientManager</interface-class>
+        </component>
+    </module-components>
 </idea-plugin>
