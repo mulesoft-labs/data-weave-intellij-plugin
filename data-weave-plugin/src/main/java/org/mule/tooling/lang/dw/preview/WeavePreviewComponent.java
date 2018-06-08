@@ -221,7 +221,6 @@ public class WeavePreviewComponent implements Disposable {
     }
 
 
-
     public void loadScenario(Scenario scenario) {
         if (scenario == null) {
             return;
@@ -348,8 +347,7 @@ public class WeavePreviewComponent implements Disposable {
             if (file != null) {
                 //change happened inside a PsiFile
                 return !isOutputFile(file);
-            }
-            else {
+            } else {
                 //change happened in a directory, or something that isn't a PsiFile
                 PsiElement child = event.getChild();
                 if (child instanceof PsiFile) {
@@ -364,28 +362,25 @@ public class WeavePreviewComponent implements Disposable {
         @Override
         public void childAdded(@NotNull PsiTreeChangeEvent event) {
             if (!isRelevantEvent(event)) return;
-            super.childAdded(event);
             loadScenario(getCurrentScenario());
         }
 
         @Override
         public void childRemoved(@NotNull PsiTreeChangeEvent event) {
-            if (!isRelevantEvent(event)) return;
-            super.childRemoved(event);
-            loadScenario(getCurrentScenario());
+            if (event.getFile() == null) {
+                loadScenario(getCurrentScenario());
+            }
         }
 
         @Override
         public void childMoved(@NotNull PsiTreeChangeEvent event) {
             if (!isRelevantEvent(event)) return;
-            super.childMoved(event);
             doRunPreview();
         }
 
         @Override
         public void childrenChanged(@NotNull PsiTreeChangeEvent event) {
             if (!isRelevantEvent(event)) return;
-            super.childrenChanged(event);
             doRunPreview();
         }
 
