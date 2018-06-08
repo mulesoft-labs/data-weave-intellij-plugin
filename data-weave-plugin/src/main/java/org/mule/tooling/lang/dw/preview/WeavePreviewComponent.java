@@ -52,6 +52,7 @@ import javax.swing.*;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.util.List;
+import java.util.Objects;
 
 public class WeavePreviewComponent implements Disposable {
 
@@ -209,15 +210,16 @@ public class WeavePreviewComponent implements Disposable {
         DataWeaveScenariosManager instance = getScenariosManager();
         List<Scenario> scenarios = instance.getScenariosFor(weaveDocument);
 
-        //Load first scenario
         if (scenarios.isEmpty()) {
-            return;
+            listener.doRunPreviewWithoutScenario();
+        } else {
+            //Load first scenario
+            Scenario currentScenarioFor = instance.getCurrentScenarioFor(weaveDocument);
+            if (currentScenarioFor == null) {
+                return;
+            }
+            loadScenario(currentScenarioFor);
         }
-        Scenario currentScenarioFor = instance.getCurrentScenarioFor(weaveDocument);
-        if (currentScenarioFor == null) {
-            return;
-        }
-        loadScenario(currentScenarioFor);
     }
 
 
@@ -255,44 +257,29 @@ public class WeavePreviewComponent implements Disposable {
 
     public void runPreview(Scenario scenario, PsiFile currentFile) {
         ApplicationManager.getApplication().executeOnPooledThread(() -> {
-            if (scenario == null) return;
-            final Document document = PsiDocumentManager.getInstance(myProject).getDocument(currentFile);
-            WeaveDocument weaveDocument = ReadAction.compute(() -> getCurrentWeaveDocument());
-            String documentQName = ReadAction.compute(weaveDocument::getQualifiedName);
-            final WeaveAgentComponent agentComponent = WeaveAgentComponent.getInstance(myProject);
-            VirtualFile inputs = scenario.getInputs();
-            if (inputs == null) return;
-
-            final String inputsPath = inputs.getPath();
-            final Module module = ModuleUtil.findModuleForFile(currentFile.getVirtualFile(), myProject);
-            String url = ReadAction.compute(() -> currentFile.getVirtualFile().getUrl());
-
-            if (document == null) return;
-            //IMPORTANT NOTE: sometimes our current WeaveDocument is not updated correctly, so always get text from Document
-            String text = ReadAction.compute(document::getText);
-
-            agentComponent.runPreview(inputsPath, text, documentQName, url, 10000L, module, new RunPreviewCallback() {
-
-                @Override
-                public void onPreviewSuccessful(PreviewExecutedSuccessfulEvent result) {
-                    Scenario scenario = getCurrentScenario();
-                    VirtualFile file = scenario.getOutput().orElse(null);
-                    outputComponent.onPreviewResult(result, file);
-                    previewLogsViewer.clear();
-                    previewLogsViewer.logInfo(ScalaUtils.toList(result.messages()));
-                }
-
-                @Override
-                public void onPreviewFailed(PreviewExecutedFailedEvent message) {
-                    previewLogsViewer.clear();
-                    previewLogsViewer.logInfo(ScalaUtils.toList(message.messages()));
-                    previewLogsViewer.logError(message.message());
-                }
-            });
-
+            if (scenario != null && scenario.getInputs() != null) {
+                VirtualFile inputs = Objects.requireNonNull(scenario.getInputs());
+                runPreviewWithInputs(inputs.getPath(), currentFile);
+            }
+            runPreviewWithoutInputs(currentFile);
         });
+    }
 
+    private void runPreviewWithoutInputs(PsiFile currentFile) {
+        runPreviewWithInputs("", currentFile);
+    }
 
+    private void runPreviewWithInputs(String inputsPath, PsiFile currentFile) {
+        final Document document = PsiDocumentManager.getInstance(myProject).getDocument(currentFile);
+        if (document == null) return;
+        //IMPORTANT NOTE: sometimes our current WeaveDocument is not updated correctly, so always get text from Document
+        String text = ReadAction.compute(document::getText);
+        String documentQName = ReadAction.compute(() -> getCurrentWeaveDocument().getQualifiedName());
+        String url = ReadAction.compute(() -> currentFile.getVirtualFile().getUrl());
+        final Module module = ModuleUtil.findModuleForFile(currentFile.getVirtualFile(), myProject);
+
+        final WeaveAgentComponent agentComponent = WeaveAgentComponent.getInstance(myProject);
+        agentComponent.runPreview(inputsPath, text, documentQName, url, 10000L, module, new MyRunPreviewCallback());
     }
 
 
@@ -361,39 +348,55 @@ public class WeavePreviewComponent implements Disposable {
 
         @Override
         public void childAdded(@NotNull PsiTreeChangeEvent event) {
-            if (!isRelevantEvent(event)) return;
-            loadScenario(getCurrentScenario());
+            if (isRelevantEvent(event)) {
+                loadScenario(getCurrentScenario());
+            }
         }
 
         @Override
         public void childRemoved(@NotNull PsiTreeChangeEvent event) {
             if (event.getFile() == null) {
+                //change didn't happen inside a PsiFile
                 loadScenario(getCurrentScenario());
             }
         }
 
         @Override
         public void childMoved(@NotNull PsiTreeChangeEvent event) {
-            if (!isRelevantEvent(event)) return;
-            doRunPreview();
+            if (isRelevantEvent(event)) {
+                doRunPreview();
+            }
         }
 
         @Override
         public void childrenChanged(@NotNull PsiTreeChangeEvent event) {
-            if (!isRelevantEvent(event)) return;
-            doRunPreview();
+            if (isRelevantEvent(event)) {
+                doRunPreview();
+            }
         }
 
         @Override
         public void childReplaced(@NotNull PsiTreeChangeEvent event) {
-            if (!isRelevantEvent(event)) return;
-            doRunPreview();
-
-            //We know the change came from this file now
+            if (isRelevantEvent(event)) {
+                doRunPreview();
+            }
         }
 
         public void doRunPreview() {
             doRunPreview(getCurrentScenario(), currentFile);
+        }
+
+        public void doRunPreviewWithoutScenario() {
+            myDocumentAlarm.cancelAllRequests();
+            myDocumentAlarm.addRequest(() -> {
+                if (myDocumentAlarm.isDisposed()) {
+                    return;
+                }
+                ApplicationManager.getApplication().executeOnPooledThread(() ->
+                        runPreviewWithoutInputs(currentFile)
+                );
+
+            }, WeaveConstants.MODIFICATIONS_DELAY);
         }
 
         public void doRunPreview(Scenario scenario, PsiFile psiFile) {
@@ -468,6 +471,34 @@ public class WeavePreviewComponent implements Disposable {
                 });
             }
 
+        }
+    }
+
+    private class MyRunPreviewCallback implements RunPreviewCallback {
+
+        @Override
+        public void onPreviewSuccessful(PreviewExecutedSuccessfulEvent result) {
+            Scenario scenario = getCurrentScenario();
+            final VirtualFile file = getOutputFile(scenario);
+            outputComponent.onPreviewResult(result, file);
+            previewLogsViewer.clear();
+            previewLogsViewer.logInfo(ScalaUtils.toList(result.messages()));
+        }
+
+        @Override
+        public void onPreviewFailed(PreviewExecutedFailedEvent message) {
+            previewLogsViewer.clear();
+            previewLogsViewer.logInfo(ScalaUtils.toList(message.messages()));
+            previewLogsViewer.logError(message.message());
+        }
+    }
+
+    @Nullable
+    private VirtualFile getOutputFile(Scenario scenario) {
+        if (scenario != null) {
+            return scenario.getOutput().orElse(null);
+        } else {
+            return null;
         }
     }
 }

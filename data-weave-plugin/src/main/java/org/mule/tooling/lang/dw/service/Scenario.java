@@ -53,7 +53,10 @@ public class Scenario implements ItemPresentation {
     }
 
     public boolean containsInput(String inputName) {
-        VirtualFile inputs = Objects.requireNonNull(getInputs());
+        VirtualFile inputs = getInputs();
+        if (inputs == null) {
+            return false;
+        }
         return inputs.findChild(inputName) != null;
     }
 
