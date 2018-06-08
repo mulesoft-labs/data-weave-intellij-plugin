@@ -25,6 +25,7 @@ import com.intellij.openapi.ui.ComponentWithActions;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.impl.content.ToolWindowContentUi;
 import com.intellij.psi.PsiDocumentManager;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiTreeChangeAdapter;
@@ -334,13 +335,30 @@ public class WeavePreviewComponent implements Disposable {
 //        }
 //    }
 
+    private boolean isOutputFile(PsiFile psiFile) {
+        return psiFile.getVirtualFile().getNameWithoutExtension().equals("out");
+    }
+
     /**
      * This listener runs the preview each time a change occurred in the PSI tree
      */
     private class WeaveTreeChangeListener extends PsiTreeChangeAdapter {
         private boolean isRelevantEvent(PsiTreeChangeEvent event) {
             PsiFile file = event.getFile();
-            return file != null && !file.getVirtualFile().getNameWithoutExtension().equals("out");
+            if (file != null) {
+                //change happened inside a PsiFile
+                return !isOutputFile(file);
+            }
+            else {
+                //change happened in a directory, or something that isn't a PsiFile
+                PsiElement child = event.getChild();
+                if (child instanceof PsiFile) {
+                    PsiFile psiFile = (PsiFile) child;
+                    return !psiFile.isDirectory() && !isOutputFile(psiFile);
+                } else {
+                    return false;
+                }
+            }
         }
 
         @Override

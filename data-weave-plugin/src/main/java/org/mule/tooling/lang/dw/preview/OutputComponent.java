@@ -166,6 +166,12 @@ public class OutputComponent implements Disposable {
         }
 
         @Override
+        public void update(AnActionEvent e) {
+            super.update(e);
+            e.getPresentation().setEnabled(outputEditor != null);
+        }
+
+        @Override
         public void actionPerformed(AnActionEvent e) {
             Scenario scenario = getCurrentScenario();
             String ext = outputType.getDefaultExtension();
