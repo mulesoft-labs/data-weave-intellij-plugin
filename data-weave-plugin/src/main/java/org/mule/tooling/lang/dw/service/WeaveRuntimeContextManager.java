@@ -28,6 +28,7 @@ import org.mule.tooling.lang.dw.WeaveConstants;
 import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.service.agent.WeaveAgentComponent;
+import org.mule.weave.v2.debugger.event.WeaveDataFormatDescriptor;
 import org.mule.weave.v2.debugger.event.WeaveTypeEntry;
 import org.mule.weave.v2.editor.ImplicitInput;
 import org.mule.weave.v2.ts.AnyType;
@@ -46,25 +47,58 @@ import java.util.stream.Collectors;
 
 import static org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils.getWeaveDocument;
 
-public class DataWeaveScenariosManager extends AbstractProjectComponent implements Disposable {
+public class WeaveRuntimeContextManager extends AbstractProjectComponent implements Disposable {
 
     private Map<String, Scenario> selectedScenariosByMapping = new HashMap<>();
     private Map<Scenario, ImplicitInput> implicitInputTypes = new HashMap<>();
     private Map<Scenario, WeaveType> expectedOutputType = new HashMap<>();
     private Map<String, VirtualFile> dwitFolders = new HashMap<>();
+    private WeaveDataFormatDescriptor[] dataFormat = new WeaveDataFormatDescriptor[0];
+    private String[] modules = new String[0];
+
+    private List<StatusChangeListener> listeners = new ArrayList<>();
 
 
-    protected DataWeaveScenariosManager(Project project) {
+    protected WeaveRuntimeContextManager(Project project) {
         super(project);
     }
 
-    public static DataWeaveScenariosManager getInstance(Project myProject) {
-        return myProject.getComponent(DataWeaveScenariosManager.class);
+    public static WeaveRuntimeContextManager getInstance(Project myProject) {
+        return myProject.getComponent(WeaveRuntimeContextManager.class);
+    }
+
+    public void addListener(StatusChangeListener listener) {
+        if (modules.length > 0) {
+            listener.onModulesLoaded(modules);
+        }
+        if (dataFormat.length > 0) {
+            listener.onDataFormatLoaded(dataFormat);
+        }
+
+        this.listeners.add(listener);
     }
 
     @Override
     public void initComponent() {
         super.initComponent();
+
+        WeaveAgentComponent.getInstance(myProject).addStatusListener(new WeaveAgentComponent.WeaveAgentStatusListener() {
+            @Override
+            public void agentStarted() {
+                WeaveAgentComponent.getInstance(myProject).dataFormats((dataFormatEvent) -> {
+                    dataFormat = dataFormatEvent.formats();
+                    for (StatusChangeListener listener : listeners) {
+                        listener.onDataFormatLoaded(dataFormat);
+                    }
+                });
+                WeaveAgentComponent.getInstance(myProject).availableModules((modulesEvent) -> {
+                    modules = modulesEvent.modules();
+                    for (StatusChangeListener listener : listeners) {
+                        listener.onModulesLoaded(modules);
+                    }
+                });
+            }
+        });
 
         PsiManager.getInstance(myProject).addPsiTreeChangeListener(new PsiTreeChangeAdapter() {
             @Override
@@ -129,6 +163,44 @@ public class DataWeaveScenariosManager extends AbstractProjectComponent implemen
     }
 
     @NotNull
+    public WeaveDataFormatDescriptor[] getAvailableDataFormat() {
+        if (dataFormat.length > 0) {
+            return dataFormat;
+        } else {
+            FutureResult<WeaveDataFormatDescriptor[]> futureResult = new FutureResult<>();
+            WeaveAgentComponent.getInstance(myProject).dataFormats((dataFormatEvent) -> {
+                WeaveDataFormatDescriptor[] formats = dataFormatEvent.formats();
+                this.dataFormat = formats;
+                futureResult.set(formats);
+            });
+            try {
+                return futureResult.get(WeaveConstants.SERVER_TIMEOUT, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                return dataFormat;
+            }
+        }
+    }
+
+    @NotNull
+    public String[] getAvailableModule() {
+        if (modules.length > 0) {
+            return modules;
+        } else {
+            FutureResult<String[]> futureResult = new FutureResult<>();
+            WeaveAgentComponent.getInstance(myProject).availableModules((modulesEvent) -> {
+                String[] modules = modulesEvent.modules();
+                this.modules = modules;
+                futureResult.set(modules);
+            });
+            try {
+                return futureResult.get(WeaveConstants.SERVER_TIMEOUT, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                return modules;
+            }
+        }
+    }
+
+    @NotNull
     private VirtualFile findScenario(VirtualFile modifiedFile, VirtualFile dwitFolder) {
         VirtualFile scenario = modifiedFile;
         if (scenario.getParent().equals(dwitFolder)) {
@@ -178,7 +250,7 @@ public class DataWeaveScenariosManager extends AbstractProjectComponent implemen
     }
 
     @Nullable
-    public ImplicitInput getCurrentImplicitTypes(WeaveDocument weaveDocument) {
+    public ImplicitInput getImplicitInputTypes(WeaveDocument weaveDocument) {
         final Scenario currentScenario = getCurrentScenarioFor(weaveDocument);
         if (weaveDocument == null) {
             return null;
@@ -191,9 +263,9 @@ public class DataWeaveScenariosManager extends AbstractProjectComponent implemen
                 VirtualFile inputs = currentScenario.getInputs();
                 if (inputs != null) {
                     WeaveAgentComponent.getInstance(myProject).calculateImplicitInputTypes(inputs.getPath(), event -> {
-                        ImplicitInput implicitInput = new ImplicitInput();
-                        WeaveTypeEntry[] weaveTypeEntries = event.types();
-                        final DWEditorToolingAPI dataWeaveServiceManager = getWeaveServiceManager();
+                        final ImplicitInput implicitInput = new ImplicitInput();
+                        final WeaveTypeEntry[] weaveTypeEntries = event.types();
+                        final WeaveEditorToolingAPI dataWeaveServiceManager = getWeaveServiceManager();
                         for (WeaveTypeEntry weaveTypeEntry : weaveTypeEntries) {
                             WeaveType weaveType = dataWeaveServiceManager.parseType(weaveTypeEntry.wtypeString());
                             if (weaveType == null) {
@@ -216,8 +288,8 @@ public class DataWeaveScenariosManager extends AbstractProjectComponent implemen
         }
     }
 
-    public DWEditorToolingAPI getWeaveServiceManager() {
-        return DWEditorToolingAPI.getInstance(myProject);
+    public WeaveEditorToolingAPI getWeaveServiceManager() {
+        return WeaveEditorToolingAPI.getInstance(myProject);
     }
 
     @Nullable
@@ -282,17 +354,6 @@ public class DataWeaveScenariosManager extends AbstractProjectComponent implemen
     }
 
 
-//    @NotNull
-//    public VirtualFile getOrCreateTestFolder(PsiFile weaveFile) {
-//        VirtualFile scenariosTestFolder = getScenariosRootFolder(weaveFile);
-//        if (scenariosTestFolder != null) {
-//            return scenariosTestFolder;
-//        } else {
-//            //create
-//
-//        }
-//    }
-
     @Nullable
     public VirtualFile createScenario(PsiFile psiFile) {
         VirtualFile testFolder = findOrCreateMappingTestFolder(psiFile);
@@ -351,6 +412,17 @@ public class DataWeaveScenariosManager extends AbstractProjectComponent implemen
 
     @Override
     public void dispose() {
+
+    }
+
+    public interface StatusChangeListener {
+        default void onDataFormatLoaded(WeaveDataFormatDescriptor[] dataFormatDescriptor) {
+
+        }
+
+        default void onModulesLoaded(String[] modules) {
+
+        }
 
     }
 }

@@ -6,7 +6,7 @@ import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
-import org.mule.tooling.lang.dw.service.DWEditorToolingAPI;
+import org.mule.tooling.lang.dw.service.WeaveEditorToolingAPI;
 
 public class WeaveFmtAction extends AbstractWeaveAction implements DumbAware {
 
@@ -18,6 +18,6 @@ public class WeaveFmtAction extends AbstractWeaveAction implements DumbAware {
     public void actionPerformed(AnActionEvent e) {
         Editor data = e.getData(CommonDataKeys.EDITOR);
         Project project = e.getProject();
-        CommandProcessor.getInstance().executeCommand(project, () -> DWEditorToolingAPI.getInstance(project).reformat(data.getDocument()), "Reformat DataWeave", "dataweave");
+        CommandProcessor.getInstance().executeCommand(project, () -> WeaveEditorToolingAPI.getInstance(project).reformat(data.getDocument()), "Reformat DataWeave", "dataweave");
     }
 }

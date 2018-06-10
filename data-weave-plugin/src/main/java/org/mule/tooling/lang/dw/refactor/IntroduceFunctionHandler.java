@@ -24,7 +24,7 @@ import org.mule.tooling.lang.dw.parser.psi.WeaveFunctionDirective;
 import org.mule.tooling.lang.dw.refactor.ui.WeaveExtractFunctionDialog;
 import org.mule.tooling.lang.dw.refactor.utils.WeaveArgumentInfo;
 import org.mule.tooling.lang.dw.refactor.utils.WeaveRefactorFunctionData;
-import org.mule.tooling.lang.dw.service.DWEditorToolingAPI;
+import org.mule.tooling.lang.dw.service.WeaveEditorToolingAPI;
 import org.mule.tooling.lang.dw.util.VariableScopeUtils;
 import org.mule.weave.v2.editor.VariableDependency;
 import org.mule.weave.v2.parser.ast.functions.FunctionNode;
@@ -50,7 +50,7 @@ public class IntroduceFunctionHandler extends AbstractIntroduceDirectiveHandler 
 
     @Override
     public void invoke(@NotNull Project project, Editor editor, PsiFile psiFile, DataContext dataContext, PsiElement valueToReplace) {
-        final DWEditorToolingAPI instance = DWEditorToolingAPI.getInstance(project);
+        final WeaveEditorToolingAPI instance = WeaveEditorToolingAPI.getInstance(project);
         final VariableScope variableScope = instance.scopeOf(valueToReplace);
         final List<VariableScope> variableScopes = variablesScopesHierarchy(variableScope)
                 .stream()
@@ -130,7 +130,7 @@ public class IntroduceFunctionHandler extends AbstractIntroduceDirectiveHandler 
         }
     }
 
-    public void doIntroduceFunction(@NotNull Project project, PsiFile psiFile, PsiElement valueToReplace, DWEditorToolingAPI toolingAPI, VariableScope parent) {
+    public void doIntroduceFunction(@NotNull Project project, PsiFile psiFile, PsiElement valueToReplace, WeaveEditorToolingAPI toolingAPI, VariableScope parent) {
         final VariableDependency[] variableDependencies = toolingAPI.externalScopeDependencies(valueToReplace, parent);
         final List<String> possibleNames = NameProviderHelper.possibleFunctionNames(valueToReplace);
         final String functionName = possibleNames.get(0);

@@ -16,7 +16,7 @@ import org.mule.tooling.lang.dw.parser.psi.WeaveBinaryExpression;
 import org.mule.tooling.lang.dw.parser.psi.WeaveFunctionCallExpression;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.parser.psi.WeaveTypes;
-import org.mule.tooling.lang.dw.service.DWEditorToolingAPI;
+import org.mule.tooling.lang.dw.service.WeaveEditorToolingAPI;
 import org.mule.tooling.lang.dw.util.ScalaUtils;
 import org.mule.weave.v2.ts.FunctionType;
 import org.mule.weave.v2.ts.FunctionTypeParameter;
@@ -66,7 +66,7 @@ public class WeaveParameterInfoHandler implements ParameterInfoHandler<WeavePara
 
     @Override
     public void showParameterInfo(@NotNull FunctionCallInformation element, @NotNull CreateParameterInfoContext context) {
-        DWEditorToolingAPI instance = DWEditorToolingAPI.getInstance(context.getProject());
+        WeaveEditorToolingAPI instance = WeaveEditorToolingAPI.getInstance(context.getProject());
         WeaveType weaveType = instance.typeOf(element.getFunction());
         if (weaveType instanceof FunctionType) {
             FunctionType functionType = (FunctionType) weaveType;

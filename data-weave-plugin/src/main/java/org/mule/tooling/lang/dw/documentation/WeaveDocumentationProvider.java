@@ -4,7 +4,7 @@ import com.intellij.lang.documentation.DocumentationProvider;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiManager;
 import org.jetbrains.annotations.Nullable;
-import org.mule.tooling.lang.dw.service.DWEditorToolingAPI;
+import org.mule.tooling.lang.dw.service.WeaveEditorToolingAPI;
 
 import java.util.List;
 
@@ -12,7 +12,7 @@ public class WeaveDocumentationProvider implements DocumentationProvider {
     @Nullable
     @Override
     public String getQuickNavigateInfo(PsiElement element, PsiElement originalElement) {
-        return DWEditorToolingAPI.getInstance(element.getProject()).hover(element);
+        return WeaveEditorToolingAPI.getInstance(element.getProject()).hover(element);
     }
 
     @Nullable
@@ -26,11 +26,11 @@ public class WeaveDocumentationProvider implements DocumentationProvider {
     public String generateDoc(PsiElement element, @Nullable PsiElement originalElement) {
         String documentation;
         if (element instanceof WeaveDocumentationPsiElement) {
-            documentation = DWEditorToolingAPI.toHtml(((WeaveDocumentationPsiElement) element).getDocs());
+            documentation = WeaveEditorToolingAPI.toHtml(((WeaveDocumentationPsiElement) element).getDocs());
         } else {
-            documentation = DWEditorToolingAPI.getInstance(element.getProject()).documentation(element);
+            documentation = WeaveEditorToolingAPI.getInstance(element.getProject()).documentation(element);
             if (originalElement != null && documentation == null) {
-                documentation = DWEditorToolingAPI.getInstance(originalElement.getProject()).documentation(originalElement);
+                documentation = WeaveEditorToolingAPI.getInstance(originalElement.getProject()).documentation(originalElement);
             }
         }
         return documentation;
@@ -39,8 +39,8 @@ public class WeaveDocumentationProvider implements DocumentationProvider {
     @Nullable
     @Override
     public PsiElement getDocumentationElementForLookupItem(PsiManager psiManager, Object lookupElement, PsiElement element) {
-        if (lookupElement instanceof DWEditorToolingAPI.CompletionData) {
-            DWEditorToolingAPI.CompletionData completionData = (DWEditorToolingAPI.CompletionData) lookupElement;
+        if (lookupElement instanceof WeaveEditorToolingAPI.CompletionData) {
+            WeaveEditorToolingAPI.CompletionData completionData = (WeaveEditorToolingAPI.CompletionData) lookupElement;
             return new WeaveDocumentationPsiElement(element, completionData.getDocumentation(), completionData.getLabel());
         } else {
             return element;

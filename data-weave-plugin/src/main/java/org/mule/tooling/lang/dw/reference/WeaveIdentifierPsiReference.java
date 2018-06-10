@@ -10,7 +10,7 @@ import com.intellij.psi.ResolveResult;
 import com.intellij.psi.impl.source.resolve.ResolveCache;
 import org.jetbrains.annotations.NotNull;
 import org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement;
-import org.mule.tooling.lang.dw.service.DWEditorToolingAPI;
+import org.mule.tooling.lang.dw.service.WeaveEditorToolingAPI;
 
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -24,7 +24,7 @@ public class WeaveIdentifierPsiReference extends PsiPolyVariantReferenceBase<Psi
     }
 
     public PsiElement[] resolveInner() {
-        final DWEditorToolingAPI instance = DWEditorToolingAPI.getInstance(myElement.getProject());
+        final WeaveEditorToolingAPI instance = WeaveEditorToolingAPI.getInstance(myElement.getProject());
         return instance.resolveReference(namedElement.getIdentifier());
     }
 

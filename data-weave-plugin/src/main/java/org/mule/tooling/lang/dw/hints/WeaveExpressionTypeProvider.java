@@ -5,7 +5,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import org.jetbrains.annotations.NotNull;
-import org.mule.tooling.lang.dw.service.DWEditorToolingAPI;
+import org.mule.tooling.lang.dw.service.WeaveEditorToolingAPI;
 import org.mule.weave.v2.ts.WeaveType;
 
 import java.util.Collections;
@@ -15,7 +15,7 @@ public class WeaveExpressionTypeProvider extends ExpressionTypeProvider {
     @NotNull
     @Override
     public String getInformationHint(@NotNull PsiElement element) {
-        WeaveType weaveType = DWEditorToolingAPI.getInstance(element.getProject()).typeOf(element);
+        WeaveType weaveType = WeaveEditorToolingAPI.getInstance(element.getProject()).typeOf(element);
         if (weaveType != null) {
             return weaveType.toString(false, true);
         } else {

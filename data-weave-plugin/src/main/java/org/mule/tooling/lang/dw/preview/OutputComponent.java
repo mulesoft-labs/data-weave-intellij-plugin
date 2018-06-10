@@ -25,8 +25,8 @@ import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
 import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
-import org.mule.tooling.lang.dw.service.DataWeaveScenariosManager;
 import org.mule.tooling.lang.dw.service.Scenario;
+import org.mule.tooling.lang.dw.service.WeaveRuntimeContextManager;
 import org.mule.tooling.lang.dw.ui.MessagePanel;
 import org.mule.weave.v2.debugger.event.PreviewExecutedSuccessfulEvent;
 
@@ -180,7 +180,7 @@ public class OutputComponent implements Disposable {
 
         private Scenario getCurrentScenario() {
             WeaveDocument document = WeavePsiUtils.getWeaveDocument(currentFile);
-            return DataWeaveScenariosManager.getInstance(myProject).getCurrentScenarioFor(document);
+            return WeaveRuntimeContextManager.getInstance(myProject).getCurrentScenarioFor(document);
         }
     }
 

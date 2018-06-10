@@ -17,9 +17,9 @@ import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.WeaveFileType;
 import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
-import org.mule.tooling.lang.dw.service.DWEditorToolingAPI;
-import org.mule.tooling.lang.dw.service.DataWeaveScenariosManager;
 import org.mule.tooling.lang.dw.service.IJWeaveTextDocument;
+import org.mule.tooling.lang.dw.service.WeaveEditorToolingAPI;
+import org.mule.tooling.lang.dw.service.WeaveRuntimeContextManager;
 import org.mule.tooling.lang.dw.util.AsyncCache;
 import org.mule.weave.v2.editor.ImplicitInput;
 import org.mule.weave.v2.editor.QuickFix;
@@ -49,9 +49,9 @@ public class WeaveValidatorAnnotator extends ExternalAnnotator<PsiFile, Validati
         Project project = file.getProject();
         if (project.isDisposed()) return null;
 
-        DataWeaveScenariosManager scenariosManager = DataWeaveScenariosManager.getInstance(project);
-        DWEditorToolingAPI toolingAPI = DWEditorToolingAPI.getInstance(project);
-        ImplicitInput currentImplicitTypes = ReadAction.compute(() -> scenariosManager.getCurrentImplicitTypes(weaveDocument));
+        WeaveRuntimeContextManager scenariosManager = WeaveRuntimeContextManager.getInstance(project);
+        WeaveEditorToolingAPI toolingAPI = WeaveEditorToolingAPI.getInstance(project);
+        ImplicitInput currentImplicitTypes = ReadAction.compute(() -> scenariosManager.getImplicitInputTypes(weaveDocument));
         if (weaveDocument.isModuleDocument() || currentImplicitTypes != null) {
             return toolingAPI.typeCheck(file);
         } else {

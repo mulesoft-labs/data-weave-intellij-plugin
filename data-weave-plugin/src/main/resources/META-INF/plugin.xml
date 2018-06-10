@@ -137,13 +137,13 @@
 
     <project-components>
         <component>
-            <implementation-class>org.mule.tooling.lang.dw.service.DWEditorToolingAPI</implementation-class>
+            <implementation-class>org.mule.tooling.lang.dw.service.WeaveEditorToolingAPI</implementation-class>
         </component>
         <component>
             <implementation-class>org.mule.tooling.lang.dw.service.agent.WeaveAgentComponent</implementation-class>
         </component>
         <component>
-            <implementation-class>org.mule.tooling.lang.dw.service.DataWeaveScenariosManager</implementation-class>
+            <implementation-class>org.mule.tooling.lang.dw.service.WeaveRuntimeContextManager</implementation-class>
         </component>
     </project-components>
     <application-components>

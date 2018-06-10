@@ -33,9 +33,15 @@ import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.qn.WeaveQualifiedNameProvider;
 import org.mule.tooling.lang.dw.service.agent.WeaveAgentComponent;
 import org.mule.tooling.lang.dw.util.AsyncCache;
+import org.mule.weave.v2.completion.DataFormatDescriptor;
+import org.mule.weave.v2.completion.DataFormatDescriptorProvider;
+import org.mule.weave.v2.completion.DataFormatDescriptorProvider$;
+import org.mule.weave.v2.completion.DataFormatProperty;
 import org.mule.weave.v2.completion.EmptyDataFormatDescriptorProvider$;
 import org.mule.weave.v2.completion.Suggestion;
 import org.mule.weave.v2.completion.SuggestionType;
+import org.mule.weave.v2.debugger.event.WeaveDataFormatDescriptor;
+import org.mule.weave.v2.debugger.event.WeaveDataFormatProperty;
 import org.mule.weave.v2.editor.ImplicitInput;
 import org.mule.weave.v2.editor.ReformatResult;
 import org.mule.weave.v2.editor.SpecificModuleResourceResolver;
@@ -55,31 +61,55 @@ import org.mule.weave.v2.sdk.WeaveResourceResolver;
 import org.mule.weave.v2.ts.WeaveType;
 import scala.Option;
 
-import javax.management.AttributeList;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DWEditorToolingAPI extends AbstractProjectComponent implements Disposable {
+public class WeaveEditorToolingAPI extends AbstractProjectComponent implements Disposable {
 
     private VirtualFileSystemAdaptor projectVirtualFileSystem;
     private WeaveToolingService dwTextDocumentService;
     private final List<Runnable> onClose = Lists.newArrayList();
     private final List<Runnable> onOpen = Lists.newArrayList();
 
-    protected DWEditorToolingAPI(Project project) {
+    protected WeaveEditorToolingAPI(Project project) {
         super(project);
     }
 
     @Override
     public void initComponent() {
         projectVirtualFileSystem = new VirtualFileSystemAdaptor(myProject);
-        RemoteResourceResolver resourceResolver = new RemoteResourceResolver(myProject);
+        final RemoteResourceResolver resourceResolver = new RemoteResourceResolver(myProject);
         final SpecificModuleResourceResolver java = SpecificModuleResourceResolver.apply("java", resourceResolver);
         final SpecificModuleResourceResolver[] moduleResourceResolvers = {java};
         projectVirtualFileSystem.changeListener(file -> {
             resourceResolver.invalidateCache(file.getNameIdentifier());
         });
         dwTextDocumentService = WeaveToolingService.apply(projectVirtualFileSystem, EmptyDataFormatDescriptorProvider$.MODULE$, moduleResourceResolvers);
+        final WeaveRuntimeContextManager instance = WeaveRuntimeContextManager.getInstance(myProject);
+        instance.addListener(new WeaveRuntimeContextManager.StatusChangeListener() {
+            @Override
+            public void onDataFormatLoaded(WeaveDataFormatDescriptor[] dataFormatDescriptor) {
+                final List<DataFormatDescriptor> descriptors = new ArrayList<>();
+                for (WeaveDataFormatDescriptor weaveDataFormatDescriptor : dataFormatDescriptor) {
+                    final String mimeType = weaveDataFormatDescriptor.mimeType();
+                    final DataFormatDescriptor descriptor = DataFormatDescriptor.apply(mimeType, toDataFormatProp(weaveDataFormatDescriptor.writerProperties()), toDataFormatProp(weaveDataFormatDescriptor.readerProperties()));
+                    descriptors.add(descriptor);
+                }
+                final DataFormatDescriptorProvider descriptorProvider = DataFormatDescriptorProvider$.MODULE$.apply(descriptors.toArray(new DataFormatDescriptor[0]));
+                dwTextDocumentService.dataFormatProvider_$eq(descriptorProvider);
+            }
+        });
+
+
+    }
+
+    @NotNull
+    public DataFormatProperty[] toDataFormatProp(WeaveDataFormatProperty[] weaveDataFormatPropertySeq) {
+        List<DataFormatProperty> properties = new ArrayList<>();
+        for (WeaveDataFormatProperty property : weaveDataFormatPropertySeq) {
+            properties.add(DataFormatProperty.apply(property.name(), property.description(), property.wtype(), property.values()));
+        }
+        return properties.toArray(new DataFormatProperty[properties.size()]);
     }
 
     public List<LookupElement> completion(CompletionParameters completionParameters) {
@@ -131,9 +161,9 @@ public class DWEditorToolingAPI extends AbstractProjectComponent implements Disp
                 final String url = virtualFile.getUrl();
                 file = projectVirtualFileSystem.file(url);
             }
-            final DataWeaveScenariosManager instance = DataWeaveScenariosManager.getInstance(myProject);
+            final WeaveRuntimeContextManager instance = WeaveRuntimeContextManager.getInstance(myProject);
             final WeaveDocument weaveDocument = WeavePsiUtils.getWeaveDocument(psiFile);
-            final ImplicitInput currentImplicitTypes = instance.getCurrentImplicitTypes(weaveDocument);
+            final ImplicitInput currentImplicitTypes = instance.getImplicitInputTypes(weaveDocument);
             final WeaveType expectedOutput = instance.getExpectedOutput(weaveDocument);
             return dwTextDocumentService.open(file, currentImplicitTypes != null ? currentImplicitTypes : new ImplicitInput(), Option.apply(expectedOutput));
         });
@@ -242,8 +272,8 @@ public class DWEditorToolingAPI extends AbstractProjectComponent implements Disp
         return elementBuilder.withAutoCompletionPolicy(AutoCompletionPolicy.SETTINGS_DEPENDENT);
     }
 
-    public static DWEditorToolingAPI getInstance(@NotNull Project project) {
-        return project.getComponent(DWEditorToolingAPI.class);
+    public static WeaveEditorToolingAPI getInstance(@NotNull Project project) {
+        return project.getComponent(WeaveEditorToolingAPI.class);
     }
 
     @Nullable

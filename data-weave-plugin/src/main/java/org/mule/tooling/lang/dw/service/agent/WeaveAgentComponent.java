@@ -54,6 +54,8 @@ import org.mule.weave.v2.debugger.event.PreviewExecutedFailedEvent;
 import org.mule.weave.v2.debugger.event.PreviewExecutedSuccessfulEvent;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class WeaveAgentComponent extends AbstractProjectComponent {
 
@@ -65,9 +67,18 @@ public class WeaveAgentComponent extends AbstractProjectComponent {
     private WeaveAgentClient client;
     private ProcessHandler processHandler;
     private boolean disabled = false;
+    private List<WeaveAgentStatusListener> listeners;
 
     protected WeaveAgentComponent(Project project) {
         super(project);
+        this.listeners = new ArrayList<>();
+    }
+
+    public void addStatusListener(WeaveAgentStatusListener listener) {
+        if (client != null && client.isConnected()) {
+            listener.agentStarted();
+        }
+        this.listeners.add(listener);
     }
 
     @Override
@@ -168,6 +179,9 @@ public class WeaveAgentComponent extends AbstractProjectComponent {
             });
             if (client.isConnected()) {
                 System.out.println("Weave agent connected to server. Port: " + finalFreePort);
+                for (WeaveAgentStatusListener listener : listeners) {
+                    listener.agentStarted();
+                }
             } else {
                 //disable the service as for some weird reason it can not be started
                 disable();
@@ -267,7 +281,6 @@ public class WeaveAgentComponent extends AbstractProjectComponent {
         return "org.mule.weave.v2.runtime.utils.AgentCustomRunner";
     }
 
-
     public void calculateImplicitInputTypes(String inputsPath, ImplicitInputTypesCallback callback) {
         checkClientConnected(() -> {
             //Make sure all files are persisted before running preview
@@ -284,7 +297,6 @@ public class WeaveAgentComponent extends AbstractProjectComponent {
                     });
                 });
             });
-
         });
     }
 
@@ -360,9 +372,9 @@ public class WeaveAgentComponent extends AbstractProjectComponent {
         return new CommandLineState(null) {
             private SimpleJavaParameters createJavaParameters() {
                 final SimpleJavaParameters params = WeaveRunnerHelper.createJavaParameters(myProject);
-                if (Boolean.getBoolean("debugWeaveAgent")) {
-                    params.getVMParametersList().add("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5678");
-                }
+//                if (Boolean.getBoolean("debugWeaveAgent")) {
+                params.getVMParametersList().add("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5678");
+//                }
                 ParametersList parametersList = params.getProgramParametersList();
                 parametersList.add("--agent");
                 parametersList.add("-p");
@@ -391,6 +403,10 @@ public class WeaveAgentComponent extends AbstractProjectComponent {
 
     public static WeaveAgentComponent getInstance(@NotNull Project project) {
         return project.getComponent(WeaveAgentComponent.class);
+    }
+
+    public static interface WeaveAgentStatusListener {
+        void agentStarted();
     }
 
 }

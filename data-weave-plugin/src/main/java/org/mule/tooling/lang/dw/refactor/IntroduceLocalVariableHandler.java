@@ -13,7 +13,7 @@ import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
 import org.mule.tooling.lang.dw.parser.psi.WeaveElementFactory;
 import org.mule.tooling.lang.dw.parser.psi.WeaveVariableDirective;
 import org.mule.tooling.lang.dw.parser.psi.WeaveVariableReferenceExpression;
-import org.mule.tooling.lang.dw.service.DWEditorToolingAPI;
+import org.mule.tooling.lang.dw.service.WeaveEditorToolingAPI;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -23,7 +23,7 @@ public class IntroduceLocalVariableHandler extends AbstractIntroduceDirectiveHan
 
     @Override
     public void invoke(@NotNull Project project, Editor editor, PsiFile psiFile, DataContext dataContext, PsiElement valueToReplace) {
-        PsiElement scopeElement = DWEditorToolingAPI.getInstance(psiFile.getProject()).scopeOf(psiFile, valueToReplace);
+        PsiElement scopeElement = WeaveEditorToolingAPI.getInstance(psiFile.getProject()).scopeOf(psiFile, valueToReplace);
         if (scopeElement instanceof WeaveDocument) {
             new IntroduceConstantHandler().invoke(project, editor, psiFile, dataContext);
         } else if (scopeElement != null) {
