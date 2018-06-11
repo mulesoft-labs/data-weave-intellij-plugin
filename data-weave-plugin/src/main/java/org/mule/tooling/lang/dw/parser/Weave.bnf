@@ -225,6 +225,20 @@ CustomInterpolatorExpression ::= Identifier BACKTIKED_QUOTED_STRING
     mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
 }
 
+private ValueExpression::=UndefinedLiteral
+                  | UnaryMinusExpression
+                  | NotExpression
+                  | ConditionalExpression
+                  | UsingExpression
+                  | DoExpression
+                  | LambdaLiteral
+                  | ObjectDeconstructExpression
+                  | ObjectExpression
+                  | ArrayExpression
+                  | VariableReferenceExpression
+                  | LiteralExpression
+                  | EnclosedExpression
+
 private SimpleExpression ::=
              OrExpression
             | AndExpression
@@ -241,20 +255,6 @@ private SimpleExpression ::=
             | DotSelectorExpression
             | BracketSelectorExpression
 
-
-private ValueExpression::=UndefinedLiteral
-                  | UnaryMinusExpression
-                  | NotExpression
-                  | ConditionalExpression
-                  | UsingExpression
-                  | DoExpression
-                  | LambdaLiteral
-                  | ObjectDeconstructExpression
-                  | ObjectExpression
-                  | ArrayExpression
-                  | VariableReferenceExpression
-                  | LiteralExpression
-                  | EnclosedExpression
 
 UnaryMinusExpression ::= '-' SimpleExpression {pin=1}
 
@@ -286,16 +286,16 @@ IsExpression
 NotExpression ::= 'not' ValueExpression
 
 GreaterThanExpression
-         ::= Expression  ( '>' | '>=' | '<' | '<=' ) AdditionSubtractionExpression {pin=3}
+         ::= Expression  ( '>' !('>') | '>=' |  '<' !('<') | '<=' ) AdditionSubtractionExpression {pin=2}
 
 AdditionSubtractionExpression
          ::= Expression  ( '+' | '-' ) Expression {pin=2}
 
 RightShiftExpression
-         ::= Expression '>''>' MultiplicationDivisionExpression {pin=3}
+         ::= Expression '>''>' MultiplicationDivisionExpression {pin=2}
 
 LeftShiftExpression
-         ::= Expression '<''<' MultiplicationDivisionExpression {pin=3}
+         ::= Expression '<''<' MultiplicationDivisionExpression {pin=2}
 
 MultiplicationDivisionExpression ::= Expression  ( '*' | '/' ) Expression {pin=2}
 

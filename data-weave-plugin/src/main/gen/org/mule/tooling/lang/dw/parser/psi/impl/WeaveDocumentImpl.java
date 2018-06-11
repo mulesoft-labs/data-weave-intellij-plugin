@@ -1,16 +1,17 @@
 // This is a generated file. Not intended for manual editing.
 package org.mule.tooling.lang.dw.parser.psi.impl;
 
-import java.util.List;
-import org.jetbrains.annotations.*;
-import com.intellij.lang.ASTNode;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiElementVisitor;
-import com.intellij.psi.util.PsiTreeUtil;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
-import org.mule.tooling.lang.dw.parser.psi.*;
+import com.intellij.lang.ASTNode;
 import com.intellij.navigation.ItemPresentation;
+import com.intellij.psi.PsiElementVisitor;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.mule.tooling.lang.dw.parser.psi.WeaveBody;
+import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
+import org.mule.tooling.lang.dw.parser.psi.WeaveHeader;
+import org.mule.tooling.lang.dw.parser.psi.WeavePsiImplUtils;
+import org.mule.tooling.lang.dw.parser.psi.WeaveVisitor;
 
 public class WeaveDocumentImpl extends ASTWrapperPsiElement implements WeaveDocument {
 
@@ -43,12 +44,12 @@ public class WeaveDocumentImpl extends ASTWrapperPsiElement implements WeaveDocu
     return WeavePsiImplUtils.getPresentation(this);
   }
 
-  @Nullable
+    @NotNull
   public String getQualifiedName() {
     return WeavePsiImplUtils.getQualifiedName(this);
   }
 
-  @Nullable
+    @NotNull
   public String getName() {
     return WeavePsiImplUtils.getName(this);
   }
