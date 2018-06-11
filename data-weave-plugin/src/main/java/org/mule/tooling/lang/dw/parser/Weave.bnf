@@ -481,7 +481,11 @@ Type ::= UnionType
 
 private BasicTypeExpression ::= LambdaType | CloseOrderedObjectType | OrderedObjectType | CloseObjectType | ObjectType  | ReferenceType | ('(' Type ')')
 
-TypeParameter ::= Identifier ( '<:' Type)?
+TypeParameter ::= Identifier ( '<:' Type)? {
+       methods = [getName setName getNameIdentifier]
+       implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
+       mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
+   }
 
 UnionType ::= IntersectionType UnionTypeExpression* {pin= 2}
 
