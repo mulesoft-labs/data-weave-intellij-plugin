@@ -2,6 +2,10 @@ language: java
 jdk:
   - oraclejdk8
 
+before_install:
+    - "git clone -b travis `git config --get remote.origin.url` build/travis"
+    - cp build/travis/settings.xml ~/.m2/settings.xml
+
 script:
   - ./gradlew build
 
