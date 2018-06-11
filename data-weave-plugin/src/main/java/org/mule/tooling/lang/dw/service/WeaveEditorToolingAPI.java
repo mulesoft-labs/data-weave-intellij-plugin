@@ -1,5 +1,6 @@
 package org.mule.tooling.lang.dw.service;
 
+import com.intellij.ProjectTopics;
 import com.intellij.codeInsight.completion.CompletionParameters;
 import com.intellij.codeInsight.lookup.AutoCompletionPolicy;
 import com.intellij.codeInsight.lookup.LookupElement;
@@ -13,6 +14,8 @@ import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.components.AbstractProjectComponent;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ModuleRootEvent;
+import com.intellij.openapi.roots.ModuleRootListener;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiDocumentManager;
@@ -68,11 +71,13 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
 
     private VirtualFileSystemAdaptor projectVirtualFileSystem;
     private WeaveToolingService dwTextDocumentService;
-    private final List<Runnable> onClose = Lists.newArrayList();
-    private final List<Runnable> onOpen = Lists.newArrayList();
+    private final List<Runnable> onProjectCloseListener;
+    private final List<Runnable> onProjectOpenListener;
 
     protected WeaveEditorToolingAPI(Project project) {
         super(project);
+        this.onProjectCloseListener = Lists.newArrayList();
+        this.onProjectOpenListener = Lists.newArrayList();
     }
 
     @Override
@@ -100,16 +105,21 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
             }
         });
 
-
+        myProject.getMessageBus().connect(myProject).subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootListener() {
+            @Override
+            public void rootsChanged(ModuleRootEvent event) {
+                dwTextDocumentService.invalidateAll();
+            }
+        });
     }
 
     @NotNull
     public DataFormatProperty[] toDataFormatProp(WeaveDataFormatProperty[] weaveDataFormatPropertySeq) {
-        List<DataFormatProperty> properties = new ArrayList<>();
+        final List<DataFormatProperty> properties = new ArrayList<>();
         for (WeaveDataFormatProperty property : weaveDataFormatPropertySeq) {
             properties.add(DataFormatProperty.apply(property.name(), property.description(), property.wtype(), property.values()));
         }
-        return properties.toArray(new DataFormatProperty[properties.size()]);
+        return properties.toArray(new DataFormatProperty[0]);
     }
 
     public List<LookupElement> completion(CompletionParameters completionParameters) {
@@ -136,7 +146,7 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
     }
 
     public WeaveType parseType(String weaveType) {
-        Option<WeaveType> weaveTypeOption = dwTextDocumentService.loadType(weaveType);
+        final Option<WeaveType> weaveTypeOption = dwTextDocumentService.loadType(weaveType);
         if (weaveTypeOption.isDefined()) {
             return weaveTypeOption.get();
         } else {
@@ -145,8 +155,8 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
     }
 
     public WeaveType typeOf(PsiElement element) {
-        WeaveDocumentToolingService weaveDocument = didOpen(element.getContainingFile());
-        TextRange textRange = element.getTextRange();
+        final WeaveDocumentToolingService weaveDocument = didOpen(element.getContainingFile());
+        final TextRange textRange = element.getTextRange();
         return weaveDocument.typeOf(textRange.getStartOffset(), textRange.getEndOffset());
     }
 
@@ -171,13 +181,13 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
 
     @Nullable
     public String hover(PsiElement element) {
-        Document document = PsiDocumentManager.getInstance(myProject).getDocument(element.getContainingFile());
+        final Document document = PsiDocumentManager.getInstance(myProject).getDocument(element.getContainingFile());
         if (document != null) {
-            WeaveDocumentToolingService weaveDocumentService = didOpen(document);
-            Option<HoverMessage> hoverResult = weaveDocumentService.hoverResult(element.getTextOffset());
+            final WeaveDocumentToolingService weaveDocumentService = didOpen(document);
+            final Option<HoverMessage> hoverResult = weaveDocumentService.hoverResult(element.getTextOffset());
             if (hoverResult.isDefined()) {
-                HoverMessage hoverMessage = hoverResult.get();
-                String expressionString = hoverMessage.resultType().toString(true, true);
+                final HoverMessage hoverMessage = hoverResult.get();
+                final String expressionString = hoverMessage.resultType().toString(true, true);
                 return toHtml("*Expression type* : `" + expressionString + "`");
             } else {
                 return null;
@@ -358,23 +368,23 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
     }
 
     public void addOnOpenListener(Runnable runnable) {
-        onOpen.add(runnable);
+        onProjectOpenListener.add(runnable);
     }
 
     public void addOnCloseListener(Runnable runnable) {
-        onClose.add(runnable);
+        onProjectCloseListener.add(runnable);
     }
 
     @Override
     public void projectOpened() {
-        for (Runnable runnable : onOpen) {
+        for (Runnable runnable : onProjectOpenListener) {
             runnable.run();
         }
     }
 
     @Override
     public void projectClosed() {
-        for (Runnable runnable : onClose) {
+        for (Runnable runnable : onProjectCloseListener) {
             runnable.run();
         }
     }
