@@ -4,7 +4,8 @@ import java.time.format.DateTimeFormatter
 
 
 plugins {
-    id "org.jetbrains.intellij" version "0.3.1"
+    id "org.jetbrains.intellij" version "0.3.2"
+    id "com.fipsoft.maven-repo-settings" version "0.3.2"
 }
 
 version = pluginVersion
@@ -12,8 +13,10 @@ version = pluginVersion
 
 allprojects {
 
+
     apply plugin: 'org.jetbrains.intellij'
     apply plugin: 'java'
+    apply plugin: "com.fipsoft.maven-repo-settings"
 
     if (ijPluginRepoChannel.equalsIgnoreCase("Develop")) {
         version = pluginVersion + "-" + DateTimeFormatter.ofPattern("yyyyMMdd.HHmmss").withZone(ZoneOffset.UTC).format(Instant.now())
@@ -26,7 +29,7 @@ allprojects {
     }
 
     repositories {
-        mavenLocal()
+//        mavenLocal()
         mavenCentral()
         maven {
             url "http://central.maven.org/maven2/"
@@ -42,6 +45,14 @@ allprojects {
         }
         maven {
             url "https://repository.mulesoft.org/nexus/content/repositories/releases"
+        }
+        maven {
+            name "mule-ee-releases"
+            url "https://repository.mulesoft.org/nexus/content/repositories/ci-releases/"
+        }
+        maven {
+            name "mule-ee-snapshots"
+            url "https://repository.mulesoft.org/nexus/content/repositories/ci-snapshots/"
         }
     }
 
