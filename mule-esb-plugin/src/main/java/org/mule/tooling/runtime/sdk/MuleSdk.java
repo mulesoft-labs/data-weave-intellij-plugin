@@ -22,7 +22,11 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
+
+import static java.util.Optional.*;
+import static java.util.Optional.of;
 
 
 public class MuleSdk {
@@ -40,15 +44,28 @@ public class MuleSdk {
     private static final String BIN_DIR = "/bin";
     private static final Logger LOG = Logger.getInstance("#com.intellij.appengine.sdk.impl.MuleSdk");
     private static final Pattern VERSION_NUMBER = Pattern.compile("([0-9]\\.[0-9]\\.[0-9])");
+    private static final String HOMEPATH_PREFIX = "mule-enterprise-standalone-";
 
     @Tag("mule-home")
     private String muleHome;
+    private String version;
 
-    public MuleSdk() {
+    private MuleSdk(String homePath) {
+        this.muleHome = homePath;
+        this.version = getVersionFromMuleHome(homePath);
+
     }
 
-    public MuleSdk(String homePath) {
-        this.muleHome = homePath;
+    private static String getVersionFromMuleHome(String muleHome) {
+        return new File(muleHome).getName().substring(HOMEPATH_PREFIX.length());
+    }
+
+    private static boolean isValidHomePath(String homePath) {
+        return new File(homePath).getName().startsWith(HOMEPATH_PREFIX);
+    }
+
+    public static Optional<MuleSdk> create(String homePath) {
+        return isValidHomePath(homePath)? of(new MuleSdk(homePath)): empty();
     }
 
     public String getMuleHome() {
@@ -61,11 +78,8 @@ public class MuleSdk {
 
     @NotNull
     public String getVersion() {
-        final File file = new File(getMuleHome());
-        final String distroName = file.getName();
-        return distroName.substring("mule-enterprise-standalone-".length());
+        return version;
     }
-
 
     @Override
     public String toString() {

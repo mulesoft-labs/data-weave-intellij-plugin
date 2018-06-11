@@ -19,9 +19,10 @@ public class MuleSdkManager implements ApplicationComponent {
     public void initComponent() {
         File muleDistroDirectory = getMuleDistroDirectory();
         File[] distros = muleDistroDirectory.listFiles();
-        for (File distro : distros) {
-            MuleSdk sdk = new MuleSdk(distro.getAbsolutePath());
-            runtimes.put(sdk.getVersion(), sdk);
+        if (distros != null) {
+            for (File distro : distros) {
+                MuleSdk.create(distro.getAbsolutePath()).ifPresent(muleSdk -> runtimes.put(muleSdk.getVersion(), muleSdk));
+            }
         }
     }
 
