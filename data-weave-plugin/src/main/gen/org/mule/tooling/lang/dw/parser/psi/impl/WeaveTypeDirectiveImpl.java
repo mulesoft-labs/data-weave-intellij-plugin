@@ -8,10 +8,9 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.*;
-import org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl;
 import org.mule.tooling.lang.dw.parser.psi.*;
 
-public class WeaveTypeDirectiveImpl extends WeaveNamedElementImpl implements WeaveTypeDirective {
+public class WeaveTypeDirectiveImpl extends WeaveDirectiveImpl implements WeaveTypeDirective {
 
   public WeaveTypeDirectiveImpl(ASTNode node) {
     super(node);
@@ -28,26 +27,8 @@ public class WeaveTypeDirectiveImpl extends WeaveNamedElementImpl implements Wea
 
   @Override
   @Nullable
-  public WeaveIdentifier getIdentifier() {
-    return findChildByClass(WeaveIdentifier.class);
-  }
-
-  @Override
-  @Nullable
-  public WeaveType getType() {
-    return findChildByClass(WeaveType.class);
-  }
-
-  @Override
-  @NotNull
-  public List<WeaveTypeParameter> getTypeParameterList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, WeaveTypeParameter.class);
-  }
-
-  @Override
-  @Nullable
-  public WeaveUndefinedLiteral getUndefinedLiteral() {
-    return findChildByClass(WeaveUndefinedLiteral.class);
+  public WeaveTypeDefinition getTypeDefinition() {
+    return findChildByClass(WeaveTypeDefinition.class);
   }
 
 }

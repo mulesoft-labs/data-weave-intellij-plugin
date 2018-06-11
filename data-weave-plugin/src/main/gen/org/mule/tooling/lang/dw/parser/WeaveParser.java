@@ -1,227 +1,15 @@
 // This is a generated file. Not intended for manual editing.
 package org.mule.tooling.lang.dw.parser;
 
-import com.intellij.lang.ASTNode;
-import com.intellij.lang.LightPsiParser;
 import com.intellij.lang.PsiBuilder;
 import com.intellij.lang.PsiBuilder.Marker;
-import com.intellij.lang.PsiParser;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.*;
+import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.*;
 import com.intellij.psi.tree.IElementType;
+import com.intellij.lang.ASTNode;
 import com.intellij.psi.tree.TokenSet;
-
-import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.Parser;
-import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.TRUE_CONDITION;
-import static org.mule.tooling.lang.dw.parser.WeaveParserUtil._COLLAPSE_;
-import static org.mule.tooling.lang.dw.parser.WeaveParserUtil._LEFT_;
-import static org.mule.tooling.lang.dw.parser.WeaveParserUtil._NONE_;
-import static org.mule.tooling.lang.dw.parser.WeaveParserUtil._NOT_;
-import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.adapt_builder_;
-import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.addVariant;
-import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.consumeToken;
-import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.consumeTokenSmart;
-import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.consumeTokens;
-import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.consumeTokensSmart;
-import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.create_token_set_;
-import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.current_position_;
-import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.empty_element_parsed_guard_;
-import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.enter_section_;
-import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.exit_section_;
-import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.nextTokenIs;
-import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.nextTokenIsSmart;
-import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.parseTokensSmart;
-import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.recursion_guard_;
-import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.report_error_;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ADDITION_SUBTRACTION_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.AND;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.AND_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.AND_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ANY_DATE_LITERAL;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ARRAY_DECONSTRUCT_PATTERN;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ARRAY_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ARROW_TOKEN;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.AS;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.AS_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.AT;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ATTRIBUTE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ATTRIBUTES;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ATTRIBUTES_TYPE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ATTRIBUTE_SELECTOR;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.BACKTIKED_QUOTED_STRING;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.BINARY_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.BODY;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.BOOLEAN_LITERAL;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.BRACKET_SELECTOR_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.CASE_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.CLOSE_CLOSE_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.CLOSE_CLOSE_ORDERED_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.CLOSE_OBJECT_TYPE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.CLOSE_ORDERED_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.CLOSE_ORDERED_OBJECT_TYPE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.COLON;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.COMMA;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.CONDITIONAL_ATTRIBUTE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.CONDITIONAL_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.CONDITIONAL_KEY_VALUE_PAIR;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.CONTAINER_MODULE_IDENTIFIER;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.CUSTOM_INTERPOLATOR_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.CUSTOM_LOADER;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DATA_FORMAT;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DECLARED_NAMESPACE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DEFAULT;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DEFAULT_PATTERN;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DEFAULT_VALUE_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DIRECTIVE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DIVISION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DOCUMENT;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DOCUMENT_SEPARATOR;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DOLLAR_VARIABLE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DOT_SELECTOR_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DOUBLE_LITERAL;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DOUBLE_QUOTED_STRING;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DO_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DO_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DYNAMIC_ATTRIBUTE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DYNAMIC_KEY_VALUE_PAIR;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DYNAMIC_RETURN;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ELSE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.EMPTY_ARRAY_PATTERN;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.EMPTY_OBJECT_PATTERN;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ENCLOSED_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.EQ;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.EQUAL;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.EQUALITY_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ESCLAMATION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.EXPRESSION_PATTERN;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.FALSE_LITERAL;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.FQN_IDENTIFIER;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.FROM_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.FUNCTION_CALL_ARGUMENTS;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.FUNCTION_CALL_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.FUNCTION_DEFINITION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.FUNCTION_DIRECTIVE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.FUNCTION_DIRECTIVE_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.FUNCTION_PARAMETER;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.GREATER;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.GREATER_EQUAL;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.GREATER_THAN_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.HASH;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.HEADER;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ID;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.IDENTIFIER;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.IF;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.IMPORTED_ELEMENT;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.IMPORT_DIRECTIVE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.IMPORT_DIRECTIVE_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.INPUT_DIRECTIVE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.INPUT_DIRECTIVE_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.INTEGER_LITERAL;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.INTERSECTION_TYPE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.IS;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.IS_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.KEY;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.KEY_TYPE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.KEY_VALUE_PAIR;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.KEY_VALUE_PAIR_TYPE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.LAMBDA_LITERAL;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.LAMBDA_TYPE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.LAMBDA_TYPE_PARAMETER;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.LEFT_SHIFT_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.LESS;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.LESS_EQUAL;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.LITERAL_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.LITERAL_PATTERN;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.L_BRACKET;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.L_CURLY;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.L_PARREN;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.MATCHES_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.MATCH_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.MATCH_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.MIME_TYPE_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.MINUS;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.MODULE_REFERENCE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.MULTIPLE_KEY_VALUE_PAIR_OBJ;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.MULTIPLICATION_DIVISION_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.MULTIPLY;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.MULTI_VALUE_SELECTOR;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.NAMED_LITERAL_PATTERN;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.NAMED_REGEX_PATTERN;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.NAMED_TYPE_PATTERN;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.NAMESPACE_DIRECTIVE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.NAMESPACE_DIRECTIVE_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.NAMESPACE_SELECTOR;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.NAMESPACE_URI;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.NAME_TYPE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.NOT_EQUAL;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.NOT_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.NOT_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.NULL_LITERAL;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.NULL_LITERAL_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.NUMBER_LITERAL;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.OBJECT_DECONSTRUCT_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.OBJECT_DECONSTRUCT_PATTERN;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.OBJECT_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.OBJECT_SELECTOR;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.OBJECT_TYPE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.OPEN_CLOSE_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.OPEN_CLOSE_ORDERED_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.OPEN_ORDERED_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.OPTIONS;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.OPTION_ELEMENT;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.OR;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ORDERED_OBJECT_TYPE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.OR_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.OR_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.OUTPUT_DIRECTIVE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.OUTPUT_DIRECTIVE_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.PACKAGE_SEPARATOR;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.PATTERN;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.PATTERN_MATCHER_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.PLUS;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.QUALIFIED_NAME;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.QUESTION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.REFERENCE_TYPE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.REGEX_LITERAL;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.REGEX_PATTERN;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.RIGHT_SHIFT_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.RULE_ANY_DATE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.RULE_ANY_REGEX;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.R_BRACKET;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.R_CURLY;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.R_PARREN;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.SCHEMA;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.SCHEMA_ELEMENT;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.SCHEMA_SELECTOR;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.SELECTOR;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.SIMILAR;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.SIMPLE_ATTRIBUTE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.SIMPLE_KEY_VALUE_PAIR;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.SINGLE_KEY_VALUE_PAIR_OBJ;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.SINGLE_QUOTED_STRING;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.STRING_LITERAL;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.SUB_TYPE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.TILDE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.TRUE_LITERAL;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.TYPE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.TYPE_DIRECTIVE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.TYPE_DIRECTIVE_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.TYPE_PARAMETER;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.TYPE_PATTERN;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.UNARY_MINUS_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.UNDEFINED_LITERAL;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.UNDERSCORE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.UNION_TYPE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.UNLESS;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.USING;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.USING_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.VALUE_SELECTOR;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.VARIABLE_DEFINITION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.VARIABLE_DIRECTIVE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.VARIABLE_REFERENCE_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.VAR_DIRECTIVE_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.VERSION_DIRECTIVE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.VERSION_DIRECTIVE_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.XOR;
+import com.intellij.lang.PsiParser;
+import com.intellij.lang.LightPsiParser;
 
 @SuppressWarnings({"SimplifiableIfStatement", "UnusedAssignment"})
 public class WeaveParser implements PsiParser, LightPsiParser {
@@ -388,6 +176,9 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     else if (t == NAMED_TYPE_PATTERN) {
       r = NamedTypePattern(b, 0);
     }
+    else if (t == NAMESPACE_DEFINITION) {
+      r = NamespaceDefinition(b, 0);
+    }
     else if (t == NAMESPACE_DIRECTIVE) {
       r = NamespaceDirective(b, 0);
     }
@@ -465,6 +256,9 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     }
     else if (t == TYPE) {
       r = Type(b, 0);
+    }
+    else if (t == TYPE_DEFINITION) {
+      r = TypeDefinition(b, 0);
     }
     else if (t == TYPE_DIRECTIVE) {
       r = TypeDirective(b, 0);
@@ -663,7 +457,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   private static boolean Attributes_1_0_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "Attributes_1_0_1")) return false;
     while (true) {
-        int c = current_position_(b);
+      int c = current_position_(b);
       if (!Attributes_1_0_1_0(b, l + 1)) break;
       if (!empty_element_parsed_guard_(b, "Attributes_1_0_1", c)) break;
     }
@@ -702,8 +496,8 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   // (',' NameType ":" Type)*
   private static boolean AttributesType_5(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "AttributesType_5")) return false;
-      while (true) {
-          int c = current_position_(b);
+    while (true) {
+      int c = current_position_(b);
       if (!AttributesType_5_0(b, l + 1)) break;
       if (!empty_element_parsed_guard_(b, "AttributesType_5", c)) break;
     }
@@ -830,8 +624,8 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   // (',' KeyValuePairType)*
   private static boolean CloseObjectType_1_0_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "CloseObjectType_1_0_1")) return false;
-      while (true) {
-          int c = current_position_(b);
+    while (true) {
+      int c = current_position_(b);
       if (!CloseObjectType_1_0_1_0(b, l + 1)) break;
       if (!empty_element_parsed_guard_(b, "CloseObjectType_1_0_1", c)) break;
     }
@@ -920,7 +714,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   private static boolean CloseOrderedObjectType_1_0_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "CloseOrderedObjectType_1_0_1")) return false;
     while (true) {
-        int c = current_position_(b);
+      int c = current_position_(b);
       if (!CloseOrderedObjectType_1_0_1_0(b, l + 1)) break;
       if (!empty_element_parsed_guard_(b, "CloseOrderedObjectType_1_0_1", c)) break;
     }
@@ -1007,7 +801,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     if (!recursion_guard_(b, l, "ContainerModuleIdentifier")) return false;
     Marker m = enter_section_(b, l, _NONE_, CONTAINER_MODULE_IDENTIFIER, "<container module identifier>");
     while (true) {
-        int c = current_position_(b);
+      int c = current_position_(b);
       if (!ContainerModuleIdentifier_0(b, l + 1)) break;
       if (!empty_element_parsed_guard_(b, "ContainerModuleIdentifier", c)) break;
     }
@@ -1294,8 +1088,8 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   // ( ',' Expression )*
   private static boolean FunctionCallArguments_1_0_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "FunctionCallArguments_1_0_1")) return false;
-      while (true) {
-          int c = current_position_(b);
+    while (true) {
+      int c = current_position_(b);
       if (!FunctionCallArguments_1_0_1_0(b, l + 1)) break;
       if (!empty_element_parsed_guard_(b, "FunctionCallArguments_1_0_1", c)) break;
     }
@@ -1367,7 +1161,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   private static boolean FunctionDefinition_3_0_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "FunctionDefinition_3_0_1")) return false;
     while (true) {
-        int c = current_position_(b);
+      int c = current_position_(b);
       if (!FunctionDefinition_3_0_1_0(b, l + 1)) break;
       if (!empty_element_parsed_guard_(b, "FunctionDefinition_3_0_1", c)) break;
     }
@@ -1439,12 +1233,12 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // VARIABLE_DECLARATION ('=' Expression)?
+  // VariableNameTypeDefinition ('=' Expression)?
   public static boolean FunctionParameter(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "FunctionParameter")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, FUNCTION_PARAMETER, "<function parameter>");
-    r = VARIABLE_DECLARATION(b, l + 1);
+    r = VariableNameTypeDefinition(b, l + 1);
     r = r && FunctionParameter_1(b, l + 1);
     exit_section_(b, l, m, r, false, null);
     return r;
@@ -1476,7 +1270,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     Marker m = enter_section_(b, l, _NONE_, HEADER, "<header>");
     r = Directive(b, l + 1);
     while (r) {
-        int c = current_position_(b);
+      int c = current_position_(b);
       if (!Directive(b, l + 1)) break;
       if (!empty_element_parsed_guard_(b, "Header", c)) break;
     }
@@ -1588,8 +1382,8 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   // (',' ImportedElement)*
   private static boolean ImportDirective_1_0_0_0_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ImportDirective_1_0_0_0_1")) return false;
-      while (true) {
-          int c = current_position_(b);
+    while (true) {
+      int c = current_position_(b);
       if (!ImportDirective_1_0_0_0_1_0(b, l + 1)) break;
       if (!empty_element_parsed_guard_(b, "ImportDirective_1_0_0_0_1", c)) break;
     }
@@ -1656,7 +1450,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // 'input' VARIABLE_DECLARATION DataFormat Options?
+  // 'input' VariableNameTypeDefinition DataFormat Options?
   public static boolean InputDirective(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "InputDirective")) return false;
     if (!nextTokenIs(b, INPUT_DIRECTIVE_KEYWORD)) return false;
@@ -1664,7 +1458,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     Marker m = enter_section_(b, l, _NONE_, INPUT_DIRECTIVE, null);
     r = consumeToken(b, INPUT_DIRECTIVE_KEYWORD);
     p = r; // pin = 1
-    r = r && report_error_(b, VARIABLE_DECLARATION(b, l + 1));
+    r = r && report_error_(b, VariableNameTypeDefinition(b, l + 1));
     r = p && report_error_(b, DataFormat(b, l + 1)) && r;
     r = p && InputDirective_3(b, l + 1) && r;
     exit_section_(b, l, m, r, p, null);
@@ -1693,8 +1487,8 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   // (IntersectionTypeExpression)*
   private static boolean IntersectionType_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "IntersectionType_1")) return false;
-      while (true) {
-          int c = current_position_(b);
+    while (true) {
+      int c = current_position_(b);
       if (!IntersectionType_1_0(b, l + 1)) break;
       if (!empty_element_parsed_guard_(b, "IntersectionType_1", c)) break;
     }
@@ -1840,7 +1634,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   private static boolean LambdaType_1_0_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "LambdaType_1_0_1")) return false;
     while (true) {
-        int c = current_position_(b);
+      int c = current_position_(b);
       if (!LambdaType_1_0_1_0(b, l + 1)) break;
       if (!empty_element_parsed_guard_(b, "LambdaType_1_0_1", c)) break;
     }
@@ -1970,8 +1764,8 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   // (',' objectEntryRule)*
   private static boolean MultipleKeyValuePairObj_2(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "MultipleKeyValuePairObj_2")) return false;
-      while (true) {
-          int c = current_position_(b);
+    while (true) {
+      int c = current_position_(b);
       if (!MultipleKeyValuePairObj_2_0(b, l + 1)) break;
       if (!empty_element_parsed_guard_(b, "MultipleKeyValuePairObj_2", c)) break;
     }
@@ -2127,7 +1921,20 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // 'ns' Identifier NAMESPACE_URI
+  // Identifier NAMESPACE_URI
+  public static boolean NamespaceDefinition(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "NamespaceDefinition")) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, NAMESPACE_DEFINITION, "<namespace definition>");
+    r = Identifier(b, l + 1);
+    p = r; // pin = 1
+    r = r && consumeToken(b, NAMESPACE_URI);
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
+  }
+
+  /* ********************************************************** */
+  // 'ns' NamespaceDefinition
   public static boolean NamespaceDirective(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "NamespaceDirective")) return false;
     if (!nextTokenIs(b, NAMESPACE_DIRECTIVE_KEYWORD)) return false;
@@ -2135,8 +1942,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     Marker m = enter_section_(b, l, _NONE_, NAMESPACE_DIRECTIVE, null);
     r = consumeToken(b, NAMESPACE_DIRECTIVE_KEYWORD);
     p = r; // pin = 1
-    r = r && report_error_(b, Identifier(b, l + 1));
-    r = p && consumeToken(b, NAMESPACE_URI) && r;
+    r = r && NamespaceDefinition(b, l + 1);
     exit_section_(b, l, m, r, p, null);
     return r || p;
   }
@@ -2298,8 +2104,8 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   // (',' KeyValuePairType)*
   private static boolean ObjectType_1_0_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ObjectType_1_0_1")) return false;
-      while (true) {
-          int c = current_position_(b);
+    while (true) {
+      int c = current_position_(b);
       if (!ObjectType_1_0_1_0(b, l + 1)) break;
       if (!empty_element_parsed_guard_(b, "ObjectType_1_0_1", c)) break;
     }
@@ -2363,7 +2169,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   private static boolean Options_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "Options_1")) return false;
     while (true) {
-        int c = current_position_(b);
+      int c = current_position_(b);
       if (!Options_1_0(b, l + 1)) break;
       if (!empty_element_parsed_guard_(b, "Options_1", c)) break;
     }
@@ -2435,7 +2241,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   private static boolean OrderedObjectType_1_0_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "OrderedObjectType_1_0_1")) return false;
     while (true) {
-        int c = current_position_(b);
+      int c = current_position_(b);
       if (!OrderedObjectType_1_0_1_0(b, l + 1)) break;
       if (!empty_element_parsed_guard_(b, "OrderedObjectType_1_0_1", c)) break;
     }
@@ -2564,8 +2370,8 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     boolean r;
     Marker m = enter_section_(b);
     r = PatternMatcherExpression_1_0(b, l + 1);
-      while (r) {
-          int c = current_position_(b);
+    while (r) {
+      int c = current_position_(b);
       if (!PatternMatcherExpression_1_0(b, l + 1)) break;
       if (!empty_element_parsed_guard_(b, "PatternMatcherExpression_1", c)) break;
     }
@@ -2667,7 +2473,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   private static boolean ReferenceType_1_0_2(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ReferenceType_1_0_2")) return false;
     while (true) {
-        int c = current_position_(b);
+      int c = current_position_(b);
       if (!ReferenceType_1_0_2_0(b, l + 1)) break;
       if (!empty_element_parsed_guard_(b, "ReferenceType_1_0_2", c)) break;
     }
@@ -2765,7 +2571,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   private static boolean Schema_1_0_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "Schema_1_0_1")) return false;
     while (true) {
-        int c = current_position_(b);
+      int c = current_position_(b);
       if (!Schema_1_0_1_0(b, l + 1)) break;
       if (!empty_element_parsed_guard_(b, "Schema_1_0_1", c)) break;
     }
@@ -2937,7 +2743,38 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // 'type' Identifier TypeParameterDeclaration? '=' (TypeLiteral | UndefinedLiteral)
+  // Identifier TypeParameterDeclaration? '=' (TypeLiteral | UndefinedLiteral)
+  public static boolean TypeDefinition(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "TypeDefinition")) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, TYPE_DEFINITION, "<type definition>");
+    r = Identifier(b, l + 1);
+    p = r; // pin = 1
+    r = r && report_error_(b, TypeDefinition_1(b, l + 1));
+    r = p && report_error_(b, consumeToken(b, EQ)) && r;
+    r = p && TypeDefinition_3(b, l + 1) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
+  }
+
+  // TypeParameterDeclaration?
+  private static boolean TypeDefinition_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "TypeDefinition_1")) return false;
+    TypeParameterDeclaration(b, l + 1);
+    return true;
+  }
+
+  // TypeLiteral | UndefinedLiteral
+  private static boolean TypeDefinition_3(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "TypeDefinition_3")) return false;
+    boolean r;
+    r = TypeLiteral(b, l + 1);
+    if (!r) r = UndefinedLiteral(b, l + 1);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // 'type' TypeDefinition
   public static boolean TypeDirective(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "TypeDirective")) return false;
     if (!nextTokenIs(b, TYPE_DIRECTIVE_KEYWORD)) return false;
@@ -2945,28 +2782,9 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     Marker m = enter_section_(b, l, _NONE_, TYPE_DIRECTIVE, null);
     r = consumeToken(b, TYPE_DIRECTIVE_KEYWORD);
     p = r; // pin = 1
-    r = r && report_error_(b, Identifier(b, l + 1));
-    r = p && report_error_(b, TypeDirective_2(b, l + 1)) && r;
-    r = p && report_error_(b, consumeToken(b, EQ)) && r;
-    r = p && TypeDirective_4(b, l + 1) && r;
+    r = r && TypeDefinition(b, l + 1);
     exit_section_(b, l, m, r, p, null);
     return r || p;
-  }
-
-  // TypeParameterDeclaration?
-  private static boolean TypeDirective_2(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "TypeDirective_2")) return false;
-    TypeParameterDeclaration(b, l + 1);
-    return true;
-  }
-
-  // TypeLiteral | UndefinedLiteral
-  private static boolean TypeDirective_4(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "TypeDirective_4")) return false;
-    boolean r;
-    r = TypeLiteral(b, l + 1);
-    if (!r) r = UndefinedLiteral(b, l + 1);
-    return r;
   }
 
   /* ********************************************************** */
@@ -3040,8 +2858,8 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   // (',' TypeParameter)*
   private static boolean TypeParameterDeclaration_1_0_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "TypeParameterDeclaration_1_0_1")) return false;
-      while (true) {
-          int c = current_position_(b);
+    while (true) {
+      int c = current_position_(b);
       if (!TypeParameterDeclaration_1_0_1_0(b, l + 1)) break;
       if (!empty_element_parsed_guard_(b, "TypeParameterDeclaration_1_0_1", c)) break;
     }
@@ -3089,8 +2907,8 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   // UnionTypeExpression*
   private static boolean UnionType_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "UnionType_1")) return false;
-      while (true) {
-          int c = current_position_(b);
+    while (true) {
+      int c = current_position_(b);
       if (!UnionTypeExpression(b, l + 1)) break;
       if (!empty_element_parsed_guard_(b, "UnionType_1", c)) break;
     }
@@ -3106,36 +2924,6 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     Marker m = enter_section_(b);
     r = consumeToken(b, OR);
     r = r && IntersectionType(b, l + 1);
-    exit_section_(b, m, null, r);
-    return r;
-  }
-
-  /* ********************************************************** */
-  // Identifier (":" Type)?
-  static boolean VARIABLE_DECLARATION(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "VARIABLE_DECLARATION")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
-    r = Identifier(b, l + 1);
-    r = r && VARIABLE_DECLARATION_1(b, l + 1);
-    exit_section_(b, m, null, r);
-    return r;
-  }
-
-  // (":" Type)?
-  private static boolean VARIABLE_DECLARATION_1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "VARIABLE_DECLARATION_1")) return false;
-    VARIABLE_DECLARATION_1_0(b, l + 1);
-    return true;
-  }
-
-  // ":" Type
-  private static boolean VARIABLE_DECLARATION_1_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "VARIABLE_DECLARATION_1_0")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
-    r = consumeToken(b, COLON);
-    r = r && Type(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
   }
@@ -3169,12 +2957,12 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // VARIABLE_DECLARATION '='  Expression
+  // VariableNameTypeDefinition '='  Expression
   public static boolean VariableDefinition(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "VariableDefinition")) return false;
     boolean r;
-      Marker m = enter_section_(b, l, _NONE_, VARIABLE_DEFINITION, "<variable definition>");
-    r = VARIABLE_DECLARATION(b, l + 1);
+    Marker m = enter_section_(b, l, _NONE_, VARIABLE_DEFINITION, "<variable definition>");
+    r = VariableNameTypeDefinition(b, l + 1);
     r = r && consumeToken(b, EQ);
     r = r && Expression(b, l + 1, -1);
     exit_section_(b, l, m, r, false, null);
@@ -3193,6 +2981,36 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     r = r && VariableDefinition(b, l + 1);
     exit_section_(b, l, m, r, p, null);
     return r || p;
+  }
+
+  /* ********************************************************** */
+  // Identifier (":" Type)?
+  static boolean VariableNameTypeDefinition(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "VariableNameTypeDefinition")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = Identifier(b, l + 1);
+    r = r && VariableNameTypeDefinition_1(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // (":" Type)?
+  private static boolean VariableNameTypeDefinition_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "VariableNameTypeDefinition_1")) return false;
+    VariableNameTypeDefinition_1_0(b, l + 1);
+    return true;
+  }
+
+  // ":" Type
+  private static boolean VariableNameTypeDefinition_1_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "VariableNameTypeDefinition_1_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, COLON);
+    r = r && Type(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
   }
 
   /* ********************************************************** */
@@ -3384,60 +3202,60 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-    // '>' !('>') | '>=' |  '<' !('<') | '<='
+  // '>' !('>') | '>=' |  '<' !('<') | '<='
   private static boolean GreaterThanExpression_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "GreaterThanExpression_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
-      r = GreaterThanExpression_0_0(b, l + 1);
+    r = GreaterThanExpression_0_0(b, l + 1);
     if (!r) r = consumeTokenSmart(b, GREATER_EQUAL);
-      if (!r) r = GreaterThanExpression_0_2(b, l + 1);
+    if (!r) r = GreaterThanExpression_0_2(b, l + 1);
     if (!r) r = consumeTokenSmart(b, LESS_EQUAL);
     exit_section_(b, m, null, r);
     return r;
   }
 
-    // '>' !('>')
-    private static boolean GreaterThanExpression_0_0(PsiBuilder b, int l) {
-        if (!recursion_guard_(b, l, "GreaterThanExpression_0_0")) return false;
-        boolean r;
-        Marker m = enter_section_(b);
-        r = consumeTokenSmart(b, GREATER);
-        r = r && GreaterThanExpression_0_0_1(b, l + 1);
-        exit_section_(b, m, null, r);
-        return r;
-    }
+  // '>' !('>')
+  private static boolean GreaterThanExpression_0_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "GreaterThanExpression_0_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeTokenSmart(b, GREATER);
+    r = r && GreaterThanExpression_0_0_1(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
 
-    // !('>')
-    private static boolean GreaterThanExpression_0_0_1(PsiBuilder b, int l) {
-        if (!recursion_guard_(b, l, "GreaterThanExpression_0_0_1")) return false;
-        boolean r;
-        Marker m = enter_section_(b, l, _NOT_);
-        r = !consumeTokenSmart(b, GREATER);
-        exit_section_(b, l, m, r, false, null);
-        return r;
-    }
+  // !('>')
+  private static boolean GreaterThanExpression_0_0_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "GreaterThanExpression_0_0_1")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NOT_);
+    r = !consumeTokenSmart(b, GREATER);
+    exit_section_(b, l, m, r, false, null);
+    return r;
+  }
 
-    // '<' !('<')
-    private static boolean GreaterThanExpression_0_2(PsiBuilder b, int l) {
-        if (!recursion_guard_(b, l, "GreaterThanExpression_0_2")) return false;
-        boolean r;
-        Marker m = enter_section_(b);
-        r = consumeTokenSmart(b, LESS);
-        r = r && GreaterThanExpression_0_2_1(b, l + 1);
-        exit_section_(b, m, null, r);
-        return r;
-    }
+  // '<' !('<')
+  private static boolean GreaterThanExpression_0_2(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "GreaterThanExpression_0_2")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeTokenSmart(b, LESS);
+    r = r && GreaterThanExpression_0_2_1(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
 
-    // !('<')
-    private static boolean GreaterThanExpression_0_2_1(PsiBuilder b, int l) {
-        if (!recursion_guard_(b, l, "GreaterThanExpression_0_2_1")) return false;
-        boolean r;
-        Marker m = enter_section_(b, l, _NOT_);
-        r = !consumeTokenSmart(b, LESS);
-        exit_section_(b, l, m, r, false, null);
-        return r;
-    }
+  // !('<')
+  private static boolean GreaterThanExpression_0_2_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "GreaterThanExpression_0_2_1")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NOT_);
+    r = !consumeTokenSmart(b, LESS);
+    exit_section_(b, l, m, r, false, null);
+    return r;
+  }
 
   // '+' | '-'
   private static boolean AdditionSubtractionExpression_0(PsiBuilder b, int l) {
@@ -3564,7 +3382,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   private static boolean UsingExpression_3(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "UsingExpression_3")) return false;
     while (true) {
-        int c = current_position_(b);
+      int c = current_position_(b);
       if (!UsingExpression_3_0(b, l + 1)) break;
       if (!empty_element_parsed_guard_(b, "UsingExpression_3", c)) break;
     }
@@ -3630,8 +3448,8 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     boolean r;
     Marker m = enter_section_(b);
     r = DoDirectives(b, l + 1);
-      while (r) {
-          int c = current_position_(b);
+    while (r) {
+      int c = current_position_(b);
       if (!DoDirectives(b, l + 1)) break;
       if (!empty_element_parsed_guard_(b, "DoExpression_0_2_0_0", c)) break;
     }
@@ -3686,7 +3504,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   private static boolean LambdaLiteral_2_0_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "LambdaLiteral_2_0_1")) return false;
     while (true) {
-        int c = current_position_(b);
+      int c = current_position_(b);
       if (!LambdaLiteral_2_0_1_0(b, l + 1)) break;
       if (!empty_element_parsed_guard_(b, "LambdaLiteral_2_0_1", c)) break;
     }
@@ -3828,7 +3646,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   private static boolean ArrayExpression_1_1_1_0_1_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ArrayExpression_1_1_1_0_1_0")) return false;
     while (true) {
-        int c = current_position_(b);
+      int c = current_position_(b);
       if (!ArrayExpression_1_1_1_0_1_0_0(b, l + 1)) break;
       if (!empty_element_parsed_guard_(b, "ArrayExpression_1_1_1_0_1_0", c)) break;
     }

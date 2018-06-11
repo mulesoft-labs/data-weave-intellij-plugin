@@ -9,6 +9,10 @@ import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
 import org.mule.tooling.lang.dw.parser.psi.WeaveDoExpression;
 import org.mule.tooling.lang.dw.parser.psi.WeaveElementFactory;
+import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
+import org.mule.tooling.lang.dw.parser.psi.WeaveReferenceType;
+import org.mule.tooling.lang.dw.parser.psi.WeaveType;
+import org.mule.tooling.lang.dw.parser.psi.WeaveTypeDirective;
 import org.mule.tooling.lang.dw.parser.psi.WeaveVariableDirective;
 import org.mule.tooling.lang.dw.parser.psi.WeaveVariableReferenceExpression;
 import org.mule.tooling.lang.dw.service.WeaveEditorToolingAPI;
@@ -37,15 +41,25 @@ public class IntroduceLocalVariableHandler extends AbstractIntroduceDirectiveHan
     }
 
     public PsiElement getTargetScope(PsiFile psiFile, PsiElement valueToReplace) {
-        return WeaveEditorToolingAPI.getInstance(psiFile.getProject()).scopeOf(psiFile, valueToReplace);
+        if (valueToReplace instanceof WeaveType) {
+            return WeavePsiUtils.getWeaveDocument(psiFile);
+        } else {
+            return WeaveEditorToolingAPI.getInstance(psiFile.getProject()).scopeOf(psiFile, valueToReplace);
+        }
     }
 
 
     public RefactorResult getWeaveInplaceVariableIntroducer(@NotNull Project project, PsiElement valueToReplace, PsiElement rootScope, List<String> possibleNames) {
         final String defaultName = possibleNames.get(0);
-        final WeaveVariableDirective varDirective = WeaveElementFactory.createVarDirective(project, defaultName, valueToReplace);
-        final WeaveVariableReferenceExpression variableRef = WeaveElementFactory.createVariableRef(project, defaultName);
-        return simpleRefactor(() -> varDirective, () -> variableRef, valueToReplace, rootScope, project, WeaveVariableDirective::getVariableDefinition);
+        if (valueToReplace instanceof WeaveType) {
+            final WeaveTypeDirective weaveTypeDirective = WeaveElementFactory.createTypeDirective(project, defaultName, valueToReplace);
+            final WeaveReferenceType typeReference = WeaveElementFactory.createTypeReference(project, defaultName);
+            return simpleRefactor(() -> weaveTypeDirective, () -> typeReference, valueToReplace, rootScope, project, WeaveTypeDirective::getTypeDefinition);
+        } else {
+            final WeaveVariableDirective varDirective = WeaveElementFactory.createVarDirective(project, defaultName, valueToReplace);
+            final WeaveVariableReferenceExpression variableRef = WeaveElementFactory.createVariableRef(project, defaultName);
+            return simpleRefactor(() -> varDirective, () -> variableRef, valueToReplace, rootScope, project, WeaveVariableDirective::getVariableDefinition);
+        }
     }
 
 

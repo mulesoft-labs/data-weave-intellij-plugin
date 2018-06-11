@@ -8,6 +8,6 @@ import com.intellij.psi.PsiElement;
 public interface WeaveNamespaceDirective extends WeaveDirective {
 
   @Nullable
-  WeaveIdentifier getIdentifier();
+  WeaveNamespaceDefinition getNamespaceDefinition();
 
 }

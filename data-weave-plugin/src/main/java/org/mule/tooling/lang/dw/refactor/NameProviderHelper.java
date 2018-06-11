@@ -14,6 +14,7 @@ import org.mule.tooling.lang.dw.parser.psi.WeaveObjectExpression;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.parser.psi.WeaveRegexLiteral;
 import org.mule.tooling.lang.dw.parser.psi.WeaveStringLiteral;
+import org.mule.tooling.lang.dw.parser.psi.WeaveType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,6 +61,8 @@ public class NameProviderHelper {
             result.add(prefix + "Array");
         } else if (valueToReplace instanceof WeaveNumberLiteral) {
             result.add(prefix + "Number");
+        } else if (valueToReplace instanceof WeaveType) {
+            result.add("MyType");
         } else {
             result.add(defaultName);
         }

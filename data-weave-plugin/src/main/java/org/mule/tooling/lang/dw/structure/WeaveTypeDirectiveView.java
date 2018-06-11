@@ -13,24 +13,24 @@ import java.util.Arrays;
 import java.util.Collection;
 
 public class WeaveTypeDirectiveView extends PsiTreeElementBase<WeaveTypeDirective> {
-  protected WeaveTypeDirectiveView(WeaveTypeDirective psiElement) {
-    super(psiElement);
-  }
+    protected WeaveTypeDirectiveView(WeaveTypeDirective psiElement) {
+        super(psiElement);
+    }
 
-  @NotNull
-  @Override
-  public Collection<StructureViewTreeElement> getChildrenBase() {
-    return Arrays.asList();
-  }
+    @NotNull
+    @Override
+    public Collection<StructureViewTreeElement> getChildrenBase() {
+        return Arrays.asList();
+    }
 
-  @Nullable
-  @Override
-  public String getPresentableText() {
-    return getElement().getIdentifier().getName();
-  }
+    @Nullable
+    @Override
+    public String getPresentableText() {
+        return getElement().getTypeDefinition().getName();
+    }
 
-  @Override
-  public Icon getIcon(boolean open) {
-    return AllIcons.Nodes.Class;
-  }
+    @Override
+    public Icon getIcon(boolean open) {
+        return AllIcons.Nodes.Class;
+    }
 }

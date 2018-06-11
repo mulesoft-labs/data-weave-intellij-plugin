@@ -305,6 +305,10 @@ public class WeaveVisitor extends PsiElementVisitor {
     // visitNamedElement(o);
   }
 
+  public void visitNamespaceDefinition(@NotNull WeaveNamespaceDefinition o) {
+    visitNamedElement(o);
+  }
+
   public void visitNamespaceDirective(@NotNull WeaveNamespaceDirective o) {
     visitDirective(o);
   }
@@ -431,9 +435,12 @@ public class WeaveVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitTypeDefinition(@NotNull WeaveTypeDefinition o) {
+    visitNamedElement(o);
+  }
+
   public void visitTypeDirective(@NotNull WeaveTypeDirective o) {
     visitDirective(o);
-    // visitNamedElement(o);
   }
 
   public void visitTypeParameter(@NotNull WeaveTypeParameter o) {

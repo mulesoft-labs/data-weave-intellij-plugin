@@ -25,10 +25,22 @@ public class WeaveElementFactory {
         return (WeaveVariableReferenceExpression) body.getExpression();
     }
 
+    public static WeaveReferenceType createTypeReference(Project project, String name) {
+        WeaveHeader header = createFile(project, "var x: " + name + " = ???").getHeader();
+        WeaveVariableDirective weaveVariableDirective = (WeaveVariableDirective) header.getDirectiveList().get(0);
+        return (WeaveReferenceType) weaveVariableDirective.getVariableDefinition().getType();
+    }
+
     public static WeaveVariableDirective createVarDirective(Project project, String name, PsiElement value) {
         final WeaveHeader header = createFile(project, "var " + name + " = " + value.getText()).getHeader();
         assert header != null;
         return (WeaveVariableDirective) header.getDirectiveList().get(0);
+    }
+
+    public static WeaveTypeDirective createTypeDirective(Project project, String name, PsiElement value) {
+        final WeaveHeader header = createFile(project, "type " + name + " = " + value.getText()).getHeader();
+        assert header != null;
+        return (WeaveTypeDirective) header.getDirectiveList().get(0);
     }
 
     public static WeaveHeader createHeader(Project project) {

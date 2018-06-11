@@ -1,11 +1,12 @@
 // This is a generated file. Not intended for manual editing.
 package org.mule.tooling.lang.dw.parser.psi;
 
-import com.intellij.navigation.ItemPresentation;
+import java.util.List;
+import org.jetbrains.annotations.*;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.NavigatablePsiElement;
 import com.intellij.psi.PsiQualifiedNamedElement;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import com.intellij.navigation.ItemPresentation;
 
 public interface WeaveDocument extends NavigatablePsiElement, PsiQualifiedNamedElement {
 
@@ -17,10 +18,10 @@ public interface WeaveDocument extends NavigatablePsiElement, PsiQualifiedNamedE
 
   ItemPresentation getPresentation();
 
-    @NotNull
+  @NotNull
   String getQualifiedName();
 
-    @NotNull
+  @NotNull
   String getName();
 
   WeaveDocument setName(String name);

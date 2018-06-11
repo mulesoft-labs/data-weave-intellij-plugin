@@ -134,19 +134,29 @@ ImportDirective::= IMPORT_DIRECTIVE_KEYWORD (((ImportedElement (',' ImportedElem
 
 ImportedElement::= Identifier ('as' Identifier)?
 
-NamespaceDirective::= 'ns' Identifier NAMESPACE_URI
+NamespaceDirective::= 'ns' NamespaceDefinition
+
+NamespaceDefinition::=Identifier NAMESPACE_URI
+  {
+      methods = [getName setName getNameIdentifier]
+      implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
+      mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
+      pin=1
+ }
 
 VariableDirective::= 'var' VariableDefinition
 
 OutputDirective::= OUTPUT_DIRECTIVE_KEYWORD (":" Type)? DataFormat Options?
 
-TypeDirective::= 'type' Identifier TypeParameterDeclaration? '=' (TypeLiteral | UndefinedLiteral)
-{
-     methods = [getName setName getNameIdentifier]
-     implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
-     mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
-     pin=1
-}
+TypeDirective::= 'type' TypeDefinition
+
+TypeDefinition::=Identifier TypeParameterDeclaration? '=' (TypeLiteral | UndefinedLiteral)
+                 {
+                      methods = [getName setName getNameIdentifier]
+                      implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
+                      mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
+                      pin=1
+                 }
 
 FunctionDirective::= 'fun' FunctionDefinition
 
@@ -164,7 +174,7 @@ Schema::= '{' ( SchemaElement ( ',' SchemaElement )* )? '}'
 
 SchemaElement::= (Identifier | StringLiteral) ':' LiteralExpression
 
-InputDirective::= 'input' VARIABLE_DECLARATION DataFormat Options?
+InputDirective::= 'input' VariableNameTypeDefinition DataFormat Options?
 
 Options::= OptionElement ( ',' OptionElement )*
 
@@ -393,14 +403,14 @@ MultiValueSelector ::= '*'(DeclaredNamespace? (StringLiteral|Identifier))
 VariableReferenceExpression ::= FqnIdentifier
 
 
-VariableDefinition ::= VARIABLE_DECLARATION '='  Expression  {
+VariableDefinition ::= VariableNameTypeDefinition '='  Expression  {
             methods=[getVariableName getVariableValue getName setName getNameIdentifier]
             mixin="org.mule.tooling.lang.dw.parser.psi.WeaveVariableImpl"
             implements="org.mule.tooling.lang.dw.parser.psi.WeaveVariable"
             paramName="Variable"
         }
 
-private VARIABLE_DECLARATION ::= Identifier (":" Type)?
+private VariableNameTypeDefinition ::= Identifier (":" Type)?
 
 //Literal Values
 LiteralExpression
@@ -427,7 +437,7 @@ LambdaLiteral ::= TypeParameterDeclaration? '(' ( FunctionParameter ( ',' Functi
 
 private TypeParameterDeclaration ::= '<' (TypeParameter (',' TypeParameter)*)? '>'
 
-FunctionParameter ::= VARIABLE_DECLARATION ('=' Expression)?  {
+FunctionParameter ::= VariableNameTypeDefinition ('=' Expression)?  {
         methods=[getVariableName getVariableValue getName setName getNameIdentifier]
         mixin="org.mule.tooling.lang.dw.parser.psi.WeaveVariableImpl"
         implements="org.mule.tooling.lang.dw.parser.psi.WeaveVariable"

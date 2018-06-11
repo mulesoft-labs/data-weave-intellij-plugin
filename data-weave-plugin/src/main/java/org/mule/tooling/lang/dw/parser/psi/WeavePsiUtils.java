@@ -118,9 +118,9 @@ public class WeavePsiUtils {
                     } else if (directive instanceof WeaveVariableDirective) {
                         return ((WeaveVariableDirective) directive).getVariableDefinition().getName();
                     } else if (directive instanceof WeaveTypeDirective) {
-                        return ((WeaveTypeDirective) directive).getName();
+                        return ((WeaveTypeDirective) directive).getTypeDefinition().getName();
                     } else if (directive instanceof WeaveNamespaceDirective) {
-                        return ((WeaveNamespaceDirective) directive).getIdentifier().getName();
+                        return ((WeaveNamespaceDirective) directive).getNamespaceDefinition().getName();
                     } else {
                         return null;
                     }
@@ -149,7 +149,7 @@ public class WeavePsiUtils {
         PsiElement parent = element.getParent();
         while (isNotWeaveFile(parent)) {
             if (parent instanceof WeaveDocument) {
-                final Collection<WeaveTypeDirective> functionDirectives = PsiTreeUtil.findChildrenOfType(((WeaveDocument) parent).getHeader(), WeaveTypeDirective.class);
+                final Collection<WeaveTypeDefinition> functionDirectives = PsiTreeUtil.findChildrenOfType(((WeaveDocument) parent).getHeader(), WeaveTypeDefinition.class);
                 result.addAll(functionDirectives);
                 break;
             }
@@ -194,13 +194,14 @@ public class WeavePsiUtils {
                         return functionDefinition;
                     }
                 } else if (weaveDirective instanceof WeaveTypeDirective) {
-                    if (searchElement.equals(((WeaveTypeDirective) weaveDirective).getName())) {
-                        return weaveDirective;
+                    WeaveTypeDefinition functionDefinition = ((WeaveTypeDirective) weaveDirective).getTypeDefinition();
+                    if (functionDefinition != null && searchElement.equals(functionDefinition.getName())) {
+                        return functionDefinition;
                     }
                 } else if (weaveDirective instanceof WeaveNamespaceDirective) {
-                    WeaveIdentifier identifier = ((WeaveNamespaceDirective) weaveDirective).getIdentifier();
-                    if (identifier != null && searchElement.equals(identifier.getName())) {
-                        return weaveDirective;
+                    WeaveNamespaceDefinition functionDefinition = ((WeaveNamespaceDirective) weaveDirective).getNamespaceDefinition();
+                    if (functionDefinition != null && searchElement.equals(functionDefinition.getName())) {
+                        return functionDefinition;
                     }
                 }
             }
@@ -259,7 +260,7 @@ public class WeavePsiUtils {
         if (elementAtOffset instanceof PsiFile) {
             return getWeaveDocument(file);
         }
-        if(elementAtOffset instanceof LeafPsiElement){
+        if (elementAtOffset instanceof LeafPsiElement) {
             return elementAtOffset.getParent();
         }
         if (elementAtOffset instanceof PsiWhiteSpace) {

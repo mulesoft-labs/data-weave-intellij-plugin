@@ -81,6 +81,7 @@ public interface WeaveTypes {
   IElementType NAMED_LITERAL_PATTERN = new WeaveElementType("NAMED_LITERAL_PATTERN");
   IElementType NAMED_REGEX_PATTERN = new WeaveElementType("NAMED_REGEX_PATTERN");
   IElementType NAMED_TYPE_PATTERN = new WeaveElementType("NAMED_TYPE_PATTERN");
+  IElementType NAMESPACE_DEFINITION = new WeaveElementType("NAMESPACE_DEFINITION");
   IElementType NAMESPACE_DIRECTIVE = new WeaveElementType("NAMESPACE_DIRECTIVE");
   IElementType NAMESPACE_SELECTOR = new WeaveElementType("NAMESPACE_SELECTOR");
   IElementType NAME_TYPE = new WeaveElementType("NAME_TYPE");
@@ -113,6 +114,7 @@ public interface WeaveTypes {
   IElementType SINGLE_KEY_VALUE_PAIR_OBJ = new WeaveElementType("SINGLE_KEY_VALUE_PAIR_OBJ");
   IElementType STRING_LITERAL = new WeaveElementType("STRING_LITERAL");
   IElementType TYPE = new WeaveElementType("TYPE");
+  IElementType TYPE_DEFINITION = new WeaveElementType("TYPE_DEFINITION");
   IElementType TYPE_DIRECTIVE = new WeaveElementType("TYPE_DIRECTIVE");
   IElementType TYPE_PARAMETER = new WeaveElementType("TYPE_PARAMETER");
   IElementType TYPE_PATTERN = new WeaveElementType("TYPE_PATTERN");
@@ -411,6 +413,9 @@ public interface WeaveTypes {
       else if (type == NAMED_TYPE_PATTERN) {
         return new WeaveNamedTypePatternImpl(node);
       }
+      else if (type == NAMESPACE_DEFINITION) {
+        return new WeaveNamespaceDefinitionImpl(node);
+      }
       else if (type == NAMESPACE_DIRECTIVE) {
         return new WeaveNamespaceDirectiveImpl(node);
       }
@@ -500,6 +505,9 @@ public interface WeaveTypes {
       }
       else if (type == STRING_LITERAL) {
         return new WeaveStringLiteralImpl(node);
+      }
+      else if (type == TYPE_DEFINITION) {
+        return new WeaveTypeDefinitionImpl(node);
       }
       else if (type == TYPE_DIRECTIVE) {
         return new WeaveTypeDirectiveImpl(node);

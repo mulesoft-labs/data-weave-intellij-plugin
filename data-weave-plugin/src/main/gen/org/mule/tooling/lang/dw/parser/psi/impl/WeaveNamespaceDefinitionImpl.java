@@ -8,16 +8,17 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.*;
+import org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl;
 import org.mule.tooling.lang.dw.parser.psi.*;
 
-public class WeaveNamespaceDirectiveImpl extends WeaveDirectiveImpl implements WeaveNamespaceDirective {
+public class WeaveNamespaceDefinitionImpl extends WeaveNamedElementImpl implements WeaveNamespaceDefinition {
 
-  public WeaveNamespaceDirectiveImpl(ASTNode node) {
+  public WeaveNamespaceDefinitionImpl(ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull WeaveVisitor visitor) {
-    visitor.visitNamespaceDirective(this);
+    visitor.visitNamespaceDefinition(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -26,9 +27,9 @@ public class WeaveNamespaceDirectiveImpl extends WeaveDirectiveImpl implements W
   }
 
   @Override
-  @Nullable
-  public WeaveNamespaceDefinition getNamespaceDefinition() {
-    return findChildByClass(WeaveNamespaceDefinition.class);
+  @NotNull
+  public WeaveIdentifier getIdentifier() {
+    return findNotNullChildByClass(WeaveIdentifier.class);
   }
 
 }
