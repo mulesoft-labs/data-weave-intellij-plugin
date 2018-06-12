@@ -9,7 +9,10 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.model.MavenId;
 import org.jetbrains.idea.maven.project.MavenProject;
@@ -29,9 +32,9 @@ import org.mule.tooling.runtime.util.MuleModuleUtils;
 import org.mule.tools.api.classloader.model.ArtifactCoordinates;
 import org.mule.tools.api.packager.DefaultProjectInformation;
 import org.mule.tools.api.packager.Pom;
-import org.mule.tools.api.packager.ProjectInformation;
 import org.mule.tools.api.packager.archiver.MuleExplodedArchiver;
 import org.mule.tools.api.packager.builder.MulePackageBuilder;
+import org.mule.tools.api.packager.packaging.PackagingOptions;
 import org.mule.tools.api.packager.sources.MuleContentGenerator;
 import org.mule.tools.api.validation.exchange.ExchangeRepositoryMetadata;
 
@@ -89,21 +92,27 @@ public class ToolingClientManager implements ModuleComponent {
             final MavenConfiguration mavenConfiguration = MavenConfigurationManager.getInstance().getMavenConfiguration();
             final MuleToolingSupport muleToolingSupport = new MuleToolingSupport();
             final ToolingRuntimeClientBootstrap toolingClientBootstrap = muleToolingSupport.createToolingClientBootstrap(getMuleVersion(), toolingVersion, mavenConfiguration, progressIndicator);
-            AgentConfiguration.Builder builder = AgentConfiguration.builder();
+            final AgentConfiguration.Builder builder = AgentConfiguration.builder();
             if (runtime != null) {
                 //There may be no runtime
                 builder.withToolingApiUrl(runtime.getToolingApiUrl());
             }
-            AgentConfiguration build = builder.build();
+            final AgentConfiguration build = builder.build();
             toolingRuntimeClient = muleToolingSupport.createToolingRuntimeClient(toolingClientBootstrap, mavenConfiguration, build, progressIndicator);
-            final URL muleAppUrl = getMuleAppWorkingDirectory().toURI().toURL();
+            final URL muleAppUrl = getMuleAppWorkingDir().toURI().toURL();
+
+            createMuleAppForTooling();
+
             toolingArtifact = toolingRuntimeClient.newToolingArtifact(muleAppUrl, Collections.emptyMap());
             progressIndicator.setText("Tooling Client Service Started.");
             started = true;
             for (ToolingClientStatusListener listener : listeners) {
                 listener.onToolingStarted();
             }
+
+
         } catch (Exception e) {
+            e.printStackTrace();
             Notifications.Bus.notify(new Notification("Mule Agent", "Unable to start mule agent", "Unable to start agent. Reason: \n" + e.getMessage(), NotificationType.ERROR));
         }
     }
@@ -129,7 +138,7 @@ public class ToolingClientManager implements ModuleComponent {
         }
     }
 
-    public void prepareAppWorkingDir() throws IOException {
+    public void createMuleAppForTooling() throws IOException {
         MavenProject mavenProject = MuleModuleUtils.getMavenProject(myModule);
         if (mavenProject != null) {
             MavenId mavenId = mavenProject.getMavenId();
@@ -140,8 +149,12 @@ public class ToolingClientManager implements ModuleComponent {
             File moduleHome = new File(getModuleHome());
             //We should take this from the module configuration
             File buildDirectory = new File(moduleHome, "target");
+            if (!buildDirectory.exists()) {
+                buildDirectory.mkdirs();
+            }
             DefaultProjectInformation.Builder builder = new DefaultProjectInformation.Builder();
             builder.isDeployment(false)
+                    .setTestProject(false)
                     .withArtifactId(artifactId)
                     .withGroupId(groupId)
                     .withVersion(version)
@@ -151,25 +164,33 @@ public class ToolingClientManager implements ModuleComponent {
                     .withResolvedPom(new MulePomAdapter())
                     .withDependencyProject(new MuleProjectAdapter())
                     .withExchangeRepositoryMetadata(new ExchangeRepositoryMetadata());
+
             MuleContentGenerator muleContentGenerator = new MuleContentGenerator(builder.build());
+            muleContentGenerator.createMuleSrcFolderContent();
+            muleContentGenerator.createDescriptors();
+            muleContentGenerator.createTestFolderContent();
+            muleContentGenerator.createMetaInfMuleSourceFolderContent();
             muleContentGenerator.createContent();
-            File apps = new File(getMuleIdeWorkingDir(), "apps");
+
+            File wdForMuleApp = getMuleAppWorkingDir();
+            if (wdForMuleApp.exists()) {
+                FileUtils.deleteDirectory(wdForMuleApp);
+            }
             MulePackageBuilder mulePackageBuilder = new MulePackageBuilder();
-            mulePackageBuilder.withArchiver(new MuleExplodedArchiver())
-                    .createPackage(buildDirectory.toPath(), apps.toPath());
+            mulePackageBuilder.withArchiver(new MuleExplodedArchiver());
+            mulePackageBuilder.withPackagingOptions(new PackagingOptions(false, true, false, false));
+            mulePackageBuilder.createPackage(buildDirectory.toPath(), wdForMuleApp.toPath());
         }
 
     }
 
+
     @NotNull
-    public File getMuleAppWorkingDirectory() {
+    private File getMuleAppWorkingDir() {
         final File muleIdeWorkingDir = getMuleIdeWorkingDir();
         final File apps = new File(muleIdeWorkingDir, "apps");
-        try {
+        if (!apps.exists()) {
             apps.mkdirs();
-            prepareAppWorkingDir();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
         return apps;
     }

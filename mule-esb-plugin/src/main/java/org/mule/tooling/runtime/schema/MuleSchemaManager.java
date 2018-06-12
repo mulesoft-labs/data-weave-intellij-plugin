@@ -92,7 +92,7 @@ public class MuleSchemaManager implements ModuleComponent {
     }
 
 
-    public File getMuleSchemasFolder(Module module) {
+    public File getMuleSchemasWorkingDir(Module module) {
         File ideHome = ToolingClientManager.getInstance(module).getMuleIdeWorkingDir();
         File schemas = new File(new File(ideHome, getMuleVersion(module)), "schemas");
         if (!schemas.exists()) {
@@ -212,7 +212,7 @@ public class MuleSchemaManager implements ModuleComponent {
     public void addSchemaFile(Project project, Module module, String groupId, String artifactId, String version, Map<String, XmlInfo> target) {
         try {
             final String name = artifactId + ".xsd";
-            final File schemaTargetFolder = new File(new File(new File(getMuleSchemasFolder(module), groupId), artifactId), version);
+            final File schemaTargetFolder = new File(new File(new File(getMuleSchemasWorkingDir(module), groupId), artifactId), version);
             final File schemaFile = new File(schemaTargetFolder, name);
             final File propertiesFile = new File(schemaTargetFolder, artifactId + ".properties");
             if (schemaFile.exists() && propertiesFile.exists()) {
@@ -263,7 +263,7 @@ public class MuleSchemaManager implements ModuleComponent {
     @Nullable
     public void addXmlFileFromResource(Project project, Module module, String namespace, String schemaLocation, String schema, String name, Map<String, XmlInfo> target) {
         try {
-            File system = new File(getMuleSchemasFolder(module), "system");
+            File system = new File(getMuleSchemasWorkingDir(module), "system");
             if (!system.exists()) {
                 system.mkdirs();
             }
