@@ -9,7 +9,7 @@
      DataWeave 2.0 Intellij Plugin. This plugin allows to edit, run debug data weave files.
     ]]></description>
 
-    <idea-version since-build="145"/>
+    <idea-version since-build="2018.1.3"/>
 
     <change-notes><![CDATA[
     <h1>v2.0-BETA</h1>
@@ -52,6 +52,10 @@
             <li>Improved language injection in mule configuration and java literals</li>
             <li>Surround with log and DoBlock</li>
             <li>Go To Class support</li>
+            <li>Migrate from V1 to V2 of DW</li>
+            <li>Introduce Function</li>
+            <li>Autocompletion of media types with writer properties</li>
+            <li>Introduce Type</li>
           </ul>
         </li>
       </ul>

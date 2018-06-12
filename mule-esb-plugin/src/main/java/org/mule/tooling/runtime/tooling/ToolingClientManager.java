@@ -9,7 +9,10 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.idea.maven.model.MavenId;
+import org.jetbrains.idea.maven.project.MavenProject;
 import org.mule.maven.client.api.model.MavenConfiguration;
 import org.mule.tooling.client.api.ToolingRuntimeClient;
 import org.mule.tooling.client.api.artifact.ToolingArtifact;
@@ -23,10 +26,21 @@ import org.mule.tooling.client.api.extension.model.ExtensionModel;
 import org.mule.tooling.client.api.extension.model.XmlDslModel;
 import org.mule.tooling.client.bootstrap.api.ToolingRuntimeClientBootstrap;
 import org.mule.tooling.runtime.util.MuleModuleUtils;
+import org.mule.tools.api.classloader.model.ArtifactCoordinates;
+import org.mule.tools.api.packager.DefaultProjectInformation;
+import org.mule.tools.api.packager.Pom;
+import org.mule.tools.api.packager.ProjectInformation;
+import org.mule.tools.api.packager.archiver.MuleExplodedArchiver;
+import org.mule.tools.api.packager.builder.MulePackageBuilder;
+import org.mule.tools.api.packager.sources.MuleContentGenerator;
+import org.mule.tools.api.validation.exchange.ExchangeRepositoryMetadata;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -82,7 +96,7 @@ public class ToolingClientManager implements ModuleComponent {
             }
             AgentConfiguration build = builder.build();
             toolingRuntimeClient = muleToolingSupport.createToolingRuntimeClient(toolingClientBootstrap, mavenConfiguration, build, progressIndicator);
-            final URL muleAppUrl = new File(getWorkingDirectory()).toURI().toURL();
+            final URL muleAppUrl = getMuleAppWorkingDirectory().toURI().toURL();
             toolingArtifact = toolingRuntimeClient.newToolingArtifact(muleAppUrl, Collections.emptyMap());
             progressIndicator.setText("Tooling Client Service Started.");
             started = true;
@@ -90,7 +104,7 @@ public class ToolingClientManager implements ModuleComponent {
                 listener.onToolingStarted();
             }
         } catch (Exception e) {
-            Notifications.Bus.notify(new Notification("Mule Agent", "Unable to start mule aget", "Unable to start agent. Reason: \n" + e.getMessage(), NotificationType.ERROR));
+            Notifications.Bus.notify(new Notification("Mule Agent", "Unable to start mule agent", "Unable to start agent. Reason: \n" + e.getMessage(), NotificationType.ERROR));
         }
     }
 
@@ -101,13 +115,67 @@ public class ToolingClientManager implements ModuleComponent {
         this.listeners.add(listener);
     }
 
+    public File getMuleIdeWorkingDir() {
+        return new File(getModuleHome(), ".mule_ide");
+    }
+
     @NotNull
-    public String getWorkingDirectory() {
-        return "/Users/mariano.deachaval/Downloads/mule-app1";
+    private String getModuleHome() {
+        VirtualFile moduleFile = myModule.getModuleFile();
+        if (moduleFile == null) {
+            return myModule.getProject().getBasePath();
+        } else {
+            return moduleFile.getParent().getPath();
+        }
+    }
+
+    public void prepareAppWorkingDir() throws IOException {
+        MavenProject mavenProject = MuleModuleUtils.getMavenProject(myModule);
+        if (mavenProject != null) {
+            MavenId mavenId = mavenProject.getMavenId();
+            String groupId = mavenId.getGroupId();
+            String artifactId = mavenId.getArtifactId();
+            String version = mavenId.getVersion();
+            String packaging = mavenProject.getPackaging();
+            File moduleHome = new File(getModuleHome());
+            //We should take this from the module configuration
+            File buildDirectory = new File(moduleHome, "target");
+            DefaultProjectInformation.Builder builder = new DefaultProjectInformation.Builder();
+            builder.isDeployment(false)
+                    .withArtifactId(artifactId)
+                    .withGroupId(groupId)
+                    .withVersion(version)
+                    .withPackaging(packaging)
+                    .withBuildDirectory(buildDirectory.toPath())
+                    .withProjectBaseFolder(moduleHome.toPath())
+                    .withResolvedPom(new MulePomAdapter())
+                    .withDependencyProject(new MuleProjectAdapter())
+                    .withExchangeRepositoryMetadata(new ExchangeRepositoryMetadata());
+            MuleContentGenerator muleContentGenerator = new MuleContentGenerator(builder.build());
+            muleContentGenerator.createContent();
+            File apps = new File(getMuleIdeWorkingDir(), "apps");
+            MulePackageBuilder mulePackageBuilder = new MulePackageBuilder();
+            mulePackageBuilder.withArchiver(new MuleExplodedArchiver())
+                    .createPackage(buildDirectory.toPath(), apps.toPath());
+        }
+
+    }
+
+    @NotNull
+    public File getMuleAppWorkingDirectory() {
+        final File muleIdeWorkingDir = getMuleIdeWorkingDir();
+        final File apps = new File(muleIdeWorkingDir, "apps");
+        try {
+            apps.mkdirs();
+            prepareAppWorkingDir();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return apps;
     }
 
     public String getMuleVersion() {
-        //TODO We should extract it from the pom.xml
+        //TODO We should extract it from the json min mule version
         return MULE_VERSION;
     }
 
@@ -163,5 +231,27 @@ public class ToolingClientManager implements ModuleComponent {
 
     public interface ToolingClientStatusListener {
         void onToolingStarted();
+    }
+
+    public static class MulePomAdapter implements Pom {
+
+        @Override
+        public void persist(Path path) throws IOException {
+
+        }
+
+        @Override
+        public List<Path> getResourcesLocation() {
+            return Arrays.asList();
+        }
+    }
+
+
+    public static class MuleProjectAdapter implements org.mule.tools.api.util.Project {
+
+        @Override
+        public List<ArtifactCoordinates> getDependencies() {
+            return Arrays.asList();
+        }
     }
 }

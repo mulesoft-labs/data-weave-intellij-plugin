@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>org.mule.tooling.intellij.muleruntime.v2</id>
     <name>Mule 4 Runtime Intellij Plugin.</name>
-    <version>2.0.3</version>
+    <version>2.0.4</version>
     <vendor email="mariano.achaval@mulesoft.com" url="https://github.com/mulesoft-labs/data-weave-intellij-plugin">
         Mulesoft
     </vendor>
@@ -20,6 +20,7 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <moduleBuilder builderClass="org.mule.tooling.runtime.wizard.SdkModuleBuilder"/>
+        <moduleBuilder  builderClass="org.mule.tooling.runtime.wizard.MuleAppModuleBuilder"/>
         <fileTemplateGroup implementation="org.mule.tooling.runtime.template.RuntimeTemplateManager"/>
         <xml.schemaProvider implementation="org.mule.tooling.runtime.schema.MuleSchemaProvider"/>
     </extensions>

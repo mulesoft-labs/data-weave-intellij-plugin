@@ -1,0 +1,18 @@
+{
+  "configs": [
+    "${ARTIFACT_ID}.xml"
+  ],
+  "secureProperties": [],
+  "redeploymentEnabled": true,
+  "name": "${ARTIFACT_ID}",
+  "minMuleVersion": "${MULE_VERSION}",
+  "requiredProduct": "MULE_EE",
+  "classLoaderModelLoaderDescriptor": {
+    "id": "mule",
+    "attributes": {}
+  },
+  "bundleDescriptorLoader": {
+    "id": "mule",
+    "attributes": {}
+  }
+}

@@ -20,23 +20,20 @@ public class MuleModuleUtils {
             return MULE_APPLICATION_PACKAGING.equalsIgnoreCase(packaging) || MULE_EXTENSION_PACKAGING.equalsIgnoreCase(packaging);
         } else {
             VirtualFile pom = getPom(module);
-            try {
-                String xml = new String(pom.contentsToByteArray(), pom.getCharset());
-                return xml.contains(MULE_APPLICATION_PACKAGING) || xml.contains(MULE_EXTENSION_PACKAGING);
-            } catch (IOException e) {
-                e.printStackTrace();
+            if (pom != null) {
+                try {
+                    String xml = new String(pom.contentsToByteArray(), pom.getCharset());
+                    return xml.contains(MULE_APPLICATION_PACKAGING) || xml.contains(MULE_EXTENSION_PACKAGING);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
         return false;
     }
 
     public static MavenProject getMavenProject(Module module) {
-        VirtualFile pom = getPom(module);
-        if (pom != null) {
-            return MavenProjectsManager.getInstance(module.getProject()).findProject(pom);
-        }
-
-        return null;
+        return MavenProjectsManager.getInstance(module.getProject()).findProject(module);
     }
 
     public static VirtualFile getPom(Module module) {
@@ -46,6 +43,8 @@ public class MuleModuleUtils {
             if (parent != null) {
                 return parent.findChild("pom.xml");
             }
+        } else {
+            return module.getProject().getBaseDir().findChild("pom.xml");
         }
         return null;
     }

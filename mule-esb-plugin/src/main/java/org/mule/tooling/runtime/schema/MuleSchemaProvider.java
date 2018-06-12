@@ -53,6 +53,10 @@ public class MuleSchemaProvider extends XmlSchemaProvider {
             fileModule = module;
         } else {
             final Module[] modules = ModuleManager.getInstance(baseFile.getProject()).getModules();
+            if (modules.length == 0) {
+                //Shit happens
+                return null;
+            }
             //TODO search the right module
             fileModule = modules[0];
         }

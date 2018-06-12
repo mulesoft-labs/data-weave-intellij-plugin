@@ -15,14 +15,15 @@ import org.mule.tooling.runtime.RuntimeIcons;
 import javax.swing.*;
 import java.io.File;
 
-public class SdkModuleBuilder extends MavenModuleBuilder implements SourcePathsBuilder {
+public class MuleAppModuleBuilder extends MavenModuleBuilder implements SourcePathsBuilder {
+
 
     private String muleVersion = "4.1.3-SNAPSHOT";
     private String muleMavenPluginVersion = "1.1.3-SNAPSHOT";
     private String mtfVersion = "1.0.0-SNAPSHOT";
 
-    public SdkModuleBuilder() {
-        setProjectId(new MavenId("org.mule.connectors", "my-mule-module", "1.0.0-SNAPSHOT"));
+    public MuleAppModuleBuilder() {
+        setProjectId(new MavenId("org.mule.app", "my-mule-app", "1.0.0-SNAPSHOT"));
     }
 
     @Override
@@ -34,7 +35,7 @@ public class SdkModuleBuilder extends MavenModuleBuilder implements SourcePathsB
         //Check if this is a module and has parent
         final MavenId parentId = (this.getParentProject() != null ? this.getParentProject().getMavenId() : null);
         MavenUtil.runWhenInitialized(project, (DumbAwareRunnable) () -> {
-            SdkModuleInitializer.configure(project, getProjectId(), muleVersion, muleMavenPluginVersion, mtfVersion, root, parentId);
+            MuleAppModuleInitializer.configure(project, getProjectId(), muleVersion, muleMavenPluginVersion, mtfVersion, root, parentId);
         });
     }
 
@@ -46,7 +47,7 @@ public class SdkModuleBuilder extends MavenModuleBuilder implements SourcePathsB
 
     @Override
     public String getName() {
-        return "Mule Sdk Module";
+        return "Mule App Module";
     }
 
     @Override
@@ -57,7 +58,7 @@ public class SdkModuleBuilder extends MavenModuleBuilder implements SourcePathsB
 
     @Override
     public String getPresentableName() {
-        return "Mule Sdk Module";
+        return "Mule App Module";
     }
 
     @Override
@@ -67,12 +68,11 @@ public class SdkModuleBuilder extends MavenModuleBuilder implements SourcePathsB
 
     @Override
     public String getDescription() {
-        return "Create a Mule Sdk Module.";
+        return "Create a Mule Module.";
     }
 
     @Override
     public String getParentGroup() {
         return "AnyPoint";
     }
-
 }

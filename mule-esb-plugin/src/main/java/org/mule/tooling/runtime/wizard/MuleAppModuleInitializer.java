@@ -17,10 +17,10 @@ import org.mule.tooling.runtime.template.RuntimeTemplateManager;
 import java.io.IOException;
 import java.util.Properties;
 
-public class SdkModuleInitializer extends BaseModuleInitializer {
+public class MuleAppModuleInitializer extends BaseModuleInitializer {
 
-    private static final Logger LOG = Logger.getInstance(SdkModuleInitializer.class.getName());
     public static final String SRC_MAIN_RESOURCES = "/src/main/resources";
+    public static final String SRC_MAIN_MULE = "/src/main/mule";
     public static final String SRC_TEST_MUNIT = "/src/test/munit";
     public static final String SRC_TEST_RESOURCES = "/src/test/resources";
 
@@ -29,20 +29,31 @@ public class SdkModuleInitializer extends BaseModuleInitializer {
             VirtualFile srcResources = VfsUtil.createDirectories(root.getPath() + SRC_MAIN_RESOURCES);
             VirtualFile munit = VfsUtil.createDirectories(root.getPath() + SRC_TEST_MUNIT);
             VfsUtil.createDirectories(root.getPath() + SRC_TEST_RESOURCES);
+            VirtualFile muleDirectory = VfsUtil.createDirectories(root.getPath() + SRC_MAIN_MULE);
             try {
                 WriteCommandAction.writeCommandAction(project)
-                        .withName("Creating Mule Module")
+                        .withName("Creating Mule App Module")
                         .run(new ThrowableRunnable<Throwable>() {
                             @Override
                             public void run() throws Throwable {
                                 final Properties templateProps = createTemplateProperties(projectId, muleVersion, muleMavenPluginVersion, mtfVersion);
                                 final FileTemplateManager manager = FileTemplateManager.getInstance(project);
-                                runTemplate(templateProps, RuntimeTemplateManager.SMART_CONNECTOR_POM_FILE, manager,
+
+                                runTemplate(templateProps, RuntimeTemplateManager.MULE_APP_POM_FILE, manager,
                                         root.findOrCreateChildData(this, MavenConstants.POM_XML));
-                                runTemplate(templateProps, RuntimeTemplateManager.SMART_CONNECTOR_CONFIG_FILE, manager,
-                                        srcResources.findOrCreateChildData(this, projectId.getArtifactId() + ".xml"));
-                                runTemplate(templateProps, RuntimeTemplateManager.MUNIT_CONFIG_FILE, manager,
-                                        munit.findOrCreateChildData(this, projectId.getArtifactId() + "-munit" + ".xml"));
+
+                                runTemplate(templateProps, RuntimeTemplateManager.MULE_APP_CONFIG_FILE, manager,
+                                        muleDirectory.findOrCreateChildData(this, projectId.getArtifactId() + ".xml"));
+
+                                runTemplate(templateProps, RuntimeTemplateManager.MULE_APP_LOG4J_FILE, manager,
+                                        srcResources.findOrCreateChildData(this, "log4j2.xml"));
+
+
+                                runTemplate(templateProps, RuntimeTemplateManager.MULE_APP_ARTIFACT_JSON_FILE, manager,
+                                        root.findOrCreateChildData(this, "mule-artifact.json"));
+
+
+
                                 return;
                             }
                         });
@@ -53,4 +64,6 @@ public class SdkModuleInitializer extends BaseModuleInitializer {
             e.printStackTrace();
         }
     }
+
+
 }

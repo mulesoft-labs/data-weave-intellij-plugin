@@ -93,7 +93,7 @@ public class MuleSchemaManager implements ModuleComponent {
 
 
     public File getMuleSchemasFolder(Module module) {
-        File ideHome = new File(module.getModuleFile().getParent().getPath(), ".mule_ide");
+        File ideHome = ToolingClientManager.getInstance(module).getMuleIdeWorkingDir();
         File schemas = new File(new File(ideHome, getMuleVersion(module)), "schemas");
         if (!schemas.exists()) {
             schemas.mkdirs();

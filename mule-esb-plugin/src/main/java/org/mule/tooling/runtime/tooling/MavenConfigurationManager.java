@@ -31,16 +31,16 @@ public class MavenConfigurationManager implements ApplicationComponent {
     }
 
     private MavenConfiguration createMavenConfiguration() {
-        List<RemoteRepository> externalRepositories = new ArrayList<>();
-        String currentUsersHomeDir = System.getProperty("user.home");
+        final List<RemoteRepository> externalRepositories = new ArrayList<>();
+        final String currentUsersHomeDir = System.getProperty("user.home");
 
         boolean forcePolicyUpdateNever = true;
         //TODO fix
-        File localMavenRepositoryLocation = new File(currentUsersHomeDir + File.separator + ".localm2");
+        final File localMavenRepositoryLocation = new File(currentUsersHomeDir + File.separator + ".m2" + File.separator + "repository");
         localMavenRepositoryLocation.mkdir();
-        Optional<File> userSettingsLocation = Optional.of(new File(localMavenRepositoryLocation, "settings.xml"));
-        Optional<File> globalSettingsLocation = Optional.empty();
-        MavenConfiguration.MavenConfigurationBuilder mavenConfigurationBuilder = MavenConfiguration.newMavenConfigurationBuilder();
+        final Optional<File> userSettingsLocation = Optional.of(new File(localMavenRepositoryLocation, "settings.xml"));
+        final Optional<File> globalSettingsLocation = Optional.empty();
+        final MavenConfiguration.MavenConfigurationBuilder mavenConfigurationBuilder = MavenConfiguration.newMavenConfigurationBuilder();
         mavenConfigurationBuilder.forcePolicyUpdateNever(forcePolicyUpdateNever);
         mavenConfigurationBuilder.localMavenRepositoryLocation(localMavenRepositoryLocation);
         userSettingsLocation.ifPresent(mavenConfigurationBuilder::userSettingsLocation);
