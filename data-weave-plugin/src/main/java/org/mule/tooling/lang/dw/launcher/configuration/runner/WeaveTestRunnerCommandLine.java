@@ -4,7 +4,6 @@ import com.intellij.execution.DefaultExecutionResult;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.ExecutionResult;
 import com.intellij.execution.Executor;
-import com.intellij.execution.configurations.JavaCommandLineState;
 import com.intellij.execution.configurations.JavaParameters;
 import com.intellij.execution.configurations.ParametersList;
 import com.intellij.execution.configurations.RunConfiguration;
@@ -17,11 +16,16 @@ import com.intellij.execution.testframework.sm.SMTestRunnerConnectionUtil;
 import com.intellij.execution.testframework.sm.runner.SMTRunnerConsoleProperties;
 import com.intellij.execution.ui.ConsoleView;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 import org.mule.tooling.lang.dw.launcher.configuration.WeaveTestConfiguration;
+import org.mule.tooling.lang.dw.util.VirtualFileSystemUtils;
+import org.mule.weave.v2.parser.ast.variables.NameIdentifier;
+import scala.Option;
 
-public class WeaveTestRunnerCommandLine extends JavaCommandLineState {
+public class WeaveTestRunnerCommandLine extends WeaveCommandLineState {
 
     //Mule Main Class
 
@@ -77,5 +81,11 @@ public class WeaveTestRunnerCommandLine extends JavaCommandLineState {
 
     public WeaveTestConfiguration getConfiguration() {
         return configuration;
+    }
+
+    @Override
+    public VirtualFile getWeaveFile(Project project) {
+        final NameIdentifier nameIdentifier = NameIdentifier.apply(getConfiguration().getWeaveFile(), Option.empty());
+        return VirtualFileSystemUtils.resolve(nameIdentifier, project);
     }
 }

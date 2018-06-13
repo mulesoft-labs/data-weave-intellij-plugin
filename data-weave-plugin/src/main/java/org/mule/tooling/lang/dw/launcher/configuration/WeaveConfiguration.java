@@ -31,7 +31,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-public class WeaveConfiguration extends ModuleBasedConfiguration implements ModuleRunProfile, RunConfigurationWithSuppressedDefaultDebugAction {
+public class WeaveConfiguration extends ModuleBasedConfiguration implements ModuleRunProfile, RunConfigurationWithSuppressedDefaultDebugAction, WeaveBasedConfiguration {
 
   public static final String PREFIX = "DataWeaveConfig-";
   public static final String WEAVE_HOME_FIELD = PREFIX + "WeaveHome";

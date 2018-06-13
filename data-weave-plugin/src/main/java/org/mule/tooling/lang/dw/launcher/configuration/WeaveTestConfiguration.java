@@ -1,13 +1,13 @@
 package org.mule.tooling.lang.dw.launcher.configuration;
 
 
-import com.intellij.execution.ExecutionException;
 import com.intellij.execution.Executor;
 import com.intellij.execution.configurations.ConfigurationFactory;
 import com.intellij.execution.configurations.JavaRunConfigurationModule;
 import com.intellij.execution.configurations.ModuleBasedConfiguration;
 import com.intellij.execution.configurations.ModuleRunProfile;
 import com.intellij.execution.configurations.RunConfiguration;
+import com.intellij.execution.configurations.RunConfigurationWithSuppressedDefaultDebugAction;
 import com.intellij.execution.configurations.RunProfileState;
 import com.intellij.execution.configurations.RuntimeConfigurationException;
 import com.intellij.execution.runners.ExecutionEnvironment;
@@ -27,7 +27,7 @@ import org.mule.tooling.lang.dw.launcher.configuration.runner.WeaveTestRunnerCom
 import java.util.Arrays;
 import java.util.Collection;
 
-public class WeaveTestConfiguration extends ModuleBasedConfiguration implements ModuleRunProfile {
+public class WeaveTestConfiguration extends ModuleBasedConfiguration implements ModuleRunProfile, RunConfigurationWithSuppressedDefaultDebugAction, WeaveBasedConfiguration {
 
     public static final String PREFIX = "DataWeaveConfig-";
     public static final String WEAVE_FILE = PREFIX + "WeaveFile";
@@ -48,7 +48,7 @@ public class WeaveTestConfiguration extends ModuleBasedConfiguration implements 
 
     @Nullable
     @Override
-    public RunProfileState getState(@NotNull Executor executor, @NotNull ExecutionEnvironment executionEnvironment) throws ExecutionException {
+    public RunProfileState getState(@NotNull Executor executor, @NotNull ExecutionEnvironment executionEnvironment) {
         return new WeaveTestRunnerCommandLine(executionEnvironment, this);
     }
 
