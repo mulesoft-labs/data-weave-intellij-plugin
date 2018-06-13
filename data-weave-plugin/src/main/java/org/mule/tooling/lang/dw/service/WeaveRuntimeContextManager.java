@@ -27,7 +27,7 @@ import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.WeaveConstants;
 import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
-import org.mule.tooling.lang.dw.service.agent.WeaveAgentComponent;
+import org.mule.tooling.lang.dw.service.agent.WeaveAgentRuntimeManager;
 import org.mule.weave.v2.debugger.event.WeaveDataFormatDescriptor;
 import org.mule.weave.v2.debugger.event.WeaveTypeEntry;
 import org.mule.weave.v2.editor.ImplicitInput;
@@ -82,22 +82,19 @@ public class WeaveRuntimeContextManager extends AbstractProjectComponent impleme
     public void initComponent() {
         super.initComponent();
 
-        WeaveAgentComponent.getInstance(myProject).addStatusListener(new WeaveAgentComponent.WeaveAgentStatusListener() {
-            @Override
-            public void agentStarted() {
-                WeaveAgentComponent.getInstance(myProject).dataFormats((dataFormatEvent) -> {
-                    dataFormat = dataFormatEvent.formats();
-                    for (StatusChangeListener listener : listeners) {
-                        listener.onDataFormatLoaded(dataFormat);
-                    }
-                });
-                WeaveAgentComponent.getInstance(myProject).availableModules((modulesEvent) -> {
-                    modules = modulesEvent.modules();
-                    for (StatusChangeListener listener : listeners) {
-                        listener.onModulesLoaded(modules);
-                    }
-                });
-            }
+        WeaveAgentRuntimeManager.getInstance(myProject).addStatusListener(() -> {
+            WeaveAgentRuntimeManager.getInstance(myProject).dataFormats((dataFormatEvent) -> {
+                dataFormat = dataFormatEvent.formats();
+                for (StatusChangeListener listener : listeners) {
+                    listener.onDataFormatLoaded(dataFormat);
+                }
+            });
+            WeaveAgentRuntimeManager.getInstance(myProject).availableModules((modulesEvent) -> {
+                modules = modulesEvent.modules();
+                for (StatusChangeListener listener : listeners) {
+                    listener.onModulesLoaded(modules);
+                }
+            });
         });
 
         PsiManager.getInstance(myProject).addPsiTreeChangeListener(new PsiTreeChangeAdapter() {
@@ -168,7 +165,7 @@ public class WeaveRuntimeContextManager extends AbstractProjectComponent impleme
             return dataFormat;
         } else {
             FutureResult<WeaveDataFormatDescriptor[]> futureResult = new FutureResult<>();
-            WeaveAgentComponent.getInstance(myProject).dataFormats((dataFormatEvent) -> {
+            WeaveAgentRuntimeManager.getInstance(myProject).dataFormats((dataFormatEvent) -> {
                 WeaveDataFormatDescriptor[] formats = dataFormatEvent.formats();
                 this.dataFormat = formats;
                 futureResult.set(formats);
@@ -187,7 +184,7 @@ public class WeaveRuntimeContextManager extends AbstractProjectComponent impleme
             return modules;
         } else {
             FutureResult<String[]> futureResult = new FutureResult<>();
-            WeaveAgentComponent.getInstance(myProject).availableModules((modulesEvent) -> {
+            WeaveAgentRuntimeManager.getInstance(myProject).availableModules((modulesEvent) -> {
                 String[] modules = modulesEvent.modules();
                 this.modules = modules;
                 futureResult.set(modules);
@@ -235,7 +232,7 @@ public class WeaveRuntimeContextManager extends AbstractProjectComponent impleme
                 return null;
             } else {
                 final FutureResult<WeaveType> futureResult = new FutureResult<>();
-                WeaveAgentComponent.getInstance(myProject).calculateWeaveType(expectedOutput.getPath(), event -> {
+                WeaveAgentRuntimeManager.getInstance(myProject).calculateWeaveType(expectedOutput.getPath(), event -> {
                     WeaveType result = getWeaveServiceManager().parseType(event.typeString());
                     expectedOutputType.put(scenario, result);
                     futureResult.set(result);
@@ -259,10 +256,10 @@ public class WeaveRuntimeContextManager extends AbstractProjectComponent impleme
             return implicitInputTypes.get(currentScenario);
         } else {
             final FutureResult<ImplicitInput> futureResult = new FutureResult<>();
-            if (currentScenario != null && WeaveAgentComponent.getInstance(myProject).isWeaveRuntimeInstalled()) {
+            if (currentScenario != null && WeaveAgentRuntimeManager.getInstance(myProject).isWeaveRuntimeInstalled()) {
                 VirtualFile inputs = currentScenario.getInputs();
                 if (inputs != null) {
-                    WeaveAgentComponent.getInstance(myProject).calculateImplicitInputTypes(inputs.getPath(), event -> {
+                    WeaveAgentRuntimeManager.getInstance(myProject).calculateImplicitInputTypes(inputs.getPath(), event -> {
                         final ImplicitInput implicitInput = new ImplicitInput();
                         final WeaveTypeEntry[] weaveTypeEntries = event.types();
                         final WeaveEditorToolingAPI dataWeaveServiceManager = getWeaveServiceManager();

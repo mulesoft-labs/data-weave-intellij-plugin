@@ -34,7 +34,7 @@ import org.mule.tooling.lang.dw.parser.psi.WeaveIdentifier;
 import org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.qn.WeaveQualifiedNameProvider;
-import org.mule.tooling.lang.dw.service.agent.WeaveAgentComponent;
+import org.mule.tooling.lang.dw.service.agent.WeaveAgentRuntimeManager;
 import org.mule.tooling.lang.dw.util.AsyncCache;
 import org.mule.weave.v2.completion.DataFormatDescriptor;
 import org.mule.weave.v2.completion.DataFormatDescriptorProvider;
@@ -430,7 +430,7 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
 
         private Project myProject;
         private AsyncCache<NameIdentifier, Option<WeaveResource>> cache = new AsyncCache<>((name, callback) ->
-                WeaveAgentComponent.getInstance(myProject).resolveModule(name.name(), name.loader().get(), myProject, event -> {
+                WeaveAgentRuntimeManager.getInstance(myProject).resolveModule(name.name(), name.loader().get(), myProject, event -> {
                     if (event.content().isDefined()) {
                         String content = event.content().get();
                         Option<WeaveResource> resourceOption = Option.apply(WeaveResource$.MODULE$.apply(name.name(), content));

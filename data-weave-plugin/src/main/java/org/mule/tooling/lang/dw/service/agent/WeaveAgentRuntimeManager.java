@@ -57,7 +57,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WeaveAgentComponent extends AbstractProjectComponent {
+public class WeaveAgentRuntimeManager extends AbstractProjectComponent {
 
 
     public static final int MAX_RETRIES = 10;
@@ -69,7 +69,7 @@ public class WeaveAgentComponent extends AbstractProjectComponent {
     private boolean disabled = false;
     private List<WeaveAgentStatusListener> listeners;
 
-    protected WeaveAgentComponent(Project project) {
+    protected WeaveAgentRuntimeManager(Project project) {
         super(project);
         this.listeners = new ArrayList<>();
     }
@@ -401,8 +401,8 @@ public class WeaveAgentComponent extends AbstractProjectComponent {
         };
     }
 
-    public static WeaveAgentComponent getInstance(@NotNull Project project) {
-        return project.getComponent(WeaveAgentComponent.class);
+    public static WeaveAgentRuntimeManager getInstance(@NotNull Project project) {
+        return project.getComponent(WeaveAgentRuntimeManager.class);
     }
 
     public static interface WeaveAgentStatusListener {

@@ -43,7 +43,7 @@ import org.mule.tooling.lang.dw.preview.ui.AddInputDialog;
 import org.mule.tooling.lang.dw.service.Scenario;
 import org.mule.tooling.lang.dw.service.WeaveRuntimeContextManager;
 import org.mule.tooling.lang.dw.service.agent.RunPreviewCallback;
-import org.mule.tooling.lang.dw.service.agent.WeaveAgentComponent;
+import org.mule.tooling.lang.dw.service.agent.WeaveAgentRuntimeManager;
 import org.mule.tooling.lang.dw.util.ScalaUtils;
 import org.mule.weave.v2.debugger.event.PreviewExecutedFailedEvent;
 import org.mule.weave.v2.debugger.event.PreviewExecutedSuccessfulEvent;
@@ -278,7 +278,7 @@ public class WeavePreviewComponent implements Disposable {
         String url = ReadAction.compute(() -> currentFile.getVirtualFile().getUrl());
         final Module module = ModuleUtil.findModuleForFile(currentFile.getVirtualFile(), myProject);
 
-        final WeaveAgentComponent agentComponent = WeaveAgentComponent.getInstance(myProject);
+        final WeaveAgentRuntimeManager agentComponent = WeaveAgentRuntimeManager.getInstance(myProject);
         agentComponent.runPreview(inputsPath, text, documentQName, url, 10000L, module, new MyRunPreviewCallback());
     }
 

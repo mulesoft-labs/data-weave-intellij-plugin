@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.WeaveFileType;
 import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
-import org.mule.tooling.lang.dw.service.agent.WeaveAgentComponent;
+import org.mule.tooling.lang.dw.service.agent.WeaveAgentRuntimeManager;
 import org.mule.tooling.lang.dw.ui.MessagePanel;
 
 import javax.swing.*;
@@ -63,7 +63,7 @@ public class PreviewToolWindowPanel extends SimpleToolWindowPanel implements Dis
 
             @Override
             public void selectionChanged(@NotNull FileEditorManagerEvent e) {
-                if (WeaveAgentComponent.getInstance(myProject).isWeaveRuntimeInstalled()) {
+                if (WeaveAgentRuntimeManager.getInstance(myProject).isWeaveRuntimeInstalled()) {
                     if (!pinned) {
                         VirtualFile file = e.getNewFile();
                         final PsiFile psiFile = file != null && file.isValid() ? PsiManager.getInstance(myProject).findFile(file) : null;
