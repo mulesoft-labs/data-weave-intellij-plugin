@@ -1,11 +1,14 @@
 package org.mule.tooling.runtime.schema;
 
+import com.intellij.ProjectTopics;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleComponent;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ModuleRootEvent;
+import com.intellij.openapi.roots.ModuleRootListener;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
@@ -75,6 +78,8 @@ public class MuleSchemaManager implements ModuleComponent {
     private Map<String, XmlInfo> moduleSchemas;
     private Map<String, XmlInfo> muleClasspathSchemas;
 
+    private boolean initialized = false;
+
     private final Project project;
     private Module myModule;
 
@@ -101,47 +106,56 @@ public class MuleSchemaManager implements ModuleComponent {
         return schemas;
     }
 
-    @Override
-    public void moduleAdded() {
+    public void initializeIfRequired() {
         if (MuleModuleUtils.isMuleModule(myModule)) {
-            //Load default schemas
-            addXmlFileFromResource(project, myModule, MULE_NS, MULE_SCHEMA_LOCATION, "schemas/mule-core.xsd", "mule-core.xsd", defaultSchemas);
-            addXmlFileFromResource(project, myModule, MULE_NS, MULE_CORE_SCHEMA_LOCATION, "schemas/mule-core.xsd", "mule-core.xsd", defaultSchemas);
-            addXmlFileFromResource(project, myModule, DOMAIN_NS, DOMAIN_SCHEMA_LOCATION, "schemas/mule-domain.xsd", "mule-domain.xsd", defaultSchemas);
-            addXmlFileFromResource(project, myModule, DOCUMENTATION_NS, DOCUMENTATION_SCHEMA_LOCATION, "schemas/mule-documentation.xsd", "mule-documentation.xsd", defaultSchemas);
-            addXmlFileFromResource(project, myModule, MODULE_NS, MODULE_SCHEMA_LOCATION, "schemas/mule-module.xsd", "mule-module.xsd", defaultSchemas);
-            addXmlFileFromResource(project, myModule, SPRING_BEANS_NS, SPRING_BEANS_SCEMA_LOCATION, "schemas/spring-beans-3.0.xsd", "spring-beans-3.0.xsd", defaultSchemas);
-            addXmlFileFromResource(project, myModule, MULE_SCHEMA_DOC_NS, MULE_SCHEMA_DOC_SCHEMA_LOCATION, "schemas/mule-schemadoc.xsd", "mule-schemadoc.xsd", defaultSchemas);
-            reloadModuleDependencies();
+            if (!initialized) {
+                synchronized (this) {
+                    loadDefaultSchemas();
+                    loadMuleSchemasInClasspath();
+                    loadSchemasFromTooling();
+                    //Listen to classpath changes
+                    project.getMessageBus().connect(project).subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootListener() {
+                        @Override
+                        public void rootsChanged(ModuleRootEvent event) {
+                            muleClasspathSchemas.clear();
+                            moduleSchemas.clear();
+                            loadMuleSchemasInClasspath();
+                            loadSchemasFromTooling();
+                        }
+                    });
+                    initialized = true;
+                }
+            }
         }
     }
 
-    public synchronized void reloadModuleDependencies() {
-        ToolingClientManager.getInstance(myModule).addStartListener(() -> {
-            ReadAction.run(() -> {
-                loadMuleSchemasInClasspath();
-                loadSchemasFromTooling();
-            });
-        });
+    private void loadDefaultSchemas() {
+        addXmlFileFromResource(project, myModule, MULE_NS, MULE_SCHEMA_LOCATION, "schemas/mule-core.xsd", "mule-core.xsd", defaultSchemas);
+        addXmlFileFromResource(project, myModule, MULE_NS, MULE_CORE_SCHEMA_LOCATION, "schemas/mule-core.xsd", "mule-core.xsd", defaultSchemas);
+        addXmlFileFromResource(project, myModule, DOMAIN_NS, DOMAIN_SCHEMA_LOCATION, "schemas/mule-domain.xsd", "mule-domain.xsd", defaultSchemas);
+        addXmlFileFromResource(project, myModule, DOCUMENTATION_NS, DOCUMENTATION_SCHEMA_LOCATION, "schemas/mule-documentation.xsd", "mule-documentation.xsd", defaultSchemas);
+        addXmlFileFromResource(project, myModule, MODULE_NS, MODULE_SCHEMA_LOCATION, "schemas/mule-module.xsd", "mule-module.xsd", defaultSchemas);
+        addXmlFileFromResource(project, myModule, SPRING_BEANS_NS, SPRING_BEANS_SCEMA_LOCATION, "schemas/spring-beans-3.0.xsd", "spring-beans-3.0.xsd", defaultSchemas);
+        addXmlFileFromResource(project, myModule, MULE_SCHEMA_DOC_NS, MULE_SCHEMA_DOC_SCHEMA_LOCATION, "schemas/mule-schemadoc.xsd", "mule-schemadoc.xsd", defaultSchemas);
     }
 
     public Optional<XmlFile> getSchema(String uri) {
+        initializeIfRequired();
         if (uri.equals(DOCUMENTATION_NS)) {
             return Optional.empty();
         }
         Optional<XmlInfo> xmlInfo = getXmlInfo(uri);
-        if (!xmlInfo.isPresent() && uri.startsWith(MULE_NS_PREFIX)) {
-            reloadModuleDependencies();
-        }
         return xmlInfo.map(XmlInfo::getSchemaFile);
     }
 
     public Optional<XmlInfo> getXmlInfo(String uri) {
+        initializeIfRequired();
         final XmlInfo xmlFile = defaultSchemas.getOrDefault(uri, muleClasspathSchemas.getOrDefault(uri, moduleSchemas.get(uri)));
         return Optional.ofNullable(xmlFile);
     }
 
     public Optional<String> getSchemaLocation(String uri) {
+        initializeIfRequired();
         if (uri.equals(DOCUMENTATION_NS)) {
             return Optional.empty();
         }
@@ -149,6 +163,7 @@ public class MuleSchemaManager implements ModuleComponent {
     }
 
     public List<XmlInfo> getSchemas() {
+        initializeIfRequired();
         final ArrayList<XmlInfo> result = new ArrayList<>();
         result.addAll(defaultSchemas.values());
         result.addAll(muleClasspathSchemas.values());
@@ -156,7 +171,7 @@ public class MuleSchemaManager implements ModuleComponent {
         return result;
     }
 
-    public void loadSchemasFromTooling() {
+    private void loadSchemasFromTooling() {
         MavenProject mavenProject = MuleModuleUtils.getMavenProject(myModule);
         if (mavenProject != null) {
             List<MavenArtifact> dependencies = mavenProject.getDependencies();
@@ -171,7 +186,7 @@ public class MuleSchemaManager implements ModuleComponent {
         }
     }
 
-    public void loadMuleSchemasInClasspath() {
+    private void loadMuleSchemasInClasspath() {
         final Map<String, String> schemaUrlsAndFileNames = getSchemasFromSpringSchemas(myModule);
         for (String url : schemaUrlsAndFileNames.keySet()) {
             final String fileName = schemaUrlsAndFileNames.get(url);
@@ -209,7 +224,7 @@ public class MuleSchemaManager implements ModuleComponent {
 
 
     @Nullable
-    public void addSchemaFile(Project project, Module module, String groupId, String artifactId, String version, Map<String, XmlInfo> target) {
+    private void addSchemaFile(Project project, Module module, String groupId, String artifactId, String version, Map<String, XmlInfo> target) {
         try {
             final String name = artifactId + ".xsd";
             final File schemaTargetFolder = new File(new File(new File(getMuleSchemasWorkingDir(module), groupId), artifactId), version);
@@ -243,14 +258,14 @@ public class MuleSchemaManager implements ModuleComponent {
 
     }
 
-    public void createFileAndAdd(Project project, File schemaFile, String namespace, String schemaLocation, String schemaContent, Map<String, XmlInfo> target) throws IOException {
+    private void createFileAndAdd(Project project, File schemaFile, String namespace, String schemaLocation, String schemaContent, Map<String, XmlInfo> target) throws IOException {
         try (FileWriter output = new FileWriter(schemaFile)) {
             IOUtils.write(schemaContent, output);
         }
         addSchema(project, schemaFile, namespace, schemaLocation, target);
     }
 
-    public void addSchema(Project project, File schemaFile, String namespace, String schemaLocation, Map<String, XmlInfo> target) {
+    private void addSchema(Project project, File schemaFile, String namespace, String schemaLocation, Map<String, XmlInfo> target) {
         final VirtualFile fileByUrl = LocalFileSystem.getInstance().findFileByIoFile(schemaFile);
         if (fileByUrl != null) {
             XmlInfo xmlInfo = new XmlInfo(project, fileByUrl, schemaLocation, namespace);
@@ -261,7 +276,7 @@ public class MuleSchemaManager implements ModuleComponent {
     }
 
     @Nullable
-    public void addXmlFileFromResource(Project project, Module module, String namespace, String schemaLocation, String schema, String name, Map<String, XmlInfo> target) {
+    private void addXmlFileFromResource(Project project, Module module, String namespace, String schemaLocation, String schema, String name, Map<String, XmlInfo> target) {
         try {
             File system = new File(getMuleSchemasWorkingDir(module), "system");
             if (!system.exists()) {

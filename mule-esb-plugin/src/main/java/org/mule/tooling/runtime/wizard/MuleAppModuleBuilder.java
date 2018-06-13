@@ -1,12 +1,16 @@
 package org.mule.tooling.runtime.wizard;
 
+import com.intellij.ide.util.projectWizard.ModuleWizardStep;
 import com.intellij.ide.util.projectWizard.SourcePathsBuilder;
+import com.intellij.ide.util.projectWizard.WizardContext;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.DumbAwareRunnable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModifiableRootModel;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.model.MavenId;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 import org.jetbrains.idea.maven.wizards.MavenModuleBuilder;
@@ -45,9 +49,15 @@ public class MuleAppModuleBuilder extends MavenModuleBuilder implements SourcePa
         return LocalFileSystem.getInstance().refreshAndFindFileByPath(path);
     }
 
+    @Nullable
+    @Override
+    public ModuleWizardStep getCustomOptionsStep(WizardContext context, Disposable parentDisposable) {
+        return null;
+    }
+
     @Override
     public String getName() {
-        return "Mule App Module";
+        return "Mule Application";
     }
 
     @Override
@@ -58,7 +68,7 @@ public class MuleAppModuleBuilder extends MavenModuleBuilder implements SourcePa
 
     @Override
     public String getPresentableName() {
-        return "Mule App Module";
+        return "Mule Application";
     }
 
     @Override
@@ -68,7 +78,7 @@ public class MuleAppModuleBuilder extends MavenModuleBuilder implements SourcePa
 
     @Override
     public String getDescription() {
-        return "Create a Mule Module.";
+        return "Create a Mule Application.";
     }
 
     @Override
