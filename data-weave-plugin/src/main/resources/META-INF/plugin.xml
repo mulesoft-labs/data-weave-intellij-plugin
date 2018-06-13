@@ -169,6 +169,11 @@
             <add-to-group group-id="NewGroup" anchor="first"/>
             <keyboard-shortcut keymap="$default" first-keystroke="shift ctrl W"/>
         </action>
+        <action id="org.mule.tooling.lang.dw.actions.ShowTypeOfSelectionAction"
+                class="org.mule.tooling.lang.dw.actions.ShowTypeOfSelectionAction" text="Type Of Selection"
+                description="Shows the weave type of the selection">
+            <keyboard-shortcut keymap="$default" first-keystroke="shift ctrl T"/>
+        </action>
     </actions>
 
 </idea-plugin>
