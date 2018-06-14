@@ -2,6 +2,8 @@ package org.mule.tooling.lang.dw.debug;
 
 
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.ui.ColoredTextContainer;
+import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.xdebugger.XSourcePosition;
 import com.intellij.xdebugger.evaluation.XDebuggerEvaluator;
 import com.intellij.xdebugger.frame.XCompositeNode;
@@ -27,6 +29,14 @@ public class WeaveStackFrame extends XStackFrame {
     this.client = client;
     this.frame = frame;
     this.xSourcePosition = XSourcePositionImpl.create(weaveFile, debuggerPosition.line() - 1);
+  }
+
+  @Override
+  public void customizePresentation(@NotNull ColoredTextContainer component) {
+    super.customizePresentation(component);
+    if (frame.name().isDefined()) {
+      component.append(" - " + frame.name().get(), SimpleTextAttributes.GRAY_ATTRIBUTES);
+    }
   }
 
   @Nullable

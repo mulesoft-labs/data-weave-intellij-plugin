@@ -21,5 +21,4 @@ dependencies {
 intellij {
     pluginName = 'mule-esb-plugin'
     plugins = ['maven', 'properties']
-
 }

@@ -28,7 +28,7 @@ public class WeaveDebugProcess extends XDebugProcess {
     this.weaveDebuggerClient = debuggerClient;
     this.processHandler = result.getProcessHandler();
     this.executionConsole = result.getExecutionConsole();
-    this.breakpointHandler = new WeaveBreakpointHandler(debuggerClient);
+    this.breakpointHandler = new WeaveBreakpointHandler(session.getProject(), debuggerClient);
   }
 
   @NotNull

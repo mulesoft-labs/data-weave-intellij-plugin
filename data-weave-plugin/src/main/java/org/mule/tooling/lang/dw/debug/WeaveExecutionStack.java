@@ -6,9 +6,12 @@ import com.intellij.xdebugger.XDebugSession;
 import com.intellij.xdebugger.frame.XExecutionStack;
 import com.intellij.xdebugger.frame.XStackFrame;
 import org.jetbrains.annotations.Nullable;
+import org.mule.tooling.lang.dw.util.VirtualFileSystemUtils;
 import org.mule.weave.v2.debugger.DebuggerFrame;
 import org.mule.weave.v2.debugger.client.DebuggerClient;
 import org.mule.weave.v2.debugger.event.OnFrameEvent;
+import org.mule.weave.v2.parser.ast.variables.NameIdentifier;
+import scala.Option;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,10 +28,12 @@ public class WeaveExecutionStack extends XExecutionStack {
     this.frames = new ArrayList<>();
     for (int i = 0; i < frames.length; i++) {
       final DebuggerFrame debuggerFrame = frames[i];
-      if (i == 0) {
-        this.frames.add(new WeaveStackFrame(client, onFrameEvent.startPosition(), debuggerFrame, file));
+      String resourceName = debuggerFrame.startPosition().resourceName();
+      VirtualFile frameFile = VirtualFileSystemUtils.resolve(NameIdentifier.apply(resourceName, Option.empty()), session.getProject());
+      if (i == frames.length - 1) {
+        this.frames.add(0, new WeaveStackFrame(client, onFrameEvent.startPosition(), debuggerFrame, frameFile));
       } else {
-        this.frames.add(new WeaveStackFrame(client, frames[i - 1].startPosition(), debuggerFrame, file));
+        this.frames.add(0, new WeaveStackFrame(client, debuggerFrame.startPosition(), debuggerFrame, frameFile));
       }
     }
   }

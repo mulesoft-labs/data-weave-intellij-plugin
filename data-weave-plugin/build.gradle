@@ -27,5 +27,4 @@ dependencies {
 intellij {
     pluginName = 'data-weave-plugin-v2'
     plugins = ['maven', 'properties']
-
 }

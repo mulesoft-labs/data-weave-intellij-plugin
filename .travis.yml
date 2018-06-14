@@ -12,7 +12,7 @@ script:
 deploy:
   - provider: script
     skip_cleanup: true
-    script: ./gradlew data-weave-plugin:publishPlugin --stacktrace --info
+    script: ./gradlew publishPlugin
     on:
       branch: master
 
