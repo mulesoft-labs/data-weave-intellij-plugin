@@ -12,10 +12,14 @@ script:
 deploy:
   - provider: script
     skip_cleanup: true
-    script: ./gradlew publishPlugin
+    script: ./gradlew data-weave-plugin:publishPlugin --stacktrace --info
     on:
       branch: master
-
+  - provider: script
+    skip_cleanup: true
+    script: ./gradlew mule-esb-plugin:publishPlugin --stacktrace --info
+    on:
+      branch: master
 
 notifications:
   slack: mulesoft:IqbP7oSC8usH82K9o2p5TOjT
