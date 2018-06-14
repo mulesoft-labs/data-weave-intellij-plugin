@@ -36,13 +36,15 @@ public class MavenConfigurationManager implements ApplicationComponent {
 
         boolean forcePolicyUpdateNever = true;
         //TODO fix
-        final File localMavenRepositoryLocation = new File(currentUsersHomeDir + File.separator + ".m2" + File.separator + "repository");
-        localMavenRepositoryLocation.mkdir();
+        final File localMavenRepositoryLocation = new File(currentUsersHomeDir + File.separator + ".m2");
+        final File localMavenRepositoryFolderLocation = new File(localMavenRepositoryLocation, "repository");
+        localMavenRepositoryFolderLocation.mkdir();
         final Optional<File> userSettingsLocation = Optional.of(new File(localMavenRepositoryLocation, "settings.xml"));
         final Optional<File> globalSettingsLocation = Optional.empty();
         final MavenConfiguration.MavenConfigurationBuilder mavenConfigurationBuilder = MavenConfiguration.newMavenConfigurationBuilder();
         mavenConfigurationBuilder.forcePolicyUpdateNever(forcePolicyUpdateNever);
-        mavenConfigurationBuilder.localMavenRepositoryLocation(localMavenRepositoryLocation);
+
+        mavenConfigurationBuilder.localMavenRepositoryLocation(localMavenRepositoryFolderLocation);
         userSettingsLocation.ifPresent(mavenConfigurationBuilder::userSettingsLocation);
         globalSettingsLocation.ifPresent(mavenConfigurationBuilder::globalSettingsLocation);
         externalRepositories.forEach(mavenConfigurationBuilder::remoteRepository);

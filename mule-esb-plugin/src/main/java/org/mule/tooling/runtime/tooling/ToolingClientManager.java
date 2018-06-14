@@ -52,7 +52,7 @@ public class ToolingClientManager implements ModuleComponent {
 
     public static final String MULE_VERSION = "4.1.3-SNAPSHOT";
     public static final String MULE_PLUGIN = "mule-plugin";
-    private String toolingVersion = "4.1.2";
+    private String toolingVersion = "4.1.3-SNAPSHOT";
     private ToolingArtifact toolingArtifact;
     private ToolingRuntimeClient toolingRuntimeClient;
     private boolean started;
