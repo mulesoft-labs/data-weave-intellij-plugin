@@ -1,6 +1,7 @@
 package org.mule.tooling.lang.dw.service;
 
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.components.AbstractProjectComponent;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtil;
@@ -352,12 +353,14 @@ public class WeaveRuntimeContextManager extends AbstractProjectComponent impleme
 
 
     @Nullable
-    public VirtualFile createScenario(PsiFile psiFile) {
+    public Scenario createScenario(PsiFile psiFile, String scenarioName) {
         VirtualFile testFolder = findOrCreateMappingTestFolder(psiFile);
         try {
-            VirtualFile scenarioFolder = testFolder.createChildDirectory(this, "scenario_name");
-            // TODO: maybe create empty inputs folder.
-            return scenarioFolder;
+            VirtualFile scenarioFolder = testFolder.createChildDirectory(this, scenarioName);
+            Scenario scenario = new Scenario(scenarioFolder);
+            WeaveDocument weaveDocument = WeavePsiUtils.getWeaveDocument(psiFile);
+            setCurrentScenario(weaveDocument, scenario);
+            return scenario;
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -366,15 +369,17 @@ public class WeaveRuntimeContextManager extends AbstractProjectComponent impleme
 
     @Nullable
     public VirtualFile createMappingTestFolder(PsiFile weaveFile) {
-        try {
-            VirtualFile dwitFolder = getScenariosRootFolder(weaveFile);
-            WeaveDocument document = WeavePsiUtils.getWeaveDocument(weaveFile);
-            String qName = document.getQualifiedName();
-            return dwitFolder.createChildDirectory(this, qName);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
+        return WriteAction.compute(() -> {
+            try {
+                VirtualFile dwitFolder = getScenariosRootFolder(weaveFile);
+                WeaveDocument document = WeavePsiUtils.getWeaveDocument(weaveFile);
+                String qName = document.getQualifiedName();
+                return dwitFolder.createChildDirectory(this, qName);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        });
     }
 
     @Nullable

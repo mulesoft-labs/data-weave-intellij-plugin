@@ -40,6 +40,7 @@ import org.mule.tooling.lang.dw.WeaveFileType;
 import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.preview.ui.AddInputDialog;
+import org.mule.tooling.lang.dw.preview.ui.AddScenarioDialog;
 import org.mule.tooling.lang.dw.service.Scenario;
 import org.mule.tooling.lang.dw.service.WeaveRuntimeContextManager;
 import org.mule.tooling.lang.dw.service.agent.RunPreviewCallback;
@@ -61,7 +62,7 @@ public class WeavePreviewComponent implements Disposable {
     private boolean runOnChange = true;
 
     private Alarm myDocumentAlarm = new Alarm(Alarm.ThreadToUse.POOLED_THREAD, this);
-    private PreviewToolWindowFactory.NameChanger callback;
+    private PreviewToolWindowFactory.NameChanger nameChanger;
 
     private InputsComponent inputsComponent;
     private final OutputComponent outputComponent;
@@ -103,6 +104,7 @@ public class WeavePreviewComponent implements Disposable {
         previewLogsViewer = new PreviewLogsViewer(myProject);
         Content logsContent = layoutUi.createContent("logs", previewLogsViewer, "Logs/Errors", AllIcons.Debugger.Console_log, null);
         logsContent.setShouldDisposeContent(true);
+
         layoutUi.addContent(logsContent, 0, PlaceInGrid.right, false);
 
         DefaultActionGroup group = createActionGroup();
@@ -113,6 +115,23 @@ public class WeavePreviewComponent implements Disposable {
     @NotNull
     private DefaultActionGroup createActionGroup() {
         DefaultActionGroup group = new DefaultActionGroup();
+        group.add(new AnAction("Add new scenario", "Adds a new scenario for the current mapping", AllIcons.General.Add) {
+            @Override
+            public void actionPerformed(AnActionEvent e) {
+                WeaveRuntimeContextManager manager = getScenariosManager();
+                AddScenarioDialog dialog = new AddScenarioDialog(myProject, manager, currentFile,  (scenario) -> {
+                    WeaveDocument currentWeaveDocument = getCurrentWeaveDocument();
+                    WeaveRuntimeContextManager.getInstance(myProject).setCurrentScenario(currentWeaveDocument, scenario);
+                    loadScenario(scenario);
+                });
+                dialog.show();
+            }
+
+            @Override
+            public void update(AnActionEvent e) {
+
+            }
+        });
         group.add(new ToggleAction(null, "Pin to this mapping", AllIcons.General.Pin_tab) {
 
             @Override
@@ -224,13 +243,13 @@ public class WeavePreviewComponent implements Disposable {
 
 
     public void loadScenario(Scenario scenario) {
-        if (scenario == null) {
+        if (scenario == null || !scenario.isValid()) {
             return;
         }
 
-        if (callback != null) {
+        if (nameChanger != null) {
             String presentableText = scenario.getPresentableText();
-            callback.changeName("Scenario: " + presentableText);
+            nameChanger.changeName("Scenario: " + presentableText);
         }
         final VirtualFile inputs = scenario.getInputs();
         if (inputs != null && inputs.isDirectory()) {
@@ -239,6 +258,13 @@ public class WeavePreviewComponent implements Disposable {
             inputsComponent.closeAllInputs();
         }
         listener.doRunPreview();
+    }
+
+    public void clearScenario() {
+        if (nameChanger != null) {
+            nameChanger.changeName("No scenario");
+        }
+        inputsComponent.closeAllInputs();
     }
 
     @Override
@@ -260,8 +286,9 @@ public class WeavePreviewComponent implements Disposable {
             if (scenario != null && scenario.getInputs() != null) {
                 VirtualFile inputs = Objects.requireNonNull(scenario.getInputs());
                 runPreviewWithInputs(inputs.getPath(), currentFile);
+            } else {
+                runPreviewWithoutInputs(currentFile);
             }
-            runPreviewWithoutInputs(currentFile);
         });
     }
 
@@ -308,7 +335,7 @@ public class WeavePreviewComponent implements Disposable {
     }
 
     public void setNameChanger(PreviewToolWindowFactory.NameChanger callback) {
-        this.callback = callback;
+        this.nameChanger = callback;
     }
 
 
@@ -357,7 +384,12 @@ public class WeavePreviewComponent implements Disposable {
         public void childRemoved(@NotNull PsiTreeChangeEvent event) {
             if (event.getFile() == null) {
                 //change didn't happen inside a PsiFile
-                loadScenario(getCurrentScenario());
+                Scenario currentScenario = getCurrentScenario();
+                if (currentScenario != null && currentScenario.isValid()) {
+                    loadScenario(currentScenario);
+                } else {
+                    clearScenario();
+                }
             }
         }
 

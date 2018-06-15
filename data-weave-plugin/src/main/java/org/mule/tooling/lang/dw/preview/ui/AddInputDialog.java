@@ -100,10 +100,7 @@ public class AddInputDialog extends DialogWrapper {
         Scenario currentScenario = currentScenarioMaybe;
         if (currentScenario == null || !currentScenario.isValid()) {
             //create scenario
-            VirtualFile scenarioFolder = manager.createScenario(currentFile);
-            currentScenario = new Scenario(scenarioFolder);
-            WeaveDocument weaveDocument = WeavePsiUtils.getWeaveDocument(currentFile);
-            manager.setCurrentScenario(weaveDocument, currentScenario);
+            currentScenario = manager.createScenario(currentFile, "scenario_name");
         }
         return currentScenario;
     }
