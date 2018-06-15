@@ -1,5 +1,4 @@
 include 'data-weave-plugin'
-//include 'api-designer-plugin'
 include 'mule-esb-plugin'
 //include 'anypoint-platform-plugin'
 

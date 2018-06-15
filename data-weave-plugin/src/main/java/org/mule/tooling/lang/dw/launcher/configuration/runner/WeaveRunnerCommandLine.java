@@ -4,7 +4,6 @@ import com.intellij.execution.configurations.JavaParameters;
 import com.intellij.execution.executors.DefaultDebugExecutor;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.mule.tooling.lang.dw.launcher.configuration.WeaveConfiguration;
@@ -58,12 +57,4 @@ public class WeaveRunnerCommandLine extends WeaveCommandLineState {
     return model;
   }
 
-  @Override
-  public VirtualFile getWeaveFile(Project project) {
-
-    final VirtualFile projectFile = project.getBaseDir();
-    final String path = project.getBasePath();
-    final String relativePath = getModel().getWeaveFile().substring(path.length());
-    return projectFile.findFileByRelativePath(relativePath);
-  }
 }

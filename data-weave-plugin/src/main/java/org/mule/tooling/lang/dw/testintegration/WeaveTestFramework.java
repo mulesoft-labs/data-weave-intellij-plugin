@@ -20,7 +20,6 @@ import javax.swing.*;
 
 public class WeaveTestFramework implements TestFramework {
 
-
     @NotNull
     @Override
     public String getName() {

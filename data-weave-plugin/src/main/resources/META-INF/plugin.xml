@@ -56,6 +56,7 @@
             <li>Introduce Function</li>
             <li>Autocompletion of media types with writer properties</li>
             <li>Introduce Type</li>
+            <li>Debugging tests</li>
           </ul>
         </li>
       </ul>
@@ -137,6 +138,12 @@
         <codeInsight.typeInfo language="Weave"
                               implementationClass="org.mule.tooling.lang.dw.hints.WeaveExpressionTypeProvider"/>
         <copyPastePostProcessor implementation="org.mule.tooling.lang.dw.migrator.V1ToV2PostProcessor"/>
+
+        <!--BAT-->
+
+        <testFramework implementation="org.mule.tooling.bat.testintegration.BatTestFramework"/>
+        <configurationType implementation="org.mule.tooling.bat.launcher.BatTestConfigurationType"/>
+        <runConfigurationProducer implementation="org.mule.tooling.bat.launcher.BatTestConfigurationProducer"/>
     </extensions>
 
     <project-components>

@@ -16,14 +16,9 @@ import com.intellij.execution.testframework.sm.SMTestRunnerConnectionUtil;
 import com.intellij.execution.testframework.sm.runner.SMTRunnerConsoleProperties;
 import com.intellij.execution.ui.ConsoleView;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectRootManager;
-import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 import org.mule.tooling.lang.dw.launcher.configuration.WeaveTestConfiguration;
-import org.mule.tooling.lang.dw.util.VirtualFileSystemUtils;
-import org.mule.weave.v2.parser.ast.variables.NameIdentifier;
-import scala.Option;
 
 public class WeaveTestRunnerCommandLine extends WeaveCommandLineState {
 
@@ -83,9 +78,4 @@ public class WeaveTestRunnerCommandLine extends WeaveCommandLineState {
         return configuration;
     }
 
-    @Override
-    public VirtualFile getWeaveFile(Project project) {
-        final NameIdentifier nameIdentifier = NameIdentifier.apply(getConfiguration().getWeaveFile(), Option.empty());
-        return VirtualFileSystemUtils.resolve(nameIdentifier, project);
-    }
 }

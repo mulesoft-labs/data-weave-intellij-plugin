@@ -60,7 +60,7 @@ public class MuleSchemaProvider extends XmlSchemaProvider {
             //TODO search the right module
             fileModule = modules[0];
         }
-        final MuleSchemaManager instance = MuleSchemaManager.getInstance(fileModule);
+      final MuleModuleSchemaProvider instance = MuleModuleSchemaProvider.getInstance(fileModule);
         final Optional<XmlFile> schema = instance.getSchema(url);
         return schema.orElse(null);
     }
@@ -72,9 +72,9 @@ public class MuleSchemaProvider extends XmlSchemaProvider {
         final Set<String> namespaces = new HashSet<>();
         if (StringUtils.isNotEmpty(tagName)) {
             final Module fileModule = getModule(file);
-            final List<MuleSchemaManager.XmlInfo> schemas = MuleSchemaManager.getInstance(fileModule).getSchemas();
+          final List<MuleModuleSchemaProvider.XmlInfo> schemas = MuleModuleSchemaProvider.getInstance(fileModule).getSchemas();
             try {
-                for (MuleSchemaManager.XmlInfo xsd : schemas) {
+              for (MuleModuleSchemaProvider.XmlInfo xsd: schemas) {
                     final XmlDocument document = xsd.getSchemaFile().getDocument();
                     if (document != null) {
                         final PsiMetaData metaData = document.getMetaData();
@@ -130,7 +130,7 @@ public class MuleSchemaProvider extends XmlSchemaProvider {
             return null;
         }
         try {
-            Optional<String> schema = MuleSchemaManager.getInstance(module).getSchemaLocation(namespace);
+          Optional<String> schema = MuleModuleSchemaProvider.getInstance(module).getSchemaLocation(namespace);
             schema.ifPresent(locations::add);
         } catch (Exception e) {
             LOG.warn(e);

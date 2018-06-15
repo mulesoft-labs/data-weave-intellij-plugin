@@ -46,12 +46,17 @@
 
     <module-components>
         <component>
-            <implementation-class>org.mule.tooling.runtime.schema.MuleSchemaManager</implementation-class>
-            <interface-class>org.mule.tooling.runtime.schema.MuleSchemaManager</interface-class>
+            <implementation-class>org.mule.tooling.runtime.schema.MuleModuleSchemaProvider</implementation-class>
+            <interface-class>org.mule.tooling.runtime.schema.MuleModuleSchemaProvider</interface-class>
         </component>
         <component>
             <implementation-class>org.mule.tooling.runtime.tooling.ToolingClientManager</implementation-class>
             <interface-class>org.mule.tooling.runtime.tooling.ToolingClientManager</interface-class>
         </component>
     </module-components>
+    <project-components>
+        <component>
+            <implementation-class>org.mule.tooling.runtime.util.MuleDirectoriesManager</implementation-class>
+        </component>
+    </project-components>
 </idea-plugin>

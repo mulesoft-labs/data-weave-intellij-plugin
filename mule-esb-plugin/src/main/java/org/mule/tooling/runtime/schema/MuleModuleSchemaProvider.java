@@ -44,7 +44,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class MuleSchemaManager implements ModuleComponent {
+public class MuleModuleSchemaProvider implements ModuleComponent {
 
   public static final String MULE_SCHEMAS = "mule.schemas";
 
@@ -84,7 +84,7 @@ public class MuleSchemaManager implements ModuleComponent {
   private final Project project;
   private Module myModule;
 
-  public MuleSchemaManager(Module myModule) {
+  public MuleModuleSchemaProvider(Module myModule) {
     this.myModule = myModule;
     this.project = myModule.getProject();
     this.defaultSchemas = new HashMap<>();
@@ -342,8 +342,8 @@ public class MuleSchemaManager implements ModuleComponent {
   }
 
 
-  public static MuleSchemaManager getInstance(Module myModule) {
-    return myModule.getComponent(MuleSchemaManager.class);
+  public static MuleModuleSchemaProvider getInstance(Module myModule) {
+    return myModule.getComponent(MuleModuleSchemaProvider.class);
   }
 
   public static class XmlInfo {
