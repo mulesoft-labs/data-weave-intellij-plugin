@@ -113,7 +113,7 @@ public class PreviewToolWindowPanel extends SimpleToolWindowPanel implements Dis
         }
     }
 
-    public void setNameChanger(PreviewToolWindowFactory.NameChanger callback) {
-        weavePreviewComponent.setNameChanger(callback);
+    public void setNameChanger(PreviewToolWindowFactory.NameChanger nameChanger) {
+        weavePreviewComponent.setNameChanger(nameChanger);
     }
 }

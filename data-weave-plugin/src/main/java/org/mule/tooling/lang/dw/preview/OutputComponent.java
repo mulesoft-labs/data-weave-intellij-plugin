@@ -23,6 +23,7 @@ import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
+import org.mule.tooling.lang.dw.WeaveConstants;
 import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.service.Scenario;
@@ -34,12 +35,16 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.UnsupportedEncodingException;
 
+import static org.mule.tooling.lang.dw.WeaveConstants.DEFAULT_SCENARIO_NAME;
+
 public class OutputComponent implements Disposable {
 
     public static final String EDITOR_PANEL = "editorPanel";
     public static final String DIFF_PANEL = "diffPanel";
     public static final String MESSAGE_PANEL = "messagePanel";
+
     private Project myProject;
+    private PreviewToolWindowFactory.NameChanger nameChanger;
     private PsiFile currentFile;
     private JPanel mainPanel;
     private CardLayout cardLayout;
@@ -57,9 +62,10 @@ public class OutputComponent implements Disposable {
         outputDocument = EditorFactory.getInstance().createDocument("");
     }
 
-    public JComponent createComponent(Project project) {
-        myProject = project;
-        showDiffAction = new ShowDiffAction();
+    public JComponent createComponent(Project project, PreviewToolWindowFactory.NameChanger nameChanger) {
+        this.myProject = project;
+        this.nameChanger = nameChanger;
+        this.showDiffAction = new ShowDiffAction();
         return createOutputPanel();
     }
 
@@ -173,14 +179,23 @@ public class OutputComponent implements Disposable {
 
         @Override
         public void actionPerformed(AnActionEvent e) {
-            Scenario scenario = getCurrentScenario();
+            Scenario scenario = getOrCreateScenario();
             String ext = outputType.getDefaultExtension();
             scenario.addOutput("out." + ext, outputDocument.getText(), myProject);
         }
 
-        private Scenario getCurrentScenario() {
+        private Scenario getOrCreateScenario() {
             WeaveDocument document = WeavePsiUtils.getWeaveDocument(currentFile);
-            return WeaveRuntimeContextManager.getInstance(myProject).getCurrentScenarioFor(document);
+            WeaveRuntimeContextManager manager = WeaveRuntimeContextManager.getInstance(myProject);
+            Scenario currentScenario = manager.getCurrentScenarioFor(document);
+            if (currentScenario == null || !currentScenario.isValid()) {
+                //create scenario
+                currentScenario = manager.createScenario(currentFile, DEFAULT_SCENARIO_NAME);
+                if (currentScenario != null) {
+                    nameChanger.changeName("Scenario: " + currentScenario.getPresentableText());
+                }
+            }
+            return currentScenario;
         }
     }
 

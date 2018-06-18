@@ -55,6 +55,12 @@ public class PreviewToolWindowFactory implements ToolWindowFactory {
         return files.length == 0 ? null : PsiManager.getInstance(myProject).findFile(files[0]);
     }
 
+
+    /**
+     * This exists because the way to change the display name is through the {@link Content}.<br/>
+     * Which is created using the WindowPanel. So to change the name within the WindowPanel, the only way is to inject this later. <br/>
+     * Or using some kind of event system that decouples them.
+     */
     public interface NameChanger {
         void changeName(String name);
     }

@@ -333,11 +333,9 @@ public class WeaveRuntimeContextManager extends AbstractProjectComponent impleme
         WeaveDocument document = getWeaveDocument(psiFile);
         if (document != null) {
             String qualifiedName = document.getQualifiedName();
-            if (qualifiedName != null) {
-                VirtualFile scenariosRootFolder = getScenariosRootFolder(psiFile);
-                if (scenariosRootFolder != null) {
-                    return scenariosRootFolder.findChild(qualifiedName);
-                }
+            VirtualFile scenariosRootFolder = getScenariosRootFolder(psiFile);
+            if (scenariosRootFolder != null && scenariosRootFolder.isValid()) {
+                return scenariosRootFolder.findChild(qualifiedName);
             }
         }
         return null;
@@ -356,7 +354,7 @@ public class WeaveRuntimeContextManager extends AbstractProjectComponent impleme
     public Scenario createScenario(PsiFile psiFile, String scenarioName) {
         VirtualFile testFolder = findOrCreateMappingTestFolder(psiFile);
         try {
-            VirtualFile scenarioFolder = testFolder.createChildDirectory(this, scenarioName);
+            VirtualFile scenarioFolder = WriteAction.compute(() -> testFolder.createChildDirectory(this, scenarioName));
             Scenario scenario = new Scenario(scenarioFolder);
             WeaveDocument weaveDocument = WeavePsiUtils.getWeaveDocument(psiFile);
             setCurrentScenario(weaveDocument, scenario);
@@ -371,6 +369,7 @@ public class WeaveRuntimeContextManager extends AbstractProjectComponent impleme
     public VirtualFile createMappingTestFolder(PsiFile weaveFile) {
         return WriteAction.compute(() -> {
             try {
+                //TODO: handle creation of dwit folder
                 VirtualFile dwitFolder = getScenariosRootFolder(weaveFile);
                 WeaveDocument document = WeavePsiUtils.getWeaveDocument(weaveFile);
                 String qName = document.getQualifiedName();

@@ -208,7 +208,7 @@ public class WeavePreviewComponent implements Disposable {
 
     @NotNull
     private ComponentWithActions.Impl createOutputComponent() {
-        JComponent component = outputComponent.createComponent(myProject);
+        JComponent component = outputComponent.createComponent(myProject, nameChanger);
         DefaultActionGroup group = outputComponent.createActions();
         return new ComponentWithActions.Impl(group, null, null, null, component);
     }

@@ -6,4 +6,5 @@ public class WeaveConstants {
     public static final int LONG_TIMEOUT = 2 * 1000; //two seconds
     public static final String INTEGRATION_TEST_FOLDER_NAME = "dwit";
     public static final String NO_SCENARIO = "No scenario";
+    public static final String DEFAULT_SCENARIO_NAME = "default_scenario";
 }

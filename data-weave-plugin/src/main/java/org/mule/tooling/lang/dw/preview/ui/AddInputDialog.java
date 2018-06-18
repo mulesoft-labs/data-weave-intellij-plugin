@@ -8,6 +8,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.ui.EnumComboBoxModel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.mule.tooling.lang.dw.WeaveConstants;
 import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.service.Scenario;
@@ -100,7 +101,7 @@ public class AddInputDialog extends DialogWrapper {
         Scenario currentScenario = currentScenarioMaybe;
         if (currentScenario == null || !currentScenario.isValid()) {
             //create scenario
-            currentScenario = manager.createScenario(currentFile, "scenario_name");
+            currentScenario = manager.createScenario(currentFile, WeaveConstants.DEFAULT_SCENARIO_NAME);
         }
         return currentScenario;
     }
