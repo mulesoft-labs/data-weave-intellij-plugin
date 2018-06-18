@@ -119,7 +119,7 @@ public class WeavePreviewComponent implements Disposable {
             @Override
             public void actionPerformed(AnActionEvent e) {
                 WeaveRuntimeContextManager manager = getScenariosManager();
-                AddScenarioDialog dialog = new AddScenarioDialog(myProject, manager, currentFile,  (scenario) -> {
+                AddScenarioDialog dialog = new AddScenarioDialog(myProject, manager, currentFile, (scenario) -> {
                     WeaveDocument currentWeaveDocument = getCurrentWeaveDocument();
                     WeaveRuntimeContextManager.getInstance(myProject).setCurrentScenario(currentWeaveDocument, scenario);
                     loadScenario(scenario);
@@ -366,6 +366,7 @@ public class WeavePreviewComponent implements Disposable {
                 PsiElement child = event.getChild();
                 if (child instanceof PsiFile) {
                     PsiFile psiFile = (PsiFile) child;
+                    // return true if added or removed a file (other than the expected output)
                     return !psiFile.isDirectory() && !isOutputFile(psiFile);
                 } else {
                     return false;
@@ -375,7 +376,7 @@ public class WeavePreviewComponent implements Disposable {
 
         @Override
         public void childAdded(@NotNull PsiTreeChangeEvent event) {
-            if (isRelevantEvent(event)) {
+            if (isRelevantEvent(event) && event.getFile() == null) {
                 loadScenario(getCurrentScenario());
             }
         }

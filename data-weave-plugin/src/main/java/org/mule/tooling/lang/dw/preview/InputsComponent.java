@@ -47,9 +47,9 @@ public class InputsComponent implements Disposable {
         return inputPanel;
     }
 
-    public void loadInputFiles(VirtualFile inputs) {
+    public void loadInputFiles(VirtualFile inputsFolder) {
         closeAllInputs();
-        List<VirtualFile> children = VfsUtil.collectChildrenRecursively(inputs);
+        List<VirtualFile> children = VfsUtil.collectChildrenRecursively(inputsFolder);
         for (VirtualFile input : children) {
             if (input.isDirectory()) {
                 continue;
@@ -65,7 +65,7 @@ public class InputsComponent implements Disposable {
             }
             Editor editor = EditorFactory.getInstance().createEditor(document, myProject, input, false);
             editors.add(editor);
-            TabInfo tabInfo = createTabInfo(inputs, input, file, editor);
+            TabInfo tabInfo = createTabInfo(inputsFolder, input, file, editor);
             inputTabs.getTabs().addTab(tabInfo);
             inputTabs.setSelectedIndex(0);
         }
