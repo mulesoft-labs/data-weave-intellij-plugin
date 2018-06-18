@@ -11,6 +11,7 @@ import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.mule.tooling.lang.dw.WeaveConstants;
 import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.service.Scenario;
@@ -41,7 +42,7 @@ public class PreviewToolWindowFactory implements ToolWindowFactory {
                 return "Scenario: " + String.valueOf(scenario.getPresentableText());
             }
         }
-        return "Scenario: ";
+        return WeaveConstants.NO_SCENARIO;
     }
 
     private ContentFactory getContentFactory() {

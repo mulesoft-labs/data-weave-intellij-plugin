@@ -83,13 +83,6 @@ public class WeavePreviewComponent implements Disposable {
     public JComponent createComponent() {
         listener = new WeaveTreeChangeListener();
         PsiManager.getInstance(myProject).addPsiTreeChangeListener(listener, this);
-        VirtualFileManager.getInstance().addVirtualFileListener(new VirtualFileListener() {
-            @Override
-            public void fileCreated(@NotNull VirtualFileEvent event) {
-                System.out.println("WeavePreviewComponent.fileCreated");
-            }
-        }, this);
-
         return createPreviewPanel();
     }
 
@@ -271,7 +264,7 @@ public class WeavePreviewComponent implements Disposable {
 
     public void clearScenario() {
         if (nameChanger != null) {
-            nameChanger.changeName("No scenario");
+            nameChanger.changeName(WeaveConstants.NO_SCENARIO);
         }
         inputsComponent.closeAllInputs();
     }
