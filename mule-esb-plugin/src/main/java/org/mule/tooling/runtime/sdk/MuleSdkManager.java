@@ -2,6 +2,7 @@ package org.mule.tooling.runtime.sdk;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ApplicationComponent;
+import org.mule.tooling.runtime.util.MuleDirectoriesUtils;
 
 import java.io.File;
 import java.util.HashMap;
@@ -42,6 +43,6 @@ public class MuleSdkManager implements ApplicationComponent {
     }
 
     public File getMuleDistroDirectory() {
-        return new File(System.getProperty("user.home"), ".mule_runtimes");
+      return MuleDirectoriesUtils.getMuleRuntimesHomeDirectory();
     }
 }

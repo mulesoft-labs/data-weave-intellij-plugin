@@ -20,25 +20,22 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <moduleBuilder builderClass="org.mule.tooling.runtime.wizard.SdkModuleBuilder"/>
-        <moduleBuilder  builderClass="org.mule.tooling.runtime.wizard.MuleAppModuleBuilder"/>
+        <moduleBuilder builderClass="org.mule.tooling.runtime.wizard.MuleAppModuleBuilder"/>
         <fileTemplateGroup implementation="org.mule.tooling.runtime.template.RuntimeTemplateManager"/>
         <xml.schemaProvider implementation="org.mule.tooling.runtime.schema.MuleSchemaProvider"/>
     </extensions>
 
-
     <application-components>
-
         <component>
             <implementation-class>org.mule.tooling.runtime.tooling.MuleRuntimeServerManager</implementation-class>
         </component>
         <component>
-            <implementation-class>org.mule.tooling.runtime.tooling.MavenConfigurationManager</implementation-class>
-        </component>
-        <component>
             <implementation-class>org.mule.tooling.runtime.sdk.MuleSdkManager</implementation-class>
         </component>
+        <component>
+            <implementation-class>org.mule.tooling.runtime.tooling.ToolingRuntimeManager</implementation-class>
+        </component>
     </application-components>
-
 
     <actions>
 
@@ -50,13 +47,8 @@
             <interface-class>org.mule.tooling.runtime.schema.MuleModuleSchemaProvider</interface-class>
         </component>
         <component>
-            <implementation-class>org.mule.tooling.runtime.tooling.ToolingClientManager</implementation-class>
-            <interface-class>org.mule.tooling.runtime.tooling.ToolingClientManager</interface-class>
+            <implementation-class>org.mule.tooling.runtime.tooling.ToolingArtifactManager</implementation-class>
+            <interface-class>org.mule.tooling.runtime.tooling.ToolingArtifactManager</interface-class>
         </component>
     </module-components>
-    <project-components>
-        <component>
-            <implementation-class>org.mule.tooling.runtime.util.MuleDirectoriesManager</implementation-class>
-        </component>
-    </project-components>
 </idea-plugin>

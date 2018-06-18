@@ -1,0 +1,657 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+    (c) 2003-2010 MuleSoft, Inc. This software is protected under international copyright
+    law. All use of this software is subject to MuleSoft's Master Subscription Agreement
+    (or other master license agreement) separately entered into in writing between you and
+    MuleSoft. If such an agreement is not in place, you may not use the software.
+-->
+
+<xsd:schema xmlns="http://www.mulesoft.org/schema/mule/ee/core"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:mule="http://www.mulesoft.org/schema/mule/core"
+            xmlns:schemadoc="http://www.mulesoft.org/schema/mule/schemadoc"
+            targetNamespace="http://www.mulesoft.org/schema/mule/ee/core"
+            elementFormDefault="qualified"
+            attributeFormDefault="unqualified">
+
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
+    <xsd:import namespace="http://www.mulesoft.org/schema/mule/core"
+                schemaLocation="http://www.mulesoft.org/schema/mule/core/current/mule.xsd"/>
+    <xsd:import namespace="http://www.mulesoft.org/schema/mule/schemadoc"
+                schemaLocation="http://www.mulesoft.org/schema/mule/schemadoc/current/mule-schemadoc.xsd"/>
+
+    <xsd:annotation>
+        <xsd:documentation>Support for extensions available only as part of Mule Enterprise</xsd:documentation>
+        <xsd:appinfo>
+            <schemadoc:short-name>mule-ee</schemadoc:short-name>
+            <schemadoc:page-title>Mule Enterprise Edition Extensions</schemadoc:page-title>
+        </xsd:appinfo>
+    </xsd:annotation>
+
+    <xsd:element name="scheduler-pools" type="schedulerPoolsType"
+                 substitutionGroup="mule:abstract-shared-extension">
+        <xsd:annotation>
+            <xsd:documentation>
+                The configured artifact will create and use its own schedulers based on the configuration provided here,
+                rather than the container level schedulers.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:complexType name="schedulerPoolsType">
+        <xsd:complexContent>
+            <xsd:extension base="mule:abstractExtensionType">
+                <xsd:sequence>
+                    <xsd:element ref="cpu-light" minOccurs="1" maxOccurs="1"/>
+                    <xsd:element ref="io" minOccurs="1" maxOccurs="1"/>
+                    <xsd:element ref="cpu-intensive" minOccurs="1" maxOccurs="1"/>
+                </xsd:sequence>
+                <xsd:attribute name="gracefulShutdownTimeout" use="required" type="mule:substitutableLong">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The maximum time (in milliseconds) to wait until all tasks in all the artifact thread pools
+                            have completed execution when stopping the scheduler service.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:element name="cpu-light" type="cpuLightSchedulerPoolsType"/>
+    <xsd:element name="io" type="ioSchedulerPoolsType"/>
+    <xsd:element name="cpu-intensive" type="cpuIntensiveSchedulerPoolsType"/>
+
+    <xsd:complexType name="cpuLightSchedulerPoolsType">
+        <xsd:complexContent>
+            <xsd:extension base="mule:abstractExtensionType">
+                <xsd:attribute name="poolSize" use="required" type="mule:substitutableInt">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The number of threads to keep in the cpu_lite pool, even if they are idle.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="queueSize" use="required" type="mule:substitutableInt">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The size of the queue to use for holding cpu_lite tasks before they are executed.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <xsd:complexType name="ioSchedulerPoolsType">
+        <xsd:complexContent>
+            <xsd:extension base="mule:abstractExtensionType">
+                <xsd:attribute name="corePoolSize" use="required" type="mule:substitutableInt">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The number of threads to keep in the I/O pool.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="maxPoolSize" use="required" type="mule:substitutableInt">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The maximum number of threads to allow in the I/O pool.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="queueSize" use="required" type="mule:substitutableInt">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The size of the queue to use for holding I/O tasks before they are executed.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="keepAlive" use="required" type="mule:substitutableLong">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            When the number of threads in the I/O pool is greater than ioThreadPoolCoreSize, this is the
+                            maximum time (in milliseconds) that excess idle threads will wait for new tasks before
+                            terminating.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <xsd:complexType name="cpuIntensiveSchedulerPoolsType">
+        <xsd:complexContent>
+            <xsd:extension base="mule:abstractExtensionType">
+                <xsd:attribute name="poolSize" use="required" type="mule:substitutableInt">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The number of threads to keep in the cpu_intensive pool, even if they are idle.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="queueSize" use="required" type="mule:substitutableInt">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The size of the queue to use for holding cpu_intensive tasks before they are executed.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:element name="secure-configuration-properties" type="secureConfigurationPropertiesType"
+                 substitutionGroup="mule:abstract-shared-extension">
+        <xsd:annotation>
+            <xsd:documentation>
+                References a file with configuration properties, similar to "configuration-properties". They can be
+                referenced
+                like: ${secure::key_name}. The difference is that these are encrypted, so that an additional layer of
+                security can be used.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:complexType name="secureConfigurationPropertiesType">
+        <xsd:complexContent>
+            <xsd:extension base="mule:abstractExtensionType">
+                <xsd:attribute name="file" type="mule:substitutableString" use="required">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The location of the file with the configuration properties to use. It may be a location in
+                            the classpath or an absolute location. The file location
+                            value may also contains references to properties that will only be resolved based on system
+                            properties or properties set at deployment time.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="insecure" type="mule:substitutableBoolean" use="optional" default="false">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Allow using unencrypted properties files for development purposes, be sure to turn it off
+                            and
+                            provide an encrypted file for production.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="password" type="mule:substitutableString" use="required">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The secret password to unlock the encrypted properties.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <!--==============================================================-->
+    <!--  Message Transform                                           -->
+    <!--==============================================================-->
+
+    <xsd:element name="transform" substitutionGroup="mule:abstract-message-processor" type="transformType">
+        <xsd:annotation>
+            <xsd:documentation>
+                Transform an input data format into another using Data Weave Language.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:complexType name="transformType">
+        <xsd:complexContent>
+            <xsd:extension base="mule:abstractMessageProcessorType">
+                <xsd:sequence>
+                    <!--Targets -->
+                    <xsd:element minOccurs="0" maxOccurs="1" name="message">
+                        <xsd:complexType>
+                            <xsd:complexContent>
+                                <xsd:extension base="mule:abstractExtensionType">
+                                    <xsd:sequence>
+                                        <xsd:element minOccurs="0" maxOccurs="1" name="set-payload">
+                                            <xsd:annotation>
+                                                <xsd:documentation>
+                                                    Modifies the payload of the message.
+                                                </xsd:documentation>
+                                            </xsd:annotation>
+                                            <xsd:complexType>
+                                                <xsd:complexContent mixed="true">
+                                                    <xsd:extension base="mule:annotatedMixedContentType">
+                                                        <xsd:attribute name="resource" use="optional"/>
+                                                    </xsd:extension>
+                                                </xsd:complexContent>
+                                            </xsd:complexType>
+                                        </xsd:element>
+                                        <xsd:element minOccurs="0" maxOccurs="1" name="set-attributes">
+                                            <xsd:annotation>
+                                                <xsd:documentation>
+                                                    Modifies the attributes of the message.
+                                                </xsd:documentation>
+                                            </xsd:annotation>
+                                            <xsd:complexType>
+                                                <xsd:complexContent mixed="true">
+                                                    <xsd:extension base="mule:annotatedMixedContentType">
+                                                        <xsd:attribute name="resource" use="optional"/>
+                                                    </xsd:extension>
+                                                </xsd:complexContent>
+                                            </xsd:complexType>
+                                        </xsd:element>
+                                    </xsd:sequence>
+                                </xsd:extension>
+                            </xsd:complexContent>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="variables" minOccurs="0" maxOccurs="1">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                Declares the variables to modify.
+                            </xsd:documentation>
+                        </xsd:annotation>
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element minOccurs="0" maxOccurs="unbounded" name="set-variable">
+                                    <xsd:complexType>
+                                        <xsd:complexContent mixed="true">
+                                            <xsd:extension base="mule:annotatedMixedContentType">
+                                                <xsd:attribute name="resource" use="optional"/>
+                                                <xsd:attribute name="variableName" use="required"/>
+                                            </xsd:extension>
+                                        </xsd:complexContent>
+                                    </xsd:complexType>
+                                </xsd:element>
+                            </xsd:sequence>
+                        </xsd:complexType>
+                    </xsd:element>
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <!--==============================================================-->
+    <!--  Evaluate                                                    -->
+    <!--==============================================================-->
+
+    <xsd:element name="dynamic-evaluate" substitutionGroup="mule:abstract-message-processor" type="evaluateType">
+        <xsd:annotation>
+            <xsd:documentation>
+                Evaluates an expression that should result in a script, then evaluates that script for a final result.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:complexType name="evaluateType">
+        <xsd:complexContent>
+            <xsd:extension base="mule:abstractMessageProcessorType">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" maxOccurs="1" name="parameters" type="mule:expressionMap">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                Additional bindings to use during evaluation.
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                </xsd:sequence>
+                <xsd:attribute name="expression" use="required" type="mule:expressionString">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            An expression referencing the dynamic script to evaluate.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="target" type="mule:substitutableString">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The name of a variable on which the operation's output will be placed
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="targetValue" default="#[payload]" type="mule:expressionString">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            An expression that will be evaluated against the operation's output and the outcome of that
+                            expression will be stored in the target variable
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+
+    <!--==============================================================-->
+    <!--  Cache                                                       -->
+    <!--==============================================================-->
+
+    <xsd:element name="abstract-event-copy-strategy" abstract="true" type="abstractEventCopyStrategyType">
+        <xsd:annotation>
+            <xsd:documentation>
+
+                A placeholder for event copy strategies elements.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:complexType name="abstractEventCopyStrategyType">
+        <xsd:complexContent>
+            <xsd:extension base="mule:annotatedType"/>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:element name="simple-event-copy-strategy" substitutionGroup="abstract-event-copy-strategy">
+        <xsd:annotation>
+            <xsd:documentation>
+                Creates copies of a mule event.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:element name="serializable-event-copy-strategy" substitutionGroup="abstract-event-copy-strategy">
+        <xsd:annotation>
+            <xsd:documentation>
+                Creates copies of a mule event and clones the payload using serialization. Requires a Serializable
+                payload.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:complexType name="abstractCachingStrategyType">
+        <xsd:complexContent>
+            <xsd:extension base="mule:abstractCachingStrategyType">
+                <xsd:sequence>
+                    <xsd:element ref="abstract-event-copy-strategy" minOccurs="0" maxOccurs="1">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                The event copy strategy to use. If not specified, a DefaultMuleEventCopier will be used.
+                                will be used.
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                </xsd:sequence>
+
+                <xsd:attribute name="keyGenerationExpression" use="optional" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The expression to generate the object's key to store them in the caching strategy. Do not
+                            use this property if keyGenerator-ref is used.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+
+                <xsd:attribute name="keyGenerator-ref" use="optional" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Reference to the key generator object used to create the object's key to store them in the
+                            caching strategy. Do not use this property if keyGenerationExpression is used.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+
+                <xsd:attribute name="responseGenerator-ref" use="optional" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Reference to the response generator object used to create the responses returned by the
+                            caching strategy.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:element name="object-store-caching-strategy" type="objectStoreCachingStrategyType"
+                 substitutionGroup="mule:abstract-caching-strategy">
+        <xsd:annotation>
+            <xsd:documentation>
+                Defines a caching strategy that uses an object store to cache the data.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    <xsd:complexType name="objectStoreCachingStrategyType">
+        <xsd:complexContent>
+            <xsd:extension base="abstractCachingStrategyType">
+                <xsd:sequence minOccurs="0" maxOccurs="1">
+                    <xsd:element ref="mule:abstract-private-object-store">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                Object store defined privately with exclusive access.
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                </xsd:sequence>
+                <xsd:attribute name="objectStore" type="xsd:string" use="optional">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The object store to use. If not specified, a default object store will be used.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="persistent" type="xsd:boolean" default="false">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            When no store is specified, defines if this store should be persistent or not.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="maxEntries" type="mule:substitutableInt" default="4000">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            When no store is specified, defines the maximum number of entries that this store keeps
+                            around. Specify '-1' if the store is supposed to be "unbounded".
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="entryTTL" type="mule:substitutableInt" default="300000">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            When no store is specified, defines the time-to-live for each message ID when a default
+                            object store is created, specified in milliseconds. Use '-1' for entries that should never
+                            expire. DO NOT combine this with an unbounded store!
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="expirationInterval" type="mule:substitutableInt" default="30000">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            When no store is specified, defines the interval for periodic bounded size enforcement and
+                            entry expiration, specified in milliseconds. Arbitrary positive values between one second
+                            and several hours or days are possible, but should be chosen carefully according to the
+                            expected message rate to prevent OutOfMemory conditions.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="synchronized" use="optional" type="xsd:boolean" default="true">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Indicates that cache should attempt to synchronize cache access or not. When cache is
+                            synchronized each thread accessing a given key will have to acquire a lock on it. This
+                            provides a way to obtain cache coherence as there will be only a value for each cache key.
+                            Note that cache synchronization cannot be enforced when the underlying cache implementation
+                            is used outside the caching strategy. When there is no need to get cache coherence, setting
+                            this attribute in false will improve performance as no locking is involved. NOTE: cache keys
+                            must be Strings in order to be locked.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:element name="http-caching-strategy" substitutionGroup="mule:abstract-caching-strategy">
+        <xsd:annotation>
+            <xsd:documentation>
+                A caching strategy for HTTP protocol
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:complexContent>
+                <xsd:extension base="mule:abstractCachingStrategyType"/>
+            </xsd:complexContent>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="cache" type="cacheProcessorType"
+                 substitutionGroup="mule:abstract-intercepting-message-processor">
+        <xsd:annotation>
+            <xsd:documentation>
+                Caching scope that will return a cached value if present.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    <xsd:complexType name="cacheProcessorType">
+        <xsd:complexContent>
+            <xsd:extension base="mule:abstractInterceptingMessageProcessorType">
+
+                <xsd:sequence>
+                    <xsd:group ref="mule:messageProcessorOrMixedContentMessageProcessor" minOccurs="1"
+                               maxOccurs="unbounded"/>
+                </xsd:sequence>
+
+                <xsd:attribute name="cachingStrategy-ref" use="optional" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Reference to the caching strategy object.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="filterExpression" use="optional" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The expression used to filter which messages should be processed using the caching strategy.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:element name="invalidate-cache" type="invalidateCacheProcessorType"
+                 substitutionGroup="mule:abstract-message-processor">
+        <xsd:annotation>
+            <xsd:documentation>
+                Invalidates all entries within a cache.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    <xsd:complexType name="invalidateCacheProcessorType">
+        <xsd:complexContent>
+            <xsd:extension base="mule:abstractMessageProcessorType">
+
+                <xsd:attribute name="cachingStrategy-ref" use="required" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Reference to the caching strategy object that will be invalidated.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:element name="invalidate-key" type="invalidateKeyProcessorType"
+                 substitutionGroup="mule:abstract-message-processor">
+        <xsd:annotation>
+            <xsd:documentation>
+                Invalidates a single entry within a cache.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    <xsd:complexType name="invalidateKeyProcessorType">
+        <xsd:complexContent>
+            <xsd:extension base="mule:abstractMessageProcessorType">
+
+                <xsd:attribute name="cachingStrategy-ref" use="required" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Reference to the caching strategy object whose key will be invalidated.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+
+                <xsd:attribute name="keyGenerationExpression" use="optional" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The expression to generate the object's key to store them in the caching strategy. Do not
+                            use this property if keyGenerator-ref is used.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+
+                <xsd:attribute name="keyGenerator-ref" use="optional" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Reference to the key generator object used to create the object's key to store them in the
+                            caching strategy. Do not use this property if keyGenerationExpression is used.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <!--=================-->
+    <!-- Bytes Streaming -->
+    <!--=================-->
+
+    <xsd:element name="repeatable-file-store-stream" type="repeatableFileStoreStreamType"
+                 substitutionGroup="mule:abstract-byte-streaming-strategy">
+        <xsd:annotation>
+            <xsd:documentation>
+                This configuration uses a temporal file to provide repeatable access to any input stream.
+                It initially uses a buffer of a fixed size. When the buffer overflows, a temporal file will be used
+                to store the contents and support the repeatable random access.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:complexType name="repeatableFileStoreStreamType">
+        <xsd:complexContent>
+            <xsd:extension base="mule:annotatedType">
+                <xsd:attribute name="inMemorySize" type="mule:substitutableInt" use="optional" default="512">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Defines the maximum memory that the stream should use to keep data in memory. If more than
+                            that is consumed then
+                            it will start to buffer the content on disk.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="bufferUnit" type="mule:dataUnitType" use="optional" default="KB">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The unit in which maxInMemorySize is expressed. Default value is KB
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <!--===================-->
+    <!-- Objects Streaming -->
+    <!--===================-->
+
+    <xsd:element name="repeatable-file-store-iterable" type="repeatableFileStoreIterableType"
+                 substitutionGroup="mule:abstract-object-streaming-strategy">
+        <xsd:annotation>
+            <xsd:documentation>
+                This strategy uses a temporal file to provide repeatable access to any object stream.
+                It initially uses a buffer of a fixed size. When the buffer overflows, a temporal file will be used
+                to store the contents and support the repeatable random access.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:complexType name="repeatableFileStoreIterableType">
+        <xsd:complexContent>
+            <xsd:extension base="mule:annotatedType">
+                <xsd:attribute name="inMemoryObjects" type="mule:substitutableInt" use="optional" default="500">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Defines the maximum memory that the stream should use to keep data in memory. If more than
+                            that is consumed then
+                            it will start to buffer the content on disk. Default value is 500.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+</xsd:schema>
