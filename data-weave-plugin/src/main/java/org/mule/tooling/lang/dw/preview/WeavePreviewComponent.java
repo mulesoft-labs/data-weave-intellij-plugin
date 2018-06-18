@@ -23,6 +23,9 @@ import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComponentWithActions;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileEvent;
+import com.intellij.openapi.vfs.VirtualFileListener;
+import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.wm.impl.content.ToolWindowContentUi;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
@@ -80,6 +83,12 @@ public class WeavePreviewComponent implements Disposable {
     public JComponent createComponent() {
         listener = new WeaveTreeChangeListener();
         PsiManager.getInstance(myProject).addPsiTreeChangeListener(listener, this);
+        VirtualFileManager.getInstance().addVirtualFileListener(new VirtualFileListener() {
+            @Override
+            public void fileCreated(@NotNull VirtualFileEvent event) {
+                System.out.println("WeavePreviewComponent.fileCreated");
+            }
+        }, this);
 
         return createPreviewPanel();
     }
@@ -412,6 +421,14 @@ public class WeavePreviewComponent implements Disposable {
         public void childReplaced(@NotNull PsiTreeChangeEvent event) {
             if (isRelevantEvent(event)) {
                 doRunPreview();
+            }
+        }
+
+        @Override
+        public void propertyChanged(@NotNull PsiTreeChangeEvent event) {
+            super.propertyChanged(event);
+            if (event.getPropertyName().equals(PsiTreeChangeEvent.PROP_FILE_NAME)) {
+                loadScenario(getCurrentScenario());
             }
         }
 
