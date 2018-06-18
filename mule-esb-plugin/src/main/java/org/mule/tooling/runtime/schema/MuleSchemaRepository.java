@@ -46,6 +46,14 @@ public class MuleSchemaRepository {
   public static final String MULE_SCHEMADOC_ARTIFACT_ID = "mule-schemadoc";
   public static final String DOCUMENTATION_ARTIFACT_ID = "documentation";
   public static final String MULE_EE_ARTIFACT_ID = "mule-ee";
+  public static final String MULE_MODULE_TLS_ARTIFACT_ID = "mule-module-tls";
+  public static final String MULE_MODULE_BATCH = "mule-module-batch";
+
+  private static final String BATCH_NS = "http://www.mulesoft.org/schema/mule/batch";
+  private static final String BATCH_SCHEMA_LOCATION = "http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd";
+
+  private static final String TLS_NS = "http://www.mulesoft.org/schema/mule/tls";
+  private static final String TLS_SCHEMA_LOCATION = "http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd";
 
   private static String MULE_EE_NS = "http://www.mulesoft.org/schema/mule/ee/core";
   private static String MULE_EE_SCHEMA_LOCATION = "http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd";
@@ -179,6 +187,8 @@ public class MuleSchemaRepository {
 
     loadResourceBasedSchema(ORG_MULE_RUNTIME, MODULE_ARTIFACT_ID, runtimeVersion, "schemas/mule-module.xsd", MODULE_NS, MODULE_SCHEMA_LOCATION, "module");
 
+    loadResourceBasedSchema(ORG_MULE_RUNTIME, MULE_MODULE_TLS_ARTIFACT_ID, runtimeVersion, "schemas/mule-tls.xsd", TLS_NS, TLS_SCHEMA_LOCATION, "tls");
+
     loadResourceBasedSchema(ORG_MULE_RUNTIME, DOMAIN_ARTIFACT_ID, runtimeVersion, "schemas/mule-domain.xsd", DOMAIN_NS, DOMAIN_SCHEMA_LOCATION, "domain");
 
     loadResourceBasedSchema(ORG_SPRINGFRAMEWORK, SPRING_BEANS_ARTIFACT_ID, runtimeVersion, "schemas/spring-beans-3.0.xsd", SPRING_BEANS_NS, SPRING_BEANS_SCEMA_LOCATION, "spring");
@@ -188,6 +198,8 @@ public class MuleSchemaRepository {
     loadResourceBasedSchema(ORG_MULE_TOOLING, DOCUMENTATION_ARTIFACT_ID, runtimeVersion, "schemas/mule-documentation.xsd", DOCUMENTATION_NS, DOCUMENTATION_SCHEMA_LOCATION, "doc");
 
     loadResourceBasedSchema(COM_MULESOFT_RUNTIME, MULE_EE_ARTIFACT_ID, runtimeVersion, "schemas/mule-ee.xsd", MULE_EE_NS, MULE_EE_SCHEMA_LOCATION, "mule-ee");
+
+    loadResourceBasedSchema(COM_MULESOFT_RUNTIME, MULE_MODULE_BATCH, runtimeVersion, "schemas/mule-batch.xsd", BATCH_NS, BATCH_SCHEMA_LOCATION, "batch");
 
 
   }

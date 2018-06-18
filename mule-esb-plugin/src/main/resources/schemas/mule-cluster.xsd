@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+    (c) 2003-2010 MuleSoft, Inc. This software is protected under international copyright
+    law. All use of this software is subject to MuleSoft's Master Subscription Agreement
+    (or other master license agreement) separately entered into in writing between you and
+    MuleSoft. If such an agreement is not in place, you may not use the software.
+-->
+
+<xsd:schema xmlns="http://www.mulesoft.org/schema/mule/ee/cluster"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:mule="http://www.mulesoft.org/schema/mule/core"
+            xmlns:schemadoc="http://www.mulesoft.org/schema/mule/schemadoc"
+            targetNamespace="http://www.mulesoft.org/schema/mule/ee/cluster"
+            elementFormDefault="qualified"
+            attributeFormDefault="unqualified">
+
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
+    <xsd:import namespace="http://www.mulesoft.org/schema/mule/core"
+                schemaLocation="http://www.mulesoft.org/schema/mule/core/current/mule.xsd"/>
+    <xsd:import namespace="http://www.mulesoft.org/schema/mule/schemadoc"
+                schemaLocation="http://www.mulesoft.org/schema/mule/schemadoc/current/mule-schemadoc.xsd"/>
+
+    <xsd:annotation>
+        <xsd:documentation>
+            This module allows to customize cluster configuration for a particular mule application.
+        </xsd:documentation>
+        <xsd:appinfo>
+            <schemadoc:short-name>Cluster</schemadoc:short-name>
+            <schemadoc:page-title>Cluster Module</schemadoc:page-title>
+        </xsd:appinfo>
+    </xsd:annotation>
+
+    <xsd:element name="cluster-config" type="clusterConfigType"
+                 substitutionGroup="mule:abstract-configuration-extension">
+        <xsd:annotation>
+            <xsd:documentation>
+                Cluster configuration for this application
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:complexType name="clusterConfigType">
+        <xsd:complexContent>
+            <xsd:extension base="mule:abstractConfigurationExtensionType">
+                <xsd:sequence>
+                    <xsd:choice>
+                        <xsd:element name="performance-store-profile" type="emptyElement">
+                            <xsd:annotation>
+                                <xsd:documentation>
+                                    Cluster store profile optimized for performance. Avoid queue message distribution
+                                    and avoid object store replication.
+                                </xsd:documentation>
+                            </xsd:annotation>
+                        </xsd:element>
+                        <xsd:element name="reliable-store-profile" type="emptyElement">
+                            <xsd:annotation>
+                                <xsd:documentation>
+                                    Cluster store profile optimized for reliability. Distributes queue messages using
+                                    backups and replicates object store data.
+                                </xsd:documentation>
+                            </xsd:annotation>
+                        </xsd:element>
+                    </xsd:choice>
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="emptyElement"/>
+
+</xsd:schema>

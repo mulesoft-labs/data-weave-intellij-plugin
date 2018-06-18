@@ -47,6 +47,8 @@ import static org.mule.tooling.runtime.schema.MuleSchemaRepository.MODULE_ARTIFA
 import static org.mule.tooling.runtime.schema.MuleSchemaRepository.MULE_ARTIFACT_ID;
 import static org.mule.tooling.runtime.schema.MuleSchemaRepository.MULE_CORE_ARTIFACT_ID;
 import static org.mule.tooling.runtime.schema.MuleSchemaRepository.MULE_EE_ARTIFACT_ID;
+import static org.mule.tooling.runtime.schema.MuleSchemaRepository.MULE_MODULE_BATCH;
+import static org.mule.tooling.runtime.schema.MuleSchemaRepository.MULE_MODULE_TLS_ARTIFACT_ID;
 import static org.mule.tooling.runtime.schema.MuleSchemaRepository.MULE_SCHEMADOC_ARTIFACT_ID;
 import static org.mule.tooling.runtime.schema.MuleSchemaRepository.ORG_MULE_RUNTIME;
 import static org.mule.tooling.runtime.schema.MuleSchemaRepository.ORG_MULE_TOOLING;
@@ -122,11 +124,13 @@ public class MuleModuleSchemaProvider implements ModuleComponent {
     loadSchema(ORG_MULE_RUNTIME, MULE_CORE_ARTIFACT_ID, runtimeVersion);
     loadSchema(ORG_MULE_RUNTIME, MULE_ARTIFACT_ID, runtimeVersion);
     loadSchema(ORG_MULE_RUNTIME, MODULE_ARTIFACT_ID, runtimeVersion);
+    loadSchema(ORG_MULE_RUNTIME, MULE_MODULE_TLS_ARTIFACT_ID, runtimeVersion);
     loadSchema(ORG_MULE_RUNTIME, DOMAIN_ARTIFACT_ID, runtimeVersion);
     loadSchema(ORG_SPRINGFRAMEWORK, SPRING_BEANS_ARTIFACT_ID, runtimeVersion);
     loadSchema(ORG_MULE_RUNTIME, MULE_SCHEMADOC_ARTIFACT_ID, runtimeVersion);
     loadSchema(ORG_MULE_TOOLING, DOCUMENTATION_ARTIFACT_ID, runtimeVersion);
     loadSchema(COM_MULESOFT_RUNTIME, MULE_EE_ARTIFACT_ID, runtimeVersion);
+    loadSchema(COM_MULESOFT_RUNTIME, MULE_MODULE_BATCH, runtimeVersion);
   }
 
   private void loadSchemasFromTooling() {
