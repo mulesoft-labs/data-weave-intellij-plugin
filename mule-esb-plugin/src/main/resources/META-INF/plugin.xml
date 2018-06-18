@@ -15,8 +15,20 @@
     <depends>org.jetbrains.idea.maven</depends>
 
     <change-notes><![CDATA[
+    <h1>v2.0.4</h1>
+      <ul>
+       <li>
+          <p>Mule Runtime 4</p>
+          <ul>
+            <li>Xml Schema resolution</li>
+            <li>Xml autocompletion</li>
+            <li>Xml quick fix of schema location and namesapce</li>
+          </ul>
+        </li>
+      </ul>
     ]]>
     </change-notes>
+
 
     <extensions defaultExtensionNs="com.intellij">
         <moduleBuilder builderClass="org.mule.tooling.runtime.wizard.SdkModuleBuilder"/>
