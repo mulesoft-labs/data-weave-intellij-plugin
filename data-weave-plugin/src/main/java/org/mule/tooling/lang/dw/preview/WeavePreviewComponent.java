@@ -427,7 +427,8 @@ public class WeavePreviewComponent implements Disposable {
         @Override
         public void propertyChanged(@NotNull PsiTreeChangeEvent event) {
             super.propertyChanged(event);
-            if (event.getPropertyName().equals(PsiTreeChangeEvent.PROP_FILE_NAME)) {
+            String propertyName = event.getPropertyName();
+            if (propertyName.equals(PsiTreeChangeEvent.PROP_FILE_NAME) || propertyName.equals(PsiTreeChangeEvent.PROP_DIRECTORY_NAME)) {
                 loadScenario(getCurrentScenario());
             }
         }
