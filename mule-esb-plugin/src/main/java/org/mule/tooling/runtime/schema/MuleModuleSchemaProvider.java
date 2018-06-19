@@ -68,6 +68,7 @@ public class MuleModuleSchemaProvider implements ModuleComponent {
   private final Project project;
   private Module myModule;
   private volatile boolean initialized = false;
+  private volatile boolean initializing = false;
 
   public MuleModuleSchemaProvider(Module myModule) {
     this.myModule = myModule;
@@ -94,7 +95,8 @@ public class MuleModuleSchemaProvider implements ModuleComponent {
   }
 
   private void initializeIfRequired() {
-    if (!initialized) {
+    if (!initialized && !initializing) {
+      initializing = true;
       loadDefaultSchemas();
 
       loadMuleSchemasInClasspath();
@@ -116,6 +118,7 @@ public class MuleModuleSchemaProvider implements ModuleComponent {
         }
       });
       initialized = true;
+      initializing = false;
     }
   }
 
