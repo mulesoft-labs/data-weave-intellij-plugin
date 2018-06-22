@@ -35,6 +35,8 @@
         <moduleBuilder builderClass="org.mule.tooling.runtime.wizard.MuleAppModuleBuilder"/>
         <fileTemplateGroup implementation="org.mule.tooling.runtime.template.RuntimeTemplateManager"/>
         <xml.schemaProvider implementation="org.mule.tooling.runtime.schema.MuleSchemaProvider"/>
+        <completion.contributor implementationClass="org.mule.tooling.runtime.schema.MuleCompletionContributor"
+                                language="XML" order="last"/>
     </extensions>
 
     <application-components>

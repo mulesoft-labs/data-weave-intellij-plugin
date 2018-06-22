@@ -67,10 +67,10 @@ public class MuleSchemaProvider extends XmlSchemaProvider {
   @NotNull
   public Set<String> getAvailableNamespaces(@NotNull XmlFile file, @Nullable String tagName) {
     final Set<String> namespaces = new HashSet<>();
-    if (StringUtils.isNotEmpty(tagName)) {
-      final Module fileModule = ModuleUtil.findModuleForFile(file);
-      if (fileModule != null) {
-        final Collection<SchemaInformation> schemas = MuleModuleSchemaProvider.getInstance(fileModule).getSchemas();
+    final Module fileModule = ModuleUtil.findModuleForFile(file);
+    if (fileModule != null) {
+      final Collection<SchemaInformation> schemas = MuleModuleSchemaProvider.getInstance(fileModule).getSchemas();
+      if (StringUtils.isNotEmpty(tagName)) {
         try {
           for (SchemaInformation xsd: schemas) {
             final Optional<XmlFile> schemaAsXmlFile = xsd.getSchemaAsXmlFile(file.getProject());
@@ -96,6 +96,10 @@ public class MuleSchemaProvider extends XmlSchemaProvider {
         } catch (Exception e) {
           LOG.warn(e);
         }
+      } else {
+        for (SchemaInformation schema: schemas) {
+          namespaces.add(schema.getNamespace());
+        }
       }
     }
     return namespaces;
@@ -105,15 +109,22 @@ public class MuleSchemaProvider extends XmlSchemaProvider {
   @Nullable
   @Override
   public String getDefaultPrefix(@NotNull String namespace, @NotNull XmlFile context) {
-    String[] split = namespace.split("/");
-    if (split.length > 0) {
-      return split[split.length - 1];
+    final Module fileModule = ModuleUtil.findModuleForFile(context);
+    if (fileModule != null) {
+      return MuleModuleSchemaProvider.getInstance(fileModule).getPrefixFor(namespace);
+    } else {
+      String[] split = namespace.split("/");
+      if (split.length > 0) {
+        return split[split.length - 1];
+      } else {
+        return super.getDefaultPrefix(namespace, context);
+      }
     }
-    return super.getDefaultPrefix(namespace, context);
   }
 
   @Override
   public Set<String> getLocations(@NotNull @NonNls final String namespace, @NotNull final XmlFile context) throws ProcessCanceledException {
+
     Set<String> locations = new HashSet<>();
     final Module module = ModuleUtil.findModuleForFile(context);
     if (module == null) {

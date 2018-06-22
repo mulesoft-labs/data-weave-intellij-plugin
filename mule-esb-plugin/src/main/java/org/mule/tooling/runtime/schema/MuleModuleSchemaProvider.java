@@ -22,6 +22,7 @@ import com.intellij.psi.xml.XmlFile;
 import com.intellij.util.indexing.FileBasedIndex;
 import com.intellij.xml.impl.schema.XmlNSDescriptorImpl;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.model.MavenArtifact;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.mule.tooling.runtime.tooling.MuleRuntimeServerManager;
@@ -242,5 +243,25 @@ public class MuleModuleSchemaProvider implements ModuleComponent {
 
   public static MuleModuleSchemaProvider getInstance(Module myModule) {
     return myModule.getComponent(MuleModuleSchemaProvider.class);
+  }
+
+  public Optional<SchemaInformation> getSchemaFromPrefix(String namespacePrefix) {
+    initializeIfRequired();
+    return this.moduleSchemas.values().stream().filter((schemaInfo) -> schemaInfo.getPrefix().equalsIgnoreCase(namespacePrefix)).findFirst();
+  }
+
+  @Nullable
+  public String getPrefixFor(String namespace) {
+    Optional<SchemaInformation> schema = getSchema(namespace);
+    if (schema.isPresent()) {
+      return schema.get().getPrefix();
+    } else {
+      String[] split = namespace.split("/");
+      if (split.length > 0) {
+        return split[split.length - 1];
+      } else {
+        return null;
+      }
+    }
   }
 }
