@@ -3,21 +3,16 @@ package org.mule.tooling.runtime.util;
 import org.mule.maven.client.api.model.MavenConfiguration;
 import org.mule.maven.client.api.model.RemoteRepository;
 
-import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Optional;
 
 public class MavenConfigurationUtils {
   public static MavenConfiguration createMavenConfiguration() {
-    final Optional<File> userSettingsLocation = Optional.of(MuleDirectoriesUtils.getSettingsXml());
-    final Optional<File> globalSettingsLocation = Optional.empty();
     final MavenConfiguration.MavenConfigurationBuilder mavenConfigurationBuilder = MavenConfiguration.newMavenConfigurationBuilder();
     mavenConfigurationBuilder.forcePolicyUpdateNever(false);
     mavenConfigurationBuilder.localMavenRepositoryLocation(MuleDirectoriesUtils.getMavenTooling());
     addMavenCentralRemoteRepository(mavenConfigurationBuilder);
-    userSettingsLocation.ifPresent(mavenConfigurationBuilder::userSettingsLocation);
-    globalSettingsLocation.ifPresent(mavenConfigurationBuilder::globalSettingsLocation);
+    mavenConfigurationBuilder.userSettingsLocation(MuleDirectoriesUtils.getSettingsXml());
     return mavenConfigurationBuilder.build();
   }
 

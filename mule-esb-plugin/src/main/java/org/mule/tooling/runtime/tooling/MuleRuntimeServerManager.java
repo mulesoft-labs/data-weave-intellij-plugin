@@ -15,6 +15,7 @@ import org.mule.tooling.runtime.process.controller.MuleProcessController;
 import org.mule.tooling.runtime.process.controller.MuleProcessControllerFactory;
 import org.mule.tooling.runtime.sdk.MuleSdk;
 import org.mule.tooling.runtime.sdk.MuleSdkManager;
+import org.mule.tooling.runtime.settings.MuleRuntimeSettingsState;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,18 +31,17 @@ public class MuleRuntimeServerManager implements ApplicationComponent {
 
   private Map<String, MuleStandaloneController> muleRuntimes;
 
-  private static String DEFAULT_MULE_RUNTIME = "4.1.3-SNAPSHOT";
 
   public static MuleRuntimeServerManager getInstance() {
     return ApplicationManager.getApplication().getComponent(MuleRuntimeServerManager.class);
   }
 
   public static String getMuleVersionOf(Module module) {
-    return DEFAULT_MULE_RUNTIME;
+    return MuleRuntimeSettingsState.getInstance().getDefaultRuntimeVersion();
   }
 
   public static String getMuleVersionOf(Project project) {
-    return DEFAULT_MULE_RUNTIME;
+    return MuleRuntimeSettingsState.getInstance().getDefaultRuntimeVersion();
   }
 
   @Override

@@ -37,6 +37,12 @@
         <xml.schemaProvider implementation="org.mule.tooling.runtime.schema.MuleSchemaProvider"/>
         <completion.contributor implementationClass="org.mule.tooling.runtime.schema.MuleCompletionContributor"
                                 language="XML" order="last"/>
+        <applicationConfigurable instance="org.mule.tooling.runtime.settings.MuleRuntimeSettings"
+                                 id="Anypoint"
+                                 groupId="root" displayName="Anypoint Runtime"/>
+        <applicationService id="Runtime State"
+                            serviceInterface="org.mule.tooling.runtime.settings.MuleRuntimeSettingsState"
+                            serviceImplementation="org.mule.tooling.runtime.settings.MuleRuntimeSettingsState"/>
     </extensions>
 
     <application-components>
