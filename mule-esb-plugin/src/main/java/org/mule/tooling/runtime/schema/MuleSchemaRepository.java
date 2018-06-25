@@ -270,17 +270,22 @@ public class MuleSchemaRepository {
       return Optional.ofNullable(schemas.get(schemaCoordinate));
     } else {
       return ToolingRuntimeManager.getInstance().callOnToolingRuntime(project, runtimeVersion, (toolingRuntimeClient) -> {
-        final ArtifactDescriptor artifactDescriptor = ArtifactDescriptor.newBuilder().withGroupId(groupId).withArtifactId(artifactId).withVersion(version).withClassifier(classifier).build();
-        final ExtensionModelService extensionModelService = toolingRuntimeClient.extensionModelService();
-        final Optional<String> extensionSchema = extensionModelService.loadExtensionSchema(artifactDescriptor);
-        return extensionSchema.flatMap((schema) -> {
-          final Optional<ExtensionModel> extensionModel = extensionModelService.loadExtensionModel(artifactDescriptor);
-          final XmlDslModel xmlDslModel = extensionModel.get().getXmlDslModel();
-          final String namespace = xmlDslModel.getNamespace();
-          final String schemaLocation = xmlDslModel.getSchemaLocation();
-          final String prefix = xmlDslModel.getPrefix();
-          return addSchema(groupId, artifactId, version, schema, namespace, schemaLocation, prefix);
-        });
+        try {
+          final ArtifactDescriptor artifactDescriptor = ArtifactDescriptor.newBuilder().withGroupId(groupId).withArtifactId(artifactId).withVersion(version).withClassifier(classifier).build();
+          final ExtensionModelService extensionModelService = toolingRuntimeClient.extensionModelService();
+          final Optional<String> extensionSchema = extensionModelService.loadExtensionSchema(artifactDescriptor);
+          return extensionSchema.flatMap((schema) -> {
+            final Optional<ExtensionModel> extensionModel = extensionModelService.loadExtensionModel(artifactDescriptor);
+            final XmlDslModel xmlDslModel = extensionModel.get().getXmlDslModel();
+            final String namespace = xmlDslModel.getNamespace();
+            final String schemaLocation = xmlDslModel.getSchemaLocation();
+            final String prefix = xmlDslModel.getPrefix();
+            return addSchema(groupId, artifactId, version, schema, namespace, schemaLocation, prefix);
+          });
+        } catch (Exception e) {
+          Notifications.Bus.notify(new Notification("Schema resolution", "Unable to resolve XML schema", "Unable to resolve xml schema for element " + groupId + ":" + artifactId + ":" + version + " . Reason: \n" + e.getMessage(), NotificationType.WARNING));
+          return Optional.empty();
+        }
       }, Optional::empty);
     }
   }

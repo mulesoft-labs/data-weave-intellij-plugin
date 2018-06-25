@@ -97,8 +97,8 @@ public class MuleModuleSchemaProvider implements ModuleComponent {
   private void initializeIfRequired() {
     if (!initialized && !initializing) {
       initializing = true;
-      loadDefaultSchemas();
 
+      loadDefaultSchemas();
       loadMuleSchemasInClasspath();
       loadSchemasFromTooling();
       //Listen to classpath changes
@@ -106,6 +106,7 @@ public class MuleModuleSchemaProvider implements ModuleComponent {
         @Override
         public void rootsChanged(ModuleRootEvent event) {
           moduleSchemas.clear();
+          loadDefaultSchemas();
           loadMuleSchemasInClasspath();
           loadSchemasFromTooling();
         }
