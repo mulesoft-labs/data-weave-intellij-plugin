@@ -22,15 +22,16 @@ import java.lang.reflect.Type;
 import java.lang.reflect.WildcardType;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class ClassBasedCompletionContributor extends CompletionProvider<CompletionParameters> {
 
-  private Class<?> rootClass;
+  private Function<PsiFile, Class<?>> rootClass;
   private Predicate<PsiFile> filter;
 
-  public ClassBasedCompletionContributor(Class<?> rootClass, Predicate<PsiFile> filter) {
+  public ClassBasedCompletionContributor(Predicate<PsiFile> filter, Function<PsiFile, Class<?>> rootClass) {
     this.rootClass = rootClass;
     this.filter = filter;
   }
@@ -41,11 +42,11 @@ public class ClassBasedCompletionContributor extends CompletionProvider<Completi
       return;
     }
 
-    PsiElement position = parameters.getPosition();
-    PsiElement parent = position.getParent();
-    List<PathItem> path = getSelectionPath(parent);
+    final PsiElement position = parameters.getPosition();
+    final PsiElement parent = position.getParent();
+    final List<PathItem> path = getSelectionPath(parent);
 
-    Class<?> contextClass = rootClass;
+    Class<?> contextClass = rootClass.apply(parameters.getOriginalFile());
     Field declaredField = null;
     for (PathItem pathItem: path) {
       if (pathItem instanceof ObjectProperty) {

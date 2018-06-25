@@ -1,13 +1,17 @@
 package org.mule.tooling.runtime.util;
 
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
 import java.io.IOException;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 public class MuleModuleUtils {
 
@@ -34,6 +38,18 @@ public class MuleModuleUtils {
       }
     }
     return false;
+  }
+
+  public static Optional<ProjectType> getProjectTypeOfFile(PsiFile file) {
+    Module moduleForFile = ModuleUtil.findModuleForFile(file);
+    if (moduleForFile != null) {
+      MavenProject mavenProject = getMavenProject(moduleForFile);
+      if (mavenProject != null) {
+        String packaging = mavenProject.getPackaging();
+        return Stream.of(ProjectType.values()).filter((projectType -> projectType.getPackaging().equals(packaging))).findFirst();
+      }
+    }
+    return Optional.empty();
   }
 
   @Nullable
