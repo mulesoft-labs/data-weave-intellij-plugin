@@ -47,6 +47,9 @@
         <applicationService id="Runtime Store"
                             serviceImplementation="org.mule.tooling.runtime.sdk.MuleSdkManagerStoreImpl"
                             serviceInterface="org.mule.tooling.runtime.sdk.MuleSdkManagerStore"/>
+        <completion.contributor
+                implementationClass="org.mule.tooling.runtime.artifact_json.MuleArtifactJsonCompletionContributor"
+                language="JSON"/>
     </extensions>
 
     <application-components>
