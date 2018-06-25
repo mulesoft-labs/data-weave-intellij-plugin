@@ -91,6 +91,7 @@ public class ToolingRuntimeManager implements ApplicationComponent {
 
   @NotNull
   private ToolingRuntimeClient initRuntimeClient(Project project, String runtimeVersion, String toolingVersion, ProgressIndicator progressIndicator) {
+    progressIndicator.setText("Initializing Tooling Runtime");
     final MavenConfiguration mavenConfiguration = MavenConfigurationUtils.createMavenConfiguration();
     final ToolingRuntimeClientBootstrap toolingClientBootstrap = createToolingClientBootstrap(runtimeVersion, toolingVersion, mavenConfiguration, progressIndicator);
     final AgentConfiguration.Builder builder = AgentConfiguration.builder();
@@ -104,6 +105,7 @@ public class ToolingRuntimeManager implements ApplicationComponent {
     toolingRuntimeByVersion.put(runtimeVersion, toolingRuntimeClient);
     //Notify that a tooling runtime is available
     ApplicationManager.getApplication().getMessageBus().syncPublisher(ToolingRuntimeTopics.TOOLING_STARTED).onToolingRuntimeStarted(runtimeVersion);
+    progressIndicator.setText("Tooling Runtime Started successfully");
     return toolingRuntimeClient;
   }
 

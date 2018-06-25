@@ -7,6 +7,9 @@
 
 package org.mule.tooling.runtime.tooling;
 
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 import com.intellij.openapi.progress.ProgressIndicator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -43,11 +46,9 @@ public class MuleStandaloneController {
   private MuleProcessController muleProcessController;
   private AtomicBoolean initialized = new AtomicBoolean(false);
   private volatile boolean initializing = false;
-  private String muleRuntimeVersion;
   private MuleRuntimeStatusChecker statusChecker;
 
-  public MuleStandaloneController(String muleRuntimeVersion, MuleProcessController muleProcessController, MuleRuntimeStatusChecker statusChecker) {
-    this.muleRuntimeVersion = muleRuntimeVersion;
+  public MuleStandaloneController(MuleProcessController muleProcessController, MuleRuntimeStatusChecker statusChecker) {
     this.statusChecker = statusChecker;
     requireNonNull(muleProcessController, "configuration cannot be null");
 
@@ -100,40 +101,49 @@ public class MuleStandaloneController {
   }
 
   public boolean start(ProgressIndicator progressIndicator) {
+    progressIndicator.setText("Starting New Instance Of  Mule Runtime");
     if (initialized.compareAndSet(false, true)) {
+
       try {
         initializing = true;
-        progressIndicator.setText2("Starting runtime");
+        progressIndicator.setText2("Starting Mule Runtime With Agent Port " + statusChecker.getAgentPort());
         List<String> parameters = new LinkedList<>(asList(createArgs(statusChecker.getAgentPort(), MavenConfigurationUtils.createMavenConfiguration())));
         parameters.removeIf(StringUtils::isBlank);
         muleProcessController.start(parameters.toArray(new String[0]));
+        progressIndicator.setText2("Mule Runtime Process Starting. Waiting for agent to connect at port " + statusChecker.getAgentPort());
         statusChecker.waitUntilIsRunning(progressIndicator);
+        progressIndicator.setText2("Runtime Started Successfully.");
       } catch (Exception e) {
+        Notifications.Bus.notify(new Notification("Mule Runtime", "Unable to start mule runtime ", "Unable to start mule runtime . Reason: \n" + e.getMessage(), NotificationType.ERROR));
         stop(progressIndicator);
         return false;
       } finally {
         initializing = false;
       }
     } else {
-      progressIndicator.setText2("Runtime already started");
+      progressIndicator.setText2("Runtime Already Started.");
     }
+    progressIndicator.setText("Mule Runtime Started");
     return statusChecker.isRunning();
   }
 
 
   public void stop(ProgressIndicator progressIndicator) {
+    progressIndicator.setText("Stopping Mule Runtime");
     if (initialized.compareAndSet(true, false)) {
       try {
-        progressIndicator.setText2("Stopping Mule Server");
+        progressIndicator.setText2("Stopping Mule Runtime ...");
         if (muleProcessController != null && muleProcessController.isRunning()) {
           muleProcessController.stop();
         }
-        progressIndicator.setText2("Mule Server Stopped");
+        progressIndicator.setText2("Mule Runtime Stopped");
         initialized.getAndSet(false);
       } catch (Exception e) {
+        Notifications.Bus.notify(new Notification("Mule Runtime", "Unable to stop mule runtime ", "Unable to stop mule runtime . Reason: \n" + e.getMessage(), NotificationType.ERROR));
         e.printStackTrace();
       }
     }
+    progressIndicator.setText("Mule Runtime Stopped");
   }
 
 
