@@ -2,6 +2,7 @@ package org.mule.tooling.runtime.sdk;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ApplicationComponent;
+import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.runtime.util.MuleDirectoriesUtils;
 
 import java.io.File;
@@ -27,20 +28,21 @@ public class MuleSdkManager implements ApplicationComponent {
         }
     }
 
-    public MuleSdk getSdkByVersion(String muleVersion) {
-        MuleSdk muleSdk = runtimes.get(muleVersion);
-        if (muleSdk == null) {
-            MuleSdk sdk = MuleSdkManagerStore.getInstance().findSdk(muleVersion);
-            if (sdk == null) {
-                //TODO
-                return null;
-            } else {
-                return sdk;
-            }
-        } else {
-            return muleSdk;
-        }
+  @Nullable
+  public MuleSdk getSdkByVersion(String muleVersion) {
+    MuleSdk muleSdk = runtimes.get(muleVersion);
+    if (muleSdk == null) {
+      MuleSdk sdk = MuleSdkManagerStore.getInstance().findSdk(muleVersion);
+      if (sdk == null) {
+        //TODO
+        return null;
+      } else {
+        return sdk;
+      }
+    } else {
+      return muleSdk;
     }
+  }
 
     public File getMuleDistroDirectory() {
       return MuleDirectoriesUtils.getMuleRuntimesHomeDirectory();

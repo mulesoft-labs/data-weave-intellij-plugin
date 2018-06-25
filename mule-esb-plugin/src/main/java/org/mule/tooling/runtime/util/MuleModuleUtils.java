@@ -13,7 +13,7 @@ public class MuleModuleUtils {
 
   public static final String MULE_APPLICATION_PACKAGING = "mule-application";
   public static final String MULE_EXTENSION_PACKAGING = "mule-extension";
-  public static final String ARTIFACT_JSON = "artifact.json";
+  public static final String ARTIFACT_JSON = "mule-artifact.json";
   public static final String POM_XML = "pom.xml";
 
   public static boolean isMuleModule(Module module) {

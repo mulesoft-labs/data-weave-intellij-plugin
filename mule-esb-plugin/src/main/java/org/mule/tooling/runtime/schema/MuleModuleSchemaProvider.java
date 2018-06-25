@@ -27,7 +27,6 @@ import org.jetbrains.idea.maven.model.MavenArtifact;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.mule.tooling.runtime.tooling.MuleRuntimeServerManager;
 import org.mule.tooling.runtime.tooling.ToolingArtifactManager;
-import org.mule.tooling.runtime.tooling.ToolingRuntimeListener;
 import org.mule.tooling.runtime.tooling.ToolingRuntimeTopics;
 import org.mule.tooling.runtime.util.MuleModuleUtils;
 
@@ -112,12 +111,7 @@ public class MuleModuleSchemaProvider implements ModuleComponent {
         }
       });
       //Listen to tooling runtime being loaded
-      ApplicationManager.getApplication().getMessageBus().connect().subscribe(ToolingRuntimeTopics.TOOLING_STARTED, new ToolingRuntimeListener() {
-        @Override
-        public void onToolingRuntimeStarted(String muleVersion) {
-          loadSchemasFromTooling();
-        }
-      });
+      ApplicationManager.getApplication().getMessageBus().connect().subscribe(ToolingRuntimeTopics.TOOLING_STARTED, muleVersion -> loadSchemasFromTooling());
       initialized = true;
       initializing = false;
     }
@@ -153,7 +147,8 @@ public class MuleModuleSchemaProvider implements ModuleComponent {
   }
 
   private void loadSchema(String groupId, String artifactId, String version) {
-    Optional<SchemaInformation> schemaInformation = MuleSchemaRepository.getInstance(getMuleVersion()).loadSchemaFromCoordinate(myModule.getProject(), groupId, artifactId, version, ToolingArtifactManager.MULE_PLUGIN);
+    String muleVersion = ReadAction.compute(() -> getMuleVersion());
+    Optional<SchemaInformation> schemaInformation = MuleSchemaRepository.getInstance(muleVersion).loadSchemaFromCoordinate(myModule.getProject(), groupId, artifactId, version, ToolingArtifactManager.MULE_PLUGIN);
     schemaInformation.ifPresent((info) -> {
       moduleSchemas.put(info.getNamespace(), info);
       moduleSchemas.put(info.getSchemaLocation(), info);

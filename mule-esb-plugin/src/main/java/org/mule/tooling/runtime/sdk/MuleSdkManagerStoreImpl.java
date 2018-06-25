@@ -61,7 +61,7 @@ public class MuleSdkManagerStoreImpl extends MuleSdkManagerStore implements Pers
         for (Element child : children) {
             try {
                 final MuleSdk deserialize = XmlSerializer.deserialize(child, MuleSdk.class);
-                if (deserialize != null && deserialize.getMuleHome() != null) {
+              if (deserialize.getMuleHome() != null) {
                     sdks.add(deserialize);
                 }
             } catch (XmlSerializationException e) {

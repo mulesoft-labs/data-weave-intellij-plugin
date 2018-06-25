@@ -4,6 +4,7 @@ import com.intellij.json.psi.JsonElementVisitor;
 import com.intellij.json.psi.JsonFile;
 import com.intellij.json.psi.JsonObject;
 import com.intellij.json.psi.JsonProperty;
+import com.intellij.json.psi.JsonStringLiteral;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.module.Module;
@@ -81,8 +82,8 @@ public class MuleRuntimeServerManager implements ApplicationComponent {
           }
         });
         JsonProperty result = jsonPropertyResult.getResult();
-        if (result != null && result.getValue() != null) {
-          muleVersion = result.getValue().getText();
+        if (result != null && result.getValue() instanceof JsonStringLiteral) {
+          muleVersion = ((JsonStringLiteral) result.getValue()).getValue();
         }
       }
     }

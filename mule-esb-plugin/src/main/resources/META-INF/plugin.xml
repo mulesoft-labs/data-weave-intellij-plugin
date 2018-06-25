@@ -43,6 +43,10 @@
         <applicationService id="Runtime State"
                             serviceInterface="org.mule.tooling.runtime.settings.MuleRuntimeSettingsState"
                             serviceImplementation="org.mule.tooling.runtime.settings.MuleRuntimeSettingsState"/>
+
+        <applicationService id="Runtime Store"
+                            serviceImplementation="org.mule.tooling.runtime.sdk.MuleSdkManagerStoreImpl"
+                            serviceInterface="org.mule.tooling.runtime.sdk.MuleSdkManagerStore"/>
     </extensions>
 
     <application-components>
