@@ -389,7 +389,7 @@ public class WeaveAgentRuntimeManager extends AbstractProjectComponent {
       private SimpleJavaParameters createJavaParameters() {
         final SimpleJavaParameters params = WeaveRunnerHelper.createJavaParameters(myProject);
 //        if (Boolean.getBoolean("debugWeaveAgent")) {
-        params.getVMParametersList().add("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5678");
+//        params.getVMParametersList().add("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5678");
 //        }
         ParametersList parametersList = params.getProgramParametersList();
         parametersList.add("--agent");
