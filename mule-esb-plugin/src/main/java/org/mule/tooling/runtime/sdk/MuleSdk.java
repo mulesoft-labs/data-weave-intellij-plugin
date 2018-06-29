@@ -25,98 +25,98 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-import static java.util.Optional.*;
+import static java.util.Optional.empty;
 import static java.util.Optional.of;
 
 
 public class MuleSdk {
 
-    private static final String BOOT_DIR = "/lib/boot";
-    private static final String PATCH_DIR = "/lib/patches";
-    private static final String MULE_DIR = "/lib/mule";
-    private static final String USER_DIR = "/lib/user";
-    private static final String OPT_DIR = "/lib/opt";
-    private static final String ENDORSED_DIR = "/lib/endorsed";
+  private static final String BOOT_DIR = "/lib/boot";
+  private static final String PATCH_DIR = "/lib/patches";
+  private static final String MULE_DIR = "/lib/mule";
+  private static final String USER_DIR = "/lib/user";
+  private static final String OPT_DIR = "/lib/opt";
+  private static final String ENDORSED_DIR = "/lib/endorsed";
 
-    public static final String UNDEFINED_VERSION = "0.0.0";
+  public static final String UNDEFINED_VERSION = "0.0.0";
 
-    private static List<String> MULE_REQUIRED_FOLDERS = Arrays.asList(BOOT_DIR, MULE_DIR, USER_DIR, OPT_DIR);
-    private static final String BIN_DIR = "/bin";
-    private static final Logger LOG = Logger.getInstance("#com.intellij.appengine.sdk.impl.MuleSdk");
-    private static final Pattern VERSION_NUMBER = Pattern.compile("([0-9]\\.[0-9]\\.[0-9])");
-    private static final String HOMEPATH_PREFIX = "mule-enterprise-standalone-";
+  private static List<String> MULE_REQUIRED_FOLDERS = Arrays.asList(BOOT_DIR, MULE_DIR, USER_DIR, OPT_DIR);
+  private static final String BIN_DIR = "/bin";
+  private static final Logger LOG = Logger.getInstance("#com.intellij.appengine.sdk.impl.MuleSdk");
+  private static final Pattern VERSION_NUMBER = Pattern.compile("([0-9]\\.[0-9]\\.[0-9])");
+  private static final String HOMEPATH_PREFIX = "mule-enterprise-standalone-";
 
-    @Tag("mule-home")
-    private String muleHome;
-    private String version;
+  @Tag("mule-home")
+  private String muleHome;
+  private String version;
 
-    private MuleSdk(String homePath) {
-        this.muleHome = homePath;
-        this.version = getVersionFromMuleHome(homePath);
+  private MuleSdk(String homePath) {
+    this.muleHome = homePath;
+    this.version = getVersionFromMuleHome(homePath);
 
+  }
+
+  private static String getVersionFromMuleHome(String muleHome) {
+    return new File(muleHome).getName().substring(HOMEPATH_PREFIX.length());
+  }
+
+  private static boolean isValidHomePath(String homePath) {
+    return new File(homePath).getName().startsWith(HOMEPATH_PREFIX);
+  }
+
+  public static Optional<MuleSdk> create(String homePath) {
+    return isValidHomePath(homePath) ? of(new MuleSdk(homePath)) : empty();
+  }
+
+  public String getMuleHome() {
+    return muleHome;
+  }
+
+  public void setMuleHome(String muleHome) {
+    this.muleHome = muleHome;
+  }
+
+  @NotNull
+  public String getVersion() {
+    return version;
+  }
+
+  @Override
+  public String toString() {
+    return getVersion();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o)
+      return true;
+    if (o == null || getClass() != o.getClass())
+      return false;
+
+    MuleSdk muleSdk = (MuleSdk) o;
+
+    return muleHome != null ? muleHome.equals(muleSdk.muleHome) : muleSdk.muleHome == null;
+
+  }
+
+  @Override
+  public int hashCode() {
+    return muleHome != null ? muleHome.hashCode() : 0;
+  }
+
+  //Helper methods
+  public static boolean isValidMuleHome(String dir) {
+    if (dir == null) {
+      return false;
     }
-
-    private static String getVersionFromMuleHome(String muleHome) {
-        return new File(muleHome).getName().substring(HOMEPATH_PREFIX.length());
+    final File muleHome = new File(dir);
+    for (String muleJarsFolder: MULE_REQUIRED_FOLDERS) {
+      if (!new File(muleHome, muleJarsFolder).exists()) {
+        return false;
+      }
     }
-
-    private static boolean isValidHomePath(String homePath) {
-        return new File(homePath).getName().startsWith(HOMEPATH_PREFIX);
-    }
-
-    public static Optional<MuleSdk> create(String homePath) {
-        return isValidHomePath(homePath)? of(new MuleSdk(homePath)): empty();
-    }
-
-    public String getMuleHome() {
-        return muleHome;
-    }
-
-    public void setMuleHome(String muleHome) {
-        this.muleHome = muleHome;
-    }
-
-    @NotNull
-    public String getVersion() {
-        return version;
-    }
-
-    @Override
-    public String toString() {
-        return getVersion();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
-
-        MuleSdk muleSdk = (MuleSdk) o;
-
-        return muleHome != null ? muleHome.equals(muleSdk.muleHome) : muleSdk.muleHome == null;
-
-    }
-
-    @Override
-    public int hashCode() {
-        return muleHome != null ? muleHome.hashCode() : 0;
-    }
-
-    //Helper methods
-    public static boolean isValidMuleHome(String dir) {
-        if (dir == null) {
-            return false;
-        }
-        final File muleHome = new File(dir);
-        for (String muleJarsFolder : MULE_REQUIRED_FOLDERS) {
-            if (!new File(muleHome, muleJarsFolder).exists()) {
-                return false;
-            }
-        }
-        //Check bin directory
-        return new File(muleHome, BIN_DIR).exists();
-    }
+    //Check bin directory
+    return new File(muleHome, BIN_DIR).exists();
+  }
 
 }

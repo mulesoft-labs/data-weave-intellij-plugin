@@ -22,17 +22,17 @@ import java.util.Set;
 
 public abstract class MuleSdkManagerStore {
 
-    public static MuleSdkManagerStore getInstance() {
-        return ServiceManager.getService(MuleSdkManagerStore.class);
-    }
+  public static MuleSdkManagerStore getInstance() {
+    return ServiceManager.getService(MuleSdkManagerStore.class);
+  }
 
-    public abstract MuleSdk findSdk(String sdkHomePath);
+  public abstract MuleSdk findSdk(String sdkHomePath);
 
-    public abstract Set<MuleSdk> getSdks();
+  public abstract Set<MuleSdk> getSdks();
 
-    public abstract void addSdk(MuleSdk muleSdk);
+  public abstract void addSdk(MuleSdk muleSdk);
 
-    public abstract MuleSdk findFromVersion(String muleVersion);
+  public abstract MuleSdk findFromVersion(String muleVersion);
 
-    public abstract void removeSdk(MuleSdk selectedObject);
+  public abstract void removeSdk(MuleSdk selectedObject);
 }

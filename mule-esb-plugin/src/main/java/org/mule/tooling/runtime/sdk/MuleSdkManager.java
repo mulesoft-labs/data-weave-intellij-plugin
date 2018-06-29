@@ -11,22 +11,22 @@ import java.util.Map;
 
 public class MuleSdkManager implements ApplicationComponent {
 
-    public static MuleSdkManager getInstance() {
-        return ApplicationManager.getApplication().getComponent(MuleSdkManager.class);
-    }
+  public static MuleSdkManager getInstance() {
+    return ApplicationManager.getApplication().getComponent(MuleSdkManager.class);
+  }
 
-    private Map<String, MuleSdk> runtimes = new HashMap<>();
+  private Map<String, MuleSdk> runtimes = new HashMap<>();
 
-    @Override
-    public void initComponent() {
-        File muleDistroDirectory = getMuleDistroDirectory();
-        File[] distros = muleDistroDirectory.listFiles();
-        if (distros != null) {
-            for (File distro : distros) {
-                MuleSdk.create(distro.getAbsolutePath()).ifPresent(muleSdk -> runtimes.put(muleSdk.getVersion(), muleSdk));
-            }
-        }
+  @Override
+  public void initComponent() {
+    File muleDistroDirectory = getMuleDistroDirectory();
+    File[] distros = muleDistroDirectory.listFiles();
+    if (distros != null) {
+      for (File distro: distros) {
+        MuleSdk.create(distro.getAbsolutePath()).ifPresent(muleSdk -> runtimes.put(muleSdk.getVersion(), muleSdk));
+      }
     }
+  }
 
   @Nullable
   public MuleSdk getSdkByVersion(String muleVersion) {
@@ -44,7 +44,7 @@ public class MuleSdkManager implements ApplicationComponent {
     }
   }
 
-    public File getMuleDistroDirectory() {
-      return MuleDirectoriesUtils.getMuleRuntimesHomeDirectory();
-    }
+  public File getMuleDistroDirectory() {
+    return MuleDirectoriesUtils.getMuleRuntimesHomeDirectory();
+  }
 }

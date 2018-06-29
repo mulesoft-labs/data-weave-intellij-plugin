@@ -50,6 +50,7 @@
         <completion.contributor
                 implementationClass="org.mule.tooling.runtime.artifact_json.MuleArtifactJsonCompletionContributor"
                 language="JSON"/>
+        <stepsBeforeRunProvider implementation="org.mule.tooling.runtime.launcher.MuleBeforeRunTasksProvider"/>
     </extensions>
 
     <application-components>

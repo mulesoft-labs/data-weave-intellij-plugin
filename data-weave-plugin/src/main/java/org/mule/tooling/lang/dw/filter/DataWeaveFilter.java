@@ -34,10 +34,10 @@ public class DataWeaveFilter implements Filter {
             final String columnNumber = matcher.group("columnNumber");
 
             NameIdentifier nameIdentifierFile = NameIdentifier.apply(nameIdentifierText, Option.empty());
-            VirtualFile virtualFile = VirtualFileSystemUtils.resolve(nameIdentifierFile, myProject);
+          VirtualFile virtualFile = VirtualFileSystemUtils.resolve(myProject, nameIdentifierFile);
             if (virtualFile == null && nameIdentifierFile.parent().isDefined()) {
                 nameIdentifierFile = nameIdentifierFile.parent().get();
-                virtualFile = VirtualFileSystemUtils.resolve(nameIdentifierFile, myProject);
+              virtualFile = VirtualFileSystemUtils.resolve(myProject, nameIdentifierFile);
             }
 
             if (virtualFile == null) {

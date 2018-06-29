@@ -35,7 +35,7 @@ public class BatTestRunnerConfPanel {
     getWeaveFile().addBrowseFolderListener("Select Bat File", "Select bat file", project, waveDescriptor, new TextComponentAccessor<JTextField>() {
       @Override
       public String getText(JTextField component) {
-        VirtualFile resolve = VirtualFileSystemUtils.resolve(NameIdentifier.apply(component.getText(), Option.empty()), project);
+        VirtualFile resolve = VirtualFileSystemUtils.resolve(project, NameIdentifier.apply(component.getText(), Option.empty()));
         return resolve != null ? resolve.getPath() : null;
       }
 

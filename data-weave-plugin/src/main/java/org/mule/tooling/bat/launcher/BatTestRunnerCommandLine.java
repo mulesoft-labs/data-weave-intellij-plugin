@@ -54,7 +54,7 @@ public class BatTestRunnerCommandLine extends WeaveCommandLineState {
     if (vmArgs != null) {
       javaParams.getVMParametersList().addParametersString(vmArgs);
     }
-    final VirtualFile virtualFile = VirtualFileSystemUtils.resolve(nameIdentifier, module.getProject());
+    final VirtualFile virtualFile = VirtualFileSystemUtils.resolve(module.getProject(), nameIdentifier);
     params.add(virtualFile.getPath());
     // All done, run it
     return javaParams;

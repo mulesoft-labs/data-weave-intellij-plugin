@@ -69,7 +69,7 @@ import java.util.List;
 
 public class WeaveEditorToolingAPI extends AbstractProjectComponent implements Disposable {
 
-    private VirtualFileSystemAdaptor projectVirtualFileSystem;
+  private IJVirtualFileSystemAdaptor projectVirtualFileSystem;
     private WeaveToolingService dwTextDocumentService;
     private final List<Runnable> onProjectCloseListener;
     private final List<Runnable> onProjectOpenListener;
@@ -82,7 +82,7 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
 
     @Override
     public void initComponent() {
-        projectVirtualFileSystem = new VirtualFileSystemAdaptor(myProject);
+      projectVirtualFileSystem = new IJVirtualFileSystemAdaptor(myProject);
         final RemoteResourceResolver resourceResolver = new RemoteResourceResolver(myProject);
         final SpecificModuleResourceResolver java = SpecificModuleResourceResolver.apply("java", resourceResolver);
         final SpecificModuleResourceResolver[] moduleResourceResolvers = {java};
@@ -166,7 +166,7 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
             final VirtualFile file;
             if (!virtualFile.isInLocalFileSystem()) {
                 //We create a dummy virtual file
-                file = new VirtualFileSystemAdaptor.IntellijVirtualFileAdaptor(projectVirtualFileSystem, virtualFile, myProject, NameIdentifier.ANONYMOUS_NAME());
+              file = new IJVirtualFileSystemAdaptor.IJVirtualFileAdaptor(projectVirtualFileSystem, virtualFile, myProject, NameIdentifier.ANONYMOUS_NAME());
             } else {
                 final String url = virtualFile.getUrl();
                 file = projectVirtualFileSystem.file(url);

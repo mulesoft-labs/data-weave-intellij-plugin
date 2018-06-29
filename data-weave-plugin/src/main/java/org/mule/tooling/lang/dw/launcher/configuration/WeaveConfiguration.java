@@ -24,32 +24,25 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.launcher.configuration.runner.WeaveRunnerCommandLine;
-import org.mule.tooling.lang.dw.launcher.configuration.ui.WeaveInput;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 
 public class WeaveConfiguration extends ModuleBasedConfiguration implements ModuleRunProfile, RunConfigurationWithSuppressedDefaultDebugAction, WeaveBasedConfiguration {
 
   public static final String PREFIX = "DataWeaveConfig-";
-  public static final String WEAVE_HOME_FIELD = PREFIX + "WeaveHome";
-  public static final String WEAVE_FILE = PREFIX + "WeaveFile";
-  public static final String WEAVE_OUTPUT = PREFIX + "WeaveOutput";
-  public static final String WEAVE_INPUT = "WeaveInput";
+  public static final String WEAVE_NAME_IDENTIFIER = PREFIX + "WeaveNameIdentifier";
+  public static final String WEAVE_SCENARIO = PREFIX + "WeaveScenario";
 
 
   private Project project;
-  private String weaveFile;
-  private String weaveOutput;
-  private List<WeaveInput> weaveInputs;
+  private String nameIdentifier;
+  private String scenario;
 
 
   protected WeaveConfiguration(String name, @NotNull ConfigurationFactory factory, Project project) {
     super(name, new JavaRunConfigurationModule(project, true), factory);
     this.project = project;
-    this.weaveInputs = new ArrayList<>();
   }
 
 
@@ -68,27 +61,18 @@ public class WeaveConfiguration extends ModuleBasedConfiguration implements Modu
   @Override
   public void readExternal(Element element) throws InvalidDataException {
     super.readExternal(element);
-    this.weaveFile = JDOMExternalizerUtil.readField(element, WEAVE_FILE);
-    this.weaveOutput = JDOMExternalizerUtil.readField(element, WEAVE_OUTPUT);
-    final List<Element> children = element.getChildren(WEAVE_INPUT);
-    this.weaveInputs = new ArrayList<>();
-    for (Element child : children) {
-      final WeaveInput weaveInput = new WeaveInput();
-      weaveInput.readExternal(child);
-      weaveInputs.add(weaveInput);
-    }
+    this.nameIdentifier = JDOMExternalizerUtil.readField(element, WEAVE_NAME_IDENTIFIER);
+    this.scenario = JDOMExternalizerUtil.readField(element, WEAVE_SCENARIO);
     getConfigurationModule().readExternal(element);
   }
-
 
 
   @Override
   public void writeExternal(Element element) throws WriteExternalException {
     super.writeExternal(element);
     // Stores the values of this class into the parent
-    JDOMExternalizerUtil.writeField(element, WEAVE_FILE, this.getWeaveFile());
-    JDOMExternalizerUtil.writeField(element, WEAVE_OUTPUT, this.getWeaveOutput());
-    JDOMExternalizerUtil.addChildren(element, WEAVE_INPUT, weaveInputs);
+    JDOMExternalizerUtil.writeField(element, WEAVE_NAME_IDENTIFIER, this.getNameIdentifier());
+    JDOMExternalizerUtil.writeField(element, WEAVE_SCENARIO, this.getScenario());
     getConfigurationModule().writeExternal(element);
   }
 
@@ -101,45 +85,34 @@ public class WeaveConfiguration extends ModuleBasedConfiguration implements Modu
 
   @Override
   public void checkConfiguration() throws RuntimeConfigurationException {
-    if (StringUtils.isBlank(getWeaveFile())) {
-      throw new RuntimeConfigurationException(getWeaveFile() + " weave file can not be empty.");
-    }
-
     if (getModule() == null) {
       throw new RuntimeConfigurationException("Module can not be empty.");
+    }
+
+    if (StringUtils.isBlank(getNameIdentifier())) {
+      throw new RuntimeConfigurationException(getNameIdentifier() + " weave name identifier can not be empty.");
     }
     super.checkConfiguration();
   }
 
-
-
-
-  public String getWeaveFile() {
-    return weaveFile;
+  public String getNameIdentifier() {
+    return nameIdentifier;
   }
 
-  public void setWeaveFile(String weaveFile) {
-    this.weaveFile = weaveFile;
+  public void setNameIdentifier(String nameIdentifier) {
+    this.nameIdentifier = nameIdentifier;
   }
 
-  public String getWeaveOutput() {
-    return weaveOutput;
+  public String getScenario() {
+    return scenario;
   }
 
-  public void setWeaveOutput(String weaveOutput) {
-    this.weaveOutput = weaveOutput;
+  public void setScenario(String scenario) {
+    this.scenario = scenario;
   }
-
 
   public Module getModule() {
     return getConfigurationModule().getModule();
   }
 
-  public List<WeaveInput> getWeaveInputs() {
-    return weaveInputs;
-  }
-
-  public void setWeaveInputs(@NotNull List<WeaveInput> weaveInputs) {
-    this.weaveInputs = weaveInputs;
-  }
 }

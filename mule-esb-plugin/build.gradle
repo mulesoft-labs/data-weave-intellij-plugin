@@ -3,6 +3,7 @@ repositories {
 }
 
 dependencies {
+//    compile(group: "com.mulesoft.mule", name: "mule-debugger", version: "4.2.0-SNAPSHOT")
     compile(group: 'org.mule.tooling', name: 'mule-tooling-api', version: '1.1.3-SNAPSHOT') {
         exclude module: 'slf4j-api' //Clashes with
     }
@@ -20,5 +21,5 @@ dependencies {
 
 intellij {
     pluginName = 'mule-esb-plugin'
-    plugins = ['maven', 'properties']
+    plugins = ['maven', 'properties', project(":data-weave-plugin")]
 }

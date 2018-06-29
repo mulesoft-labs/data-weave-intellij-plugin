@@ -29,7 +29,7 @@ public class WeaveExecutionStack extends XExecutionStack {
     for (int i = 0; i < frames.length; i++) {
       final DebuggerFrame debuggerFrame = frames[i];
       String resourceName = debuggerFrame.startPosition().resourceName();
-      VirtualFile frameFile = VirtualFileSystemUtils.resolve(NameIdentifier.apply(resourceName, Option.empty()), session.getProject());
+      VirtualFile frameFile = VirtualFileSystemUtils.resolve(session.getProject(), NameIdentifier.apply(resourceName, Option.empty()));
       if (i == frames.length - 1) {
         this.frames.add(0, new WeaveStackFrame(client, onFrameEvent.startPosition(), debuggerFrame, frameFile));
       } else {

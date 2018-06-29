@@ -15,29 +15,26 @@ import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiTreeAnyChangeAbstractAdapter;
-import com.intellij.util.Alarm;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.mule.tooling.lang.dw.WeaveConstants;
 import org.mule.tooling.lang.dw.util.VirtualFileSystemUtils;
 import org.mule.weave.v2.editor.ChangeListener;
 import org.mule.weave.v2.editor.VirtualFileSystem;
 import org.mule.weave.v2.parser.ast.variables.NameIdentifier;
 import org.mule.weave.v2.sdk.WeaveResource;
-import org.mule.weave.v2.sdk.WeaveResource$;
 import org.mule.weave.v2.sdk.WeaveResourceResolver;
 import scala.Option;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class VirtualFileSystemAdaptor implements VirtualFileSystem, Disposable {
+public class IJVirtualFileSystemAdaptor implements VirtualFileSystem, Disposable {
 
     private Project project;
 
     private List<ChangeListener> listeners;
 
-    public VirtualFileSystemAdaptor(Project project) {
+  public IJVirtualFileSystemAdaptor(Project project) {
         this.project = project;
         this.listeners = new ArrayList<>();
 
@@ -70,7 +67,7 @@ public class VirtualFileSystemAdaptor implements VirtualFileSystem, Disposable {
         if (fileByUrl == null) {
             return null;
         } else {
-            return new IntellijVirtualFileAdaptor(this, fileByUrl, this.project, null);
+          return new IJVirtualFileAdaptor(this, fileByUrl, this.project, null);
         }
 
     }
@@ -88,7 +85,7 @@ public class VirtualFileSystemAdaptor implements VirtualFileSystem, Disposable {
             final VirtualFile contentRootForFile = ProjectFileIndex.SERVICE.getInstance(project).getSourceRootForFile(virtualFile);
             if (contentRootForFile != null) {
                 //If it is a file from the project
-                final IntellijVirtualFileAdaptor intellijVirtualFile = new IntellijVirtualFileAdaptor(VirtualFileSystemAdaptor.this, virtualFile, project, null);
+              final IJVirtualFileAdaptor intellijVirtualFile = new IJVirtualFileAdaptor(IJVirtualFileSystemAdaptor.this, virtualFile, project, null);
                 for (ChangeListener listener : listeners) {
                     listener.onChanged(intellijVirtualFile);
                 }
@@ -123,17 +120,17 @@ public class VirtualFileSystemAdaptor implements VirtualFileSystem, Disposable {
 
         @Override
         public Option<WeaveResource> resolve(NameIdentifier name) {
-            VirtualFile resolve = VirtualFileSystemUtils.resolve(name, project);
+          VirtualFile resolve = VirtualFileSystemUtils.resolve(project, name);
             if (resolve == null) {
                 return Option.empty();
             } else {
-                IntellijVirtualFileAdaptor intellijVirtualFileAdaptor = new IntellijVirtualFileAdaptor(this.fs, resolve, project, name);
+              IJVirtualFileAdaptor intellijVirtualFileAdaptor = new IJVirtualFileAdaptor(this.fs, resolve, project, name);
                 return Option.apply(intellijVirtualFileAdaptor.asResource());
             }
         }
     }
 
-    public static class IntellijVirtualFileAdaptor implements org.mule.weave.v2.editor.VirtualFile {
+  public static class IJVirtualFileAdaptor implements org.mule.weave.v2.editor.VirtualFile {
 
         private VirtualFileSystem fs;
         private VirtualFile vfs;
@@ -141,7 +138,7 @@ public class VirtualFileSystemAdaptor implements VirtualFileSystem, Disposable {
         private Project project;
         private NameIdentifier name;
 
-        public IntellijVirtualFileAdaptor(VirtualFileSystem fs, @NotNull VirtualFile vfs, @NotNull Project project, NameIdentifier name) {
+    public IJVirtualFileAdaptor(VirtualFileSystem fs, @NotNull VirtualFile vfs, @NotNull Project project, NameIdentifier name) {
             this.fs = fs;
             this.vfs = vfs;
             this.document = ReadAction.compute(() -> FileDocumentManager.getInstance().getDocument(vfs));

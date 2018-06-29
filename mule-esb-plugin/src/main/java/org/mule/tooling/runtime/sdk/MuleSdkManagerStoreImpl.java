@@ -30,78 +30,76 @@ import java.util.List;
 import java.util.Set;
 
 @State(
-        name = "MuleSdk",
-        storages = {@Storage(value = "mule.xml")}
+    name = "MuleSdk",
+    storages = {@Storage(value = "mule.xml")}
 )
 public class MuleSdkManagerStoreImpl extends MuleSdkManagerStore implements PersistentStateComponent<Element> {
-    private static final Logger LOG = Logger.getInstance("#MuleSdkManagerStoreImpl");
+  private static final Logger LOG = Logger.getInstance("#MuleSdkManagerStoreImpl");
+  private Set<MuleSdk> sdks = new HashSet<>();
 
+  @Nullable
+  @Override
+  public Element getState() {
+    Element element = new Element("mule-sdks");
+    try {
+      for (MuleSdk sdk: sdks) {
+        final Element sdkElement = new Element("mule-sdk");
+        XmlSerializer.serializeInto(sdk, sdkElement, new SkipDefaultValuesSerializationFilters());
+        element.addContent(sdkElement);
+      }
+    } catch (XmlSerializationException e) {
+      LOG.error(e);
+    }
+    return element;
+  }
 
-    private Set<MuleSdk> sdks = new HashSet<>();
-
-    @Nullable
-    @Override
-    public Element getState() {
-        Element element = new Element("mule-sdks");
-        try {
-            for (MuleSdk sdk : sdks) {
-                final Element sdkElement = new Element("mule-sdk");
-                XmlSerializer.serializeInto(sdk, sdkElement, new SkipDefaultValuesSerializationFilters());
-                element.addContent(sdkElement);
-            }
-        } catch (XmlSerializationException e) {
-            LOG.error(e);
+  @Override
+  public void loadState(Element state) {
+    final List<Element> children = state.getChildren();
+    for (Element child: children) {
+      try {
+        final MuleSdk deserialize = XmlSerializer.deserialize(child, MuleSdk.class);
+        if (deserialize.getMuleHome() != null) {
+          sdks.add(deserialize);
         }
-        return element;
+      } catch (XmlSerializationException e) {
+        LOG.error(e);
+      }
     }
+  }
 
-    @Override
-    public void loadState(Element state) {
-        final List<Element> children = state.getChildren();
-        for (Element child : children) {
-            try {
-                final MuleSdk deserialize = XmlSerializer.deserialize(child, MuleSdk.class);
-              if (deserialize.getMuleHome() != null) {
-                    sdks.add(deserialize);
-                }
-            } catch (XmlSerializationException e) {
-                LOG.error(e);
-            }
-        }
+  @Override
+  public MuleSdk findSdk(String sdkHomePath) {
+    for (MuleSdk muleSdk: sdks) {
+      if (sdkHomePath.equals(muleSdk.getMuleHome())) {
+        return muleSdk;
+      }
     }
+    return null;
+  }
 
-    @Override
-    public MuleSdk findSdk(String sdkHomePath) {
-        for (MuleSdk muleSdk : sdks) {
-            if (sdkHomePath.equals(muleSdk.getMuleHome())) {
-                return muleSdk;
-            }
-        }
-        return null;
-    }
+  @Override
+  public Set<MuleSdk> getSdks() {
+    return sdks;
+  }
 
-    @Override
-    public Set<MuleSdk> getSdks() {
-        return sdks;
-    }
+  @Override
+  public void addSdk(MuleSdk muleSdk) {
+    this.sdks.add(muleSdk);
+  }
 
-    @Override
-    public void addSdk(MuleSdk muleSdk) {
-        this.sdks.add(muleSdk);
+  @Override
+  public MuleSdk findFromVersion(String muleVersion) {
+    for (MuleSdk sdk: sdks) {
+      if (sdk.getVersion().equals(muleVersion)) {
+        return sdk;
+      }
     }
+    return null;
+  }
 
-    @Override
-    public MuleSdk findFromVersion(String muleVersion) {
-        for (MuleSdk sdk : sdks) {
-            if (sdk.getVersion().equals(muleVersion)) {
-                return sdk;
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public void removeSdk(MuleSdk selectedObject) {
-        sdks.remove(selectedObject);
-    }
+  @Override
+  public void removeSdk(MuleSdk selectedObject) {
+    sdks.remove(selectedObject);
+  }
 }

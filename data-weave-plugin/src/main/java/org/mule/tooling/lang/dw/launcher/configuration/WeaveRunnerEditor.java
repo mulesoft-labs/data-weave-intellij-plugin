@@ -1,10 +1,10 @@
 package org.mule.tooling.lang.dw.launcher.configuration;
 
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SettingsEditor;
 import org.jetbrains.annotations.NotNull;
 import org.mule.tooling.lang.dw.launcher.configuration.ui.WeaveRunnerConfPanel;
+import org.mule.tooling.lang.dw.service.Scenario;
 
 import javax.swing.*;
 import java.util.Collection;
@@ -15,7 +15,7 @@ public class WeaveRunnerEditor extends SettingsEditor<WeaveConfiguration> {
   private WeaveRunnerConfPanel configurationPanel;
 
   public WeaveRunnerEditor(WeaveConfiguration runnerConfiguration) {
-    this.configurationPanel = new WeaveRunnerConfPanel(runnerConfiguration.getProject());
+    this.configurationPanel = new WeaveRunnerConfPanel();
     super.resetFrom(runnerConfiguration);
   }
 
@@ -25,7 +25,7 @@ public class WeaveRunnerEditor extends SettingsEditor<WeaveConfiguration> {
    * The values may be stored in disk, if not, set some defaults
    */
   @Override
-  protected void resetEditorFrom(WeaveConfiguration runnerConfiguration) {
+  protected void resetEditorFrom(@NotNull WeaveConfiguration runnerConfiguration) {
     this.configurationPanel.getModuleCombo().setModules(runnerConfiguration.getValidModules());
     Module selectedModule = runnerConfiguration.getModule();
     if (selectedModule == null) {
@@ -35,26 +35,28 @@ public class WeaveRunnerEditor extends SettingsEditor<WeaveConfiguration> {
       }
     }
     this.configurationPanel.getModuleCombo().setSelectedModule(selectedModule);
-    this.configurationPanel.getWeaveFile().setText(runnerConfiguration.getWeaveFile());
-    this.configurationPanel.getOutput().setText(runnerConfiguration.getWeaveOutput());
-    this.configurationPanel.getWeaveInputs().setItems(runnerConfiguration.getWeaveInputs());
+    this.configurationPanel.getNameIdentifier().setNameIdentifier(runnerConfiguration.getNameIdentifier());
+    this.configurationPanel.getScenario().setModule(selectedModule);
+    this.configurationPanel.getScenario().setNameIdentifier(runnerConfiguration.getNameIdentifier());
+    this.configurationPanel.getScenario().setScenario(runnerConfiguration.getScenario());
   }
 
   /**
    * This is invoked when the user fills the form and pushes apply/ok
    *
    * @param runnerConfiguration runnerConfiguration
-   * @throws ConfigurationException ex
    */
   @Override
-  protected void applyEditorTo(WeaveConfiguration runnerConfiguration) throws ConfigurationException {
-    runnerConfiguration.setWeaveOutput(this.configurationPanel.getOutput().getText());
-    runnerConfiguration.setWeaveFile(this.configurationPanel.getWeaveFile().getText());
+  protected void applyEditorTo(@NotNull WeaveConfiguration runnerConfiguration) {
+    Scenario scenario = this.configurationPanel.getScenario().getSelectedScenario();
+    if (scenario != null) {
+      runnerConfiguration.setScenario(scenario.getName());
+    }
+    runnerConfiguration.setNameIdentifier(this.configurationPanel.getNameIdentifier().getNameIdentifier());
     final Module selectedModule = this.configurationPanel.getModuleCombo().getSelectedModule();
     if (selectedModule != null) {
       runnerConfiguration.setModule(selectedModule);
     }
-    runnerConfiguration.setWeaveInputs(this.configurationPanel.getWeaveInputs().getItems());
   }
 
   @NotNull
@@ -62,6 +64,4 @@ public class WeaveRunnerEditor extends SettingsEditor<WeaveConfiguration> {
   protected JComponent createEditor() {
     return this.configurationPanel.getMainPanel();
   }
-
-
 }

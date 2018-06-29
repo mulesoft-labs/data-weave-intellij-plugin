@@ -27,7 +27,7 @@ public class WeaveDebuggerClientListener implements DebuggerClientListener {
   public void onFrame(DebuggerClient client, OnFrameEvent frame) {
     final DebuggerPosition debuggerPosition = frame.startPosition();
     final String resourceName = debuggerPosition.resourceName();
-    final VirtualFile file = VirtualFileSystemUtils.resolve(NameIdentifier.apply(resourceName, Option.empty()), session.getProject());
+    final VirtualFile file = VirtualFileSystemUtils.resolve(session.getProject(), NameIdentifier.apply(resourceName, Option.empty()));
     session.positionReached(new WeaveSuspendContext(client, frame, session, file));
   }
 
