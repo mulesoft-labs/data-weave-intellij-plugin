@@ -7,6 +7,7 @@ import com.intellij.execution.executors.DefaultDebugExecutor;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.vfs.VirtualFile;
+import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.mule.tooling.lang.dw.launcher.configuration.runner.WeaveCommandLineState;
 import org.mule.tooling.lang.dw.launcher.configuration.runner.WeaveRunnerHelper;
@@ -47,15 +48,16 @@ public class BatTestRunnerCommandLine extends WeaveCommandLineState {
 //    if (isDebug) {
 //      params.add("-debug");
 //    }
-
-    final NameIdentifier nameIdentifier = NameIdentifier.apply(configuration.getNameIdentifier(), Option.empty());
     // VM Args
     final String vmArgs = this.configuration.getVmOptions();
     if (vmArgs != null) {
       javaParams.getVMParametersList().addParametersString(vmArgs);
     }
-    final VirtualFile virtualFile = VirtualFileSystemUtils.resolve(module.getProject(), nameIdentifier);
-    params.add(virtualFile.getPath());
+    if (!StringUtils.isBlank(configuration.getNameIdentifier())) {
+      final NameIdentifier nameIdentifier = NameIdentifier.apply(configuration.getNameIdentifier(), Option.empty());
+      final VirtualFile virtualFile = VirtualFileSystemUtils.resolve(module.getProject(), nameIdentifier);
+      params.add(virtualFile.getPath());
+    }
     // All done, run it
     return javaParams;
   }

@@ -58,7 +58,7 @@
           <text value="VM Options:"/>
         </properties>
       </component>
-      <component id="c401d" class="com.intellij.openapi.ui.TextFieldWithBrowseButton" binding="nameIdentifierField">
+      <component id="d9b16" class="org.mule.tooling.lang.dw.ui.WeaveNameIdentifierSelector" binding="nameIdentifierField">
         <constraints>
           <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
           <forms/>

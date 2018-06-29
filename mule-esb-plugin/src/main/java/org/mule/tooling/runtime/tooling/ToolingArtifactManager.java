@@ -140,9 +140,8 @@ public class ToolingArtifactManager implements ModuleComponent {
 
   public static class MulePomAdapter implements Pom {
 
-    @Override
+    //TODO do not add overrride as it was or deleted or something
     public void persist(Path path) {
-
     }
 
     @Override

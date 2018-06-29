@@ -1,7 +1,6 @@
 package org.mule.tooling.bat.launcher;
 
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SettingsEditor;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,7 +13,7 @@ public class BatTestRunnerEditor extends SettingsEditor<BatTestConfiguration> {
   private BatTestRunnerConfPanel configurationPanel;
 
   public BatTestRunnerEditor(BatTestConfiguration runnerConfiguration) {
-    this.configurationPanel = new BatTestRunnerConfPanel(runnerConfiguration.getProject());
+    this.configurationPanel = new BatTestRunnerConfPanel();
     super.resetFrom(runnerConfiguration);
   }
 
@@ -24,7 +23,7 @@ public class BatTestRunnerEditor extends SettingsEditor<BatTestConfiguration> {
    * The values may be stored in disk, if not, set some defaults
    */
   @Override
-  protected void resetEditorFrom(BatTestConfiguration runnerConfiguration) {
+  protected void resetEditorFrom(@NotNull BatTestConfiguration runnerConfiguration) {
     this.configurationPanel.getModuleCombo().setModules(runnerConfiguration.getValidModules());
     Module selectedModule = runnerConfiguration.getModule();
     if (selectedModule == null) {
@@ -34,7 +33,8 @@ public class BatTestRunnerEditor extends SettingsEditor<BatTestConfiguration> {
       }
     }
     this.configurationPanel.getModuleCombo().setSelectedModule(selectedModule);
-    this.configurationPanel.getWeaveFile().setText(runnerConfiguration.getNameIdentifier());
+    this.configurationPanel.getWeaveFile().setNameIdentifier(runnerConfiguration.getNameIdentifier());
+    this.configurationPanel.getWeaveFile().setModule(selectedModule);
     this.configurationPanel.getVmOptionsField().setText(runnerConfiguration.getVmOptions());
   }
 
@@ -42,15 +42,14 @@ public class BatTestRunnerEditor extends SettingsEditor<BatTestConfiguration> {
    * This is invoked when the user fills the form and pushes apply/ok
    *
    * @param runnerConfiguration runnerConfiguration
-   * @throws ConfigurationException ex
    */
   @Override
-  protected void applyEditorTo(BatTestConfiguration runnerConfiguration) throws ConfigurationException {
+  protected void applyEditorTo(@NotNull BatTestConfiguration runnerConfiguration) {
     final Module selectedModule = this.configurationPanel.getModuleCombo().getSelectedModule();
     if (selectedModule != null) {
       runnerConfiguration.setModule(selectedModule);
     }
-    runnerConfiguration.setNameIdentifier(this.configurationPanel.getWeaveFile().getText());
+    runnerConfiguration.setNameIdentifier(this.configurationPanel.getWeaveFile().getNameIdentifier());
     runnerConfiguration.setVmOptions(this.configurationPanel.getVmOptionsField().getText());
   }
 

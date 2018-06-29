@@ -1,29 +1,28 @@
 package org.mule.tooling.lang.dw.launcher.configuration.ui;
 
 import com.intellij.application.options.ModulesComboBox;
-import com.intellij.openapi.project.Project;
+import org.mule.tooling.lang.dw.ui.WeaveNameIdentifierSelector;
 
 import javax.swing.*;
 
 public class WeaveTestRunnerConfPanel {
-    private final Project project;
-    private JPanel mainPanel;
-    private JTextField weaveFile;
-    private ModulesComboBox modules;
+  private JPanel mainPanel;
+  private ModulesComboBox modules;
+  private WeaveNameIdentifierSelector testField;
 
-    public WeaveTestRunnerConfPanel(final Project project) {
-        this.project = project;
-    }
+  public WeaveTestRunnerConfPanel() {
+    modules.addItemListener(e -> testField.setModule(modules.getSelectedModule()));
+  }
 
-    public JTextField getWeaveFile() {
-        return weaveFile;
-    }
+  public WeaveNameIdentifierSelector getTestField() {
+    return testField;
+  }
 
-    public JPanel getMainPanel() {
-        return mainPanel;
-    }
+  public JPanel getMainPanel() {
+    return mainPanel;
+  }
 
-    public ModulesComboBox getModuleCombo() {
-        return modules;
-    }
+  public ModulesComboBox getModuleCombo() {
+    return modules;
+  }
 }

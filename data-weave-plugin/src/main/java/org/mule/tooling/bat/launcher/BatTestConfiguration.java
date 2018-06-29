@@ -18,7 +18,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.util.JDOMExternalizerUtil;
 import com.intellij.openapi.util.WriteExternalException;
-import org.apache.commons.lang.StringUtils;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -81,9 +80,6 @@ public class BatTestConfiguration extends ModuleBasedConfiguration implements Mo
 
   @Override
   public void checkConfiguration() throws RuntimeConfigurationException {
-    if (StringUtils.isBlank(getNameIdentifier())) {
-      throw new RuntimeConfigurationException("Name Identifier can not be empty.");
-    }
     if (getModule() == null) {
       throw new RuntimeConfigurationException("Module can not be empty.");
     }
