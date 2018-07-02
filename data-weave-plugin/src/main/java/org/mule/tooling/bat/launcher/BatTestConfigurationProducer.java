@@ -7,6 +7,7 @@ import com.intellij.openapi.util.Ref;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import org.apache.commons.lang.StringUtils;
+import org.mule.tooling.bat.testintegration.BatTestFramework;
 import org.mule.tooling.bat.utils.BatUtils;
 import org.mule.tooling.lang.dw.WeaveFileType;
 import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
@@ -26,11 +27,17 @@ public class BatTestConfigurationProducer extends JavaRunConfigurationProducerBa
       final PsiFile containingFile = location.getPsiElement().getContainingFile();
       if (containingFile != null) {
         final boolean weaveFile = containingFile.getFileType() == WeaveFileType.getInstance();
+        final boolean isBatYaml = BatTestFramework.BAT_YAML_FILES.contains(containingFile.getName());
         if (weaveFile) {
           NameIdentifier nameIdentifier = WeavePsiImplUtils.getNameIdentifier(containingFile);
           weaveConfiguration.setNameIdentifier(nameIdentifier.name());
           weaveConfiguration.setModule(configurationContext.getModule());
           weaveConfiguration.setName("Bat Test " + StringUtils.capitalize(containingFile.getVirtualFile().getName()));
+          return true;
+        } else if (isBatYaml){
+          weaveConfiguration.setNameIdentifier(containingFile.getName());
+          weaveConfiguration.setModule(configurationContext.getModule());
+          weaveConfiguration.setName("Bat Tests " + StringUtils.capitalize(containingFile.getVirtualFile().getName()));
           return true;
         }
       }
@@ -58,8 +65,10 @@ public class BatTestConfigurationProducer extends JavaRunConfigurationProducerBa
         final boolean weaveFile = containingFile.getFileType() == WeaveFileType.getInstance();
         if (weaveFile) {
           WeaveDocument document = WeavePsiUtils.getDocument(location.getPsiElement());
-          return BatUtils.isTestFile(document);
-        }
+          return BatUtils.isTestFile(document) || (document != null && BatTestFramework.BAT_YAML_FILES.contains(document.getName()));
+        } else {
+          return BatTestFramework.BAT_YAML_FILES.contains(containingFile.getName());
+      }
       }
     }
     return false;

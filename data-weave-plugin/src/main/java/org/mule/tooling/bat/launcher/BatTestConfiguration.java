@@ -2,14 +2,7 @@ package org.mule.tooling.bat.launcher;
 
 
 import com.intellij.execution.Executor;
-import com.intellij.execution.configurations.ConfigurationFactory;
-import com.intellij.execution.configurations.JavaRunConfigurationModule;
-import com.intellij.execution.configurations.ModuleBasedConfiguration;
-import com.intellij.execution.configurations.ModuleRunProfile;
-import com.intellij.execution.configurations.RunConfiguration;
-import com.intellij.execution.configurations.RunConfigurationWithSuppressedDefaultDebugAction;
-import com.intellij.execution.configurations.RunProfileState;
-import com.intellij.execution.configurations.RuntimeConfigurationException;
+import com.intellij.execution.configurations.*;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
@@ -21,6 +14,7 @@ import com.intellij.openapi.util.WriteExternalException;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.mule.tooling.bat.testintegration.BatTestFramework;
 import org.mule.tooling.lang.dw.launcher.configuration.WeaveBasedConfiguration;
 
 import java.util.Arrays;
@@ -92,6 +86,10 @@ public class BatTestConfiguration extends ModuleBasedConfiguration implements Mo
 
   public String getNameIdentifier() {
     return nameIdentifier;
+  }
+
+  public boolean isBatYaml(){
+    return BatTestFramework.BAT_YAML_FILES.contains(nameIdentifier);
   }
 
   public void setVmOptions(String vmOptions) {
