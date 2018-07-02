@@ -17,7 +17,7 @@ public class BatUtils {
           WeaveModuleReference moduleReference = ((WeaveImportDirective) directive).getModuleReference();
           if (moduleReference != null) {
             String moduleFQN = moduleReference.getModuleFQN();
-            return moduleFQN.equals("bat::BDD");
+            return moduleFQN.equals("bat::BDD") || moduleFQN.equals("bat::Core");
           } else {
             return false;
           }

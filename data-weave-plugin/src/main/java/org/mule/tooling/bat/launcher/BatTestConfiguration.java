@@ -89,7 +89,7 @@ public class BatTestConfiguration extends ModuleBasedConfiguration implements Mo
   }
 
   public boolean isBatYaml(){
-    return BatTestFramework.BAT_YAML_FILES.contains(nameIdentifier);
+    return BatTestFramework.BAT_YAML_FILES.stream().map(str -> nameIdentifier.contains(str)).reduce(false, (acc, obj) -> acc || obj);
   }
 
   public void setVmOptions(String vmOptions) {
