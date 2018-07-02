@@ -17,6 +17,9 @@ import org.mule.tooling.lang.dw.WeaveLanguage;
 import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
 
 import javax.swing.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class BatTestFramework implements TestFramework {
 
@@ -25,6 +28,8 @@ public class BatTestFramework implements TestFramework {
   public String getName() {
     return "BatTest";
   }
+
+  public final static List<String> BAT_YAML_FILES = Arrays.asList("bat.yaml", "bat.yml");
 
   @NotNull
   @Override
@@ -54,7 +59,7 @@ public class BatTestFramework implements TestFramework {
   public boolean isTestClass(@NotNull PsiElement psiElement) {
     if (psiElement instanceof WeaveFile) {
       WeaveDocument document = ((WeaveFile) psiElement).getDocument();
-      return BatUtils.isTestFile(document);
+      return BatUtils.isTestFile(document) ||  BAT_YAML_FILES.contains(document.getName());
     }
     return false;
   }
