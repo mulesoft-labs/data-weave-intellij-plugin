@@ -35,7 +35,7 @@ public class BatTestConfigurationProducer extends JavaRunConfigurationProducerBa
           weaveConfiguration.setName("Bat Test " + StringUtils.capitalize(containingFile.getVirtualFile().getName()));
           return true;
         } else if (isBatYaml){
-          weaveConfiguration.setNameIdentifier(containingFile.getName());
+          weaveConfiguration.setNameIdentifier(containingFile.getVirtualFile().getPath());
           weaveConfiguration.setModule(configurationContext.getModule());
           weaveConfiguration.setName("Bat Tests " + StringUtils.capitalize(containingFile.getVirtualFile().getName()));
           return true;

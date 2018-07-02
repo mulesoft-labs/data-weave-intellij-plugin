@@ -39,8 +39,9 @@ public class BatTestFramework implements TestFramework {
 
   @Override
   public boolean isLibraryAttached(@NotNull Module module) {
-    VirtualFile fileByUrl = VirtualFileManager.getInstance().findFileByUrl("bat/BDD.dwl");
-    return fileByUrl != null;
+    VirtualFile bddUrl = VirtualFileManager.getInstance().findFileByUrl("bat/BDD.dwl");
+    VirtualFile coreUrl = VirtualFileManager.getInstance().findFileByUrl("bat/Core.dwl");
+    return bddUrl != null || coreUrl != null;
   }
 
   @Nullable

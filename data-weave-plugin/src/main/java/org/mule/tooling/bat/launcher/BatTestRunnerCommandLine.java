@@ -65,7 +65,7 @@ public class BatTestRunnerCommandLine extends WeaveCommandLineState {
         }
         if (!StringUtils.isBlank(configuration.getNameIdentifier())) {
             if (configuration.isBatYaml()) {
-                params.add(getYamlRunPath(project));
+                params.add(configuration.getNameIdentifier());
             } else {
                 final NameIdentifier nameIdentifier = NameIdentifier.apply(configuration.getNameIdentifier(), Option.empty());
                 final VirtualFile virtualFile = VirtualFileSystemUtils.resolve(project, nameIdentifier);
@@ -75,21 +75,21 @@ public class BatTestRunnerCommandLine extends WeaveCommandLineState {
         // All done, run it
         return javaParams;
     }
-
-    private String getYamlRunPath(Project project) {
-        final GlobalSearchScope scope = GlobalSearchScope.allScope(project);
-        final List<PsiFile> files = new ArrayList<>();
-        ApplicationManager.getApplication().runReadAction(() -> {
-            final List<PsiFile> psiFiles = Arrays.asList(FilenameIndex.getFilesByName(project, configuration.getNameIdentifier(), scope));
-            files.addAll(psiFiles);
-        });
-        if (!files.isEmpty()) {
-            return files.get(0).getVirtualFile().getPath();
-        } else {
-            return project.getBaseDir().getPath();
-        }
-
-    }
+//
+//    private String getYamlRunPath(Project project) {
+//        final GlobalSearchScope scope = GlobalSearchScope.allScope(project);
+//        final List<PsiFile> files = new ArrayList<>();
+//        ApplicationManager.getApplication().runReadAction(() -> {
+//            final List<PsiFile> psiFiles = Arrays.asList(FilenameIndex.getFilesByName(project, configuration.getNameIdentifier(), scope));
+//            files.addAll(psiFiles);
+//        });
+//        if (!files.isEmpty()) {
+//            return files.get(0).getVirtualFile().getPath();
+//        } else {
+//            return project.getBaseDir().getPath();
+//        }
+//
+//    }
 
 //    @NotNull
 //    @Override
