@@ -51,6 +51,10 @@
                 implementationClass="org.mule.tooling.runtime.artifact_json.MuleArtifactJsonCompletionContributor"
                 language="JSON"/>
         <stepsBeforeRunProvider implementation="org.mule.tooling.runtime.launcher.MuleBeforeRunTasksProvider"/>
+
+        <testFramework implementation="org.mule.tooling.runtime.munit.MUnitTestFramework"/>
+        <configurationType implementation="org.mule.tooling.runtime.munit.launcher.MUnitTestConfigurationType"/>
+        <runConfigurationProducer implementation="org.mule.tooling.runtime.munit.launcher.MUnitTestConfigurationProducer"/>
     </extensions>
 
     <application-components>
