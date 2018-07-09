@@ -24,6 +24,7 @@ import com.intellij.xml.impl.schema.XmlNSDescriptorImpl;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.model.MavenArtifact;
+import org.jetbrains.idea.maven.model.MavenId;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.mule.tooling.runtime.tooling.MuleRuntimeServerManager;
 import org.mule.tooling.runtime.tooling.ToolingArtifactManager;
@@ -40,20 +41,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static org.mule.tooling.runtime.schema.MuleSchemaRepository.COM_MULESOFT_RUNTIME;
-import static org.mule.tooling.runtime.schema.MuleSchemaRepository.DOCUMENTATION_ARTIFACT_ID;
-import static org.mule.tooling.runtime.schema.MuleSchemaRepository.DOMAIN_ARTIFACT_ID;
-import static org.mule.tooling.runtime.schema.MuleSchemaRepository.MODULE_ARTIFACT_ID;
-import static org.mule.tooling.runtime.schema.MuleSchemaRepository.MULE_ARTIFACT_ID;
-import static org.mule.tooling.runtime.schema.MuleSchemaRepository.MULE_CORE_ARTIFACT_ID;
-import static org.mule.tooling.runtime.schema.MuleSchemaRepository.MULE_EE_ARTIFACT_ID;
-import static org.mule.tooling.runtime.schema.MuleSchemaRepository.MULE_MODULE_BATCH;
-import static org.mule.tooling.runtime.schema.MuleSchemaRepository.MULE_MODULE_TLS_ARTIFACT_ID;
-import static org.mule.tooling.runtime.schema.MuleSchemaRepository.MULE_SCHEMADOC_ARTIFACT_ID;
-import static org.mule.tooling.runtime.schema.MuleSchemaRepository.ORG_MULE_RUNTIME;
-import static org.mule.tooling.runtime.schema.MuleSchemaRepository.ORG_MULE_TOOLING;
-import static org.mule.tooling.runtime.schema.MuleSchemaRepository.ORG_SPRINGFRAMEWORK;
-import static org.mule.tooling.runtime.schema.MuleSchemaRepository.SPRING_BEANS_ARTIFACT_ID;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.mule.tooling.runtime.schema.MuleSchemaRepository.*;
+import static org.mule.tooling.runtime.util.MuleModuleUtils.MULE_EXTENSION_PACKAGING;
 
 /**
  * Handles schema for a given module. It delegates on the MuleSchemaRepository
@@ -99,8 +89,8 @@ public class MuleModuleSchemaProvider implements ModuleComponent {
       initializing = true;
 
       loadDefaultSchemas();
-      loadMuleSchemasInClasspath();
       loadSchemasFromTooling();
+      loadMuleSchemasInClasspath();
       //Listen to classpath changes
       project.getMessageBus().connect(project).subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootListener() {
         @Override
@@ -135,6 +125,11 @@ public class MuleModuleSchemaProvider implements ModuleComponent {
   private void loadSchemasFromTooling() {
     MavenProject mavenProject = MuleModuleUtils.getMavenProject(myModule);
     if (mavenProject != null) {
+
+      if (MULE_EXTENSION_PACKAGING.equals(mavenProject.getPackaging())) {
+        loadCurrentExtensionSchemas(mavenProject);
+      }
+
       List<MavenArtifact> dependencies = mavenProject.getDependencies();
       for (MavenArtifact dependency: dependencies) {
         if (ToolingArtifactManager.MULE_PLUGIN.equalsIgnoreCase(dependency.getClassifier())) {
@@ -145,6 +140,16 @@ public class MuleModuleSchemaProvider implements ModuleComponent {
         }
       }
     }
+  }
+
+  private void loadCurrentExtensionSchemas(MavenProject mavenProject) {
+    MavenId id = mavenProject.getMavenId();
+    // This requires the current project to be installed in the local repo for now.
+    loadSchema(id.getGroupId(), id.getArtifactId(), id.getVersion());
+
+    mavenProject.getDeclaredPlugins().stream()
+        .filter(p -> MUNIT_EXTENSIONS_PLUGIN.equals(p.getMavenId().getArtifactId()))
+        .findAny().ifPresent(p -> p.getDependencies().forEach(dep -> loadSchema(dep.getGroupId(), dep.getArtifactId(), dep.getVersion())));
   }
 
   private void loadSchema(String groupId, String artifactId, String version) {

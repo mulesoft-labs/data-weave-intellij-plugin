@@ -37,6 +37,7 @@ public class MuleSchemaRepository {
   public static final String ORG_SPRINGFRAMEWORK = "org.springframework";
   public static final String ORG_MULE_TOOLING = "org.mule.tooling";
   public static final String COM_MULESOFT_RUNTIME = "com.mulesoft.runtime";
+  public static final String COM_MULESOFT_MUNIT = "com.mulesoft.munit";
 
   public static final String MULE_CORE_ARTIFACT_ID = "mule-core";
   public static final String MULE_ARTIFACT_ID = "mule";
@@ -48,6 +49,8 @@ public class MuleSchemaRepository {
   public static final String MULE_EE_ARTIFACT_ID = "mule-ee";
   public static final String MULE_MODULE_TLS_ARTIFACT_ID = "mule-module-tls";
   public static final String MULE_MODULE_BATCH = "mule-module-batch";
+  public static final String MUNIT_TOOLS = "munit-tools";
+  public static final String MUNIT_EXTENSIONS_PLUGIN = "munit-extensions-maven-plugin";
 
   private static final String BATCH_NS = "http://www.mulesoft.org/schema/mule/batch";
   private static final String BATCH_SCHEMA_LOCATION = "http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd";
