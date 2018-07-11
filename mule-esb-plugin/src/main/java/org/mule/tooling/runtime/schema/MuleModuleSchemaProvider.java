@@ -1,6 +1,9 @@
 package org.mule.tooling.runtime.schema;
 
 import com.intellij.ProjectTopics;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.fileTypes.FileType;
@@ -41,7 +44,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static java.lang.String.format;
+import static java.lang.String.join;
 import static org.mule.tooling.runtime.schema.MuleSchemaRepository.*;
 import static org.mule.tooling.runtime.util.MuleModuleUtils.MULE_EXTENSION_PACKAGING;
 
@@ -52,6 +56,8 @@ import static org.mule.tooling.runtime.util.MuleModuleUtils.MULE_EXTENSION_PACKA
 public class MuleModuleSchemaProvider implements ModuleComponent {
 
   public static final String MULE_SCHEMAS = "mule.schemas";
+  public static final String MUNIT_EXTENSIONS_PLUGIN = "munit-extensions-maven-plugin";
+
 
   private Map<String, SchemaInformation> moduleSchemas;
 
@@ -84,21 +90,30 @@ public class MuleModuleSchemaProvider implements ModuleComponent {
     return MuleRuntimeServerManager.getMuleVersionOf(myModule);
   }
 
+  private String getMunitVersion() {
+    return MuleRuntimeServerManager.getMunitVersionOf(myModule);
+  }
+
   private void initializeIfRequired() {
     if (!initialized && !initializing) {
       initializing = true;
 
       loadDefaultSchemas();
       loadSchemasFromTooling();
-      loadMuleSchemasInClasspath();
+
+      // not working well and currently not being used
+      // loadMuleSchemasInClasspath();
+
       //Listen to classpath changes
       project.getMessageBus().connect(project).subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootListener() {
         @Override
         public void rootsChanged(ModuleRootEvent event) {
           moduleSchemas.clear();
           loadDefaultSchemas();
-          loadMuleSchemasInClasspath();
           loadSchemasFromTooling();
+
+          // not working well and currently not being used
+          //   loadMuleSchemasInClasspath();
         }
       });
       //Listen to tooling runtime being loaded
@@ -148,13 +163,18 @@ public class MuleModuleSchemaProvider implements ModuleComponent {
     loadSchema(id.getGroupId(), id.getArtifactId(), id.getVersion());
 
     mavenProject.getDeclaredPlugins().stream()
-        .filter(p -> MUNIT_EXTENSIONS_PLUGIN.equals(p.getMavenId().getArtifactId()))
-        .findAny().ifPresent(p -> p.getDependencies().forEach(dep -> loadSchema(dep.getGroupId(), dep.getArtifactId(), dep.getVersion())));
+      .filter(p -> MUNIT_EXTENSIONS_PLUGIN.equals(p.getMavenId().getArtifactId())).findAny()
+      .ifPresent(p -> {
+          String munitVersion = getMunitVersion();
+          loadSchema(COM_MULESOFT_MUNIT, MUNIT_TOOLS, munitVersion);
+          loadSchema(COM_MULESOFT_MUNIT, MUNIT_RUNNER, munitVersion);
+      });
   }
 
   private void loadSchema(String groupId, String artifactId, String version) {
     String muleVersion = ReadAction.compute(() -> getMuleVersion());
-    Optional<SchemaInformation> schemaInformation = MuleSchemaRepository.getInstance(muleVersion).loadSchemaFromCoordinate(myModule.getProject(), groupId, artifactId, version, ToolingArtifactManager.MULE_PLUGIN);
+    String munitVersion = ReadAction.compute(() -> getMunitVersion());
+    Optional<SchemaInformation> schemaInformation = MuleSchemaRepository.getInstance(muleVersion, munitVersion).loadSchemaFromCoordinate(myModule.getProject(), groupId, artifactId, version, ToolingArtifactManager.MULE_PLUGIN);
     schemaInformation.ifPresent((info) -> {
       moduleSchemas.put(info.getNamespace(), info);
       moduleSchemas.put(info.getSchemaLocation(), info);
@@ -191,7 +211,7 @@ public class MuleModuleSchemaProvider implements ModuleComponent {
           }
           final String[] parts = defaultNamespace.split("/");
           final SchemaInformation schemaInformation = new SchemaInformation(virtualFile, defaultNamespace, schemaLocation, parts[parts.length - 1]);
-          MuleSchemaRepository.getInstance(getMuleVersion()).addInternalSchema(schemaInformation);
+          MuleSchemaRepository.getInstance(getMuleVersion(), getMunitVersion()).addInternalSchema(schemaInformation);
           this.moduleSchemas.put(defaultNamespace, schemaInformation);
           this.moduleSchemas.put(schemaLocation, schemaInformation);
         }

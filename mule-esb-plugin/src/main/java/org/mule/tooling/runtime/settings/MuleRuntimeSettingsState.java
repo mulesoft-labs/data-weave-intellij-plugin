@@ -15,6 +15,7 @@ public class MuleRuntimeSettingsState implements PersistentStateComponent<MuleRu
 
 
   private String defaultRuntimeVersion = "4.1.3-SNAPSHOT";
+  private String defaultMunitVersion = "2.2.0-SNAPSHOT";
 
   private List<MavenRepository> additionalRepositories = new ArrayList<>();
 
@@ -26,8 +27,16 @@ public class MuleRuntimeSettingsState implements PersistentStateComponent<MuleRu
     return defaultRuntimeVersion;
   }
 
+  public String getDefaultMunitVersion() {
+    return defaultMunitVersion;
+  }
+
   public void setDefaultRuntimeVersion(String defaultRuntimeVersion) {
     this.defaultRuntimeVersion = defaultRuntimeVersion;
+  }
+
+  public void setDefaultMunitVersion(String munitVersion) {
+    this.defaultMunitVersion = munitVersion;
   }
 
   public List<MavenRepository> getAdditionalRepositories() {

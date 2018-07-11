@@ -32,7 +32,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class MuleSchemaRepository {
 
-
   public static final String ORG_MULE_RUNTIME = "org.mule.runtime";
   public static final String ORG_SPRINGFRAMEWORK = "org.springframework";
   public static final String ORG_MULE_TOOLING = "org.mule.tooling";
@@ -50,13 +49,16 @@ public class MuleSchemaRepository {
   public static final String MULE_MODULE_TLS_ARTIFACT_ID = "mule-module-tls";
   public static final String MULE_MODULE_BATCH = "mule-module-batch";
   public static final String MUNIT_TOOLS = "munit-tools";
-  public static final String MUNIT_EXTENSIONS_PLUGIN = "munit-extensions-maven-plugin";
+  public static final String MUNIT_RUNNER = "munit-runner";
 
   private static final String BATCH_NS = "http://www.mulesoft.org/schema/mule/batch";
   private static final String BATCH_SCHEMA_LOCATION = "http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd";
 
   private static final String TLS_NS = "http://www.mulesoft.org/schema/mule/tls";
   private static final String TLS_SCHEMA_LOCATION = "http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd";
+
+  private static final String MUNIT_NS = "http://www.mulesoft.org/schema/mule/munit";
+  private static final String MUNIT_SCHEMA_LOCATION = "http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd";
 
   private static String MULE_EE_NS = "http://www.mulesoft.org/schema/mule/ee/core";
   private static String MULE_EE_SCHEMA_LOCATION = "http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd";
@@ -87,15 +89,16 @@ public class MuleSchemaRepository {
 
   private final static ConcurrentHashMap<String, MuleSchemaRepository> schemaManagersByRuntimeVersion = new ConcurrentHashMap<>();
 
-  public static MuleSchemaRepository getInstance(String runtimeVersion) {
-    MuleSchemaRepository muleSchemaRepository = schemaManagersByRuntimeVersion.get(runtimeVersion);
+  public static MuleSchemaRepository getInstance(String runtimeVersion, String munitVersion) {
+    String key = runtimeVersion + "|" + munitVersion;
+    MuleSchemaRepository muleSchemaRepository = schemaManagersByRuntimeVersion.get(key);
     if (muleSchemaRepository == null) {
       synchronized (schemaManagersByRuntimeVersion) {
-        if (schemaManagersByRuntimeVersion.containsKey(runtimeVersion)) {
-          return schemaManagersByRuntimeVersion.get(runtimeVersion);
+        if (schemaManagersByRuntimeVersion.containsKey(key)) {
+          return schemaManagersByRuntimeVersion.get(key);
         } else {
-          final MuleSchemaRepository value = new MuleSchemaRepository(runtimeVersion);
-          schemaManagersByRuntimeVersion.put(runtimeVersion, value);
+          final MuleSchemaRepository value = new MuleSchemaRepository(runtimeVersion, munitVersion);
+          schemaManagersByRuntimeVersion.put(key, value);
           return value;
         }
       }
@@ -104,13 +107,14 @@ public class MuleSchemaRepository {
     }
   }
 
-
   private String runtimeVersion;
+  private final String munitVersion;
   private Map<SchemaCoordinate, SchemaInformation> schemas;
   private List<SchemaInformation> internalSchemas;
 
-  private MuleSchemaRepository(String runtimeVersion) {
+  private MuleSchemaRepository(String runtimeVersion, String munitVersion) {
     this.runtimeVersion = runtimeVersion;
+    this.munitVersion = munitVersion;
     this.schemas = new HashMap<>();
     this.internalSchemas = new ArrayList<>();
     initComponent();
@@ -204,7 +208,7 @@ public class MuleSchemaRepository {
 
     loadResourceBasedSchema(COM_MULESOFT_RUNTIME, MULE_MODULE_BATCH, runtimeVersion, "schemas/mule-batch.xsd", BATCH_NS, BATCH_SCHEMA_LOCATION, "batch");
 
-
+    loadResourceBasedSchema(COM_MULESOFT_MUNIT, MUNIT_RUNNER, munitVersion, "schemas/mule-munit.xsd", MUNIT_NS, MUNIT_SCHEMA_LOCATION, "munit");
   }
 
   private void loadResourceBasedSchema(String groupId, String artifactId, String version, String resource, String namespace, String schemaLocation, String prefix) {
@@ -341,5 +345,4 @@ public class MuleSchemaRepository {
           '}';
     }
   }
-
 }

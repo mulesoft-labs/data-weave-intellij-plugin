@@ -20,6 +20,7 @@ import com.intellij.psi.PsiManager;
 import com.intellij.util.net.NetUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.idea.maven.model.MavenArtifact;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.mule.tooling.runtime.process.controller.MuleProcessController;
 import org.mule.tooling.runtime.process.controller.MuleProcessControllerFactory;
@@ -34,6 +35,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.mule.tooling.runtime.schema.MuleSchemaRepository.MUNIT_RUNNER;
+
 public class MuleRuntimeServerManager implements ApplicationComponent {
 
   private static final int DEFAULT_START_TIMEOUT = 60000;
@@ -41,6 +44,7 @@ public class MuleRuntimeServerManager implements ApplicationComponent {
   private static final int DEFAULT_START_POLL_DELAY = 300;
   private static final int DEFAULT_CONTROLLER_OPERATION_TIMEOUT = 15000;
   public static final String MULE_VERSION = "mule.version";
+  public static final String MUNIT_VERSION = "munit.version";
 
   private Map<String, MuleStandaloneController> muleRuntimes;
 
@@ -65,6 +69,30 @@ public class MuleRuntimeServerManager implements ApplicationComponent {
       return muleVersion;
     }
     return MuleRuntimeSettingsState.getInstance().getDefaultRuntimeVersion();
+  }
+
+  public static String getMunitVersionOf(Project project) {
+    return project instanceof MavenProject ? getMunitVersionOf(project) : MuleRuntimeSettingsState.getInstance().getDefaultMunitVersion();
+  }
+
+  public static String getMunitVersionOf(Module module) {
+    return getMunitVersionOf(MuleModuleUtils.getMavenProject(module));
+  }
+
+  public static String getMunitVersionOf(MavenProject mavenProject) {
+    if (mavenProject != null) {
+      String munitVersion = mavenProject.getProperties().getProperty(MUNIT_VERSION);
+      if (munitVersion == null) {
+        munitVersion = mavenProject.getDependencies().stream()
+            .filter(d -> d.getArtifactId().equals(MUNIT_RUNNER))
+            .map(MavenArtifact::getVersion)
+            .findAny().orElse(null);
+      }
+      if (munitVersion != null) {
+        return munitVersion;
+      }
+    }
+    return MuleRuntimeSettingsState.getInstance().getDefaultMunitVersion();
   }
 
   private static String selectMinMuleVersion(Project project, VirtualFile muleArtifactJson) {
