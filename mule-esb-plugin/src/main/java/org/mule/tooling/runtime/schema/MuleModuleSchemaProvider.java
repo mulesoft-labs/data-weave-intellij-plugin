@@ -173,8 +173,7 @@ public class MuleModuleSchemaProvider implements ModuleComponent {
 
   private void loadSchema(String groupId, String artifactId, String version) {
     String muleVersion = ReadAction.compute(() -> getMuleVersion());
-    String munitVersion = ReadAction.compute(() -> getMunitVersion());
-    Optional<SchemaInformation> schemaInformation = MuleSchemaRepository.getInstance(muleVersion, munitVersion).loadSchemaFromCoordinate(myModule.getProject(), groupId, artifactId, version, ToolingArtifactManager.MULE_PLUGIN);
+    Optional<SchemaInformation> schemaInformation = MuleSchemaRepository.getInstance(muleVersion).loadSchemaFromCoordinate(myModule.getProject(), groupId, artifactId, version, ToolingArtifactManager.MULE_PLUGIN);
     schemaInformation.ifPresent((info) -> {
       moduleSchemas.put(info.getNamespace(), info);
       moduleSchemas.put(info.getSchemaLocation(), info);
@@ -211,7 +210,7 @@ public class MuleModuleSchemaProvider implements ModuleComponent {
           }
           final String[] parts = defaultNamespace.split("/");
           final SchemaInformation schemaInformation = new SchemaInformation(virtualFile, defaultNamespace, schemaLocation, parts[parts.length - 1]);
-          MuleSchemaRepository.getInstance(getMuleVersion(), getMunitVersion()).addInternalSchema(schemaInformation);
+          MuleSchemaRepository.getInstance(getMuleVersion()).addInternalSchema(schemaInformation);
           this.moduleSchemas.put(defaultNamespace, schemaInformation);
           this.moduleSchemas.put(schemaLocation, schemaInformation);
         }

@@ -89,16 +89,15 @@ public class MuleSchemaRepository {
 
   private final static ConcurrentHashMap<String, MuleSchemaRepository> schemaManagersByRuntimeVersion = new ConcurrentHashMap<>();
 
-  public static MuleSchemaRepository getInstance(String runtimeVersion, String munitVersion) {
-    String key = runtimeVersion + "|" + munitVersion;
-    MuleSchemaRepository muleSchemaRepository = schemaManagersByRuntimeVersion.get(key);
+  public static MuleSchemaRepository getInstance(String runtimeVersion) {
+    MuleSchemaRepository muleSchemaRepository = schemaManagersByRuntimeVersion.get(runtimeVersion);
     if (muleSchemaRepository == null) {
       synchronized (schemaManagersByRuntimeVersion) {
-        if (schemaManagersByRuntimeVersion.containsKey(key)) {
-          return schemaManagersByRuntimeVersion.get(key);
+        if (schemaManagersByRuntimeVersion.containsKey(runtimeVersion)) {
+          return schemaManagersByRuntimeVersion.get(runtimeVersion);
         } else {
-          final MuleSchemaRepository value = new MuleSchemaRepository(runtimeVersion, munitVersion);
-          schemaManagersByRuntimeVersion.put(key, value);
+          final MuleSchemaRepository value = new MuleSchemaRepository(runtimeVersion);
+          schemaManagersByRuntimeVersion.put(runtimeVersion, value);
           return value;
         }
       }
@@ -108,13 +107,11 @@ public class MuleSchemaRepository {
   }
 
   private String runtimeVersion;
-  private final String munitVersion;
   private Map<SchemaCoordinate, SchemaInformation> schemas;
   private List<SchemaInformation> internalSchemas;
 
-  private MuleSchemaRepository(String runtimeVersion, String munitVersion) {
+  private MuleSchemaRepository(String runtimeVersion) {
     this.runtimeVersion = runtimeVersion;
-    this.munitVersion = munitVersion;
     this.schemas = new HashMap<>();
     this.internalSchemas = new ArrayList<>();
     initComponent();
@@ -208,7 +205,8 @@ public class MuleSchemaRepository {
 
     loadResourceBasedSchema(COM_MULESOFT_RUNTIME, MULE_MODULE_BATCH, runtimeVersion, "schemas/mule-batch.xsd", BATCH_NS, BATCH_SCHEMA_LOCATION, "batch");
 
-    loadResourceBasedSchema(COM_MULESOFT_MUNIT, MUNIT_RUNNER, munitVersion, "schemas/mule-munit.xsd", MUNIT_NS, MUNIT_SCHEMA_LOCATION, "munit");
+    //TODO: Review - The XSD can be resolved through Tooling resolution, but that one is not taken into account in runtime, so we hardcode this, at least for 2.2.0-SNAPSHOT
+    loadResourceBasedSchema(COM_MULESOFT_MUNIT, MUNIT_RUNNER, "2.2.0-SNAPSHOT", "schemas/mule-munit.xsd", MUNIT_NS, MUNIT_SCHEMA_LOCATION, "munit");
   }
 
   private void loadResourceBasedSchema(String groupId, String artifactId, String version, String resource, String namespace, String schemaLocation, String prefix) {
