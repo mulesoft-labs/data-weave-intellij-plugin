@@ -35,6 +35,8 @@ public class ToolingRuntimeManager implements ApplicationComponent {
   public static final int POLLING_FREQUENCY = 100;
   public static final int MAX_TIMEOUT = 500;
 
+  public static final String DEFAULT_TOOLING_CLIENT_FOR_40 = "4.0.2";
+
   private Map<String, ToolingRuntimeClient> toolingRuntimeByVersion;
   private volatile boolean isStarting;
 
@@ -72,7 +74,7 @@ public class ToolingRuntimeManager implements ApplicationComponent {
               @Override
               public void run(@NotNull ProgressIndicator indicator) {
                 isStarting = true;
-                ToolingRuntimeClient runtimeClient = initRuntimeClient(project, runtimeVersion, runtimeVersion, indicator);
+                ToolingRuntimeClient runtimeClient = initRuntimeClient(project, runtimeVersion, getToolingVersionForRuntime(runtimeVersion), indicator);
                 isStarting = false;
                 result.set(caller.apply(runtimeClient));
               }
@@ -87,6 +89,13 @@ public class ToolingRuntimeManager implements ApplicationComponent {
       }
     }
 
+  }
+
+  private String getToolingVersionForRuntime(String runtimeVersion) {
+    if (runtimeVersion.startsWith("4.0")) {
+      return DEFAULT_TOOLING_CLIENT_FOR_40;
+    }
+    return runtimeVersion;
   }
 
   @NotNull

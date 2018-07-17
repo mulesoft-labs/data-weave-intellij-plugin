@@ -3,8 +3,6 @@ package org.mule.tooling.runtime.schema;
 import com.intellij.ProjectTopics;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ReadAction;
-import com.intellij.openapi.fileTypes.FileType;
-import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleComponent;
 import com.intellij.openapi.project.Project;
@@ -12,15 +10,8 @@ import com.intellij.openapi.roots.ModuleRootEvent;
 import com.intellij.openapi.roots.ModuleRootListener;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
-import com.intellij.psi.meta.PsiMetaData;
-import com.intellij.psi.search.FileTypeIndex;
 import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
-import com.intellij.psi.xml.XmlDocument;
-import com.intellij.psi.xml.XmlFile;
-import com.intellij.util.indexing.FileBasedIndex;
-import com.intellij.xml.impl.schema.XmlNSDescriptorImpl;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.model.MavenArtifact;
@@ -31,14 +22,11 @@ import org.mule.tooling.runtime.tooling.ToolingArtifactManager;
 import org.mule.tooling.runtime.tooling.ToolingRuntimeTopics;
 import org.mule.tooling.runtime.util.MuleModuleUtils;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static org.mule.tooling.runtime.schema.MuleSchemaRepository.COM_MULESOFT_MUNIT;
@@ -101,6 +89,7 @@ public class MuleModuleSchemaProvider implements ModuleComponent {
     return MuleRuntimeServerManager.getMuleVersionOf(myModule);
   }
 
+  @Nullable
   private String getMunitVersion() {
     return MuleRuntimeServerManager.getMunitVersionOf(myModule);
   }
@@ -166,6 +155,13 @@ public class MuleModuleSchemaProvider implements ModuleComponent {
         }
       }
     }
+    if(isMunitInstalled()) {
+      loadSchema(COM_MULESOFT_MUNIT, MUNIT_TOOLS, getMunitVersion());
+    }
+  }
+
+  private boolean isMunitInstalled() {
+    return getMunitVersion() != null;
   }
 
   private void loadCurrentExtensionSchemas(MavenProject mavenProject) {
@@ -174,61 +170,60 @@ public class MuleModuleSchemaProvider implements ModuleComponent {
     loadSchema(id.getGroupId(), id.getArtifactId(), id.getVersion());
 
     mavenProject.getDeclaredPlugins().stream()
-      .filter(p -> MUNIT_EXTENSIONS_PLUGIN.equals(p.getMavenId().getArtifactId())).findAny()
-      .ifPresent(p -> {
+        .filter(p -> MUNIT_EXTENSIONS_PLUGIN.equals(p.getMavenId().getArtifactId())).findAny()
+        .ifPresent(p -> {
           String munitVersion = getMunitVersion();
           loadSchema(COM_MULESOFT_MUNIT, MUNIT_TOOLS, munitVersion);
           loadSchema(COM_MULESOFT_MUNIT, MUNIT_RUNNER, munitVersion);
-      });
+        });
   }
 
   private void loadSchema(String groupId, String artifactId, String version) {
-    String muleVersion = ReadAction.compute(() -> getMuleVersion());
-    String munitVersion = ReadAction.compute(() -> getMunitVersion());
-    Optional<SchemaInformation> schemaInformation = MuleSchemaRepository.getInstance(muleVersion, munitVersion).loadSchemaFromCoordinate(myModule.getProject(), groupId, artifactId, version, ToolingArtifactManager.MULE_PLUGIN);
+    final String muleVersion = ReadAction.compute(() -> getMuleVersion());
+    final Optional<SchemaInformation> schemaInformation = MuleSchemaRepository.getInstance(muleVersion).loadSchemaFromCoordinate(myModule.getProject(), groupId, artifactId, version, ToolingArtifactManager.MULE_PLUGIN);
     schemaInformation.ifPresent((info) -> {
       moduleSchemas.put(info.getNamespace(), info);
       moduleSchemas.put(info.getSchemaLocation(), info);
     });
   }
 
-  private void loadMuleSchemasInClasspath() {
-    final Map<String, String> schemaUrlsAndFileNames = getSchemasFromSpringSchemas(myModule);
-    for (String schemaLocation: schemaUrlsAndFileNames.keySet()) {
-      final String fileName = schemaUrlsAndFileNames.get(schemaLocation);
-      final String relativePath = fileName.startsWith("/") ? fileName : "/" + fileName;
-      final Set<FileType> fileTypes = Collections.singleton(FileTypeManager.getInstance().getFileTypeByFileName(relativePath));
-      final List<VirtualFile> fileList = new ArrayList<>();
-
-      FileBasedIndex.getInstance().processFilesContainingAllKeys(FileTypeIndex.NAME, fileTypes, GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(myModule), null, virtualFile -> {
-        if (virtualFile.getPath().endsWith(relativePath)) {
-          fileList.add(virtualFile);
-        }
-        return true;
-      });
-      if (!fileList.isEmpty()) {
-        final VirtualFile virtualFile = fileList.get(0);
-        final PsiFile psiFile = PsiManager.getInstance(project).findFile(virtualFile);
-        if (psiFile instanceof XmlFile) {
-          final XmlFile xmlFile = (XmlFile) psiFile;
-          final XmlDocument document = xmlFile.getDocument();
-          String defaultNamespace = schemaLocation;
-          if (document != null) {
-            final PsiMetaData metaData = document.getMetaData();
-            if (metaData instanceof XmlNSDescriptorImpl) {
-              XmlNSDescriptorImpl descriptor = (XmlNSDescriptorImpl) metaData;
-              defaultNamespace = descriptor.getDefaultNamespace();
-            }
-          }
-          final String[] parts = defaultNamespace.split("/");
-          final SchemaInformation schemaInformation = new SchemaInformation(virtualFile, defaultNamespace, schemaLocation, parts[parts.length - 1]);
-          MuleSchemaRepository.getInstance(getMuleVersion(), getMunitVersion()).addInternalSchema(schemaInformation);
-          this.moduleSchemas.put(defaultNamespace, schemaInformation);
-          this.moduleSchemas.put(schemaLocation, schemaInformation);
-        }
-      }
-    }
-  }
+  //  private void loadMuleSchemasInClasspath() {
+  //    final Map<String, String> schemaUrlsAndFileNames = getSchemasFromSpringSchemas(myModule);
+  //    for (String schemaLocation: schemaUrlsAndFileNames.keySet()) {
+  //      final String fileName = schemaUrlsAndFileNames.get(schemaLocation);
+  //      final String relativePath = fileName.startsWith("/") ? fileName : "/" + fileName;
+  //      final Set<FileType> fileTypes = Collections.singleton(FileTypeManager.getInstance().getFileTypeByFileName(relativePath));
+  //      final List<VirtualFile> fileList = new ArrayList<>();
+  //
+  //      FileBasedIndex.getInstance().processFilesContainingAllKeys(FileTypeIndex.NAME, fileTypes, GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(myModule), null, virtualFile -> {
+  //        if (virtualFile.getPath().endsWith(relativePath)) {
+  //          fileList.add(virtualFile);
+  //        }
+  //        return true;
+  //      });
+  //      if (!fileList.isEmpty()) {
+  //        final VirtualFile virtualFile = fileList.get(0);
+  //        final PsiFile psiFile = PsiManager.getInstance(project).findFile(virtualFile);
+  //        if (psiFile instanceof XmlFile) {
+  //          final XmlFile xmlFile = (XmlFile) psiFile;
+  //          final XmlDocument document = xmlFile.getDocument();
+  //          String defaultNamespace = schemaLocation;
+  //          if (document != null) {
+  //            final PsiMetaData metaData = document.getMetaData();
+  //            if (metaData instanceof XmlNSDescriptorImpl) {
+  //              XmlNSDescriptorImpl descriptor = (XmlNSDescriptorImpl) metaData;
+  //              defaultNamespace = descriptor.getDefaultNamespace();
+  //            }
+  //          }
+  //          final String[] parts = defaultNamespace.split("/");
+  //          final SchemaInformation schemaInformation = new SchemaInformation(virtualFile, defaultNamespace, schemaLocation, parts[parts.length - 1]);
+  //          MuleSchemaRepository.getInstance(getMuleVersion()).addInternalSchema(schemaInformation);
+  //          this.moduleSchemas.put(defaultNamespace, schemaInformation);
+  //          this.moduleSchemas.put(schemaLocation, schemaInformation);
+  //        }
+  //      }
+  //    }
+  //  }
 
 
   private Map<String, String> parseSpringSchemas(String springSchemasContent) {
@@ -251,26 +246,26 @@ public class MuleModuleSchemaProvider implements ModuleComponent {
 
   }
 
-  private Map<String, String> getSchemasFromSpringSchemas(@NotNull Module module) {
-    return ReadAction.compute(() -> {
-      Map<String, String> schemasMap = new HashMap<>();
-      PsiFile[] psiFiles = FilenameIndex.getFilesByName(module.getProject(), MULE_SCHEMAS, GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module));
-
-      for (PsiFile nextSpringS: psiFiles) {
-        VirtualFile springSchemasFile = nextSpringS.getVirtualFile();
-        if (springSchemasFile != null) {
-          try {
-            String springSchemasContent = new String(springSchemasFile.contentsToByteArray(), springSchemasFile.getCharset());
-            schemasMap.putAll(parseSpringSchemas(springSchemasContent));
-          } catch (Exception e) {
-            e.printStackTrace();
-          }
-        }
-      }
-      return schemasMap;
-    });
-
-  }
+//  private Map<String, String> getSchemasFromSpringSchemas(@NotNull Module module) {
+//    return ReadAction.compute(() -> {
+//      Map<String, String> schemasMap = new HashMap<>();
+//      PsiFile[] psiFiles = FilenameIndex.getFilesByName(module.getProject(), MULE_SCHEMAS, GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module));
+//
+//      for (PsiFile nextSpringS: psiFiles) {
+//        VirtualFile springSchemasFile = nextSpringS.getVirtualFile();
+//        if (springSchemasFile != null) {
+//          try {
+//            String springSchemasContent = new String(springSchemasFile.contentsToByteArray(), springSchemasFile.getCharset());
+//            schemasMap.putAll(parseSpringSchemas(springSchemasContent));
+//          } catch (Exception e) {
+//            e.printStackTrace();
+//          }
+//        }
+//      }
+//      return schemasMap;
+//    });
+//
+//  }
 
 
   public static MuleModuleSchemaProvider getInstance(Module myModule) {

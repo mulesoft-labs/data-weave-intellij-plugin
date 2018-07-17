@@ -57,8 +57,7 @@ public class MuleSchemaProvider extends XmlSchemaProvider {
     } else {
       //This file is not form any module then we use the global search
       String muleVersion = MuleRuntimeServerManager.getMuleVersionOf(baseFile.getProject());
-      String munitVersion = MuleRuntimeServerManager.getMunitVersionOf(baseFile.getProject());
-      schema = MuleSchemaRepository.getInstance(muleVersion, munitVersion).searchSchemaByUrl(url);
+      schema = MuleSchemaRepository.getInstance(muleVersion).searchSchemaByUrl(url);
     }
     return schema.flatMap((info) -> info.getSchemaAsXmlFile(baseFile.getProject())).orElse(null);
   }
@@ -126,7 +125,7 @@ public class MuleSchemaProvider extends XmlSchemaProvider {
   @Override
   public Set<String> getLocations(@NotNull @NonNls final String namespace, @NotNull final XmlFile context) throws ProcessCanceledException {
 
-    Set<String> locations = new HashSet<>();
+    final Set<String> locations = new HashSet<>();
     final Module module = ModuleUtil.findModuleForFile(context);
     if (module == null) {
       return null;

@@ -71,14 +71,17 @@ public class MuleRuntimeServerManager implements ApplicationComponent {
     return MuleRuntimeSettingsState.getInstance().getDefaultRuntimeVersion();
   }
 
+  @Nullable
   public static String getMunitVersionOf(Project project) {
-    return project instanceof MavenProject ? getMunitVersionOf(project) : MuleRuntimeSettingsState.getInstance().getDefaultMunitVersion();
+    return project instanceof MavenProject ? getMunitVersionOf(project) : null;
   }
 
+  @Nullable
   public static String getMunitVersionOf(Module module) {
     return getMunitVersionOf(MuleModuleUtils.getMavenProject(module));
   }
 
+  @Nullable
   public static String getMunitVersionOf(MavenProject mavenProject) {
     if (mavenProject != null) {
       String munitVersion = mavenProject.getProperties().getProperty(MUNIT_VERSION);
@@ -92,7 +95,7 @@ public class MuleRuntimeServerManager implements ApplicationComponent {
         return munitVersion;
       }
     }
-    return MuleRuntimeSettingsState.getInstance().getDefaultMunitVersion();
+    return null;
   }
 
   private static String selectMinMuleVersion(Project project, VirtualFile muleArtifactJson) {

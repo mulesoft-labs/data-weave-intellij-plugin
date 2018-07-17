@@ -20,7 +20,9 @@ dependencies {
         exclude module: 'slf4j-api'
         exclude module: 'jaxb-impl'
     }
-    compile(group: "org.mule.tools.maven", name: "mule-packager", version: "3.2.0-SNAPSHOT")
+    compile(group: "org.mule.runtime", name: "mule-api", version: "1.1.3-SNAPSHOT") {
+        exclude module: 'slf4j-api' //Clashes with
+    }
     testCompile 'junit:junit:4.+'
 }
 

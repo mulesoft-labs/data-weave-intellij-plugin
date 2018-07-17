@@ -89,15 +89,15 @@ public class MuleSchemaRepository {
 
   private final static ConcurrentHashMap<String, MuleSchemaRepository> schemaManagersByRuntimeVersion = new ConcurrentHashMap<>();
 
-  public static MuleSchemaRepository getInstance(String runtimeVersion, String munitVersion) {
-    String key = runtimeVersion + "|" + munitVersion;
+  public static MuleSchemaRepository getInstance(String runtimeVersion) {
+    String key = runtimeVersion;
     MuleSchemaRepository muleSchemaRepository = schemaManagersByRuntimeVersion.get(key);
     if (muleSchemaRepository == null) {
       synchronized (schemaManagersByRuntimeVersion) {
         if (schemaManagersByRuntimeVersion.containsKey(key)) {
           return schemaManagersByRuntimeVersion.get(key);
         } else {
-          final MuleSchemaRepository value = new MuleSchemaRepository(runtimeVersion, munitVersion);
+          final MuleSchemaRepository value = new MuleSchemaRepository(runtimeVersion);
           schemaManagersByRuntimeVersion.put(key, value);
           return value;
         }
@@ -108,13 +108,13 @@ public class MuleSchemaRepository {
   }
 
   private String runtimeVersion;
-  private final String munitVersion;
+
   private Map<SchemaCoordinate, SchemaInformation> schemas;
   private List<SchemaInformation> internalSchemas;
 
-  private MuleSchemaRepository(String runtimeVersion, String munitVersion) {
+  private MuleSchemaRepository(String runtimeVersion) {
     this.runtimeVersion = runtimeVersion;
-    this.munitVersion = munitVersion;
+
     this.schemas = new HashMap<>();
     this.internalSchemas = new ArrayList<>();
     initComponent();
@@ -208,7 +208,7 @@ public class MuleSchemaRepository {
 
     loadResourceBasedSchema(COM_MULESOFT_RUNTIME, MULE_MODULE_BATCH, runtimeVersion, "schemas/mule-batch.xsd", BATCH_NS, BATCH_SCHEMA_LOCATION, "batch");
 
-    loadResourceBasedSchema(COM_MULESOFT_MUNIT, MUNIT_RUNNER, munitVersion, "schemas/mule-munit.xsd", MUNIT_NS, MUNIT_SCHEMA_LOCATION, "munit");
+
   }
 
   private void loadResourceBasedSchema(String groupId, String artifactId, String version, String resource, String namespace, String schemaLocation, String prefix) {
@@ -273,7 +273,11 @@ public class MuleSchemaRepository {
 
   public Optional<SchemaInformation> loadSchemaFromCoordinate(Project project, String groupId, String artifactId, String version, String classifier) {
     SchemaCoordinate schemaCoordinate = new SchemaCoordinate(groupId, artifactId, version);
+
     if (schemas.containsKey(schemaCoordinate)) {
+      return Optional.ofNullable(schemas.get(schemaCoordinate));
+    } else if (groupId.equals(COM_MULESOFT_MUNIT) && artifactId.equals(MUNIT_TOOLS)) {
+      loadResourceBasedSchema(COM_MULESOFT_MUNIT, MUNIT_RUNNER, version, "schemas/mule-munit.xsd", MUNIT_NS, MUNIT_SCHEMA_LOCATION, "munit");
       return Optional.ofNullable(schemas.get(schemaCoordinate));
     } else {
       return ToolingRuntimeManager.getInstance().callOnToolingRuntime(project, runtimeVersion, (toolingRuntimeClient) -> {
