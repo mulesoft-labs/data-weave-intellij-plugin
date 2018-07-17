@@ -57,7 +57,8 @@ public class MuleSchemaProvider extends XmlSchemaProvider {
     } else {
       //This file is not form any module then we use the global search
       String muleVersion = MuleRuntimeServerManager.getMuleVersionOf(baseFile.getProject());
-      schema = MuleSchemaRepository.getInstance(muleVersion).searchSchemaByUrl(url);
+      String munitVersion = MuleRuntimeServerManager.getMunitVersionOf(baseFile.getProject());
+      schema = MuleSchemaRepository.getInstance(muleVersion, munitVersion).searchSchemaByUrl(url);
     }
     return schema.flatMap((info) -> info.getSchemaAsXmlFile(baseFile.getProject())).orElse(null);
   }

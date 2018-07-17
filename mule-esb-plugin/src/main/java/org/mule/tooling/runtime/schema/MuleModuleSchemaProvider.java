@@ -1,9 +1,6 @@
 package org.mule.tooling.runtime.schema;
 
 import com.intellij.ProjectTopics;
-import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationType;
-import com.intellij.notification.Notifications;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.fileTypes.FileType;
@@ -44,9 +41,23 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static java.lang.String.format;
-import static java.lang.String.join;
-import static org.mule.tooling.runtime.schema.MuleSchemaRepository.*;
+import static org.mule.tooling.runtime.schema.MuleSchemaRepository.COM_MULESOFT_MUNIT;
+import static org.mule.tooling.runtime.schema.MuleSchemaRepository.COM_MULESOFT_RUNTIME;
+import static org.mule.tooling.runtime.schema.MuleSchemaRepository.DOCUMENTATION_ARTIFACT_ID;
+import static org.mule.tooling.runtime.schema.MuleSchemaRepository.DOMAIN_ARTIFACT_ID;
+import static org.mule.tooling.runtime.schema.MuleSchemaRepository.MODULE_ARTIFACT_ID;
+import static org.mule.tooling.runtime.schema.MuleSchemaRepository.MULE_ARTIFACT_ID;
+import static org.mule.tooling.runtime.schema.MuleSchemaRepository.MULE_CORE_ARTIFACT_ID;
+import static org.mule.tooling.runtime.schema.MuleSchemaRepository.MULE_EE_ARTIFACT_ID;
+import static org.mule.tooling.runtime.schema.MuleSchemaRepository.MULE_MODULE_BATCH;
+import static org.mule.tooling.runtime.schema.MuleSchemaRepository.MULE_MODULE_TLS_ARTIFACT_ID;
+import static org.mule.tooling.runtime.schema.MuleSchemaRepository.MULE_SCHEMADOC_ARTIFACT_ID;
+import static org.mule.tooling.runtime.schema.MuleSchemaRepository.MUNIT_RUNNER;
+import static org.mule.tooling.runtime.schema.MuleSchemaRepository.MUNIT_TOOLS;
+import static org.mule.tooling.runtime.schema.MuleSchemaRepository.ORG_MULE_RUNTIME;
+import static org.mule.tooling.runtime.schema.MuleSchemaRepository.ORG_MULE_TOOLING;
+import static org.mule.tooling.runtime.schema.MuleSchemaRepository.ORG_SPRINGFRAMEWORK;
+import static org.mule.tooling.runtime.schema.MuleSchemaRepository.SPRING_BEANS_ARTIFACT_ID;
 import static org.mule.tooling.runtime.util.MuleModuleUtils.MULE_EXTENSION_PACKAGING;
 
 /**
@@ -173,7 +184,8 @@ public class MuleModuleSchemaProvider implements ModuleComponent {
 
   private void loadSchema(String groupId, String artifactId, String version) {
     String muleVersion = ReadAction.compute(() -> getMuleVersion());
-    Optional<SchemaInformation> schemaInformation = MuleSchemaRepository.getInstance(muleVersion).loadSchemaFromCoordinate(myModule.getProject(), groupId, artifactId, version, ToolingArtifactManager.MULE_PLUGIN);
+    String munitVersion = ReadAction.compute(() -> getMunitVersion());
+    Optional<SchemaInformation> schemaInformation = MuleSchemaRepository.getInstance(muleVersion, munitVersion).loadSchemaFromCoordinate(myModule.getProject(), groupId, artifactId, version, ToolingArtifactManager.MULE_PLUGIN);
     schemaInformation.ifPresent((info) -> {
       moduleSchemas.put(info.getNamespace(), info);
       moduleSchemas.put(info.getSchemaLocation(), info);
@@ -210,7 +222,7 @@ public class MuleModuleSchemaProvider implements ModuleComponent {
           }
           final String[] parts = defaultNamespace.split("/");
           final SchemaInformation schemaInformation = new SchemaInformation(virtualFile, defaultNamespace, schemaLocation, parts[parts.length - 1]);
-          MuleSchemaRepository.getInstance(getMuleVersion()).addInternalSchema(schemaInformation);
+          MuleSchemaRepository.getInstance(getMuleVersion(), getMunitVersion()).addInternalSchema(schemaInformation);
           this.moduleSchemas.put(defaultNamespace, schemaInformation);
           this.moduleSchemas.put(schemaLocation, schemaInformation);
         }
