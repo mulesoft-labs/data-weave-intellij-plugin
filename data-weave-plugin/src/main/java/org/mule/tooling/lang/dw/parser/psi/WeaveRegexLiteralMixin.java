@@ -9,7 +9,7 @@ import com.intellij.psi.impl.source.tree.LeafElement;
 import org.jetbrains.annotations.NotNull;
 
 
-public abstract class WeaveRegexLiteralMixin extends ASTWrapperPsiElement implements PsiLanguageInjectionHost, WeaveRegexLiteral {
+public abstract class WeaveRegexLiteralMixin extends ASTWrapperPsiElement implements PsiLanguageInjectionHost {
 
   public WeaveRegexLiteralMixin(@NotNull ASTNode node) {
     super(node);

@@ -228,11 +228,15 @@ Expression::= MatchExpression
             | BinaryExpression
             | SimpleExpression
 
-CustomInterpolatorExpression ::= Identifier BACKTIKED_QUOTED_STRING
+CustomInterpolatorExpression ::= Identifier CustomInterpolationString
 {
     methods = [getName setName getNameIdentifier]
     implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
     mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
+}
+CustomInterpolationString ::= BACKTIKED_QUOTED_STRING
+{
+    mixin = "org.mule.tooling.lang.dw.parser.psi.WeaveStringLiteralMixin"
 }
 
 private ValueExpression::=UndefinedLiteral

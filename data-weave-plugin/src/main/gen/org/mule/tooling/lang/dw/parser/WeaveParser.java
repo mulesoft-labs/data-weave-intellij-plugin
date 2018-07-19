@@ -1,15 +1,230 @@
 // This is a generated file. Not intended for manual editing.
 package org.mule.tooling.lang.dw.parser;
 
+import com.intellij.lang.ASTNode;
+import com.intellij.lang.LightPsiParser;
 import com.intellij.lang.PsiBuilder;
 import com.intellij.lang.PsiBuilder.Marker;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.*;
-import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.*;
-import com.intellij.psi.tree.IElementType;
-import com.intellij.lang.ASTNode;
-import com.intellij.psi.tree.TokenSet;
 import com.intellij.lang.PsiParser;
-import com.intellij.lang.LightPsiParser;
+import com.intellij.psi.tree.IElementType;
+import com.intellij.psi.tree.TokenSet;
+
+import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.Parser;
+import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.TRUE_CONDITION;
+import static org.mule.tooling.lang.dw.parser.WeaveParserUtil._COLLAPSE_;
+import static org.mule.tooling.lang.dw.parser.WeaveParserUtil._LEFT_;
+import static org.mule.tooling.lang.dw.parser.WeaveParserUtil._NONE_;
+import static org.mule.tooling.lang.dw.parser.WeaveParserUtil._NOT_;
+import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.adapt_builder_;
+import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.addVariant;
+import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.consumeToken;
+import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.consumeTokenSmart;
+import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.consumeTokens;
+import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.consumeTokensSmart;
+import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.create_token_set_;
+import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.current_position_;
+import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.empty_element_parsed_guard_;
+import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.enter_section_;
+import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.exit_section_;
+import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.nextTokenIs;
+import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.nextTokenIsSmart;
+import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.parseTokensSmart;
+import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.recursion_guard_;
+import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.report_error_;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ADDITION_SUBTRACTION_EXPRESSION;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.AND;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.AND_EXPRESSION;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.AND_KEYWORD;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ANY_DATE_LITERAL;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ARRAY_DECONSTRUCT_PATTERN;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ARRAY_EXPRESSION;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ARROW_TOKEN;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.AS;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.AS_EXPRESSION;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.AT;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ATTRIBUTE;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ATTRIBUTES;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ATTRIBUTES_TYPE;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ATTRIBUTE_SELECTOR;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.BACKTIKED_QUOTED_STRING;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.BINARY_EXPRESSION;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.BODY;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.BOOLEAN_LITERAL;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.BRACKET_SELECTOR_EXPRESSION;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.CASE_KEYWORD;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.CLOSE_CLOSE_KEYWORD;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.CLOSE_CLOSE_ORDERED_KEYWORD;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.CLOSE_OBJECT_TYPE;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.CLOSE_ORDERED_KEYWORD;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.CLOSE_ORDERED_OBJECT_TYPE;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.COLON;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.COMMA;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.CONDITIONAL_ATTRIBUTE;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.CONDITIONAL_EXPRESSION;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.CONDITIONAL_KEY_VALUE_PAIR;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.CONTAINER_MODULE_IDENTIFIER;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.CUSTOM_INTERPOLATION_STRING;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.CUSTOM_INTERPOLATOR_EXPRESSION;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.CUSTOM_LOADER;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DATA_FORMAT;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DECLARED_NAMESPACE;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DEFAULT;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DEFAULT_PATTERN;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DEFAULT_VALUE_EXPRESSION;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DIRECTIVE;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DIVISION;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DOCUMENT;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DOCUMENT_SEPARATOR;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DOLLAR_VARIABLE;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DOT_SELECTOR_EXPRESSION;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DOUBLE_LITERAL;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DOUBLE_QUOTED_STRING;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DO_EXPRESSION;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DO_KEYWORD;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DYNAMIC_ATTRIBUTE;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DYNAMIC_KEY_VALUE_PAIR;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DYNAMIC_RETURN;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ELSE;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.EMPTY_ARRAY_PATTERN;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.EMPTY_OBJECT_PATTERN;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ENCLOSED_EXPRESSION;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.EQ;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.EQUAL;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.EQUALITY_EXPRESSION;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ESCLAMATION;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.EXPRESSION;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.EXPRESSION_PATTERN;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.FALSE_LITERAL;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.FQN_IDENTIFIER;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.FROM_KEYWORD;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.FUNCTION_CALL_ARGUMENTS;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.FUNCTION_CALL_EXPRESSION;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.FUNCTION_DEFINITION;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.FUNCTION_DIRECTIVE;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.FUNCTION_DIRECTIVE_KEYWORD;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.FUNCTION_PARAMETER;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.GREATER;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.GREATER_EQUAL;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.GREATER_THAN_EXPRESSION;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.HASH;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.HEADER;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ID;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.IDENTIFIER;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.IF;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.IMPORTED_ELEMENT;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.IMPORT_DIRECTIVE;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.IMPORT_DIRECTIVE_KEYWORD;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.INPUT_DIRECTIVE;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.INPUT_DIRECTIVE_KEYWORD;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.INTEGER_LITERAL;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.INTERSECTION_TYPE;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.IS;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.IS_EXPRESSION;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.KEY;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.KEY_TYPE;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.KEY_VALUE_PAIR;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.KEY_VALUE_PAIR_TYPE;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.LAMBDA_LITERAL;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.LAMBDA_TYPE;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.LAMBDA_TYPE_PARAMETER;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.LEFT_SHIFT_EXPRESSION;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.LESS;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.LESS_EQUAL;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.LITERAL_EXPRESSION;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.LITERAL_PATTERN;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.L_BRACKET;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.L_CURLY;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.L_PARREN;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.MATCHES_KEYWORD;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.MATCH_EXPRESSION;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.MATCH_KEYWORD;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.MIME_TYPE_KEYWORD;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.MINUS;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.MODULE_REFERENCE;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.MULTIPLE_KEY_VALUE_PAIR_OBJ;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.MULTIPLICATION_DIVISION_EXPRESSION;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.MULTIPLY;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.MULTI_VALUE_SELECTOR;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.NAMED_LITERAL_PATTERN;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.NAMED_REGEX_PATTERN;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.NAMED_TYPE_PATTERN;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.NAMESPACE_DEFINITION;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.NAMESPACE_DIRECTIVE;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.NAMESPACE_DIRECTIVE_KEYWORD;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.NAMESPACE_SELECTOR;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.NAMESPACE_URI;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.NAME_TYPE;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.NOT_EQUAL;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.NOT_EXPRESSION;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.NOT_KEYWORD;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.NULL_LITERAL;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.NULL_LITERAL_KEYWORD;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.NUMBER_LITERAL;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.OBJECT_DECONSTRUCT_EXPRESSION;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.OBJECT_DECONSTRUCT_PATTERN;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.OBJECT_EXPRESSION;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.OBJECT_SELECTOR;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.OBJECT_TYPE;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.OPEN_CLOSE_KEYWORD;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.OPEN_CLOSE_ORDERED_KEYWORD;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.OPEN_ORDERED_KEYWORD;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.OPTIONS;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.OPTION_ELEMENT;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.OR;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ORDERED_OBJECT_TYPE;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.OR_EXPRESSION;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.OR_KEYWORD;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.OUTPUT_DIRECTIVE;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.OUTPUT_DIRECTIVE_KEYWORD;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.PACKAGE_SEPARATOR;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.PATTERN;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.PATTERN_MATCHER_EXPRESSION;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.PLUS;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.QUALIFIED_NAME;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.QUESTION;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.REFERENCE_TYPE;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.REGEX_LITERAL;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.REGEX_PATTERN;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.RIGHT_SHIFT_EXPRESSION;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.RULE_ANY_DATE;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.RULE_ANY_REGEX;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.R_BRACKET;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.R_CURLY;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.R_PARREN;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.SCHEMA;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.SCHEMA_ELEMENT;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.SCHEMA_SELECTOR;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.SELECTOR;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.SIMILAR;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.SIMPLE_ATTRIBUTE;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.SIMPLE_KEY_VALUE_PAIR;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.SINGLE_KEY_VALUE_PAIR_OBJ;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.SINGLE_QUOTED_STRING;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.STRING_LITERAL;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.SUB_TYPE;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.TILDE;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.TRUE_LITERAL;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.TYPE;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.TYPE_DEFINITION;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.TYPE_DIRECTIVE;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.TYPE_DIRECTIVE_KEYWORD;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.TYPE_PARAMETER;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.TYPE_PATTERN;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.UNARY_MINUS_EXPRESSION;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.UNDEFINED_LITERAL;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.UNDERSCORE;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.UNION_TYPE;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.UNLESS;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.USING;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.USING_EXPRESSION;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.VALUE_SELECTOR;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.VARIABLE_DEFINITION;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.VARIABLE_DIRECTIVE;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.VARIABLE_REFERENCE_EXPRESSION;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.VAR_DIRECTIVE_KEYWORD;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.VERSION_DIRECTIVE;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.VERSION_DIRECTIVE_KEYWORD;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.XOR;
 
 @SuppressWarnings({"SimplifiableIfStatement", "UnusedAssignment"})
 public class WeaveParser implements PsiParser, LightPsiParser {
@@ -61,230 +276,157 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     }
     else if (t == CONTAINER_MODULE_IDENTIFIER) {
       r = ContainerModuleIdentifier(b, 0);
-    }
-    else if (t == CUSTOM_LOADER) {
+    } else if (t == CUSTOM_INTERPOLATION_STRING) {
+      r = CustomInterpolationString(b, 0);
+    } else if (t == CUSTOM_LOADER) {
       r = CustomLoader(b, 0);
-    }
-    else if (t == DATA_FORMAT) {
+    } else if (t == DATA_FORMAT) {
       r = DataFormat(b, 0);
-    }
-    else if (t == DECLARED_NAMESPACE) {
+    } else if (t == DECLARED_NAMESPACE) {
       r = DeclaredNamespace(b, 0);
-    }
-    else if (t == DEFAULT_PATTERN) {
+    } else if (t == DEFAULT_PATTERN) {
       r = DefaultPattern(b, 0);
-    }
-    else if (t == DIRECTIVE) {
+    } else if (t == DIRECTIVE) {
       r = Directive(b, 0);
-    }
-    else if (t == DOCUMENT) {
+    } else if (t == DOCUMENT) {
       r = Document(b, 0);
-    }
-    else if (t == DYNAMIC_ATTRIBUTE) {
+    } else if (t == DYNAMIC_ATTRIBUTE) {
       r = DynamicAttribute(b, 0);
-    }
-    else if (t == DYNAMIC_KEY_VALUE_PAIR) {
+    } else if (t == DYNAMIC_KEY_VALUE_PAIR) {
       r = DynamicKeyValuePair(b, 0);
-    }
-    else if (t == DYNAMIC_RETURN) {
+    } else if (t == DYNAMIC_RETURN) {
       r = DynamicReturn(b, 0);
-    }
-    else if (t == EMPTY_ARRAY_PATTERN) {
+    } else if (t == EMPTY_ARRAY_PATTERN) {
       r = EmptyArrayPattern(b, 0);
-    }
-    else if (t == EMPTY_OBJECT_PATTERN) {
+    } else if (t == EMPTY_OBJECT_PATTERN) {
       r = EmptyObjectPattern(b, 0);
-    }
-    else if (t == EXPRESSION) {
+    } else if (t == EXPRESSION) {
       r = Expression(b, 0, -1);
-    }
-    else if (t == EXPRESSION_PATTERN) {
+    } else if (t == EXPRESSION_PATTERN) {
       r = ExpressionPattern(b, 0);
-    }
-    else if (t == FQN_IDENTIFIER) {
+    } else if (t == FQN_IDENTIFIER) {
       r = FqnIdentifier(b, 0);
-    }
-    else if (t == FUNCTION_CALL_ARGUMENTS) {
+    } else if (t == FUNCTION_CALL_ARGUMENTS) {
       r = FunctionCallArguments(b, 0);
-    }
-    else if (t == FUNCTION_DEFINITION) {
+    } else if (t == FUNCTION_DEFINITION) {
       r = FunctionDefinition(b, 0);
-    }
-    else if (t == FUNCTION_DIRECTIVE) {
+    } else if (t == FUNCTION_DIRECTIVE) {
       r = FunctionDirective(b, 0);
-    }
-    else if (t == FUNCTION_PARAMETER) {
+    } else if (t == FUNCTION_PARAMETER) {
       r = FunctionParameter(b, 0);
-    }
-    else if (t == HEADER) {
+    } else if (t == HEADER) {
       r = Header(b, 0);
-    }
-    else if (t == IDENTIFIER) {
+    } else if (t == IDENTIFIER) {
       r = Identifier(b, 0);
-    }
-    else if (t == IMPORT_DIRECTIVE) {
+    } else if (t == IMPORT_DIRECTIVE) {
       r = ImportDirective(b, 0);
-    }
-    else if (t == IMPORTED_ELEMENT) {
+    } else if (t == IMPORTED_ELEMENT) {
       r = ImportedElement(b, 0);
-    }
-    else if (t == INPUT_DIRECTIVE) {
+    } else if (t == INPUT_DIRECTIVE) {
       r = InputDirective(b, 0);
-    }
-    else if (t == INTERSECTION_TYPE) {
+    } else if (t == INTERSECTION_TYPE) {
       r = IntersectionType(b, 0);
-    }
-    else if (t == KEY) {
+    } else if (t == KEY) {
       r = Key(b, 0);
-    }
-    else if (t == KEY_TYPE) {
+    } else if (t == KEY_TYPE) {
       r = KeyType(b, 0);
-    }
-    else if (t == KEY_VALUE_PAIR) {
+    } else if (t == KEY_VALUE_PAIR) {
       r = KeyValuePair(b, 0);
-    }
-    else if (t == KEY_VALUE_PAIR_TYPE) {
+    } else if (t == KEY_VALUE_PAIR_TYPE) {
       r = KeyValuePairType(b, 0);
-    }
-    else if (t == LAMBDA_TYPE) {
+    } else if (t == LAMBDA_TYPE) {
       r = LambdaType(b, 0);
-    }
-    else if (t == LAMBDA_TYPE_PARAMETER) {
+    } else if (t == LAMBDA_TYPE_PARAMETER) {
       r = LambdaTypeParameter(b, 0);
-    }
-    else if (t == LITERAL_PATTERN) {
+    } else if (t == LITERAL_PATTERN) {
       r = LiteralPattern(b, 0);
-    }
-    else if (t == MODULE_REFERENCE) {
+    } else if (t == MODULE_REFERENCE) {
       r = ModuleReference(b, 0);
-    }
-    else if (t == MULTI_VALUE_SELECTOR) {
+    } else if (t == MULTI_VALUE_SELECTOR) {
       r = MultiValueSelector(b, 0);
-    }
-    else if (t == MULTIPLE_KEY_VALUE_PAIR_OBJ) {
+    } else if (t == MULTIPLE_KEY_VALUE_PAIR_OBJ) {
       r = MultipleKeyValuePairObj(b, 0);
-    }
-    else if (t == NAME_TYPE) {
+    } else if (t == NAME_TYPE) {
       r = NameType(b, 0);
-    }
-    else if (t == NAMED_LITERAL_PATTERN) {
+    } else if (t == NAMED_LITERAL_PATTERN) {
       r = NamedLiteralPattern(b, 0);
-    }
-    else if (t == NAMED_REGEX_PATTERN) {
+    } else if (t == NAMED_REGEX_PATTERN) {
       r = NamedRegexPattern(b, 0);
-    }
-    else if (t == NAMED_TYPE_PATTERN) {
+    } else if (t == NAMED_TYPE_PATTERN) {
       r = NamedTypePattern(b, 0);
-    }
-    else if (t == NAMESPACE_DEFINITION) {
+    } else if (t == NAMESPACE_DEFINITION) {
       r = NamespaceDefinition(b, 0);
-    }
-    else if (t == NAMESPACE_DIRECTIVE) {
+    } else if (t == NAMESPACE_DIRECTIVE) {
       r = NamespaceDirective(b, 0);
-    }
-    else if (t == NAMESPACE_SELECTOR) {
+    } else if (t == NAMESPACE_SELECTOR) {
       r = NamespaceSelector(b, 0);
-    }
-    else if (t == NULL_LITERAL) {
+    } else if (t == NULL_LITERAL) {
       r = NullLiteral(b, 0);
-    }
-    else if (t == NUMBER_LITERAL) {
+    } else if (t == NUMBER_LITERAL) {
       r = NumberLiteral(b, 0);
-    }
-    else if (t == OBJECT_DECONSTRUCT_PATTERN) {
+    } else if (t == OBJECT_DECONSTRUCT_PATTERN) {
       r = ObjectDeconstructPattern(b, 0);
-    }
-    else if (t == OBJECT_SELECTOR) {
+    } else if (t == OBJECT_SELECTOR) {
       r = ObjectSelector(b, 0);
-    }
-    else if (t == OBJECT_TYPE) {
+    } else if (t == OBJECT_TYPE) {
       r = ObjectType(b, 0);
-    }
-    else if (t == OPTION_ELEMENT) {
+    } else if (t == OPTION_ELEMENT) {
       r = OptionElement(b, 0);
-    }
-    else if (t == OPTIONS) {
+    } else if (t == OPTIONS) {
       r = Options(b, 0);
-    }
-    else if (t == ORDERED_OBJECT_TYPE) {
+    } else if (t == ORDERED_OBJECT_TYPE) {
       r = OrderedObjectType(b, 0);
-    }
-    else if (t == OUTPUT_DIRECTIVE) {
+    } else if (t == OUTPUT_DIRECTIVE) {
       r = OutputDirective(b, 0);
-    }
-    else if (t == PATTERN) {
+    } else if (t == PATTERN) {
       r = Pattern(b, 0);
-    }
-    else if (t == PATTERN_MATCHER_EXPRESSION) {
+    } else if (t == PATTERN_MATCHER_EXPRESSION) {
       r = PatternMatcherExpression(b, 0);
-    }
-    else if (t == QUALIFIED_NAME) {
+    } else if (t == QUALIFIED_NAME) {
       r = QualifiedName(b, 0);
-    }
-    else if (t == REFERENCE_TYPE) {
+    } else if (t == REFERENCE_TYPE) {
       r = ReferenceType(b, 0);
-    }
-    else if (t == REGEX_LITERAL) {
+    } else if (t == REGEX_LITERAL) {
       r = RegexLiteral(b, 0);
-    }
-    else if (t == REGEX_PATTERN) {
+    } else if (t == REGEX_PATTERN) {
       r = RegexPattern(b, 0);
-    }
-    else if (t == SCHEMA) {
+    } else if (t == SCHEMA) {
       r = Schema(b, 0);
-    }
-    else if (t == SCHEMA_ELEMENT) {
+    } else if (t == SCHEMA_ELEMENT) {
       r = SchemaElement(b, 0);
-    }
-    else if (t == SCHEMA_SELECTOR) {
+    } else if (t == SCHEMA_SELECTOR) {
       r = SchemaSelector(b, 0);
-    }
-    else if (t == SELECTOR) {
+    } else if (t == SELECTOR) {
       r = Selector(b, 0);
-    }
-    else if (t == SIMPLE_ATTRIBUTE) {
+    } else if (t == SIMPLE_ATTRIBUTE) {
       r = SimpleAttribute(b, 0);
-    }
-    else if (t == SIMPLE_KEY_VALUE_PAIR) {
+    } else if (t == SIMPLE_KEY_VALUE_PAIR) {
       r = SimpleKeyValuePair(b, 0);
-    }
-    else if (t == SINGLE_KEY_VALUE_PAIR_OBJ) {
+    } else if (t == SINGLE_KEY_VALUE_PAIR_OBJ) {
       r = SingleKeyValuePairObj(b, 0);
-    }
-    else if (t == STRING_LITERAL) {
+    } else if (t == STRING_LITERAL) {
       r = StringLiteral(b, 0);
-    }
-    else if (t == TYPE) {
+    } else if (t == TYPE) {
       r = Type(b, 0);
-    }
-    else if (t == TYPE_DEFINITION) {
+    } else if (t == TYPE_DEFINITION) {
       r = TypeDefinition(b, 0);
-    }
-    else if (t == TYPE_DIRECTIVE) {
+    } else if (t == TYPE_DIRECTIVE) {
       r = TypeDirective(b, 0);
-    }
-    else if (t == TYPE_PARAMETER) {
+    } else if (t == TYPE_PARAMETER) {
       r = TypeParameter(b, 0);
-    }
-    else if (t == TYPE_PATTERN) {
+    } else if (t == TYPE_PATTERN) {
       r = TypePattern(b, 0);
-    }
-    else if (t == UNION_TYPE) {
+    } else if (t == UNION_TYPE) {
       r = UnionType(b, 0);
-    }
-    else if (t == VALUE_SELECTOR) {
+    } else if (t == VALUE_SELECTOR) {
       r = ValueSelector(b, 0);
-    }
-    else if (t == VARIABLE_DEFINITION) {
+    } else if (t == VARIABLE_DEFINITION) {
       r = VariableDefinition(b, 0);
-    }
-    else if (t == VARIABLE_DIRECTIVE) {
+    } else if (t == VARIABLE_DIRECTIVE) {
       r = VariableDirective(b, 0);
-    }
-    else if (t == VERSION_DIRECTIVE) {
+    } else if (t == VERSION_DIRECTIVE) {
       r = VersionDirective(b, 0);
-    }
-    else {
+    } else {
       r = parse_root_(t, b, 0);
     }
     exit_section_(b, 0, m, t, r, true, TRUE_CONDITION);
@@ -817,6 +959,18 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     r = Identifier(b, l + 1);
     r = r && consumeToken(b, PACKAGE_SEPARATOR);
     exit_section_(b, m, null, r);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // BACKTIKED_QUOTED_STRING
+  public static boolean CustomInterpolationString(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "CustomInterpolationString")) return false;
+    if (!nextTokenIs(b, BACKTIKED_QUOTED_STRING)) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, BACKTIKED_QUOTED_STRING);
+    exit_section_(b, m, CUSTOM_INTERPOLATION_STRING, r);
     return r;
   }
 
@@ -3179,13 +3333,13 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // Identifier BACKTIKED_QUOTED_STRING
+  // Identifier CustomInterpolationString
   public static boolean CustomInterpolatorExpression(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "CustomInterpolatorExpression")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, CUSTOM_INTERPOLATOR_EXPRESSION, "<custom interpolator expression>");
     r = Identifier(b, l + 1);
-    r = r && consumeToken(b, BACKTIKED_QUOTED_STRING);
+    r = r && CustomInterpolationString(b, l + 1);
     exit_section_(b, l, m, r, false, null);
     return r;
   }

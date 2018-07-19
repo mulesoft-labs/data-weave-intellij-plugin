@@ -1,12 +1,123 @@
 // This is a generated file. Not intended for manual editing.
 package org.mule.tooling.lang.dw.parser.psi;
 
-import com.intellij.psi.tree.IElementType;
-import com.intellij.psi.PsiElement;
 import com.intellij.lang.ASTNode;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.tree.IElementType;
 import org.mule.tooling.lang.dw.parser.WeaveElementType;
 import org.mule.tooling.lang.dw.parser.WeaveTokenType;
-import org.mule.tooling.lang.dw.parser.psi.impl.*;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveAdditionSubtractionExpressionImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveAndExpressionImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveAnyDateLiteralImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveArrayDeconstructPatternImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveArrayExpressionImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveAsExpressionImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveAttributeSelectorImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveAttributesImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveAttributesTypeImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveBinaryExpressionImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveBodyImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveBooleanLiteralImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveBracketSelectorExpressionImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveCloseObjectTypeImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveCloseOrderedObjectTypeImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveConditionalAttributeImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveConditionalExpressionImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveConditionalKeyValuePairImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveContainerModuleIdentifierImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveCustomInterpolationStringImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveCustomInterpolatorExpressionImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveCustomLoaderImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveDataFormatImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveDeclaredNamespaceImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveDefaultPatternImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveDefaultValueExpressionImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveDirectiveImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveDoExpressionImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveDocumentImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveDotSelectorExpressionImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveDynamicAttributeImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveDynamicKeyValuePairImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveDynamicReturnImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveEmptyArrayPatternImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveEmptyObjectPatternImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveEnclosedExpressionImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveEqualityExpressionImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveExpressionPatternImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveFqnIdentifierImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveFunctionCallArgumentsImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveFunctionCallExpressionImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveFunctionDefinitionImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveFunctionDirectiveImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveFunctionParameterImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveGreaterThanExpressionImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveHeaderImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveIdentifierImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveImportDirectiveImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveImportedElementImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveInputDirectiveImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveIntersectionTypeImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveIsExpressionImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveKeyImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveKeyTypeImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveKeyValuePairTypeImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveLambdaLiteralImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveLambdaTypeImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveLambdaTypeParameterImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveLeftShiftExpressionImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveLiteralPatternImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveMatchExpressionImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveModuleReferenceImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveMultiValueSelectorImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveMultipleKeyValuePairObjImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveMultiplicationDivisionExpressionImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveNameTypeImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveNamedLiteralPatternImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveNamedRegexPatternImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveNamedTypePatternImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveNamespaceDefinitionImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveNamespaceDirectiveImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveNamespaceSelectorImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveNotExpressionImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveNullLiteralImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveNumberLiteralImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveObjectDeconstructExpressionImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveObjectDeconstructPatternImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveObjectExpressionImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveObjectSelectorImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveObjectTypeImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveOptionElementImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveOptionsImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveOrExpressionImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveOrderedObjectTypeImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveOutputDirectiveImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeavePatternMatcherExpressionImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveQualifiedNameImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveReferenceTypeImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveRegexLiteralImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveRegexPatternImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveRightShiftExpressionImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveSchemaElementImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveSchemaImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveSchemaSelectorImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveSelectorImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveSimpleAttributeImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveSimpleKeyValuePairImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveSingleKeyValuePairObjImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveStringLiteralImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveTypeDefinitionImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveTypeDirectiveImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveTypeParameterImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveTypePatternImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveUnaryMinusExpressionImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveUndefinedLiteralImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveUnionTypeImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveUsingExpressionImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveValueSelectorImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveVariableDefinitionImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveVariableDirectiveImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveVariableReferenceExpressionImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveVersionDirectiveImpl;
 
 public interface WeaveTypes {
 
@@ -30,6 +141,7 @@ public interface WeaveTypes {
   IElementType CONDITIONAL_EXPRESSION = new WeaveElementType("CONDITIONAL_EXPRESSION");
   IElementType CONDITIONAL_KEY_VALUE_PAIR = new WeaveElementType("CONDITIONAL_KEY_VALUE_PAIR");
   IElementType CONTAINER_MODULE_IDENTIFIER = new WeaveElementType("CONTAINER_MODULE_IDENTIFIER");
+  IElementType CUSTOM_INTERPOLATION_STRING = new WeaveElementType("CUSTOM_INTERPOLATION_STRING");
   IElementType CUSTOM_INTERPOLATOR_EXPRESSION = new WeaveElementType("CUSTOM_INTERPOLATOR_EXPRESSION");
   IElementType CUSTOM_LOADER = new WeaveElementType("CUSTOM_LOADER");
   IElementType DATA_FORMAT = new WeaveElementType("DATA_FORMAT");
@@ -268,283 +380,193 @@ public interface WeaveTypes {
       }
       else if (type == CONTAINER_MODULE_IDENTIFIER) {
         return new WeaveContainerModuleIdentifierImpl(node);
-      }
-      else if (type == CUSTOM_INTERPOLATOR_EXPRESSION) {
-        return new WeaveCustomInterpolatorExpressionImpl(node);
-      }
-      else if (type == CUSTOM_LOADER) {
-        return new WeaveCustomLoaderImpl(node);
-      }
-      else if (type == DATA_FORMAT) {
-        return new WeaveDataFormatImpl(node);
-      }
-      else if (type == DECLARED_NAMESPACE) {
-        return new WeaveDeclaredNamespaceImpl(node);
-      }
-      else if (type == DEFAULT_PATTERN) {
-        return new WeaveDefaultPatternImpl(node);
-      }
-      else if (type == DEFAULT_VALUE_EXPRESSION) {
-        return new WeaveDefaultValueExpressionImpl(node);
-      }
-      else if (type == DIRECTIVE) {
-        return new WeaveDirectiveImpl(node);
-      }
-      else if (type == DOCUMENT) {
-        return new WeaveDocumentImpl(node);
-      }
-      else if (type == DOT_SELECTOR_EXPRESSION) {
-        return new WeaveDotSelectorExpressionImpl(node);
-      }
-      else if (type == DO_EXPRESSION) {
-        return new WeaveDoExpressionImpl(node);
-      }
-      else if (type == DYNAMIC_ATTRIBUTE) {
-        return new WeaveDynamicAttributeImpl(node);
-      }
-      else if (type == DYNAMIC_KEY_VALUE_PAIR) {
-        return new WeaveDynamicKeyValuePairImpl(node);
-      }
-      else if (type == DYNAMIC_RETURN) {
-        return new WeaveDynamicReturnImpl(node);
-      }
-      else if (type == EMPTY_ARRAY_PATTERN) {
-        return new WeaveEmptyArrayPatternImpl(node);
-      }
-      else if (type == EMPTY_OBJECT_PATTERN) {
-        return new WeaveEmptyObjectPatternImpl(node);
-      }
-      else if (type == ENCLOSED_EXPRESSION) {
-        return new WeaveEnclosedExpressionImpl(node);
-      }
-      else if (type == EQUALITY_EXPRESSION) {
-        return new WeaveEqualityExpressionImpl(node);
-      }
-      else if (type == EXPRESSION_PATTERN) {
-        return new WeaveExpressionPatternImpl(node);
-      }
-      else if (type == FQN_IDENTIFIER) {
-        return new WeaveFqnIdentifierImpl(node);
-      }
-      else if (type == FUNCTION_CALL_ARGUMENTS) {
-        return new WeaveFunctionCallArgumentsImpl(node);
-      }
-      else if (type == FUNCTION_CALL_EXPRESSION) {
-        return new WeaveFunctionCallExpressionImpl(node);
-      }
-      else if (type == FUNCTION_DEFINITION) {
-        return new WeaveFunctionDefinitionImpl(node);
-      }
-      else if (type == FUNCTION_DIRECTIVE) {
-        return new WeaveFunctionDirectiveImpl(node);
-      }
-      else if (type == FUNCTION_PARAMETER) {
-        return new WeaveFunctionParameterImpl(node);
-      }
-      else if (type == GREATER_THAN_EXPRESSION) {
-        return new WeaveGreaterThanExpressionImpl(node);
-      }
-      else if (type == HEADER) {
-        return new WeaveHeaderImpl(node);
-      }
-      else if (type == IDENTIFIER) {
-        return new WeaveIdentifierImpl(node);
-      }
-      else if (type == IMPORTED_ELEMENT) {
-        return new WeaveImportedElementImpl(node);
-      }
-      else if (type == IMPORT_DIRECTIVE) {
-        return new WeaveImportDirectiveImpl(node);
-      }
-      else if (type == INPUT_DIRECTIVE) {
-        return new WeaveInputDirectiveImpl(node);
-      }
-      else if (type == INTERSECTION_TYPE) {
-        return new WeaveIntersectionTypeImpl(node);
-      }
-      else if (type == IS_EXPRESSION) {
-        return new WeaveIsExpressionImpl(node);
-      }
-      else if (type == KEY) {
-        return new WeaveKeyImpl(node);
-      }
-      else if (type == KEY_TYPE) {
-        return new WeaveKeyTypeImpl(node);
-      }
-      else if (type == KEY_VALUE_PAIR_TYPE) {
-        return new WeaveKeyValuePairTypeImpl(node);
-      }
-      else if (type == LAMBDA_LITERAL) {
-        return new WeaveLambdaLiteralImpl(node);
-      }
-      else if (type == LAMBDA_TYPE) {
-        return new WeaveLambdaTypeImpl(node);
-      }
-      else if (type == LAMBDA_TYPE_PARAMETER) {
-        return new WeaveLambdaTypeParameterImpl(node);
-      }
-      else if (type == LEFT_SHIFT_EXPRESSION) {
-        return new WeaveLeftShiftExpressionImpl(node);
-      }
-      else if (type == LITERAL_PATTERN) {
-        return new WeaveLiteralPatternImpl(node);
-      }
-      else if (type == MATCH_EXPRESSION) {
-        return new WeaveMatchExpressionImpl(node);
-      }
-      else if (type == MODULE_REFERENCE) {
-        return new WeaveModuleReferenceImpl(node);
-      }
-      else if (type == MULTIPLE_KEY_VALUE_PAIR_OBJ) {
-        return new WeaveMultipleKeyValuePairObjImpl(node);
-      }
-      else if (type == MULTIPLICATION_DIVISION_EXPRESSION) {
-        return new WeaveMultiplicationDivisionExpressionImpl(node);
-      }
-      else if (type == MULTI_VALUE_SELECTOR) {
-        return new WeaveMultiValueSelectorImpl(node);
-      }
-      else if (type == NAMED_LITERAL_PATTERN) {
-        return new WeaveNamedLiteralPatternImpl(node);
-      }
-      else if (type == NAMED_REGEX_PATTERN) {
-        return new WeaveNamedRegexPatternImpl(node);
-      }
-      else if (type == NAMED_TYPE_PATTERN) {
-        return new WeaveNamedTypePatternImpl(node);
-      }
-      else if (type == NAMESPACE_DEFINITION) {
-        return new WeaveNamespaceDefinitionImpl(node);
-      }
-      else if (type == NAMESPACE_DIRECTIVE) {
-        return new WeaveNamespaceDirectiveImpl(node);
-      }
-      else if (type == NAMESPACE_SELECTOR) {
-        return new WeaveNamespaceSelectorImpl(node);
-      }
-      else if (type == NAME_TYPE) {
-        return new WeaveNameTypeImpl(node);
-      }
-      else if (type == NOT_EXPRESSION) {
-        return new WeaveNotExpressionImpl(node);
-      }
-      else if (type == NULL_LITERAL) {
-        return new WeaveNullLiteralImpl(node);
-      }
-      else if (type == NUMBER_LITERAL) {
-        return new WeaveNumberLiteralImpl(node);
-      }
-      else if (type == OBJECT_DECONSTRUCT_EXPRESSION) {
-        return new WeaveObjectDeconstructExpressionImpl(node);
-      }
-      else if (type == OBJECT_DECONSTRUCT_PATTERN) {
-        return new WeaveObjectDeconstructPatternImpl(node);
-      }
-      else if (type == OBJECT_EXPRESSION) {
-        return new WeaveObjectExpressionImpl(node);
-      }
-      else if (type == OBJECT_SELECTOR) {
-        return new WeaveObjectSelectorImpl(node);
-      }
-      else if (type == OBJECT_TYPE) {
-        return new WeaveObjectTypeImpl(node);
-      }
-      else if (type == OPTIONS) {
-        return new WeaveOptionsImpl(node);
-      }
-      else if (type == OPTION_ELEMENT) {
-        return new WeaveOptionElementImpl(node);
-      }
-      else if (type == ORDERED_OBJECT_TYPE) {
-        return new WeaveOrderedObjectTypeImpl(node);
-      }
-      else if (type == OR_EXPRESSION) {
-        return new WeaveOrExpressionImpl(node);
-      }
-      else if (type == OUTPUT_DIRECTIVE) {
-        return new WeaveOutputDirectiveImpl(node);
-      }
-      else if (type == PATTERN_MATCHER_EXPRESSION) {
-        return new WeavePatternMatcherExpressionImpl(node);
-      }
-      else if (type == QUALIFIED_NAME) {
-        return new WeaveQualifiedNameImpl(node);
-      }
-      else if (type == REFERENCE_TYPE) {
-        return new WeaveReferenceTypeImpl(node);
-      }
-      else if (type == REGEX_LITERAL) {
-        return new WeaveRegexLiteralImpl(node);
-      }
-      else if (type == REGEX_PATTERN) {
-        return new WeaveRegexPatternImpl(node);
-      }
-      else if (type == RIGHT_SHIFT_EXPRESSION) {
-        return new WeaveRightShiftExpressionImpl(node);
-      }
-      else if (type == SCHEMA) {
-        return new WeaveSchemaImpl(node);
-      }
-      else if (type == SCHEMA_ELEMENT) {
-        return new WeaveSchemaElementImpl(node);
-      }
-      else if (type == SCHEMA_SELECTOR) {
-        return new WeaveSchemaSelectorImpl(node);
-      }
-      else if (type == SELECTOR) {
-        return new WeaveSelectorImpl(node);
-      }
-      else if (type == SIMPLE_ATTRIBUTE) {
-        return new WeaveSimpleAttributeImpl(node);
-      }
-      else if (type == SIMPLE_KEY_VALUE_PAIR) {
-        return new WeaveSimpleKeyValuePairImpl(node);
-      }
-      else if (type == SINGLE_KEY_VALUE_PAIR_OBJ) {
-        return new WeaveSingleKeyValuePairObjImpl(node);
-      }
-      else if (type == STRING_LITERAL) {
-        return new WeaveStringLiteralImpl(node);
-      }
-      else if (type == TYPE_DEFINITION) {
-        return new WeaveTypeDefinitionImpl(node);
-      }
-      else if (type == TYPE_DIRECTIVE) {
-        return new WeaveTypeDirectiveImpl(node);
-      }
-      else if (type == TYPE_PARAMETER) {
-        return new WeaveTypeParameterImpl(node);
-      }
-      else if (type == TYPE_PATTERN) {
-        return new WeaveTypePatternImpl(node);
-      }
-      else if (type == UNARY_MINUS_EXPRESSION) {
-        return new WeaveUnaryMinusExpressionImpl(node);
-      }
-      else if (type == UNDEFINED_LITERAL) {
-        return new WeaveUndefinedLiteralImpl(node);
-      }
-      else if (type == UNION_TYPE) {
-        return new WeaveUnionTypeImpl(node);
-      }
-      else if (type == USING_EXPRESSION) {
-        return new WeaveUsingExpressionImpl(node);
-      }
-      else if (type == VALUE_SELECTOR) {
-        return new WeaveValueSelectorImpl(node);
-      }
-      else if (type == VARIABLE_DEFINITION) {
-        return new WeaveVariableDefinitionImpl(node);
-      }
-      else if (type == VARIABLE_DIRECTIVE) {
-        return new WeaveVariableDirectiveImpl(node);
-      }
-      else if (type == VARIABLE_REFERENCE_EXPRESSION) {
-        return new WeaveVariableReferenceExpressionImpl(node);
-      }
-      else if (type == VERSION_DIRECTIVE) {
-        return new WeaveVersionDirectiveImpl(node);
-      }
+      } else if (type == CUSTOM_INTERPOLATION_STRING) {
+         return new WeaveCustomInterpolationStringImpl(node);
+       } else if (type == CUSTOM_INTERPOLATOR_EXPRESSION) {
+         return new WeaveCustomInterpolatorExpressionImpl(node);
+       } else if (type == CUSTOM_LOADER) {
+         return new WeaveCustomLoaderImpl(node);
+       } else if (type == DATA_FORMAT) {
+         return new WeaveDataFormatImpl(node);
+       } else if (type == DECLARED_NAMESPACE) {
+         return new WeaveDeclaredNamespaceImpl(node);
+       } else if (type == DEFAULT_PATTERN) {
+         return new WeaveDefaultPatternImpl(node);
+       } else if (type == DEFAULT_VALUE_EXPRESSION) {
+         return new WeaveDefaultValueExpressionImpl(node);
+       } else if (type == DIRECTIVE) {
+         return new WeaveDirectiveImpl(node);
+       } else if (type == DOCUMENT) {
+         return new WeaveDocumentImpl(node);
+       } else if (type == DOT_SELECTOR_EXPRESSION) {
+         return new WeaveDotSelectorExpressionImpl(node);
+       } else if (type == DO_EXPRESSION) {
+         return new WeaveDoExpressionImpl(node);
+       } else if (type == DYNAMIC_ATTRIBUTE) {
+         return new WeaveDynamicAttributeImpl(node);
+       } else if (type == DYNAMIC_KEY_VALUE_PAIR) {
+         return new WeaveDynamicKeyValuePairImpl(node);
+       } else if (type == DYNAMIC_RETURN) {
+         return new WeaveDynamicReturnImpl(node);
+       } else if (type == EMPTY_ARRAY_PATTERN) {
+         return new WeaveEmptyArrayPatternImpl(node);
+       } else if (type == EMPTY_OBJECT_PATTERN) {
+         return new WeaveEmptyObjectPatternImpl(node);
+       } else if (type == ENCLOSED_EXPRESSION) {
+         return new WeaveEnclosedExpressionImpl(node);
+       } else if (type == EQUALITY_EXPRESSION) {
+         return new WeaveEqualityExpressionImpl(node);
+       } else if (type == EXPRESSION_PATTERN) {
+         return new WeaveExpressionPatternImpl(node);
+       } else if (type == FQN_IDENTIFIER) {
+         return new WeaveFqnIdentifierImpl(node);
+       } else if (type == FUNCTION_CALL_ARGUMENTS) {
+         return new WeaveFunctionCallArgumentsImpl(node);
+       } else if (type == FUNCTION_CALL_EXPRESSION) {
+         return new WeaveFunctionCallExpressionImpl(node);
+       } else if (type == FUNCTION_DEFINITION) {
+         return new WeaveFunctionDefinitionImpl(node);
+       } else if (type == FUNCTION_DIRECTIVE) {
+         return new WeaveFunctionDirectiveImpl(node);
+       } else if (type == FUNCTION_PARAMETER) {
+         return new WeaveFunctionParameterImpl(node);
+       } else if (type == GREATER_THAN_EXPRESSION) {
+         return new WeaveGreaterThanExpressionImpl(node);
+       } else if (type == HEADER) {
+         return new WeaveHeaderImpl(node);
+       } else if (type == IDENTIFIER) {
+         return new WeaveIdentifierImpl(node);
+       } else if (type == IMPORTED_ELEMENT) {
+         return new WeaveImportedElementImpl(node);
+       } else if (type == IMPORT_DIRECTIVE) {
+         return new WeaveImportDirectiveImpl(node);
+       } else if (type == INPUT_DIRECTIVE) {
+         return new WeaveInputDirectiveImpl(node);
+       } else if (type == INTERSECTION_TYPE) {
+         return new WeaveIntersectionTypeImpl(node);
+       } else if (type == IS_EXPRESSION) {
+         return new WeaveIsExpressionImpl(node);
+       } else if (type == KEY) {
+         return new WeaveKeyImpl(node);
+       } else if (type == KEY_TYPE) {
+         return new WeaveKeyTypeImpl(node);
+       } else if (type == KEY_VALUE_PAIR_TYPE) {
+         return new WeaveKeyValuePairTypeImpl(node);
+       } else if (type == LAMBDA_LITERAL) {
+         return new WeaveLambdaLiteralImpl(node);
+       } else if (type == LAMBDA_TYPE) {
+         return new WeaveLambdaTypeImpl(node);
+       } else if (type == LAMBDA_TYPE_PARAMETER) {
+         return new WeaveLambdaTypeParameterImpl(node);
+       } else if (type == LEFT_SHIFT_EXPRESSION) {
+         return new WeaveLeftShiftExpressionImpl(node);
+       } else if (type == LITERAL_PATTERN) {
+         return new WeaveLiteralPatternImpl(node);
+       } else if (type == MATCH_EXPRESSION) {
+         return new WeaveMatchExpressionImpl(node);
+       } else if (type == MODULE_REFERENCE) {
+         return new WeaveModuleReferenceImpl(node);
+       } else if (type == MULTIPLE_KEY_VALUE_PAIR_OBJ) {
+         return new WeaveMultipleKeyValuePairObjImpl(node);
+       } else if (type == MULTIPLICATION_DIVISION_EXPRESSION) {
+         return new WeaveMultiplicationDivisionExpressionImpl(node);
+       } else if (type == MULTI_VALUE_SELECTOR) {
+         return new WeaveMultiValueSelectorImpl(node);
+       } else if (type == NAMED_LITERAL_PATTERN) {
+         return new WeaveNamedLiteralPatternImpl(node);
+       } else if (type == NAMED_REGEX_PATTERN) {
+         return new WeaveNamedRegexPatternImpl(node);
+       } else if (type == NAMED_TYPE_PATTERN) {
+         return new WeaveNamedTypePatternImpl(node);
+       } else if (type == NAMESPACE_DEFINITION) {
+         return new WeaveNamespaceDefinitionImpl(node);
+       } else if (type == NAMESPACE_DIRECTIVE) {
+         return new WeaveNamespaceDirectiveImpl(node);
+       } else if (type == NAMESPACE_SELECTOR) {
+         return new WeaveNamespaceSelectorImpl(node);
+       } else if (type == NAME_TYPE) {
+         return new WeaveNameTypeImpl(node);
+       } else if (type == NOT_EXPRESSION) {
+         return new WeaveNotExpressionImpl(node);
+       } else if (type == NULL_LITERAL) {
+         return new WeaveNullLiteralImpl(node);
+       } else if (type == NUMBER_LITERAL) {
+         return new WeaveNumberLiteralImpl(node);
+       } else if (type == OBJECT_DECONSTRUCT_EXPRESSION) {
+         return new WeaveObjectDeconstructExpressionImpl(node);
+       } else if (type == OBJECT_DECONSTRUCT_PATTERN) {
+         return new WeaveObjectDeconstructPatternImpl(node);
+       } else if (type == OBJECT_EXPRESSION) {
+         return new WeaveObjectExpressionImpl(node);
+       } else if (type == OBJECT_SELECTOR) {
+         return new WeaveObjectSelectorImpl(node);
+       } else if (type == OBJECT_TYPE) {
+         return new WeaveObjectTypeImpl(node);
+       } else if (type == OPTIONS) {
+         return new WeaveOptionsImpl(node);
+       } else if (type == OPTION_ELEMENT) {
+         return new WeaveOptionElementImpl(node);
+       } else if (type == ORDERED_OBJECT_TYPE) {
+         return new WeaveOrderedObjectTypeImpl(node);
+       } else if (type == OR_EXPRESSION) {
+         return new WeaveOrExpressionImpl(node);
+       } else if (type == OUTPUT_DIRECTIVE) {
+         return new WeaveOutputDirectiveImpl(node);
+       } else if (type == PATTERN_MATCHER_EXPRESSION) {
+         return new WeavePatternMatcherExpressionImpl(node);
+       } else if (type == QUALIFIED_NAME) {
+         return new WeaveQualifiedNameImpl(node);
+       } else if (type == REFERENCE_TYPE) {
+         return new WeaveReferenceTypeImpl(node);
+       } else if (type == REGEX_LITERAL) {
+         return new WeaveRegexLiteralImpl(node);
+       } else if (type == REGEX_PATTERN) {
+         return new WeaveRegexPatternImpl(node);
+       } else if (type == RIGHT_SHIFT_EXPRESSION) {
+         return new WeaveRightShiftExpressionImpl(node);
+       } else if (type == SCHEMA) {
+         return new WeaveSchemaImpl(node);
+       } else if (type == SCHEMA_ELEMENT) {
+         return new WeaveSchemaElementImpl(node);
+       } else if (type == SCHEMA_SELECTOR) {
+         return new WeaveSchemaSelectorImpl(node);
+       } else if (type == SELECTOR) {
+         return new WeaveSelectorImpl(node);
+       } else if (type == SIMPLE_ATTRIBUTE) {
+         return new WeaveSimpleAttributeImpl(node);
+       } else if (type == SIMPLE_KEY_VALUE_PAIR) {
+         return new WeaveSimpleKeyValuePairImpl(node);
+       } else if (type == SINGLE_KEY_VALUE_PAIR_OBJ) {
+         return new WeaveSingleKeyValuePairObjImpl(node);
+       } else if (type == STRING_LITERAL) {
+         return new WeaveStringLiteralImpl(node);
+       } else if (type == TYPE_DEFINITION) {
+         return new WeaveTypeDefinitionImpl(node);
+       } else if (type == TYPE_DIRECTIVE) {
+         return new WeaveTypeDirectiveImpl(node);
+       } else if (type == TYPE_PARAMETER) {
+         return new WeaveTypeParameterImpl(node);
+       } else if (type == TYPE_PATTERN) {
+         return new WeaveTypePatternImpl(node);
+       } else if (type == UNARY_MINUS_EXPRESSION) {
+         return new WeaveUnaryMinusExpressionImpl(node);
+       } else if (type == UNDEFINED_LITERAL) {
+         return new WeaveUndefinedLiteralImpl(node);
+       } else if (type == UNION_TYPE) {
+         return new WeaveUnionTypeImpl(node);
+       } else if (type == USING_EXPRESSION) {
+         return new WeaveUsingExpressionImpl(node);
+       } else if (type == VALUE_SELECTOR) {
+         return new WeaveValueSelectorImpl(node);
+       } else if (type == VARIABLE_DEFINITION) {
+         return new WeaveVariableDefinitionImpl(node);
+       } else if (type == VARIABLE_DIRECTIVE) {
+         return new WeaveVariableDirectiveImpl(node);
+       } else if (type == VARIABLE_REFERENCE_EXPRESSION) {
+         return new WeaveVariableReferenceExpressionImpl(node);
+       } else if (type == VERSION_DIRECTIVE) {
+         return new WeaveVersionDirectiveImpl(node);
+       }
       throw new AssertionError("Unknown element type: " + type);
     }
   }
