@@ -1,6 +1,5 @@
 package org.mule.tooling.runtime.wizard;
 
-import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.diagnostic.Logger;
@@ -8,11 +7,11 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.ThrowableRunnable;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.model.MavenConstants;
 import org.jetbrains.idea.maven.model.MavenId;
 import org.mule.tooling.runtime.template.RuntimeTemplateManager;
+import org.mule.tooling.runtime.wizard.sdk.SdkProject;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -24,7 +23,7 @@ public class SdkModuleInitializer extends BaseModuleInitializer {
     public static final String SRC_TEST_MUNIT = "/src/test/munit";
     public static final String SRC_TEST_RESOURCES = "/src/test/resources";
 
-    public static void configure(final Project project, final MavenId projectId, final String muleVersion, final String muleMavenPluginVersion, final String mtfVersion, final VirtualFile root, @Nullable MavenId parentId) {
+    public static void configure(final Project project, final MavenId projectId, final String muleVersion, final String muleMavenPluginVersion, final String mtfVersion, final VirtualFile root, @Nullable MavenId parentId, SdkProject sdkProject) {
         try {
             VirtualFile srcResources = VfsUtil.createDirectories(root.getPath() + SRC_MAIN_RESOURCES);
             VirtualFile munit = VfsUtil.createDirectories(root.getPath() + SRC_TEST_MUNIT);

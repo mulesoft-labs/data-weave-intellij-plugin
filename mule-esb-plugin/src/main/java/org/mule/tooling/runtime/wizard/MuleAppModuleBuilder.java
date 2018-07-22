@@ -73,7 +73,7 @@ public class MuleAppModuleBuilder extends MavenModuleBuilder implements SourcePa
 
     @Override
     public Icon getNodeIcon() {
-        return RuntimeIcons.MuleSdk;
+        return RuntimeIcons.MuleRunConfigIcon;
     }
 
     @Override
