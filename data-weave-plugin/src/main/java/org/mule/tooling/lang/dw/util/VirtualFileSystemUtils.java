@@ -71,8 +71,7 @@ public class VirtualFileSystemUtils {
     if (relPath != null) {
       return NameIdentifierHelper.fromWeaveFilePath(relPath);
     } else {
-
-      return NameIdentifier.fromPath(contentRootForFile.getPath());
+      return NameIdentifierHelper.fromWeaveFilePath(contentRootForFile.getPath());
     }
   }
 }

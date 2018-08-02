@@ -20,7 +20,7 @@ dependencies {
     compile group: 'com.atlassian.commonmark', name: 'commonmark', version: '0.11.0'
     compile(group: 'org.mule.weave', name: 'debugger', version: weaveVersion)
     compile(group: 'org.mule.weave', name: 'parser', version: weaveVersion)
-    compile(group: 'org.mule.weave', name: 'migrant', version: weaveVersion)
+    compile(group: 'org.mule.weave', name: 'migrant', version: "2.1.4-SNAPSHOT")
 }
 
 
