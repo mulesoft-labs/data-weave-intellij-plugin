@@ -13,10 +13,6 @@
 
     <munit:config name="${EXT_NAMESPACE}-test-case"/>
 
-    <${EXT_NAMESPACE}:config name="config">
-        <${EXT_NAMESPACE}:connection clientId="12345"/>
-    </${EXT_NAMESPACE}:config>
-
     <munit:test name="test-hello-world">
         <munit:execution>
             <${EXT_NAMESPACE}:hello-world config-ref="config" name="#['Steve']"/>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:${EXT_NAMESPACE}="http://www.mulesoft.org/schema/mule/${EXT_NAMESPACE}" xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns:mtf="http://www.mulesoft.org/schema/mule/mtf"
+      xmlns:mule="http://www.mulesoft.org/schema/mule/core"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+      http://www.mulesoft.org/schema/mule/${EXT_NAMESPACE} http://www.mulesoft.org/schema/mule/${EXT_NAMESPACE}/current/mule-${EXT_NAMESPACE}.xsd
+      http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+      http://www.mulesoft.org/schema/mule/mtf  http://www.mulesoft.org/schema/mule/mtf/current/mule-mtf.xsd
+      http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd">
+
+    <munit:config name="${EXT_NAMESPACE}-source-test-case"/>
+
+    <munit:test name="source-test-case">
+        <!-- `enable-flow-sources` indicates the sources that are required to start for the current tests. By default all sources are stopped.-->
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="sourceFlow"/>
+        </munit:enable-flow-sources>
+        <munit:validation>
+            <until-successful maxRetries="50" millisBetweenRetries="100">
+                <!-- Here the test will wait until three messages are received from the Message Source -->
+                <!-- The Mtf::queueSize() Function returns the number of queued messages -->
+                <munit-tools:assert-that expression="#[Mtf::queueSize()]" is="#[MunitTools::equalTo(3)]"/>
+            </until-successful>
+            <!-- A message is dequeued to assert the payload content -->
+            <mtf:dequeue/>
+            <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::equalTo('Message to publish')]"/>
+        </munit:validation>
+    </munit:test>
+
+    <flow name="sourceFlow">
+        <${EXT_NAMESPACE}:${EXT_NAMESPACE}-message-source config-ref="config" message="Message to publish"/>
+        <logger level="INFO" message="The message is: #[payload]"/>
+        <!-- Each message is queued so the test is able to assert the dispatched messages by the message source -->
+        <mtf:queue/>
+    </flow>
+
+
+
+</mule>

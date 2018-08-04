@@ -13,6 +13,9 @@ public class RuntimeTemplateManager implements FileTemplateGroupDescriptorFactor
     public static final String SDK_JAVA_POM_FILE = "JavaConnector Pom";
     public static final String SDK_JAVA_POM_MTF_FILE = "JavaConnector PomMTF";
     public static final String SDK_JAVA_MTF_TEST_FILE = "JavaConnector MTFTestCase";
+    public static final String SDK_JAVA_MTF_SOURCE_TEST_FILE = "JavaConnector MTFSourceTestCase";
+    public static final String SDK_JAVA_MTF_SHARED_CONFIG_TEST_FILE = "JavaConnector MTFSharedConfig";
+    public static final String SDK_JAVA_LOG4J_TEST_FILE = "JavaConnector Log4j2-test";
 
     public static final String MULE_APP_ARTIFACT_JSON_FILE = "MuleApp Artifact";
     public static final String MULE_APP_CONFIG_FILE = "MuleApp ConfigFile";
@@ -30,6 +33,9 @@ public class RuntimeTemplateManager implements FileTemplateGroupDescriptorFactor
         group.addTemplate(new FileTemplateDescriptor(SDK_JAVA_POM_FILE, RuntimeIcons.MuleSdk));
         group.addTemplate(new FileTemplateDescriptor(SDK_JAVA_POM_MTF_FILE, RuntimeIcons.MuleSdk));
         group.addTemplate(new FileTemplateDescriptor(SDK_JAVA_MTF_TEST_FILE, RuntimeIcons.MuleSdk));
+        group.addTemplate(new FileTemplateDescriptor(SDK_JAVA_MTF_SOURCE_TEST_FILE, RuntimeIcons.MuleSdk));
+        group.addTemplate(new FileTemplateDescriptor(SDK_JAVA_MTF_SHARED_CONFIG_TEST_FILE, RuntimeIcons.MuleSdk));
+        group.addTemplate(new FileTemplateDescriptor(SDK_JAVA_LOG4J_TEST_FILE, RuntimeIcons.MuleSdk));
 
         group.addTemplate(new FileTemplateDescriptor(MULE_APP_CONFIG_FILE, RuntimeIcons.MuleSdk));
         group.addTemplate(new FileTemplateDescriptor(MULE_APP_POM_FILE, RuntimeIcons.MuleSdk));

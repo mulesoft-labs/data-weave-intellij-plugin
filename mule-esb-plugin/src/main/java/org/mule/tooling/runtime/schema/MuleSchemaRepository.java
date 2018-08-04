@@ -49,6 +49,7 @@ public class MuleSchemaRepository {
   public static final String MULE_MODULE_TLS_ARTIFACT_ID = "mule-module-tls";
   public static final String MULE_MODULE_BATCH = "mule-module-batch";
   public static final String MUNIT_TOOLS = "munit-tools";
+  public static final String MTF_TOOLS = "mtf-tools";
   public static final String MUNIT_RUNNER = "munit-runner";
 
   private static final String BATCH_NS = "http://www.mulesoft.org/schema/mule/batch";

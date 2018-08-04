@@ -8,14 +8,10 @@ import com.intellij.openapi.module.ModuleComponent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootEvent;
 import com.intellij.openapi.roots.ModuleRootListener;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.search.FilenameIndex;
-import com.intellij.psi.search.GlobalSearchScope;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.model.MavenArtifact;
 import org.jetbrains.idea.maven.model.MavenId;
+import org.jetbrains.idea.maven.model.MavenPlugin;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.mule.tooling.runtime.tooling.MuleRuntimeServerManager;
 import org.mule.tooling.runtime.tooling.ToolingArtifactManager;
@@ -26,6 +22,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -41,6 +38,7 @@ import static org.mule.tooling.runtime.schema.MuleSchemaRepository.MULE_MODULE_B
 import static org.mule.tooling.runtime.schema.MuleSchemaRepository.MULE_MODULE_TLS_ARTIFACT_ID;
 import static org.mule.tooling.runtime.schema.MuleSchemaRepository.MULE_SCHEMADOC_ARTIFACT_ID;
 import static org.mule.tooling.runtime.schema.MuleSchemaRepository.MUNIT_RUNNER;
+import static org.mule.tooling.runtime.schema.MuleSchemaRepository.MTF_TOOLS;
 import static org.mule.tooling.runtime.schema.MuleSchemaRepository.MUNIT_TOOLS;
 import static org.mule.tooling.runtime.schema.MuleSchemaRepository.ORG_MULE_RUNTIME;
 import static org.mule.tooling.runtime.schema.MuleSchemaRepository.ORG_MULE_TOOLING;
@@ -175,7 +173,15 @@ public class MuleModuleSchemaProvider implements ModuleComponent {
           String munitVersion = getMunitVersion();
           loadSchema(COM_MULESOFT_MUNIT, MUNIT_TOOLS, munitVersion);
           loadSchema(COM_MULESOFT_MUNIT, MUNIT_RUNNER, munitVersion);
+          getMTFDependency(p).ifPresent(d -> loadSchema(d.getGroupId(), d.getArtifactId(), d.getVersion()));
         });
+  }
+
+  private Optional<MavenId> getMTFDependency(MavenPlugin mavenPlugin) {
+    return mavenPlugin.getDependencies()
+            .stream()
+            .filter(dependency -> Objects.equals(dependency.getGroupId(), COM_MULESOFT_MUNIT) && Objects.equals(dependency.getArtifactId(), MTF_TOOLS))
+            .findAny();
   }
 
   private void loadSchema(String groupId, String artifactId, String version) {

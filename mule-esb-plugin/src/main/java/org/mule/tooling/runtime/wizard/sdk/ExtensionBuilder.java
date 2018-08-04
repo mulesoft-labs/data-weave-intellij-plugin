@@ -1,372 +1,162 @@
 package org.mule.tooling.runtime.wizard.sdk;
 
 import static javax.lang.model.element.Modifier.PUBLIC;
+import static org.mule.tooling.runtime.wizard.sdk.builder.ExtensionClassName.CATEGORY_CLASS;
+import static org.mule.tooling.runtime.wizard.sdk.builder.ExtensionClassName.CONNECTION_PROVIDERS_ANNOTATION;
+import static org.mule.tooling.runtime.wizard.sdk.builder.ExtensionClassName.OPERATIONS_ANNOTATION;
+import static org.mule.tooling.runtime.wizard.sdk.builder.ExtensionClassName.SOURCES_ANNOTATION;
+import static org.mule.tooling.runtime.wizard.sdk.builder.ExtensionClassName.EXTENSION_ANNOTATION;
 
+import org.mule.tooling.runtime.wizard.sdk.builder.ConnectionProviderBuilder;
+import org.mule.tooling.runtime.wizard.sdk.builder.JavaType;
+import org.mule.tooling.runtime.wizard.sdk.builder.OperationContainerBuilder;
+import org.mule.tooling.runtime.wizard.sdk.builder.ParameterBuilder.FieldParameterBuilder;
+import org.mule.tooling.runtime.wizard.sdk.builder.SourceBuilder;
+import org.mule.tooling.runtime.wizard.sdk.builder.TypeBasedBuilder;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
-import javax.lang.model.element.Modifier;
-
+import com.intellij.openapi.vfs.VfsUtil;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
-import com.squareup.javapoet.FieldSpec;
-import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.ParameterSpec;
-import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
-public class ExtensionBuilder {
+public class ExtensionBuilder extends TypeBasedBuilder {
 
-    private static final String ANNOTATIONS_PACKAGE = "org.mule.runtime.extension.api.annotation";
-    private static final String CONNECTION_PACKAGE = "org.mule.runtime.api.connection";
-
-    private static final ClassName extensionAnnotation = ClassName.get(ANNOTATIONS_PACKAGE, "Extension");
-    private static final ClassName OPERATIONS_ANNOTATION = ClassName.get(ANNOTATIONS_PACKAGE, "Operations");
-    private static final ClassName CATEGORY_CLASS = ClassName.get("org.mule.runtime.api.meta", "Category");
-    private static final ClassName CONNECTION_PROVIDERS_ANNOTATION = ClassName.get("org.mule.runtime.extension.api.annotation.connectivity", "ConnectionProviders");
-    private static final ClassName CACHED_CONNECTION_PROVIDER = ClassName.get(CONNECTION_PACKAGE, "CachedConnectionProvider");
-    private static final ClassName POOLED_CONNECTION_PROVIDER = ClassName.get(CONNECTION_PACKAGE, "PooledConnectionProvider");
-    private static final ClassName NONE_CONNECTION_PROVIDER = ClassName.get(CONNECTION_PACKAGE, "ConnectionProvider");
-    private static final ClassName CONNECTION_EXCEPTION = ClassName.get(CONNECTION_PACKAGE, "ConnectionException");
-    private static final ClassName CONNECTION_VALIDATION_RESULT = ClassName.get(CONNECTION_PACKAGE, "ConnectionValidationResult");
-    private static final ClassName PARAMETER_ANNOTATION = ClassName.get("org.mule.runtime.extension.api.annotation.param", "Parameter");
-    private static final ClassName CONNECTION_ANNOTATION = ClassName.get("org.mule.runtime.extension.api.annotation.param", "Connection");
-    private static final ClassName CONFIG_ANNOTATION = ClassName.get("org.mule.runtime.extension.api.annotation.param", "Config");
-
-    private String extensionPackage = "org.mule.connectors";
+    private String extensionPackage;
 
     private final TypeSpec.Builder extensionClassBuilder;
     private final List<ConnectionProviderBuilder> connectionProviders = new ArrayList<>();
-    private final List<ParameterBuilder> parameters = new ArrayList<>();
+    private final List<JavaType> additionalClasses = new ArrayList<>();
     private OperationContainerBuilder operationContainerBuilder;
     private String extensionName;
     private String sanitizedExtensionName;
     private ClassName connectionType;
+    private SourceBuilder sourceBuilder;
+    private String extensionClassName;
+    private ClassName extensionType;
 
     public ExtensionBuilder(String extensionName, String vendorName, Category category) {
         this(extensionName, vendorName, category, "org.mule.connectors");
     }
 
-    public ExtensionBuilder(String extensionName, String vendorName, Category category, String extensionPackage) {
+    public ExtensionBuilder(String extensionName, String vendorName, Category category, String extensionPackage){
+        super(TypeSpec.classBuilder(extensionName.replace(" ", "") + "Connector"));
         this.extensionPackage = extensionPackage;
         this.extensionName = extensionName;
         this.sanitizedExtensionName = extensionName.replace(" ", "");
         AnnotationSpec.Builder extensionAnnotationSpec = AnnotationSpec
-                .builder(extensionAnnotation)
-                .addMember("name", stringOf(this.extensionName) );
+                .builder(EXTENSION_ANNOTATION)
+                .addMember("name", "$S", this.extensionName );
 
         if(vendorName != null) {
-            extensionAnnotationSpec.addMember("vendor", stringOf(vendorName));
+            extensionAnnotationSpec.addMember("vendor", "$S", vendorName);
         }
 
         if(category != null) {
             extensionAnnotationSpec.addMember("category", CodeBlock.of("$T." + category, CATEGORY_CLASS));
         }
 
-        this.extensionClassBuilder = TypeSpec
-                .classBuilder(sanitizedExtensionName + "Connector")
+        extensionClassName = sanitizedExtensionName + "Connector";
+        this.extensionType = ClassName.get(extensionPackage + ".internal", extensionClassName);
+        this.extensionClassBuilder = getTypeSpec()
                 .addModifiers(PUBLIC)
                 .addAnnotation(extensionAnnotationSpec.build());
     }
 
-
-    public String getName() {
-        return extensionName.replace(" ", "") + "Connector";
-    }
-
-    public String getPackage() {
-        return extensionPackage + ".internal";
-    }
-
-    public TypeSpec build() {
-        AnnotationSpec.Builder connectionProvidersAnnotationBuilder = AnnotationSpec
-                .builder(CONNECTION_PROVIDERS_ANNOTATION);
-        for (ConnectionProviderBuilder providerBuilder : connectionProviders) {
-            connectionProvidersAnnotationBuilder.addMember("value", CodeBlock.of("$T.class", ClassName.get(providerBuilder.getPackage(), providerBuilder.getName())));
-        }
-
-        AnnotationSpec.Builder value = AnnotationSpec.builder(OPERATIONS_ANNOTATION).addMember("value", CodeBlock.of("$T.class", ClassName.get(operationContainerBuilder.getPackage(), operationContainerBuilder.getName())));
-
-        extensionClassBuilder.addAnnotation(value.build());
-
-        extensionClassBuilder.addAnnotation(connectionProvidersAnnotationBuilder
-                .build());
-
-        for (ParameterBuilder parameter : parameters) {
-            extensionClassBuilder.addField(parameter.build());
-        }
-
-        return extensionClassBuilder.build();
-    }
-
-    public ParameterBuilder withParameter(String name, ClassName type) {
-        ParameterBuilder parameterBuilder = new ParameterBuilder(name, type);
-        parameters.add(parameterBuilder);
-        return parameterBuilder;
-    }
-
     public ConnectionProviderBuilder withConnectionProvider(String name, ClassName connectionType) {
         this.connectionType = connectionType;
-        ConnectionProviderBuilder connectionProviderBuilder = new ConnectionProviderBuilder(name, connectionType);
+        ConnectionProviderBuilder connectionProviderBuilder = new ConnectionProviderBuilder(name, connectionType, this);
         connectionProviders.add(connectionProviderBuilder);
         return connectionProviderBuilder;
     }
 
     public OperationContainerBuilder withOperationContainer() {
-        this.operationContainerBuilder = new OperationContainerBuilder(sanitizedExtensionName + "Operations", ClassName.get("org.mule.extensions", extensionName), connectionType);
+        this.operationContainerBuilder = new OperationContainerBuilder(sanitizedExtensionName + "Operations", extensionType, connectionType, this);
         return operationContainerBuilder;
     }
 
-    public class ConnectionProviderBuilder {
+    public SourceBuilder withSource(String name, TypeName payloadType, TypeName attributesTypes) {
+        this.sourceBuilder = new SourceBuilder(sanitizedExtensionName + name + "Source", payloadType, attributesTypes, extensionType, connectionType, this);
+        return sourceBuilder;
+    }
 
-        private final TypeSpec.Builder connectionProviderClass;
-        private ClassName connectionType;
-        private String name;
-        private Consumer<TypeSpec.Builder> connectionProviderInterfaceConfigurer;
-        private List<ParameterBuilder> parameters = new ArrayList<>();
-        private List<MethodBuilder> methods = new ArrayList<>();
-        private MethodSpec connectMethod;
+    public ExtensionBuilder withAdditionalClass(JavaType extensionJavaType) {
+        this.additionalClasses.add(extensionJavaType);
+        return this;
+    }
 
-        public ConnectionProviderBuilder(String name, ClassName connectionType) {
-            this.name = name;
-            this.connectionType = connectionType;
-            this.connectionProviderClass = TypeSpec
-                    .classBuilder(name)
-                    .addModifiers(PUBLIC);
-            asCached();
+    @Override
+    public String getName() {
+        return extensionType.simpleName();
+    }
 
-            connectMethod = MethodSpec.methodBuilder("connect")
-                    .addModifiers(PUBLIC)
-                    .addException(CONNECTION_EXCEPTION)
-                    .returns(connectionType)
-                    .addStatement("return new $T()", connectionType).build();
+    @Override
+    public String getPackage() {
+        return extensionType.packageName();
+    }
 
-        }
+    public String getExtensionPackage() {
+        return extensionPackage;
+    }
 
-        public ConnectionProviderBuilder withConnectMethod(CodeBlock connectMethod){
-            this.connectMethod = MethodSpec.methodBuilder("connect")
-                    .addModifiers(PUBLIC)
-                    .addException(CONNECTION_EXCEPTION)
-                    .returns(connectionType)
-                    .addCode(connectMethod)
-                    .build();
-            return this;
-        }
-
-        public ParameterBuilder withParameter(String name, ClassName type) {
-            ParameterBuilder parameterBuilder = new ParameterBuilder(name, type);
-            parameters.add(parameterBuilder);
-            return parameterBuilder;
-        }
-
-        public ConnectionProviderBuilder asCached() {
-            connectionProviderInterfaceConfigurer = (builder) -> builder.addSuperinterface(ParameterizedTypeName.get(CACHED_CONNECTION_PROVIDER, connectionType));
-            return this;
-        }
-
-        public ConnectionProviderBuilder asPooled() {
-            connectionProviderInterfaceConfigurer = (builder) -> builder.addSuperinterface(ParameterizedTypeName.get(POOLED_CONNECTION_PROVIDER, connectionType));
-            return this;
-        }
-
-        public ConnectionProviderBuilder asNone() {
-            connectionProviderInterfaceConfigurer = (builder) -> builder.addSuperinterface(ParameterizedTypeName.get(NONE_CONNECTION_PROVIDER, connectionType));
-            return this;
-        }
-
-        public MethodBuilder withMethod(String name) {
-            MethodBuilder methodBuilder = new MethodBuilder(name);
-            methods.add(methodBuilder);
-            return methodBuilder;
-        }
-
-        public String getPackage() {
-            return extensionPackage + ".internal.connection";
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public TypeSpec build() {
-            MethodSpec.Builder disconnect = MethodSpec.methodBuilder("disconnect")
-                    .addModifiers(PUBLIC)
-                    .addParameter(connectionType, "connection")
-                    .returns(void.class)
-                    .addComment("Execute disconnection logic");
-
-            MethodSpec.Builder validate = MethodSpec.methodBuilder("validate")
-                    .addModifiers(PUBLIC)
-                    .addParameter(connectionType, "connection")
-                    .returns(CONNECTION_VALIDATION_RESULT)
-                    .addComment("Execute validation logic")
-                    .addStatement("return $T.success()", CONNECTION_VALIDATION_RESULT);
-
-            connectionProviderClass.addMethod(connectMethod);
-            connectionProviderClass.addMethod(disconnect.build());
-            connectionProviderClass.addMethod(validate.build());
-
-            for (ParameterBuilder parameter : parameters) {
-                connectionProviderClass.addField(parameter.build());
+    @Override
+    public TypeSpec doBuild() {
+            AnnotationSpec.Builder connectionProvidersAnnotationBuilder = AnnotationSpec
+                    .builder(CONNECTION_PROVIDERS_ANNOTATION);
+            for (ConnectionProviderBuilder providerBuilder : connectionProviders) {
+                connectionProvidersAnnotationBuilder.addMember("value", CodeBlock.of("$T.class", ClassName.get(providerBuilder.getPackage(), providerBuilder.getName())));
             }
 
-
-            for (MethodBuilder method : methods) {
-                connectionProviderClass.addMethod(method.build());
+            if(sourceBuilder != null) {
+                extensionClassBuilder.addAnnotation(AnnotationSpec.builder(SOURCES_ANNOTATION)
+                        .addMember("value", CodeBlock.of("$T.class", ClassName.get(sourceBuilder.getPackage(), sourceBuilder.getName())))
+                        .build());
             }
 
-            connectionProviderInterfaceConfigurer.accept(connectionProviderClass);
-            return connectionProviderClass.build();
-        }
+            AnnotationSpec.Builder value = AnnotationSpec.builder(OPERATIONS_ANNOTATION).addMember("value", CodeBlock.of("$T.class", ClassName.get(operationContainerBuilder.getPackage(), operationContainerBuilder.getName())));
 
-        public void withJavadoc(CodeBlock codeBlock) {
-            connectionProviderClass.addJavadoc(codeBlock);
-        }
-    }
+            extensionClassBuilder.addAnnotation(value.build());
 
-    /**
-     * Builder to create parameters
-     */
-    public class ParameterBuilder {
-        private final String name;
-        private final ClassName type;
-        private FieldSpec.Builder builder;
+            extensionClassBuilder.addAnnotation(connectionProvidersAnnotationBuilder
+                    .build());
 
-        public ParameterBuilder(String name, ClassName type) {
-            this.name = name;
-            this.type = type;
-            builder = FieldSpec.builder(type, name, Modifier.PRIVATE).addAnnotation(AnnotationSpec.builder(PARAMETER_ANNOTATION).build());
-        }
-
-        public ParameterBuilder asOptional() {
-            builder.addAnnotation(ClassName.get("org.mule.runtime.extension.api.annotation.param", "Optional"));
-            return this;
-        }
-
-        public FieldSpec build() {
-            return builder.build();
-        }
-    }
-
-    /**
-     * Builder to create operation containers
-     */
-    public class OperationContainerBuilder {
-
-
-        private final TypeSpec.Builder builder;
-        private final ClassName configuration;
-        private final ClassName connection;
-        private final List<OperationBuilder> operations = new ArrayList<>();
-        private final String className;
-
-        public OperationContainerBuilder(String className, ClassName configuration, ClassName connection) {
-            this.configuration = configuration;
-            this.connection = connection;
-            this.className = className.replace(" ", "");
-            builder = TypeSpec.classBuilder(this.className).addModifiers(PUBLIC);
-        }
-
-        public String getPackage() {
-            return extensionPackage + ".internal.operations";
-        }
-
-        public String getName() {
-            return className;
-        }
-
-        public OperationBuilder withOperation(String name){
-            OperationBuilder operationBuilder = new OperationBuilder(name, configuration, connection);
-            operations.add(operationBuilder);
-            return operationBuilder;
-        }
-
-        public TypeSpec build() {
-
-            for (OperationBuilder operation : operations) {
-                builder.addMethod(operation.build());
+            for (FieldParameterBuilder parameter : parameters) {
+                extensionClassBuilder.addField(parameter.build());
             }
 
-
-            return builder.build();
-        }
+            return extensionClassBuilder.build();
     }
 
-    /**
-     * Builder to create extension operations
-     */
-    public class OperationBuilder extends MethodBuilder<OperationBuilder>{
-        private final ClassName configuration;
-        private final ClassName connection;
-
-        public OperationBuilder(String name, ClassName configuration, ClassName connection) {
-            super(name);
-            this.configuration = configuration;
-            this.connection = connection;
+    public void writeJavaFiles(VirtualFile srcJava) throws IOException {
+        writeClass(srcJava, this);
+        for (ConnectionProviderBuilder connectionProvider : connectionProviders) {
+            writeClass(srcJava, connectionProvider);
+        }
+        writeClass(srcJava, operationContainerBuilder);
+        if(sourceBuilder != null) {
+            writeClass(srcJava, sourceBuilder);
         }
 
-        public OperationBuilder withConfigParameter(String name) {
-            builder.addParameter(ParameterSpec
-                    .builder(configuration, name)
-                    .addAnnotation(CONFIG_ANNOTATION)
-                    .build());
-            return this;
+        for (JavaType additionalClass : additionalClasses) {
+            writeClass(srcJava, additionalClass);
         }
 
-        public OperationBuilder withConnection(String name) {
-            builder.addParameter(ParameterSpec
-                    .builder(connection, name)
-                    .addAnnotation(CONNECTION_ANNOTATION)
-                    .build());
-            return this;
-        }
-
-        public OperationBuilder withMediaType(String mediaType) {
-            builder.addAnnotation(AnnotationSpec
-                    .builder(ClassName.get("org.mule.runtime.extension.api.annotation.param", "MediaType"))
-                    .addMember("value", CodeBlock.builder().add("\"$L\"", mediaType).build())
-                    .build());
-            return this;
-        }
     }
 
-    /**
-     * Builder to write generic methods
-     */
-    public class MethodBuilder<T extends MethodBuilder> {
-
-        final String name;
-        final MethodSpec.Builder builder;
-
-        public MethodBuilder(String name) {
-            this.name = name;
-            builder = MethodSpec.methodBuilder(name).addModifiers(PUBLIC);
-        }
-
-        public T returns(TypeName type) {
-            builder.returns(type);
-            return (T) this;
-        }
-
-        public T withParameter(String name, ClassName type) {
-            builder.addParameter(type, name);
-            return (T) this;
-        }
-
-        public T withStatement(CodeBlock codeBlock) {
-            builder.addStatement(codeBlock);
-            return (T) this;
-        }
-
-        public MethodSpec build() {
-            return builder.build();
-        }
+    private void writeClass(VirtualFile srcJava, JavaType extensionJavaType) throws IOException {
+        VirtualFile extensionDirectory = VfsUtil.createDirectories(srcJava.getPath() + "/" + packageToPath(extensionJavaType.getPackage()));
+        String source = JavaFile.builder(extensionJavaType.getPackage(), extensionJavaType.getType()).build().toString();
+        extensionDirectory.findOrCreateChildData(this, extensionJavaType.getName() + ".java").setBinaryContent(source.getBytes());
     }
 
-    private static String stringOf(String vendorName) {
-        return "\"" + vendorName + "\"";
+    private String packageToPath(String javaPackage) {
+        return javaPackage.replace(".", "/");
     }
 }

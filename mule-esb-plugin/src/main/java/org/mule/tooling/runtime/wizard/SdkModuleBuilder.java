@@ -15,12 +15,14 @@ import com.intellij.ide.util.projectWizard.ModuleWizardStep;
 import com.intellij.ide.util.projectWizard.SourcePathsBuilder;
 import com.intellij.ide.util.projectWizard.WizardContext;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.DumbAwareRunnable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModifiableRootModel;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.model.MavenId;
 import org.jetbrains.idea.maven.utils.MavenUtil;
@@ -72,9 +74,15 @@ public class SdkModuleBuilder extends MavenModuleBuilder implements SourcePathsB
             }
 
             @Override
+            public boolean validate() throws ConfigurationException {
+                return !(StringUtils.isEmpty(sdkModuleBuilderForm.getProject().getName()));
+            }
+
+            @Override
             public void updateDataModel() {
                 sdkProject = sdkModuleBuilderForm.getProject();
                 String projectName = dasherize(sdkProject.getName());
+                setName(projectName);
                 String suffix = "-module";
                 if (!projectName.endsWith("connector") && !projectName.endsWith("module")) {
                     projectName = projectName + suffix;
