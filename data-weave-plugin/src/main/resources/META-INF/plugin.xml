@@ -144,6 +144,9 @@
         <testFramework implementation="org.mule.tooling.bat.testintegration.BatTestFramework"/>
         <configurationType implementation="org.mule.tooling.bat.launcher.BatTestConfigurationType"/>
         <runConfigurationProducer implementation="org.mule.tooling.bat.launcher.BatTestConfigurationProducer"/>
+        <toolWindow id="Weave Internals" anchor="bottom"
+                    factoryClass="org.mule.tooling.lang.dw.develop_view.DevelopToolingWindowFactory"
+                    icon="AllIcons.Actions.Dump"/>
     </extensions>
 
     <project-components>

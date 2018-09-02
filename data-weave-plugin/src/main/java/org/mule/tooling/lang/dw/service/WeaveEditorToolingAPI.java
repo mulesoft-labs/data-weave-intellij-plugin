@@ -95,7 +95,7 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
       @Override
       public void onDataFormatLoaded(WeaveDataFormatDescriptor[] dataFormatDescriptor) {
         final List<DataFormatDescriptor> descriptors = new ArrayList<>();
-        for (WeaveDataFormatDescriptor weaveDataFormatDescriptor: dataFormatDescriptor) {
+        for (WeaveDataFormatDescriptor weaveDataFormatDescriptor : dataFormatDescriptor) {
           final String mimeType = weaveDataFormatDescriptor.mimeType();
           final DataFormatDescriptor descriptor = DataFormatDescriptor.apply(mimeType, toDataFormatProp(weaveDataFormatDescriptor.writerProperties()), toDataFormatProp(weaveDataFormatDescriptor.readerProperties()));
           descriptors.add(descriptor);
@@ -116,7 +116,7 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
   @NotNull
   public DataFormatProperty[] toDataFormatProp(WeaveDataFormatProperty[] weaveDataFormatPropertySeq) {
     final List<DataFormatProperty> properties = new ArrayList<>();
-    for (WeaveDataFormatProperty property: weaveDataFormatPropertySeq) {
+    for (WeaveDataFormatProperty property : weaveDataFormatPropertySeq) {
       properties.add(DataFormatProperty.apply(property.name(), property.description(), property.wtype(), property.values()));
     }
     return properties.toArray(new DataFormatProperty[0]);
@@ -164,7 +164,9 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
     return ReadAction.compute(() -> {
       com.intellij.openapi.vfs.VirtualFile virtualFile = psiFile.getVirtualFile();
       final VirtualFile file;
-      if (!virtualFile.isInLocalFileSystem()) {
+      if (virtualFile == null) {
+        file = new IJVirtualFileSystemAdaptor.IJInMemoryFileAdaptor(psiFile.getText(), projectVirtualFileSystem);
+      } else if (!virtualFile.isInLocalFileSystem()) {
         //We create a dummy virtual file
         file = new IJVirtualFileSystemAdaptor.IJVirtualFileAdaptor(projectVirtualFileSystem, virtualFile, myProject, NameIdentifier.ANONYMOUS_NAME());
       } else {
@@ -175,7 +177,7 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
       final WeaveDocument weaveDocument = WeavePsiUtils.getWeaveDocument(psiFile);
       final ImplicitInput currentImplicitTypes = instance.getImplicitInputTypes(weaveDocument);
       final WeaveType expectedOutput = instance.getExpectedOutput(weaveDocument);
-      if (virtualFile.isInLocalFileSystem()) {
+      if (virtualFile != null && virtualFile.isInLocalFileSystem()) {
         return dwTextDocumentService.open(file, currentImplicitTypes != null ? currentImplicitTypes : new ImplicitInput(), Option.apply(expectedOutput));
       } else {
         return dwTextDocumentService.openInMemory(file, currentImplicitTypes != null ? currentImplicitTypes : new ImplicitInput(), Option.apply(expectedOutput));
@@ -240,7 +242,7 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
 
   private List<LookupElement> createElements(Suggestion[] items) {
     ArrayList<LookupElement> result = new ArrayList<>();
-    for (Suggestion item: items) {
+    for (Suggestion item : items) {
       result.add(createLookupItem(item));
     }
     return result;
@@ -381,15 +383,46 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
 
   @Override
   public void projectOpened() {
-    for (Runnable runnable: onProjectOpenListener) {
+    for (Runnable runnable : onProjectOpenListener) {
       runnable.run();
     }
   }
 
   @Override
   public void projectClosed() {
-    for (Runnable runnable: onProjectCloseListener) {
+    for (Runnable runnable : onProjectCloseListener) {
       runnable.run();
+    }
+  }
+
+  @Nullable
+  public String astString(PsiFile selectedFile) {
+    Option<String> stringOption = didOpen(selectedFile).astString();
+    if (stringOption.isDefined()) {
+      return stringOption.get();
+    } else {
+      return null;
+    }
+  }
+
+
+  @Nullable
+  public String typeGraphString(PsiFile selectedFile) {
+    Option<String> stringOption = didOpen(selectedFile).typeGraphString();
+    if (stringOption.isDefined()) {
+      return stringOption.get();
+    } else {
+      return null;
+    }
+  }
+
+  @Nullable
+  public String scopeGraphString(PsiFile selectedFile) {
+    Option<String> stringOption = didOpen(selectedFile).scopeGraphString();
+    if (stringOption.isDefined()) {
+      return stringOption.get();
+    } else {
+      return null;
     }
   }
 

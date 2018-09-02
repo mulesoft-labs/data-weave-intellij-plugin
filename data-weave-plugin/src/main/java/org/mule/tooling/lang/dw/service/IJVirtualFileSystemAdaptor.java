@@ -27,6 +27,7 @@ import scala.Option;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class IJVirtualFileSystemAdaptor implements VirtualFileSystem, Disposable {
 
@@ -79,7 +80,7 @@ public class IJVirtualFileSystemAdaptor implements VirtualFileSystem, Disposable
 
   @Override
   public void onChanged(org.mule.weave.v2.editor.VirtualFile vf) {
-    for (ChangeListener listener: listeners) {
+    for (ChangeListener listener : listeners) {
       listener.onChanged(vf);
     }
   }
@@ -129,6 +130,46 @@ public class IJVirtualFileSystemAdaptor implements VirtualFileSystem, Disposable
         return Option.apply(intellijVirtualFileAdaptor.asResource());
       }
     }
+  }
+
+  public static class IJInMemoryFileAdaptor implements org.mule.weave.v2.editor.VirtualFile {
+
+    private String content;
+    private VirtualFileSystem fs;
+    private String name;
+
+    public IJInMemoryFileAdaptor(String content, VirtualFileSystem fs) {
+      this.content = content;
+      this.fs = fs;
+      this.name = "Memory_" + UUID.randomUUID().toString() + ".dwl";
+    }
+
+    @Override
+    public VirtualFileSystem fs() {
+      return fs;
+    }
+
+    @Override
+    public String read() {
+      return content;
+    }
+
+    @Override
+    public void write(String content) {
+      this.content = content;
+    }
+
+    @Override
+    public boolean readOnly() {
+      return true;
+    }
+
+    @Override
+    public String path() {
+      return "mock://" + name;
+    }
+
+
   }
 
   public static class IJVirtualFileAdaptor implements org.mule.weave.v2.editor.VirtualFile {
