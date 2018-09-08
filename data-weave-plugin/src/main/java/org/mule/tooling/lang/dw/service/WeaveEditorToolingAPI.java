@@ -125,24 +125,24 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
   public List<LookupElement> completion(CompletionParameters completionParameters) {
     //First make sure is in the write context
     final Document document = completionParameters.getEditor().getDocument();
-    final WeaveDocumentToolingService weaveDocumentService = didOpen(document);
+    final WeaveDocumentToolingService weaveDocumentService = didOpen(document, true);
     final int offset = completionParameters.getOffset();
     final Suggestion[] items = weaveDocumentService.completionItems(offset);
     return createElements(items);
   }
 
   public ValidationMessages typeCheck(PsiFile file) {
-    return didOpen(file).typeCheck();
+    return didOpen(file, false).typeCheck();
   }
 
   public ValidationMessages parseCheck(PsiFile file) {
-    return didOpen(file).parseCheck();
+    return didOpen(file, false).parseCheck();
   }
 
-  private WeaveDocumentToolingService didOpen(Document document) {
+  private WeaveDocumentToolingService didOpen(Document document, boolean useExpectedOutput) {
     final PsiFile psiFile = PsiDocumentManager.getInstance(myProject).getPsiFile(document);
     assert psiFile != null;
-    return didOpen(psiFile);
+    return didOpen(psiFile, useExpectedOutput);
   }
 
   public WeaveType parseType(String weaveType) {
@@ -155,12 +155,12 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
   }
 
   public WeaveType typeOf(PsiElement element) {
-    final WeaveDocumentToolingService weaveDocument = didOpen(element.getContainingFile());
+    final WeaveDocumentToolingService weaveDocument = didOpen(element.getContainingFile(), false);
     final TextRange textRange = element.getTextRange();
     return weaveDocument.typeOf(textRange.getStartOffset(), textRange.getEndOffset());
   }
 
-  private WeaveDocumentToolingService didOpen(PsiFile psiFile) {
+  private WeaveDocumentToolingService didOpen(PsiFile psiFile, boolean useExpectedOutput) {
     return ReadAction.compute(() -> {
       com.intellij.openapi.vfs.VirtualFile virtualFile = psiFile.getVirtualFile();
       final VirtualFile file;
@@ -176,7 +176,7 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
       final WeaveRuntimeContextManager instance = WeaveRuntimeContextManager.getInstance(myProject);
       final WeaveDocument weaveDocument = WeavePsiUtils.getWeaveDocument(psiFile);
       final ImplicitInput currentImplicitTypes = instance.getImplicitInputTypes(weaveDocument);
-      final WeaveType expectedOutput = instance.getExpectedOutput(weaveDocument);
+      final WeaveType expectedOutput = useExpectedOutput ? instance.getExpectedOutput(weaveDocument) : null;
       if (virtualFile != null && virtualFile.isInLocalFileSystem()) {
         return dwTextDocumentService.open(file, currentImplicitTypes != null ? currentImplicitTypes : new ImplicitInput(), Option.apply(expectedOutput));
       } else {
@@ -187,9 +187,9 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
 
   @Nullable
   public String hover(PsiElement element) {
-    final Document document = PsiDocumentManager.getInstance(myProject).getDocument(element.getContainingFile());
-    if (document != null) {
-      final WeaveDocumentToolingService weaveDocumentService = didOpen(document);
+    final PsiFile containingFile = element.getContainingFile();
+    if (containingFile != null) {
+      final WeaveDocumentToolingService weaveDocumentService = didOpen(containingFile, false);
       final Option<HoverMessage> hoverResult = weaveDocumentService.hoverResult(element.getTextOffset());
       if (hoverResult.isDefined()) {
         final HoverMessage hoverMessage = hoverResult.get();
@@ -199,7 +199,6 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
         return null;
       }
     } else {
-      //TODO why the document is null?
       return null;
     }
   }
@@ -207,7 +206,7 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
   @NotNull
   public PsiElement[] resolveReference(WeaveIdentifier identifier) {
     final PsiFile containerFile = identifier.getContainingFile();
-    final WeaveDocumentToolingService weaveDocumentService = didOpen(containerFile);
+    final WeaveDocumentToolingService weaveDocumentService = didOpen(containerFile, false);
     final Option<Reference> referenceOption = weaveDocumentService.definition(identifier.getTextOffset());
     if (referenceOption.isDefined()) {
       final Reference reference = referenceOption.get();
@@ -294,7 +293,7 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
 
   @Nullable
   public String documentation(PsiElement psiElement) {
-    WeaveDocumentToolingService weaveDocumentService = didOpen(psiElement.getContainingFile());
+    WeaveDocumentToolingService weaveDocumentService = didOpen(psiElement.getContainingFile(), false);
     Option<HoverMessage> hoverMessageOption = weaveDocumentService.hoverResult(psiElement.getTextOffset());
     String result = null;
     if (hoverMessageOption.isDefined()) {
@@ -336,7 +335,7 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
 
   @Nullable
   public VariableScope scopeOf(PsiElement element) {
-    WeaveDocumentToolingService weaveDocumentToolingService = didOpen(element.getContainingFile());
+    WeaveDocumentToolingService weaveDocumentToolingService = didOpen(element.getContainingFile(), false);
     Option<VariableScope> scopeOf = weaveDocumentToolingService.scopeOf(element.getTextRange().getStartOffset(), element.getTextRange().getEndOffset());
     if (scopeOf.isDefined()) {
       return scopeOf.get();
@@ -346,7 +345,7 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
   }
 
   public VariableDependency[] externalScopeDependencies(PsiElement element, @Nullable VariableScope parent) {
-    WeaveDocumentToolingService weaveDocumentToolingService = didOpen(element.getContainingFile());
+    WeaveDocumentToolingService weaveDocumentToolingService = didOpen(element.getContainingFile(), false);
     TextRange textRange = element.getTextRange();
     return weaveDocumentToolingService.externalScopeDependencies(textRange.getStartOffset(), textRange.getEndOffset(), Option.apply(parent));
   }
@@ -357,7 +356,7 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
   }
 
   public void reformat(Document document) {
-    Option<ReformatResult> formatting = didOpen(document).formatting();
+    Option<ReformatResult> formatting = didOpen(document, false).formatting();
     if (formatting.isDefined()) {
       ApplicationManager.getApplication().runWriteAction(() -> document.setText(formatting.get().newFormat()));
     }
@@ -365,7 +364,7 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
 
   @Nullable
   public String typeOf(Document document, int selectionStart, int selectionEnd) {
-    WeaveType weaveType = didOpen(document).typeOf(selectionStart, selectionEnd);
+    WeaveType weaveType = didOpen(document, false).typeOf(selectionStart, selectionEnd);
     if (weaveType != null) {
       return weaveType.toString(true, true);
     } else {
@@ -397,7 +396,7 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
 
   @Nullable
   public String astString(PsiFile selectedFile) {
-    Option<String> stringOption = didOpen(selectedFile).astString();
+    Option<String> stringOption = didOpen(selectedFile, false).astString();
     if (stringOption.isDefined()) {
       return stringOption.get();
     } else {
@@ -408,7 +407,7 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
 
   @Nullable
   public String typeGraphString(PsiFile selectedFile) {
-    Option<String> stringOption = didOpen(selectedFile).typeGraphString();
+    Option<String> stringOption = didOpen(selectedFile, false).typeGraphString();
     if (stringOption.isDefined()) {
       return stringOption.get();
     } else {
@@ -418,7 +417,7 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
 
   @Nullable
   public String scopeGraphString(PsiFile selectedFile) {
-    Option<String> stringOption = didOpen(selectedFile).scopeGraphString();
+    Option<String> stringOption = didOpen(selectedFile, false).scopeGraphString();
     if (stringOption.isDefined()) {
       return stringOption.get();
     } else {

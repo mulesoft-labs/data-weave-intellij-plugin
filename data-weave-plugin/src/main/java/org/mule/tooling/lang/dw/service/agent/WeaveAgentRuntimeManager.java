@@ -1,5 +1,6 @@
 package org.mule.tooling.lang.dw.service.agent;
 
+import com.intellij.ProjectTopics;
 import com.intellij.execution.DefaultExecutionResult;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.ExecutionResult;
@@ -33,6 +34,8 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.IndexNotReadyException;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ModuleRootEvent;
+import com.intellij.openapi.roots.ModuleRootListener;
 import com.intellij.openapi.roots.OrderEnumerator;
 import com.intellij.openapi.util.Key;
 import com.intellij.psi.JavaPsiFacade;
@@ -62,7 +65,6 @@ import java.util.List;
 
 public class WeaveAgentRuntimeManager extends AbstractProjectComponent {
 
-
   public static final int MAX_RETRIES = 10;
   public static final long ONE_SECOND_DELAY = 1000L;
 
@@ -87,6 +89,21 @@ public class WeaveAgentRuntimeManager extends AbstractProjectComponent {
   @Override
   public void projectOpened() {
     super.projectOpened();
+    start();
+    myProject.getMessageBus().connect(myProject).subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootListener() {
+      @Override
+      public void rootsChanged(ModuleRootEvent event) {
+        Notifications.Bus.notify(new Notification("Data Weave", "Restarting server", "Restarting weave server as classpath has changed", NotificationType.INFORMATION));
+        //We need to restart the server as the classpath has changed
+        tearDown();
+        start();
+      }
+    });
+
+    Runtime.getRuntime().addShutdownHook(new Thread(() -> tearDown()));
+  }
+
+  private void start() {
     DumbService.getInstance(myProject).runWithAlternativeResolveEnabled(() -> {
       if (isWeaveRuntimeInstalled()) {
         //We initialized if it is installed
@@ -99,7 +116,6 @@ public class WeaveAgentRuntimeManager extends AbstractProjectComponent {
         });
       }
     });
-    Runtime.getRuntime().addShutdownHook(new Thread(() -> tearDown()));
   }
 
   public void disable() {
@@ -182,6 +198,7 @@ public class WeaveAgentRuntimeManager extends AbstractProjectComponent {
         @Override
         public void connectedSuccessfully() {
           indicator.setText2("Agent connected successfully");
+          Notifications.Bus.notify(new Notification("Data Weave", "Server Started", "Weave server was started and is reachable at port " + finalFreePort, NotificationType.INFORMATION));
         }
 
         @Override
@@ -196,7 +213,7 @@ public class WeaveAgentRuntimeManager extends AbstractProjectComponent {
       });
       if (client.isConnected()) {
         System.out.println("Weave agent connected to server. Port: " + finalFreePort);
-        for (WeaveAgentStatusListener listener: listeners) {
+        for (WeaveAgentStatusListener listener : listeners) {
           listener.agentStarted();
         }
       } else {
@@ -246,7 +263,7 @@ public class WeaveAgentRuntimeManager extends AbstractProjectComponent {
     // All modules to use the same things
     final Module[] modules = ModuleManager.getInstance(project).getModules();
     if (modules.length > 0) {
-      for (Module module: modules) {
+      for (Module module : modules) {
         loadClasspathInto(module, pathsList);
       }
     }

@@ -22,10 +22,8 @@ public class MuleRuntimeSettingsUI {
     this.defaultMuleVersion.setText(this.state.getDefaultRuntimeVersion());
   }
 
-
   public boolean isModified() {
-    return !getDefaultMuleVersionValue().equals(this.state.getDefaultRuntimeVersion())
-        ;
+    return !getDefaultMuleVersionValue().equals(this.state.getDefaultRuntimeVersion());
   }
 
   public void apply() {

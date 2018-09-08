@@ -80,7 +80,7 @@ public class WeaveValidatorAnnotator extends ExternalAnnotator<PsiFile, Validati
       WeaveLocation location = validationMessage.location();
       int startIndex = getValidIndex(location.startPosition());
       int endIndex = getValidIndex(location.endPosition());
-      Annotation annotation = holder.createAnnotation(severity, new TextRange(startIndex, endIndex), validationMessage.message().message());
+      Annotation annotation = holder.createAnnotation(severity, new TextRange(startIndex, endIndex), validationMessage.message().message(), WeaveEditorToolingAPI.toHtml(validationMessage.message().message()));
       QuickFix[] quickFixes = validationMessage.quickFix();
       for (QuickFix quickFix : quickFixes) {
         annotation.registerFix(new WeaveIntentionAction(quickFix));
