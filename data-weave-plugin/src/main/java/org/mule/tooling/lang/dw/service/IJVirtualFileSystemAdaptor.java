@@ -74,14 +74,17 @@ public class IJVirtualFileSystemAdaptor implements VirtualFileSystem, Disposable
   }
 
   @Override
-  public void changeListener(ChangeListener cl) {
+  public void changeListener(@NotNull ChangeListener cl) {
     this.listeners.add(cl);
   }
 
   @Override
   public void onChanged(org.mule.weave.v2.editor.VirtualFile vf) {
     for (ChangeListener listener : listeners) {
-      listener.onChanged(vf);
+      if (listener != null) {
+        //TODO this should never happen but ....
+        listener.onChanged(vf);
+      }
     }
   }
 
