@@ -52,12 +52,13 @@ public class BatTestRunnerCommandLine extends WeaveCommandLineState {
         ParametersList params = javaParams.getProgramParametersList();
         final Project project = module.getProject();
         javaParams.setWorkingDirectory(project.getBasePath());
-//        params.add("-testlistener");
-//        params.add("intellij");
+        params.add("-testlistener");
+        params.add("intellij");
 
-//    if (isDebug) {
-//      params.add("-debug");
-//    }
+        if (isDebug) {
+          params.add("--wdg");
+        }
+
         // VM Args
         final String vmArgs = this.configuration.getVmOptions();
         if (vmArgs != null) {
