@@ -65,15 +65,13 @@ public class MuleFrameworkDetector extends FrameworkDetector
     @Override
     public ElementPattern<FileContent> createSuitableFilePattern()
     {
+//        return FileContentPattern.fileContent().andOr(
+//                        FileContentPattern.fileContent().withName("mule-artifact.json"),
+//                        FileContentPattern.fileContent().withName("mule-app.properties"),
+//                        FileContentPattern.fileContent().withName("mule-domain-config.xml"));
         return FileContentPattern.fileContent().andOr(
-                        FileContentPattern.fileContent().withName("mule-artifact.json"),
-                        FileContentPattern.fileContent().withName("mule-app.properties"),
-                        FileContentPattern.fileContent().withName("mule-domain-config.xml"));
+                    FileContentPattern.fileContent().withName("mule-artifact.json"));
 
-        //        new FileContent()
-//        return FileContentPattern.fileContent().oneOf(FileContentPattern.fileContent().withName("mule-app.properties")., FileContentPattern.fileContent().withName("mule-domain-config.xml"));
-
-                //.withName("mule-app.properties")..withName("mule-domain-config.xml");
     }
 
     @Override

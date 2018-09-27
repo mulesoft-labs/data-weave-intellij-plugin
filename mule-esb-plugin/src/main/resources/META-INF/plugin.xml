@@ -54,6 +54,13 @@
 
         <configurationType implementation="org.mule.tooling.runtime.launcher.configuration.MuleConfigurationType"/>
 
+        <!--Mule Standalone framework -->
+        <library.presentationProvider implementation="org.mule.tooling.runtime.framework.MuleLibraryPresentationProvider" order="first"/>
+        <framework.type implementation="org.mule.tooling.runtime.framework.MuleFrameworkType"/>
+        <facetType implementation="org.mule.tooling.runtime.framework.facet.MuleFacetType" order="first"/>
+        <framework.detector implementation="org.mule.tooling.runtime.framework.MuleFrameworkDetector"/>
+        <library.type implementation="org.mule.tooling.runtime.framework.MuleLibraryType"/>
+
     </extensions>
 
     <application-components>
