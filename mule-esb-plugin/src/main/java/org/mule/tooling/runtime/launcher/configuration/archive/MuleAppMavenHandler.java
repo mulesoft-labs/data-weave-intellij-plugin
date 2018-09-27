@@ -11,40 +11,42 @@ import java.io.File;
 
 public class MuleAppMavenHandler implements MuleAppHandler {
 
-  @NotNull
-  @Override
-  public File getMuleApp(final Module module) throws ExecutionException {
-    String outputPath = null;
-    final File outputDir;
+    @NotNull
+    @Override
+    public File getMuleApp(final Module module) throws ExecutionException {
+        String outputPath = null;
+        final File outputDir;
 
-    final CompilerModuleExtension compilerModuleExtension = CompilerModuleExtension.getInstance(module);
-    final VirtualFile moduleFile = module.getModuleFile();
-    if (compilerModuleExtension != null && moduleFile != null) {
-      //Refresh file system
-      module.getModuleFile().refresh(false, true);
-      VirtualFile compilerOutputPath = compilerModuleExtension.getCompilerOutputPath();
+        final CompilerModuleExtension compilerModuleExtension = CompilerModuleExtension.getInstance(module);
+        final VirtualFile moduleFile = module.getModuleFile();
+        VirtualFile compilerOutputPath = null;
 
-      if (compilerOutputPath != null && compilerOutputPath.getParent() != null) {
-        outputPath = compilerOutputPath.getParent().getCanonicalPath();
-        outputDir = new File(outputPath);
-      } else {
-        outputPath = module.getModuleFile().getParent().getCanonicalPath() + File.separator + "target";
-        outputDir = new File(module.getModuleFile().getParent().getCanonicalPath(), "target");
-      }
+        //First try by checking the compiler settings
+        if (compilerModuleExtension != null) {
+            compilerOutputPath = compilerModuleExtension.getCompilerOutputPath();
+        }
 
-      File applicationZip = null;
-      final File[] zips = outputDir.listFiles((dir, name) -> name.endsWith("zip"));
-      if (zips.length > 0) {
-        applicationZip = zips[0];
-      }
-      if (applicationZip == null) {
-        throw new ExecutionException("Unable to create application. Application was not found at " + outputPath);
-      }
-      return applicationZip;
-    } else {
-      throw new ExecutionException("Unable to create application. No module found.");
+        if (compilerOutputPath != null && compilerOutputPath.getParent() != null) {
+            outputPath = compilerOutputPath.getParent().getCanonicalPath();
+            outputDir = new File(outputPath);
+        } else if (moduleFile != null) { //Find by relative path to the module root
+            //Refresh file system
+            module.getModuleFile().refresh(false, true);
+            outputPath = module.getModuleFile().getParent().getCanonicalPath() + File.separator + "target";
+            outputDir = new File(module.getModuleFile().getParent().getCanonicalPath(), "target");
+        } else {
+            throw new ExecutionException("Unable to create application. No module found.");
+        }
+
+        File applicationZip = null;
+        final File[] zips = outputDir.listFiles((dir, name) -> name.endsWith(MuleAppHandler.MULE_APP_SUFFIX));
+        if (zips.length > 0) {
+            applicationZip = zips[0];
+        }
+        if (applicationZip == null) {
+            throw new ExecutionException("Unable to create application. Application was not found at " + outputPath);
+        }
+        return applicationZip;
     }
-  }
-
-
 }
+

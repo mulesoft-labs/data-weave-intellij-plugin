@@ -41,7 +41,7 @@ public class MuleRunnerEditor extends SettingsEditor<MuleConfiguration> {
     String muleHome = runnerConfiguration.getMuleHome();
     if (StringUtils.isBlank(muleHome)) {
       if (selectedModules.length > 0) {
-        final MuleSdk from = null;/*MuleSdk.getFrom(selectedModules[0]);*/
+        final MuleSdk from = MuleSdk.getFrom(selectedModules[0]);
         if (from != null) {
           muleHome = from.getMuleHome();
         }

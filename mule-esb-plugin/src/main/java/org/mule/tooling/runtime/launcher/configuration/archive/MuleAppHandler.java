@@ -8,8 +8,8 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 
 public interface MuleAppHandler {
+    public static String MULE_APP_SUFFIX = "-mule-application.jar";
 
-  @NotNull
-  File getMuleApp(Module module) throws ExecutionException;
-
+    @NotNull
+    File getMuleApp(Module module) throws ExecutionException;
 }

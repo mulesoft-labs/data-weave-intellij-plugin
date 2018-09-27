@@ -92,3 +92,9 @@ TODO Implement
 
 * com.intellij.execution.filters.ConsoleFilterProvider
 ** <consoleFilterProvider implementation="org.mule.tooling.esb.console.ConsoleFlowStackFilterProvider" order="first"/>
+
+-------------------------------------------------
+
+TODO: Add artifact Mule version check before start - to avoid errors like:
+org.mule.runtime.api.exception.MuleRuntimeException: Artifact my-mule-app-mule-application requires a newest runtime version. Artifact required version is 4.1.3 and Mule Runtime version is 4.1.1
+Also add warining in the run configuration - if user selects runtime less than the one in the json, there should be a warning

@@ -76,7 +76,8 @@ public class ToolingRuntimeManager implements ApplicationComponent {
                 isStarting = true;
                 ToolingRuntimeClient runtimeClient = initRuntimeClient(project, runtimeVersion, getToolingVersionForRuntime(runtimeVersion), indicator);
                 isStarting = false;
-                result.set(caller.apply(runtimeClient));
+                if (runtimeClient != null)
+                    result.set(caller.apply(runtimeClient));
               }
             });
             try {
@@ -98,7 +99,7 @@ public class ToolingRuntimeManager implements ApplicationComponent {
     return runtimeVersion;
   }
 
-  @NotNull
+  //@NotNull
   private ToolingRuntimeClient initRuntimeClient(Project project, String runtimeVersion, String toolingVersion, ProgressIndicator progressIndicator) {
     progressIndicator.setText("Initializing Tooling Runtime");
     final MavenConfiguration mavenConfiguration = MavenConfigurationUtils.createMavenConfiguration();
@@ -110,12 +111,17 @@ public class ToolingRuntimeManager implements ApplicationComponent {
       builder.withToolingApiUrl(runtime.getToolingApiUrl());
     }
     final AgentConfiguration build = builder.build();
-    final ToolingRuntimeClient toolingRuntimeClient = createToolingRuntimeClient(toolingClientBootstrap, mavenConfiguration, build, progressIndicator);
-    toolingRuntimeByVersion.put(runtimeVersion, toolingRuntimeClient);
-    //Notify that a tooling runtime is available
-    ApplicationManager.getApplication().getMessageBus().syncPublisher(ToolingRuntimeTopics.TOOLING_STARTED).onToolingRuntimeStarted(runtimeVersion);
-    progressIndicator.setText("Tooling Runtime Started successfully");
-    return toolingRuntimeClient;
+    if (toolingClientBootstrap != null) {
+      final ToolingRuntimeClient toolingRuntimeClient = createToolingRuntimeClient(toolingClientBootstrap, mavenConfiguration, build, progressIndicator);
+      toolingRuntimeByVersion.put(runtimeVersion, toolingRuntimeClient);
+      //Notify that a tooling runtime is available
+      ApplicationManager.getApplication().getMessageBus().syncPublisher(ToolingRuntimeTopics.TOOLING_STARTED).onToolingRuntimeStarted(runtimeVersion);
+      progressIndicator.setText("Tooling Runtime Started successfully");
+      return toolingRuntimeClient;
+    } else {
+      progressIndicator.setText("Unable to start Tooling Runtime");
+      return null;
+    }
   }
 
   public static ToolingRuntimeManager getInstance() {
@@ -131,9 +137,15 @@ public class ToolingRuntimeManager implements ApplicationComponent {
         .build();
 
     progressIndicator.setText2("Initializing Tooling Bootstrap");
-    final ToolingRuntimeClientBootstrap toolingRuntimeClientBootstrap = ClassLoaderUtil.runWithClassLoader(getClass().getClassLoader(), (Computable<ToolingRuntimeClientBootstrap>) () -> newToolingRuntimeClientBootstrap(toolingRuntimeClientBootstrapConfiguration));
-    progressIndicator.setText2("Tooling Bootstrap Initialized");
-    return toolingRuntimeClientBootstrap;
+
+    try {
+      final ToolingRuntimeClientBootstrap toolingRuntimeClientBootstrap = ClassLoaderUtil.runWithClassLoader(getClass().getClassLoader(), (Computable<ToolingRuntimeClientBootstrap>) () -> newToolingRuntimeClientBootstrap(toolingRuntimeClientBootstrapConfiguration));
+      progressIndicator.setText2("Tooling Bootstrap Initialized");
+      return toolingRuntimeClientBootstrap;
+    } catch (Throwable e) {
+      progressIndicator.setText2("Unable to initialize Tooling Bootstrap : " + e.getMessage());
+      return null;
+    }
   }
 
   public ToolingRuntimeClient createToolingRuntimeClient(ToolingRuntimeClientBootstrap toolingRuntimeClientBootstrap,

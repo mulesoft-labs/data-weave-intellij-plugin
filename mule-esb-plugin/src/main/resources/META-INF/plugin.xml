@@ -51,6 +51,9 @@
                 implementationClass="org.mule.tooling.runtime.artifact_json.MuleArtifactJsonCompletionContributor"
                 language="JSON"/>
         <stepsBeforeRunProvider implementation="org.mule.tooling.runtime.launcher.MuleBeforeRunTasksProvider"/>
+
+        <configurationType implementation="org.mule.tooling.runtime.launcher.configuration.MuleConfigurationType"/>
+
     </extensions>
 
     <application-components>
@@ -64,6 +67,13 @@
             <implementation-class>org.mule.tooling.runtime.tooling.ToolingRuntimeManager</implementation-class>
         </component>
     </application-components>
+
+    <project-components>
+        <component>
+            <implementation-class>org.mule.tooling.runtime.launcher.configuration.archive.MuleAppManager</implementation-class>
+            <!--<loadForDefaultProject/>-->
+        </component>
+    </project-components>
 
     <actions>
 
