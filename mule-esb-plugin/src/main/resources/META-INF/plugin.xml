@@ -82,10 +82,6 @@
         </component>
     </project-components>
 
-    <actions>
-
-    </actions>
-
     <module-components>
         <component>
             <implementation-class>org.mule.tooling.runtime.schema.MuleModuleSchemaProvider</implementation-class>
@@ -96,4 +92,12 @@
             <interface-class>org.mule.tooling.runtime.tooling.ToolingArtifactManager</interface-class>
         </component>
     </module-components>
+
+    <actions>
+        <action id="Mule.AddDependencyFromExchange"
+                class="org.mule.tooling.runtime.actions.AddDependencyFromExchangeAction">
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="after" relative-to-action="NewGroup1"/>
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
+    </actions>
 </idea-plugin>
