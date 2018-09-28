@@ -69,8 +69,9 @@ public class AddDependencyFromExchangeAction extends AnAction {
     @Override
     public void update(AnActionEvent anActionEvent) {
         final VirtualFile file = CommonDataKeys.VIRTUAL_FILE.getData(anActionEvent.getDataContext());
-        anActionEvent.getPresentation().setEnabled("pom.xml".equals(file.getName()));
-        anActionEvent.getPresentation().setVisible("pom.xml".equals(file.getName()));
+
+        anActionEvent.getPresentation().setEnabled(file != null && "pom.xml".equals(file.getName()));
+        anActionEvent.getPresentation().setVisible(file != null && "pom.xml".equals(file.getName()));
     }
 
 }
