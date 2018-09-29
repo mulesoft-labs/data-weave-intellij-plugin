@@ -58,8 +58,6 @@ public class MuleAppModuleBuilder extends MavenModuleBuilder implements SourcePa
 
     @Override
     public void setupRootModel(ModifiableRootModel rootModel) {
-        //super.setupRootModel(rootModel);
-
         addListener(new ModuleBuilderListener() {
             @Override
             public void moduleCreated(@NotNull Module module) {
@@ -82,12 +80,6 @@ public class MuleAppModuleBuilder extends MavenModuleBuilder implements SourcePa
         //Check if this is a module and has parent
         final MavenId parentId = (this.getParentProject() != null ? this.getParentProject().getMavenId() : null);
 
-//        MavenUtil.runWhenInitialized(project, (DumbAwareRunnable) () -> {
-//            if (this.getEnvironmentForm() != null) {
-//                this.getEnvironmentForm().setData(MavenProjectsManager.getInstance(project).getGeneralSettings());
-//            }
-//            MuleAppModuleInitializer.configure(project, getProjectId(), muleVersion, muleMavenPluginVersion, mtfVersion, root, parentId);
-//        });
         MavenUtil.invokeLater(project, (DumbAwareRunnable) () -> {
             if (this.getEnvironmentForm() != null) {
                 this.getEnvironmentForm().setData(MavenProjectsManager.getInstance(project).getGeneralSettings());
@@ -95,8 +87,6 @@ public class MuleAppModuleBuilder extends MavenModuleBuilder implements SourcePa
             (new MuleAppModuleInitializer(getProjectId(), getAggregatorProject(), getParentProject(), isInheritGroupId(),
                                                           isInheritVersion(), getArchetype(), getPropertiesToCreateByArtifact(),
                                             "Create new Maven module")).configure(project, getProjectId(), muleVersion, muleMavenPluginVersion, mtfVersion, root, parentId);
-
-            //MuleAppModuleInitializer.configure(project, getProjectId(), muleVersion, muleMavenPluginVersion, mtfVersion, root, parentId);
 
         });
 
