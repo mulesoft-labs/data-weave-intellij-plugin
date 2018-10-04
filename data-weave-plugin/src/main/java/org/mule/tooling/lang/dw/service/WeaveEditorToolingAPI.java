@@ -26,7 +26,6 @@ import com.intellij.psi.util.PsiUtil;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
-import org.fest.util.Lists;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
@@ -76,8 +75,8 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
 
   protected WeaveEditorToolingAPI(Project project) {
     super(project);
-    this.onProjectCloseListener = Lists.newArrayList();
-    this.onProjectOpenListener = Lists.newArrayList();
+    this.onProjectCloseListener = new ArrayList<>();
+    this.onProjectOpenListener = new ArrayList<>();
   }
 
   @Override

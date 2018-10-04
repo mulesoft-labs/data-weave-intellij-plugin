@@ -15,8 +15,11 @@ import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiTreeAnyChangeAbstractAdapter;
+import com.intellij.psi.search.FileTypeIndex;
+import com.intellij.psi.search.GlobalSearchScope;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.mule.tooling.lang.dw.WeaveFileType;
 import org.mule.tooling.lang.dw.util.VirtualFileSystemUtils;
 import org.mule.weave.v2.editor.ChangeListener;
 import org.mule.weave.v2.editor.VirtualFileSystem;
@@ -103,10 +106,24 @@ public class IJVirtualFileSystemAdaptor implements VirtualFileSystem, Disposable
   }
 
   @Override
+  public org.mule.weave.v2.editor.VirtualFile[] listFilesByNameIdentifier(String filter) {
+    final List<org.mule.weave.v2.editor.VirtualFile> fileList = new ArrayList<>();
+    FileTypeIndex.processFiles(WeaveFileType.getInstance(), virtualFile -> {
+      NameIdentifier nameIdentifier = VirtualFileSystemUtils.calculateNameIdentifier(project, virtualFile);
+      if (nameIdentifier.toString().startsWith(filter)) {
+        fileList.add(new IJVirtualFileAdaptor(this, virtualFile, project, null));
+        return false;
+      } else {
+        return true;
+      }
+    }, GlobalSearchScope.allScope(project));
+    return fileList.toArray(new org.mule.weave.v2.editor.VirtualFile[0]);
+  }
+
+  @Override
   public WeaveResourceResolver asResourceResolver() {
     return new IntellijWeaveResourceResolver(project, this);
   }
-
 
   @Override
   public void dispose() {
@@ -183,7 +200,7 @@ public class IJVirtualFileSystemAdaptor implements VirtualFileSystem, Disposable
     private Project project;
     private NameIdentifier name;
 
-    public IJVirtualFileAdaptor(VirtualFileSystem fs, @NotNull VirtualFile vfs, @NotNull Project project, NameIdentifier name) {
+    public IJVirtualFileAdaptor(VirtualFileSystem fs, @NotNull VirtualFile vfs, @NotNull Project project, @Nullable NameIdentifier name) {
       this.fs = fs;
       this.vfs = vfs;
       this.document = ReadAction.compute(() -> FileDocumentManager.getInstance().getDocument(vfs));

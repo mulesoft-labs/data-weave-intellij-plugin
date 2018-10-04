@@ -16,32 +16,37 @@ import java.awt.*;
 
 public class ShowTypeOfSelectionAction extends AbstractWeaveAction {
 
+  public ShowTypeOfSelectionAction() {
+    setInjectedContext(true);
+  }
 
-    public ShowTypeOfSelectionAction() {
-        setInjectedContext(true);
-    }
-
-    @Override
-    public void actionPerformed(AnActionEvent e) {
-        Editor editor = e.getData(CommonDataKeys.EDITOR);
-        Project project = e.getData(CommonDataKeys.PROJECT);
-        if (editor != null && project != null) {
-            SelectionModel selectionModel = editor.getSelectionModel();
-            int selectionStart = selectionModel.getSelectionStart();
-            int selectionEnd = selectionModel.getSelectionEnd();
-            String weaveType = WeaveEditorToolingAPI.getInstance(project).typeOf(editor.getDocument(), selectionStart, selectionEnd);
-            if (weaveType != null) {
-                selectionModel.getSelectionEnd();
-                LightweightHint hint = new LightweightHint(new JLabel(weaveType));
-                VisualPosition selectionStartPosition = selectionModel.getSelectionStartPosition();
-                VisualPosition selectionEndPosition = selectionModel.getSelectionEndPosition();
-                if (selectionStartPosition != null && selectionEndPosition != null) {
-                    VisualPosition visualPosition = selectionStartPosition.line == selectionEndPosition.line ? new VisualPosition(selectionStartPosition.line, (selectionStartPosition.column + selectionEndPosition.column) / 2, selectionStartPosition.leansRight) : selectionStartPosition;
-                    Point hintPosition = HintManagerImpl.getHintPosition(hint, editor, visualPosition, HintManager.ABOVE);
-                    HintManagerImpl.getInstanceImpl().showEditorHint(hint, editor, hintPosition, HintManager.HIDE_BY_ANY_KEY | HintManager.HIDE_BY_TEXT_CHANGE, 0, false);
-                }
-            }
+  @Override
+  public void actionPerformed(AnActionEvent e) {
+    final Editor editor = e.getData(CommonDataKeys.EDITOR);
+    final Project project = e.getData(CommonDataKeys.PROJECT);
+    if (editor != null && project != null) {
+      final SelectionModel selectionModel = editor.getSelectionModel();
+      final int selectionStart = selectionModel.getSelectionStart();
+      final int selectionEnd = selectionModel.getSelectionEnd();
+      String weaveType = WeaveEditorToolingAPI.getInstance(project).typeOf(editor.getDocument(), selectionStart, selectionEnd);
+      if (weaveType == null) {
+        weaveType = "Unable to infer type of expression.";
+      }
+      selectionModel.getSelectionEnd();
+      final LightweightHint hint = new LightweightHint(new JLabel(weaveType));
+      final VisualPosition selectionStartPosition = selectionModel.getSelectionStartPosition();
+      final VisualPosition selectionEndPosition = selectionModel.getSelectionEndPosition();
+      if (selectionStartPosition != null && selectionEndPosition != null) {
+        final VisualPosition visualPosition;
+        if (selectionStartPosition.line == selectionEndPosition.line) {
+          visualPosition = new VisualPosition(selectionStartPosition.line, (selectionStartPosition.column + selectionEndPosition.column) / 2, selectionStartPosition.leansRight);
+        } else {
+          visualPosition = selectionStartPosition;
         }
 
+        final Point hintPosition = HintManagerImpl.getHintPosition(hint, editor, visualPosition, HintManager.ABOVE);
+        HintManagerImpl.getInstanceImpl().showEditorHint(hint, editor, hintPosition, HintManager.HIDE_BY_ANY_KEY | HintManager.HIDE_BY_TEXT_CHANGE, 0, false);
+      }
     }
+  }
 }

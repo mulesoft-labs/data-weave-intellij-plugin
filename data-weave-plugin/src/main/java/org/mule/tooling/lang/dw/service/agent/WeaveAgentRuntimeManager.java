@@ -211,7 +211,7 @@ public class WeaveAgentRuntimeManager extends AbstractProjectComponent {
           return !indicator.isCanceled();
         }
       });
-      if (client.isConnected()) {
+      if (client != null && client.isConnected()) {
         System.out.println("Weave agent connected to server. Port: " + finalFreePort);
         for (WeaveAgentStatusListener listener : listeners) {
           listener.agentStarted();
