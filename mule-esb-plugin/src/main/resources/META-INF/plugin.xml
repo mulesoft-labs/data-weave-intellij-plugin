@@ -1,12 +1,12 @@
 <idea-plugin>
     <id>org.mule.tooling.intellij.muleruntime.v2</id>
-    <name>Mule 4 Runtime Intellij Plugin.</name>
+    <name>Mule 4 Runtime.</name>
     <version>2.0.4</version>
     <vendor email="mariano.achaval@mulesoft.com" url="https://github.com/mulesoft-labs/data-weave-intellij-plugin">
         Mulesoft
     </vendor>
     <description><![CDATA[
-     Mule Runtime platform plugin
+     Mule 4 Runtime plugin enables xml autocomletion, data weave autocompletion and xml schema validation.
     ]]></description>
 
     <idea-version since-build="145"/>
