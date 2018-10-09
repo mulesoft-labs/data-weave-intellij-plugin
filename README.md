@@ -17,7 +17,7 @@ An intellij plugin that adds support for DataWeave 2.0
 
 ## To install the nightly plugin
 
-1. Go to **Settings > Plugins > Browse repositories > Manage repositories**
+1. Go to **Settings/Preferences > Plugins > Browse repositories > Manage repositories**
 2. Add the URL: https://plugins.jetbrains.com/plugins/Develop/10362
 3. Search for **DataWeave 2.0 Intellij Plugin**
 4. Install & restart
