@@ -32,7 +32,6 @@ import com.intellij.psi.PsiTreeChangeAdapter;
 import com.intellij.psi.PsiTreeChangeEvent;
 import com.intellij.ui.content.Content;
 import com.intellij.util.Alarm;
-import org.fest.util.Lists;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.WeaveConstants;
@@ -52,6 +51,7 @@ import org.mule.weave.v2.debugger.event.PreviewExecutedSuccessfulEvent;
 import javax.swing.*;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -468,7 +468,7 @@ public class WeavePreviewComponent implements Disposable {
   @NotNull
   private List<Scenario> getScenarios(@Nullable PsiFile selectedPsiFile) {
     if (selectedPsiFile == null) {
-      return Lists.newArrayList();
+      return new ArrayList<>();
     }
     WeaveDocument weaveDocument = WeavePsiUtils.getWeaveDocument(selectedPsiFile);
     WeaveRuntimeContextManager instance = WeaveRuntimeContextManager.getInstance(myProject);

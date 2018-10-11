@@ -19,6 +19,7 @@ import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.weave.v2.parser.ast.variables.NameIdentifier$;
 
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 public class GotoMappingContributor implements GotoClassContributor {
@@ -83,6 +84,7 @@ public class GotoMappingContributor implements GotoClassContributor {
             return null;
           }
         })
+        .filter(Objects::nonNull)
         .toArray(NavigationItem[]::new);
   }
 }

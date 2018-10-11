@@ -1,8 +1,9 @@
 package org.mule.tooling.lang.dw.util;
 
-import org.fest.util.Maps;
+
 import org.mule.tooling.lang.dw.WeaveConstants;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -23,7 +24,7 @@ import java.util.function.Function;
  */
 public class AsyncCache<K, V> {
     private BiConsumer<K, Consumer<V>> resolver;
-    private Map<K, CacheEntry<V>> cache = Maps.newHashMap();
+  private Map<K, CacheEntry<V>> cache = new HashMap<>();
 
     /**
      * This constructor should be used when the resolver is non-blocking.
