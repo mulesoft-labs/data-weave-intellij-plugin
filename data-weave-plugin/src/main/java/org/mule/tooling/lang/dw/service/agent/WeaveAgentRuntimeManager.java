@@ -29,9 +29,6 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.progress.EmptyProgressIndicator;
 import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.ProgressManager;
-import com.intellij.openapi.progress.Task;
-import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.IndexNotReadyException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootEvent;
@@ -89,34 +86,34 @@ public class WeaveAgentRuntimeManager extends AbstractProjectComponent {
   @Override
   public void projectOpened() {
     super.projectOpened();
-    start();
+//    start();
     myProject.getMessageBus().connect(myProject).subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootListener() {
       @Override
       public void rootsChanged(ModuleRootEvent event) {
-        Notifications.Bus.notify(new Notification("Data Weave", "Restarting server", "Restarting weave server as classpath has changed", NotificationType.INFORMATION));
-        //We need to restart the server as the classpath has changed
+//        Notifications.Bus.notify(new Notification("Data Weave", "Restarting server", "Restarting weave server as classpath has changed", NotificationType.INFORMATION));
+        //We stop the server as classpath has changed
         tearDown();
-        start();
+//        start();
       }
     });
 
     Runtime.getRuntime().addShutdownHook(new Thread(() -> tearDown()));
   }
 
-  private void start() {
-    DumbService.getInstance(myProject).runWithAlternativeResolveEnabled(() -> {
-      if (isWeaveRuntimeInstalled()) {
-        //We initialized if it is installed
-        ProgressManager.getInstance().run(new Task.Backgroundable(myProject, "Initializing Weave Agent", true) {
-          @Override
-          public void run(@NotNull ProgressIndicator indicator) {
-            init(indicator);
-          }
-
-        });
-      }
-    });
-  }
+//  private void start() {
+//    DumbService.getInstance(myProject).runWithAlternativeResolveEnabled(() -> {
+//      if (isWeaveRuntimeInstalled()) {
+//        //We initialized if it is installed
+//        ProgressManager.getInstance().run(new Task.Backgroundable(myProject, "Initializing Weave Agent", true) {
+//          @Override
+//          public void run(@NotNull ProgressIndicator indicator) {
+//            init(indicator);
+//          }
+//
+//        });
+//      }
+//    });
+//  }
 
   public void disable() {
     this.disabled = true;
