@@ -383,7 +383,7 @@ public class WeaveAgentRuntimeManager extends AbstractProjectComponent {
     });
   }
 
-  public void tearDown() {
+  public synchronized void tearDown() {
     //Kill the process
     if (processHandler != null) {
       processHandler.destroyProcess();
