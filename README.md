@@ -23,3 +23,8 @@ An intellij plugin that adds support for DataWeave 2.0
 4. Install & restart
 
 ![](screenshots/how-to-install-nightly.gif)
+
+
+## Gitter Channel
+
+https://gitter.im/mulesoft-labs-data-weave-intellij-plugin/Lobby
