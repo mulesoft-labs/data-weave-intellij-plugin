@@ -177,7 +177,8 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
       final ImplicitInput currentImplicitTypes = instance.getImplicitInputTypes(weaveDocument);
       final WeaveType expectedOutput = useExpectedOutput ? instance.getExpectedOutput(weaveDocument) : null;
       if (virtualFile != null && virtualFile.isInLocalFileSystem()) {
-        return dwTextDocumentService.open(file, currentImplicitTypes != null ? currentImplicitTypes : new ImplicitInput(), Option.apply(expectedOutput));
+        ImplicitInput implicitInput = currentImplicitTypes != null ? currentImplicitTypes : new ImplicitInput();
+        return dwTextDocumentService.open(file, implicitInput, Option.apply(expectedOutput));
       } else {
         return dwTextDocumentService.openInMemory(file, currentImplicitTypes != null ? currentImplicitTypes : new ImplicitInput(), Option.apply(expectedOutput));
       }
