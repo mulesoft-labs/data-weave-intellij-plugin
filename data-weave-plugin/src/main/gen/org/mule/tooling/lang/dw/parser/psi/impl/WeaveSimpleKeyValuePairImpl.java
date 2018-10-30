@@ -1,19 +1,19 @@
 // This is a generated file. Not intended for manual editing.
 package org.mule.tooling.lang.dw.parser.psi.impl;
 
-import java.util.List;
-import org.jetbrains.annotations.*;
 import com.intellij.lang.ASTNode;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiElementVisitor;
-import com.intellij.psi.util.PsiTreeUtil;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.*;
-import org.mule.tooling.lang.dw.parser.psi.*;
 import com.intellij.navigation.ItemPresentation;
+import com.intellij.psi.PsiElementVisitor;
+import org.jetbrains.annotations.NotNull;
+import org.mule.tooling.lang.dw.parser.psi.WeaveExpression;
+import org.mule.tooling.lang.dw.parser.psi.WeaveKey;
+import org.mule.tooling.lang.dw.parser.psi.WeavePsiImplUtils;
+import org.mule.tooling.lang.dw.parser.psi.WeaveSimpleKeyValuePair;
+import org.mule.tooling.lang.dw.parser.psi.WeaveVisitor;
 
 public class WeaveSimpleKeyValuePairImpl extends WeaveKeyValuePairImpl implements WeaveSimpleKeyValuePair {
 
-  public WeaveSimpleKeyValuePairImpl(ASTNode node) {
+  public WeaveSimpleKeyValuePairImpl(@NotNull ASTNode node) {
     super(node);
   }
 

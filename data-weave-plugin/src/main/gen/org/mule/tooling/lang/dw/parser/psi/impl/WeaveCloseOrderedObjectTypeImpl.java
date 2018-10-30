@@ -1,18 +1,21 @@
 // This is a generated file. Not intended for manual editing.
 package org.mule.tooling.lang.dw.parser.psi.impl;
 
-import java.util.List;
-import org.jetbrains.annotations.*;
 import com.intellij.lang.ASTNode;
-import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.*;
-import org.mule.tooling.lang.dw.parser.psi.*;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.mule.tooling.lang.dw.parser.psi.WeaveCloseOrderedObjectType;
+import org.mule.tooling.lang.dw.parser.psi.WeaveKeyValuePairType;
+import org.mule.tooling.lang.dw.parser.psi.WeaveSchema;
+import org.mule.tooling.lang.dw.parser.psi.WeaveVisitor;
+
+import java.util.List;
 
 public class WeaveCloseOrderedObjectTypeImpl extends WeaveTypeImpl implements WeaveCloseOrderedObjectType {
 
-  public WeaveCloseOrderedObjectTypeImpl(ASTNode node) {
+  public WeaveCloseOrderedObjectTypeImpl(@NotNull ASTNode node) {
     super(node);
   }
 

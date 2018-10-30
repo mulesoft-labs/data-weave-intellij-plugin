@@ -1,10 +1,10 @@
 // This is a generated file. Not intended for manual editing.
 package org.mule.tooling.lang.dw.parser.psi;
 
-import java.util.List;
-import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public interface WeaveFqnIdentifier extends WeaveNamedElement {
 
@@ -19,7 +19,7 @@ public interface WeaveFqnIdentifier extends WeaveNamedElement {
 
   String getName();
 
-  PsiElement setName(String newName);
+  PsiElement setName(@NotNull String newName);
 
   PsiElement getNameIdentifier();
 

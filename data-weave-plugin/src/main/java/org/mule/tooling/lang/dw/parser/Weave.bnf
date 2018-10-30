@@ -103,7 +103,6 @@
     extends(".*(Literal)")=LiteralExpression
     extends(".*(KeyValuePair)")=KeyValuePair
     extends(".*(Attribute)")=Attribute
-    pin(".*Directive") =1
 
 }
 
@@ -126,15 +125,15 @@ Directive
            | ImportDirective
            | FunctionDirective {recoverWhile=HeaderRecover}
 
-private HeaderRecover::= !('---'|OUTPUT_DIRECTIVE_KEYWORD|'type'|'fun'|'ns'|'var'|'%dw'|'input'|IMPORT_DIRECTIVE_KEYWORD)
+private HeaderRecover::= !('---'|OUTPUT_DIRECTIVE_KEYWORD|'type'|'fun'|'ns'|'var'|'%dw'|'input'|IMPORT_DIRECTIVE_KEYWORD|'@')
 
-VersionDirective::= '%dw'  DOUBLE_LITERAL
+VersionDirective::= '%dw'  DOUBLE_LITERAL {pin=1}
 
-ImportDirective::= IMPORT_DIRECTIVE_KEYWORD (((ImportedElement (',' ImportedElement)*) | '*') 'from')? ModuleReference ('as' Identifier)?
+ImportDirective::= IMPORT_DIRECTIVE_KEYWORD (((ImportedElement (',' ImportedElement)*) | '*') 'from')? ModuleReference ('as' Identifier)? {pin=1}
 
 ImportedElement::= Identifier ('as' Identifier)?
 
-NamespaceDirective::= 'ns' NamespaceDefinition
+NamespaceDirective::= 'ns' NamespaceDefinition {pin=1}
 
 NamespaceDefinition::=Identifier NAMESPACE_URI
   {
@@ -144,11 +143,11 @@ NamespaceDefinition::=Identifier NAMESPACE_URI
       pin=1
  }
 
-VariableDirective::= 'var' VariableDefinition
+VariableDirective::= Annotation* 'var' VariableDefinition {pin=2}
 
-OutputDirective::= OUTPUT_DIRECTIVE_KEYWORD (":" Type)? DataFormat Options?
+OutputDirective::= OUTPUT_DIRECTIVE_KEYWORD (":" Type)? DataFormat Options? {pin=1}
 
-TypeDirective::= 'type' TypeDefinition
+TypeDirective::= 'type' TypeDefinition {pin=1}
 
 TypeDefinition::=Identifier TypeParameterDeclaration? '=' (TypeLiteral | UndefinedLiteral)
                  {
@@ -158,7 +157,7 @@ TypeDefinition::=Identifier TypeParameterDeclaration? '=' (TypeLiteral | Undefin
                       pin=1
                  }
 
-FunctionDirective::= 'fun' FunctionDefinition
+FunctionDirective::= Annotation* 'fun' FunctionDefinition {pin=2}
 
 FunctionDefinition::=Identifier TypeParameterDeclaration? L_PARREN ( FunctionParameter ( ',' FunctionParameter )* )? R_PARREN ( ":" (Type | DynamicReturn) "=" | "=")? Expression
 {
@@ -174,7 +173,7 @@ Schema::= '{' ( SchemaElement ( ',' SchemaElement )* )? '}'
 
 SchemaElement::= (Identifier | StringLiteral) ':' LiteralExpression
 
-InputDirective::= 'input' VariableNameTypeDefinition DataFormat Options?
+InputDirective::= 'input' VariableNameTypeDefinition DataFormat Options? {pin=1}
 
 Options::= OptionElement ( ',' OptionElement )*
 
@@ -269,6 +268,12 @@ private SimpleExpression ::=
             | DotSelectorExpression
             | BracketSelectorExpression
 
+
+Annotation ::= '@'Identifier AnnotationArguments? {pin=2}
+
+AnnotationArguments ::= '(' (AnnotationArgument ( ',' AnnotationArgument )* )? (',')? ')'
+
+AnnotationArgument ::= Identifier '=' Expression
 
 UnaryMinusExpression ::= '-' SimpleExpression {pin=1}
 
@@ -411,10 +416,9 @@ VariableDefinition ::= VariableNameTypeDefinition '='  Expression  {
             methods=[getVariableName getVariableValue getName setName getNameIdentifier]
             mixin="org.mule.tooling.lang.dw.parser.psi.WeaveVariableImpl"
             implements="org.mule.tooling.lang.dw.parser.psi.WeaveVariable"
-            paramName="Variable"
         }
 
-private VariableNameTypeDefinition ::= Identifier (":" Type)?
+private VariableNameTypeDefinition ::= Annotation* Identifier (":" Type)?
 
 //Literal Values
 LiteralExpression

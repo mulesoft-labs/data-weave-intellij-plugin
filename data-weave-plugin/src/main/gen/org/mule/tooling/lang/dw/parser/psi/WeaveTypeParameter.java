@@ -15,7 +15,7 @@ public interface WeaveTypeParameter extends WeaveNamedElement {
 
   String getName();
 
-  PsiElement setName(String newName);
+  PsiElement setName(@NotNull String newName);
 
   PsiElement getNameIdentifier();
 

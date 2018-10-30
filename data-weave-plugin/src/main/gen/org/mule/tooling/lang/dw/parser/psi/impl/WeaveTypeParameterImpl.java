@@ -13,7 +13,7 @@ import org.mule.tooling.lang.dw.parser.psi.WeaveVisitor;
 
 public class WeaveTypeParameterImpl extends WeaveNamedElementImpl implements WeaveTypeParameter {
 
-  public WeaveTypeParameterImpl(ASTNode node) {
+  public WeaveTypeParameterImpl(@NotNull ASTNode node) {
     super(node);
   }
 

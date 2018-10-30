@@ -1,18 +1,21 @@
 // This is a generated file. Not intended for manual editing.
 package org.mule.tooling.lang.dw.parser.psi.impl;
 
-import java.util.List;
-import org.jetbrains.annotations.*;
 import com.intellij.lang.ASTNode;
-import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.*;
-import org.mule.tooling.lang.dw.parser.psi.*;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.mule.tooling.lang.dw.parser.psi.WeaveExpression;
+import org.mule.tooling.lang.dw.parser.psi.WeaveIdentifier;
+import org.mule.tooling.lang.dw.parser.psi.WeaveObjectDeconstructPattern;
+import org.mule.tooling.lang.dw.parser.psi.WeaveVisitor;
+
+import java.util.List;
 
 public class WeaveObjectDeconstructPatternImpl extends WeavePatternImpl implements WeaveObjectDeconstructPattern {
 
-  public WeaveObjectDeconstructPatternImpl(ASTNode node) {
+  public WeaveObjectDeconstructPatternImpl(@NotNull ASTNode node) {
     super(node);
   }
 

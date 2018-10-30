@@ -1,19 +1,20 @@
 // This is a generated file. Not intended for manual editing.
 package org.mule.tooling.lang.dw.parser.psi.impl;
 
-import java.util.List;
-import org.jetbrains.annotations.*;
-import com.intellij.lang.ASTNode;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiElementVisitor;
-import com.intellij.psi.util.PsiTreeUtil;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
-import org.mule.tooling.lang.dw.parser.psi.*;
+import com.intellij.lang.ASTNode;
+import com.intellij.psi.PsiElementVisitor;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.mule.tooling.lang.dw.parser.psi.WeaveDeclaredNamespace;
+import org.mule.tooling.lang.dw.parser.psi.WeaveIdentifier;
+import org.mule.tooling.lang.dw.parser.psi.WeaveSchemaSelector;
+import org.mule.tooling.lang.dw.parser.psi.WeaveStringLiteral;
+import org.mule.tooling.lang.dw.parser.psi.WeaveVisitor;
 
 public class WeaveSchemaSelectorImpl extends ASTWrapperPsiElement implements WeaveSchemaSelector {
 
-  public WeaveSchemaSelectorImpl(ASTNode node) {
+  public WeaveSchemaSelectorImpl(@NotNull ASTNode node) {
     super(node);
   }
 

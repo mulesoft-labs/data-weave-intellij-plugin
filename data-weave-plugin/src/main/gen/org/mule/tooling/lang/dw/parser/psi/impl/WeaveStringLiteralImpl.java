@@ -1,19 +1,23 @@
 // This is a generated file. Not intended for manual editing.
 package org.mule.tooling.lang.dw.parser.psi.impl;
 
-import java.util.List;
-import org.jetbrains.annotations.*;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
-import com.intellij.psi.util.PsiTreeUtil;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.*;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.mule.tooling.lang.dw.parser.psi.WeavePsiImplUtils;
+import org.mule.tooling.lang.dw.parser.psi.WeaveStringLiteral;
 import org.mule.tooling.lang.dw.parser.psi.WeaveStringLiteralMixin;
-import org.mule.tooling.lang.dw.parser.psi.*;
+import org.mule.tooling.lang.dw.parser.psi.WeaveVisitor;
+
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.BACKTIKED_QUOTED_STRING;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DOUBLE_QUOTED_STRING;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.SINGLE_QUOTED_STRING;
 
 public class WeaveStringLiteralImpl extends WeaveStringLiteralMixin implements WeaveStringLiteral {
 
-  public WeaveStringLiteralImpl(ASTNode node) {
+  public WeaveStringLiteralImpl(@NotNull ASTNode node) {
     super(node);
   }
 

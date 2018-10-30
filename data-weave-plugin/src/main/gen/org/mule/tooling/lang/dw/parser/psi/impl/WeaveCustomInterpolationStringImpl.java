@@ -13,7 +13,7 @@ import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.BACKTIKED_QUOTED_ST
 
 public class WeaveCustomInterpolationStringImpl extends WeaveStringLiteralMixin implements WeaveCustomInterpolationString {
 
-  public WeaveCustomInterpolationStringImpl(ASTNode node) {
+  public WeaveCustomInterpolationStringImpl(@NotNull ASTNode node) {
     super(node);
   }
 

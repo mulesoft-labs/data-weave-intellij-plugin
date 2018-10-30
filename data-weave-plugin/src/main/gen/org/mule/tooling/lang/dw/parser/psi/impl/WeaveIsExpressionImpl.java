@@ -1,18 +1,18 @@
 // This is a generated file. Not intended for manual editing.
 package org.mule.tooling.lang.dw.parser.psi.impl;
 
-import java.util.List;
-import org.jetbrains.annotations.*;
 import com.intellij.lang.ASTNode;
-import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
-import com.intellij.psi.util.PsiTreeUtil;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.*;
-import org.mule.tooling.lang.dw.parser.psi.*;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.mule.tooling.lang.dw.parser.psi.WeaveExpression;
+import org.mule.tooling.lang.dw.parser.psi.WeaveIsExpression;
+import org.mule.tooling.lang.dw.parser.psi.WeaveType;
+import org.mule.tooling.lang.dw.parser.psi.WeaveVisitor;
 
 public class WeaveIsExpressionImpl extends WeaveExpressionImpl implements WeaveIsExpression {
 
-  public WeaveIsExpressionImpl(ASTNode node) {
+  public WeaveIsExpressionImpl(@NotNull ASTNode node) {
     super(node);
   }
 

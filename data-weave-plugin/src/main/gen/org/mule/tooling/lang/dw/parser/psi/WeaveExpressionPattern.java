@@ -1,9 +1,10 @@
 // This is a generated file. Not intended for manual editing.
 package org.mule.tooling.lang.dw.parser.psi;
 
-import java.util.List;
-import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 public interface WeaveExpressionPattern extends WeavePattern, WeaveNamedElement {
 
@@ -15,7 +16,7 @@ public interface WeaveExpressionPattern extends WeavePattern, WeaveNamedElement 
 
   String getName();
 
-  PsiElement setName(String newName);
+  PsiElement setName(@NotNull String newName);
 
   PsiElement getNameIdentifier();
 

@@ -8,6 +8,9 @@ import org.mule.tooling.lang.dw.parser.WeaveElementType;
 import org.mule.tooling.lang.dw.parser.WeaveTokenType;
 import org.mule.tooling.lang.dw.parser.psi.impl.WeaveAdditionSubtractionExpressionImpl;
 import org.mule.tooling.lang.dw.parser.psi.impl.WeaveAndExpressionImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveAnnotationArgumentImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveAnnotationArgumentsImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveAnnotationImpl;
 import org.mule.tooling.lang.dw.parser.psi.impl.WeaveAnyDateLiteralImpl;
 import org.mule.tooling.lang.dw.parser.psi.impl.WeaveArrayDeconstructPatternImpl;
 import org.mule.tooling.lang.dw.parser.psi.impl.WeaveArrayExpressionImpl;
@@ -123,6 +126,9 @@ public interface WeaveTypes {
 
   IElementType ADDITION_SUBTRACTION_EXPRESSION = new WeaveElementType("ADDITION_SUBTRACTION_EXPRESSION");
   IElementType AND_EXPRESSION = new WeaveElementType("AND_EXPRESSION");
+  IElementType ANNOTATION = new WeaveElementType("ANNOTATION");
+  IElementType ANNOTATION_ARGUMENT = new WeaveElementType("ANNOTATION_ARGUMENT");
+  IElementType ANNOTATION_ARGUMENTS = new WeaveElementType("ANNOTATION_ARGUMENTS");
   IElementType ANY_DATE_LITERAL = new WeaveElementType("ANY_DATE_LITERAL");
   IElementType ARRAY_DECONSTRUCT_PATTERN = new WeaveElementType("ARRAY_DECONSTRUCT_PATTERN");
   IElementType ARRAY_EXPRESSION = new WeaveElementType("ARRAY_EXPRESSION");
@@ -329,58 +335,47 @@ public interface WeaveTypes {
       }
       else if (type == AND_EXPRESSION) {
         return new WeaveAndExpressionImpl(node);
-      }
-      else if (type == ANY_DATE_LITERAL) {
-        return new WeaveAnyDateLiteralImpl(node);
-      }
-      else if (type == ARRAY_DECONSTRUCT_PATTERN) {
-        return new WeaveArrayDeconstructPatternImpl(node);
-      }
-      else if (type == ARRAY_EXPRESSION) {
-        return new WeaveArrayExpressionImpl(node);
-      }
-      else if (type == AS_EXPRESSION) {
-        return new WeaveAsExpressionImpl(node);
-      }
-      else if (type == ATTRIBUTES) {
-        return new WeaveAttributesImpl(node);
-      }
-      else if (type == ATTRIBUTES_TYPE) {
-        return new WeaveAttributesTypeImpl(node);
-      }
-      else if (type == ATTRIBUTE_SELECTOR) {
-        return new WeaveAttributeSelectorImpl(node);
-      }
-      else if (type == BINARY_EXPRESSION) {
-        return new WeaveBinaryExpressionImpl(node);
-      }
-      else if (type == BODY) {
-        return new WeaveBodyImpl(node);
-      }
-      else if (type == BOOLEAN_LITERAL) {
-        return new WeaveBooleanLiteralImpl(node);
-      }
-      else if (type == BRACKET_SELECTOR_EXPRESSION) {
-        return new WeaveBracketSelectorExpressionImpl(node);
-      }
-      else if (type == CLOSE_OBJECT_TYPE) {
-        return new WeaveCloseObjectTypeImpl(node);
-      }
-      else if (type == CLOSE_ORDERED_OBJECT_TYPE) {
-        return new WeaveCloseOrderedObjectTypeImpl(node);
-      }
-      else if (type == CONDITIONAL_ATTRIBUTE) {
-        return new WeaveConditionalAttributeImpl(node);
-      }
-      else if (type == CONDITIONAL_EXPRESSION) {
-        return new WeaveConditionalExpressionImpl(node);
-      }
-      else if (type == CONDITIONAL_KEY_VALUE_PAIR) {
-        return new WeaveConditionalKeyValuePairImpl(node);
-      }
-      else if (type == CONTAINER_MODULE_IDENTIFIER) {
-        return new WeaveContainerModuleIdentifierImpl(node);
-      } else if (type == CUSTOM_INTERPOLATION_STRING) {
+      } else if (type == ANNOTATION) {
+         return new WeaveAnnotationImpl(node);
+       } else if (type == ANNOTATION_ARGUMENT) {
+         return new WeaveAnnotationArgumentImpl(node);
+       } else if (type == ANNOTATION_ARGUMENTS) {
+         return new WeaveAnnotationArgumentsImpl(node);
+       } else if (type == ANY_DATE_LITERAL) {
+         return new WeaveAnyDateLiteralImpl(node);
+       } else if (type == ARRAY_DECONSTRUCT_PATTERN) {
+         return new WeaveArrayDeconstructPatternImpl(node);
+       } else if (type == ARRAY_EXPRESSION) {
+         return new WeaveArrayExpressionImpl(node);
+       } else if (type == AS_EXPRESSION) {
+         return new WeaveAsExpressionImpl(node);
+       } else if (type == ATTRIBUTES) {
+         return new WeaveAttributesImpl(node);
+       } else if (type == ATTRIBUTES_TYPE) {
+         return new WeaveAttributesTypeImpl(node);
+       } else if (type == ATTRIBUTE_SELECTOR) {
+         return new WeaveAttributeSelectorImpl(node);
+       } else if (type == BINARY_EXPRESSION) {
+         return new WeaveBinaryExpressionImpl(node);
+       } else if (type == BODY) {
+         return new WeaveBodyImpl(node);
+       } else if (type == BOOLEAN_LITERAL) {
+         return new WeaveBooleanLiteralImpl(node);
+       } else if (type == BRACKET_SELECTOR_EXPRESSION) {
+         return new WeaveBracketSelectorExpressionImpl(node);
+       } else if (type == CLOSE_OBJECT_TYPE) {
+         return new WeaveCloseObjectTypeImpl(node);
+       } else if (type == CLOSE_ORDERED_OBJECT_TYPE) {
+         return new WeaveCloseOrderedObjectTypeImpl(node);
+       } else if (type == CONDITIONAL_ATTRIBUTE) {
+         return new WeaveConditionalAttributeImpl(node);
+       } else if (type == CONDITIONAL_EXPRESSION) {
+         return new WeaveConditionalExpressionImpl(node);
+       } else if (type == CONDITIONAL_KEY_VALUE_PAIR) {
+         return new WeaveConditionalKeyValuePairImpl(node);
+       } else if (type == CONTAINER_MODULE_IDENTIFIER) {
+         return new WeaveContainerModuleIdentifierImpl(node);
+       } else if (type == CUSTOM_INTERPOLATION_STRING) {
          return new WeaveCustomInterpolationStringImpl(node);
        } else if (type == CUSTOM_INTERPOLATOR_EXPRESSION) {
          return new WeaveCustomInterpolatorExpressionImpl(node);

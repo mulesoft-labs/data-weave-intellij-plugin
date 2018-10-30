@@ -12,7 +12,7 @@ import org.mule.tooling.lang.dw.parser.psi.WeaveVisitor;
 
 public class WeaveCustomInterpolatorExpressionImpl extends WeaveNamedElementImpl implements WeaveCustomInterpolatorExpression {
 
-  public WeaveCustomInterpolatorExpressionImpl(ASTNode node) {
+  public WeaveCustomInterpolatorExpressionImpl(@NotNull ASTNode node) {
     super(node);
   }
 

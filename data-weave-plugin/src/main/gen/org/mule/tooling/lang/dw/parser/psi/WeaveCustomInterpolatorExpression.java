@@ -14,7 +14,7 @@ public interface WeaveCustomInterpolatorExpression extends WeaveExpression, Weav
 
   String getName();
 
-  PsiElement setName(String newName);
+  PsiElement setName(@NotNull String newName);
 
   PsiElement getNameIdentifier();
 
