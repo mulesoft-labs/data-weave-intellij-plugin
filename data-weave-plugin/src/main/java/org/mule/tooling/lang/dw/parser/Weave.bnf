@@ -74,6 +74,7 @@
         INPUT_DIRECTIVE_KEYWORD="input"
         VAR_DIRECTIVE_KEYWORD="var"
         FUNCTION_DIRECTIVE_KEYWORD="fun"
+        ANNOTATION_DIRECTIVE_KEYWORD="annotation"
         NAMESPACE_DIRECTIVE_KEYWORD="ns"
         TYPE_DIRECTIVE_KEYWORD="type"
         MATCHES_KEYWORD="matches"
@@ -119,13 +120,18 @@ Directive
          ::= VersionDirective
            | NamespaceDirective
            | VariableDirective
+           | AnnotationDirective
            | OutputDirective
            | InputDirective
            | TypeDirective
            | ImportDirective
            | FunctionDirective {recoverWhile=HeaderRecover}
 
-private HeaderRecover::= !('---'|OUTPUT_DIRECTIVE_KEYWORD|'type'|'fun'|'ns'|'var'|'%dw'|'input'|IMPORT_DIRECTIVE_KEYWORD|'@')
+AnnotationDirective ::= Annotation* 'annotation' Identifier '('( AnnotationParameter ( ',' AnnotationParameter )*  )?')' {pin = 2}
+
+AnnotationParameter::= (Identifier) ':' TypeLiteral
+
+private HeaderRecover::= !('---'|OUTPUT_DIRECTIVE_KEYWORD|'type'|'fun'|'ns'|'var'|'%dw'|'input'|IMPORT_DIRECTIVE_KEYWORD|'@' | 'annotation')
 
 VersionDirective::= '%dw'  DOUBLE_LITERAL {pin=1}
 

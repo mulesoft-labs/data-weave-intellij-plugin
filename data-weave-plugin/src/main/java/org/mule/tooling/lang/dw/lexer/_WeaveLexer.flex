@@ -120,10 +120,11 @@ EXPONENT_PART=[Ee]["+""-"]?({DIGIT})*
   "%dw"                       { return VERSION_DIRECTIVE_KEYWORD;}
   "input"                    { return INPUT_DIRECTIVE_KEYWORD;}
   "output"                   { return OUTPUT_DIRECTIVE_KEYWORD;}
-  "ns"                { return NAMESPACE_DIRECTIVE_KEYWORD;}
+  "annotation"                   { return ANNOTATION_DIRECTIVE_KEYWORD;}
+  "ns"                       { return NAMESPACE_DIRECTIVE_KEYWORD;}
   "type"                     { return TYPE_DIRECTIVE_KEYWORD;}
   "var"                      { return VAR_DIRECTIVE_KEYWORD;}
-  "fun"                 { return FUNCTION_DIRECTIVE_KEYWORD;}
+  "fun"                      { return FUNCTION_DIRECTIVE_KEYWORD;}
   "import"                   { return IMPORT_DIRECTIVE_KEYWORD;}
   "case"                      { return CASE_KEYWORD;}
 

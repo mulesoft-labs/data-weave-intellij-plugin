@@ -22,6 +22,8 @@ import java.awt.*;
 import java.io.File;
 
 public abstract class DotBasedToolingWindowPanel extends SimpleToolWindowPanel implements Disposable {
+
+  public static final String DOT_PATH = "/usr/local/bin/dot";
   // used for diff view
   protected Project project;
   private JLabel lblimage;
@@ -83,7 +85,7 @@ public abstract class DotBasedToolingWindowPanel extends SimpleToolWindowPanel i
       final File imageFile = new File(tempDirectory, getClass().getSimpleName() + ".png");
       final String arg1 = dotFile.getAbsolutePath();
       final String arg2 = imageFile.getAbsolutePath();
-      final String[] c = {"/usr/local/bin/dot", "-Tpng", arg1, "-o", arg2};
+      final String[] c = {DOT_PATH, "-Tpng", arg1, "-o", arg2};
       final Process p = Runtime.getRuntime().exec(c);
       final int err = p.waitFor();
       return ImageIO.read(imageFile);

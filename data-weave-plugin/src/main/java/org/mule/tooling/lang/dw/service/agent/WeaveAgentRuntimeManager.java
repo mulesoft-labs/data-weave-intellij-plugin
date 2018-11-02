@@ -316,6 +316,7 @@ public class WeaveAgentRuntimeManager extends AbstractProjectComponent {
       ApplicationManager.getApplication().invokeLater(() -> {
         FileDocumentManager.getInstance().saveAllDocuments();
         ApplicationManager.getApplication().executeOnPooledThread(() -> {
+          if (client == null) return;
           client.inferInputsWeaveType(inputsPath, new DefaultWeaveAgentClientListener() {
             @Override
             public void onImplicitWeaveTypesCalculated(ImplicitInputTypesEvent result) {

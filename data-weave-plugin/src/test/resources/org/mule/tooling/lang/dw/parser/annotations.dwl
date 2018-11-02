@@ -1,5 +1,11 @@
 %dw 2.0
 
+annotation Memorize ()
+
+annotation Stream(force: Boolean)
+
+annotation DataFormat()
+
 @Memorize
 fun myFun(a: Number, b: Number) = a + b
 

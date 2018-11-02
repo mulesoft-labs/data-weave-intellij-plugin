@@ -38,6 +38,9 @@ import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.AND_KEYWORD;
 import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ANNOTATION;
 import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ANNOTATION_ARGUMENT;
 import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ANNOTATION_ARGUMENTS;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ANNOTATION_DIRECTIVE;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ANNOTATION_DIRECTIVE_KEYWORD;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ANNOTATION_PARAMETER;
 import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ANY_DATE_LITERAL;
 import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ARRAY_DECONSTRUCT_PATTERN;
 import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ARRAY_EXPRESSION;
@@ -247,6 +250,10 @@ public class WeaveParser implements PsiParser, LightPsiParser {
       r = AnnotationArgument(b, 0);
     } else if (t == ANNOTATION_ARGUMENTS) {
       r = AnnotationArguments(b, 0);
+    } else if (t == ANNOTATION_DIRECTIVE) {
+      r = AnnotationDirective(b, 0);
+    } else if (t == ANNOTATION_PARAMETER) {
+      r = AnnotationParameter(b, 0);
     } else if (t == ANY_DATE_LITERAL) {
       r = AnyDateLiteral(b, 0);
     }
@@ -448,9 +455,9 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   public static final TokenSet[] EXTENDS_SETS_ = new TokenSet[] {
     create_token_set_(CONDITIONAL_KEY_VALUE_PAIR, DYNAMIC_KEY_VALUE_PAIR, KEY_VALUE_PAIR, SIMPLE_KEY_VALUE_PAIR),
     create_token_set_(ATTRIBUTE, CONDITIONAL_ATTRIBUTE, DYNAMIC_ATTRIBUTE, SIMPLE_ATTRIBUTE),
-    create_token_set_(DIRECTIVE, FUNCTION_DIRECTIVE, IMPORT_DIRECTIVE, INPUT_DIRECTIVE,
-      NAMESPACE_DIRECTIVE, OUTPUT_DIRECTIVE, TYPE_DIRECTIVE, VARIABLE_DIRECTIVE,
-      VERSION_DIRECTIVE),
+      create_token_set_(ANNOTATION_DIRECTIVE, DIRECTIVE, FUNCTION_DIRECTIVE, IMPORT_DIRECTIVE,
+          INPUT_DIRECTIVE, NAMESPACE_DIRECTIVE, OUTPUT_DIRECTIVE, TYPE_DIRECTIVE,
+          VARIABLE_DIRECTIVE, VERSION_DIRECTIVE),
     create_token_set_(ARRAY_DECONSTRUCT_PATTERN, DEFAULT_PATTERN, EMPTY_ARRAY_PATTERN, EMPTY_OBJECT_PATTERN,
       EXPRESSION_PATTERN, LITERAL_PATTERN, NAMED_LITERAL_PATTERN, NAMED_REGEX_PATTERN,
       NAMED_TYPE_PATTERN, OBJECT_DECONSTRUCT_PATTERN, PATTERN, REGEX_PATTERN,
@@ -566,6 +573,98 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     if (!recursion_guard_(b, l, "AnnotationArguments_2")) return false;
     consumeToken(b, COMMA);
     return true;
+  }
+
+  /* ********************************************************** */
+  // Annotation* 'annotation' Identifier '('( AnnotationParameter ( ',' AnnotationParameter )*  )?')'
+  public static boolean AnnotationDirective(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "AnnotationDirective")) return false;
+    if (!nextTokenIs(b, "<annotation directive>", ANNOTATION_DIRECTIVE_KEYWORD, AT)) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, ANNOTATION_DIRECTIVE, "<annotation directive>");
+    r = AnnotationDirective_0(b, l + 1);
+    r = r && consumeToken(b, ANNOTATION_DIRECTIVE_KEYWORD);
+    p = r; // pin = 2
+    r = r && report_error_(b, Identifier(b, l + 1));
+    r = p && report_error_(b, consumeToken(b, L_PARREN)) && r;
+    r = p && report_error_(b, AnnotationDirective_4(b, l + 1)) && r;
+    r = p && consumeToken(b, R_PARREN) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
+  }
+
+  // Annotation*
+  private static boolean AnnotationDirective_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "AnnotationDirective_0")) return false;
+    while (true) {
+      int c = current_position_(b);
+      if (!Annotation(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "AnnotationDirective_0", c)) break;
+    }
+    return true;
+  }
+
+  // ( AnnotationParameter ( ',' AnnotationParameter )*  )?
+  private static boolean AnnotationDirective_4(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "AnnotationDirective_4")) return false;
+    AnnotationDirective_4_0(b, l + 1);
+    return true;
+  }
+
+  // AnnotationParameter ( ',' AnnotationParameter )*
+  private static boolean AnnotationDirective_4_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "AnnotationDirective_4_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = AnnotationParameter(b, l + 1);
+    r = r && AnnotationDirective_4_0_1(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // ( ',' AnnotationParameter )*
+  private static boolean AnnotationDirective_4_0_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "AnnotationDirective_4_0_1")) return false;
+    while (true) {
+      int c = current_position_(b);
+      if (!AnnotationDirective_4_0_1_0(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "AnnotationDirective_4_0_1", c)) break;
+    }
+    return true;
+  }
+
+  // ',' AnnotationParameter
+  private static boolean AnnotationDirective_4_0_1_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "AnnotationDirective_4_0_1_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, COMMA);
+    r = r && AnnotationParameter(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // (Identifier) ':' TypeLiteral
+  public static boolean AnnotationParameter(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "AnnotationParameter")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NONE_, ANNOTATION_PARAMETER, "<annotation parameter>");
+    r = AnnotationParameter_0(b, l + 1);
+    r = r && consumeToken(b, COLON);
+    r = r && TypeLiteral(b, l + 1);
+    exit_section_(b, l, m, r, false, null);
+    return r;
+  }
+
+  // (Identifier)
+  private static boolean AnnotationParameter_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "AnnotationParameter_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = Identifier(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
   }
 
   /* ********************************************************** */
@@ -1134,6 +1233,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   // VersionDirective
   //            | NamespaceDirective
   //            | VariableDirective
+  //            | AnnotationDirective
   //            | OutputDirective
   //            | InputDirective
   //            | TypeDirective
@@ -1146,6 +1246,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     r = VersionDirective(b, l + 1);
     if (!r) r = NamespaceDirective(b, l + 1);
     if (!r) r = VariableDirective(b, l + 1);
+    if (!r) r = AnnotationDirective(b, l + 1);
     if (!r) r = OutputDirective(b, l + 1);
     if (!r) r = InputDirective(b, l + 1);
     if (!r) r = TypeDirective(b, l + 1);
@@ -1551,7 +1652,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // !('---'|OUTPUT_DIRECTIVE_KEYWORD|'type'|'fun'|'ns'|'var'|'%dw'|'input'|IMPORT_DIRECTIVE_KEYWORD|'@')
+  // !('---'|OUTPUT_DIRECTIVE_KEYWORD|'type'|'fun'|'ns'|'var'|'%dw'|'input'|IMPORT_DIRECTIVE_KEYWORD|'@' | 'annotation')
   static boolean HeaderRecover(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "HeaderRecover")) return false;
     boolean r;
@@ -1561,7 +1662,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // '---'|OUTPUT_DIRECTIVE_KEYWORD|'type'|'fun'|'ns'|'var'|'%dw'|'input'|IMPORT_DIRECTIVE_KEYWORD|'@'
+  // '---'|OUTPUT_DIRECTIVE_KEYWORD|'type'|'fun'|'ns'|'var'|'%dw'|'input'|IMPORT_DIRECTIVE_KEYWORD|'@' | 'annotation'
   private static boolean HeaderRecover_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "HeaderRecover_0")) return false;
     boolean r;
@@ -1576,6 +1677,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     if (!r) r = consumeToken(b, INPUT_DIRECTIVE_KEYWORD);
     if (!r) r = consumeToken(b, IMPORT_DIRECTIVE_KEYWORD);
     if (!r) r = consumeToken(b, AT);
+    if (!r) r = consumeToken(b, ANNOTATION_DIRECTIVE_KEYWORD);
     exit_section_(b, m, null, r);
     return r;
   }

@@ -10,7 +10,9 @@ import org.mule.tooling.lang.dw.parser.psi.impl.WeaveAdditionSubtractionExpressi
 import org.mule.tooling.lang.dw.parser.psi.impl.WeaveAndExpressionImpl;
 import org.mule.tooling.lang.dw.parser.psi.impl.WeaveAnnotationArgumentImpl;
 import org.mule.tooling.lang.dw.parser.psi.impl.WeaveAnnotationArgumentsImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveAnnotationDirectiveImpl;
 import org.mule.tooling.lang.dw.parser.psi.impl.WeaveAnnotationImpl;
+import org.mule.tooling.lang.dw.parser.psi.impl.WeaveAnnotationParameterImpl;
 import org.mule.tooling.lang.dw.parser.psi.impl.WeaveAnyDateLiteralImpl;
 import org.mule.tooling.lang.dw.parser.psi.impl.WeaveArrayDeconstructPatternImpl;
 import org.mule.tooling.lang.dw.parser.psi.impl.WeaveArrayExpressionImpl;
@@ -129,6 +131,8 @@ public interface WeaveTypes {
   IElementType ANNOTATION = new WeaveElementType("ANNOTATION");
   IElementType ANNOTATION_ARGUMENT = new WeaveElementType("ANNOTATION_ARGUMENT");
   IElementType ANNOTATION_ARGUMENTS = new WeaveElementType("ANNOTATION_ARGUMENTS");
+  IElementType ANNOTATION_DIRECTIVE = new WeaveElementType("ANNOTATION_DIRECTIVE");
+  IElementType ANNOTATION_PARAMETER = new WeaveElementType("ANNOTATION_PARAMETER");
   IElementType ANY_DATE_LITERAL = new WeaveElementType("ANY_DATE_LITERAL");
   IElementType ARRAY_DECONSTRUCT_PATTERN = new WeaveElementType("ARRAY_DECONSTRUCT_PATTERN");
   IElementType ARRAY_EXPRESSION = new WeaveElementType("ARRAY_EXPRESSION");
@@ -248,6 +252,7 @@ public interface WeaveTypes {
 
   IElementType AND = new WeaveTokenType("&");
   IElementType AND_KEYWORD = new WeaveTokenType("and");
+  IElementType ANNOTATION_DIRECTIVE_KEYWORD = new WeaveTokenType("annotation");
   IElementType ARROW_TOKEN = new WeaveTokenType("->");
   IElementType AS = new WeaveTokenType("as");
   IElementType AT = new WeaveTokenType("@");
@@ -335,12 +340,16 @@ public interface WeaveTypes {
       }
       else if (type == AND_EXPRESSION) {
         return new WeaveAndExpressionImpl(node);
-      } else if (type == ANNOTATION) {
+       } else if (type == ANNOTATION) {
          return new WeaveAnnotationImpl(node);
        } else if (type == ANNOTATION_ARGUMENT) {
          return new WeaveAnnotationArgumentImpl(node);
        } else if (type == ANNOTATION_ARGUMENTS) {
          return new WeaveAnnotationArgumentsImpl(node);
+       } else if (type == ANNOTATION_DIRECTIVE) {
+         return new WeaveAnnotationDirectiveImpl(node);
+       } else if (type == ANNOTATION_PARAMETER) {
+         return new WeaveAnnotationParameterImpl(node);
        } else if (type == ANY_DATE_LITERAL) {
          return new WeaveAnyDateLiteralImpl(node);
        } else if (type == ARRAY_DECONSTRUCT_PATTERN) {
