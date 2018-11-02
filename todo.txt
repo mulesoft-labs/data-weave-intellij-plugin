@@ -92,3 +92,8 @@ TODO Implement
 
 * com.intellij.execution.filters.ConsoleFilterProvider
 ** <consoleFilterProvider implementation="org.mule.tooling.esb.console.ConsoleFlowStackFilterProvider" order="first"/>
+
+-------------------------------------------------
+
+Do we need a Mule Module Type? It will contain settings for artifact json and persist it there.
+Runtime version handling - we have min version in json, version in pom and version in run config settings - are they related?

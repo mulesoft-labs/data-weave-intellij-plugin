@@ -33,6 +33,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <moduleBuilder builderClass="org.mule.tooling.runtime.wizard.SdkModuleBuilder"/>
         <moduleBuilder builderClass="org.mule.tooling.runtime.wizard.MuleAppModuleBuilder"/>
+
         <fileTemplateGroup implementation="org.mule.tooling.runtime.template.RuntimeTemplateManager"/>
         <xml.schemaProvider implementation="org.mule.tooling.runtime.schema.MuleSchemaProvider"/>
         <completion.contributor implementationClass="org.mule.tooling.runtime.schema.MuleCompletionContributor"
@@ -51,6 +52,16 @@
                 implementationClass="org.mule.tooling.runtime.artifact_json.MuleArtifactJsonCompletionContributor"
                 language="JSON"/>
         <stepsBeforeRunProvider implementation="org.mule.tooling.runtime.launcher.MuleBeforeRunTasksProvider"/>
+
+        <configurationType implementation="org.mule.tooling.runtime.launcher.configuration.MuleConfigurationType"/>
+
+        <!--Mule Standalone framework -->
+        <library.presentationProvider implementation="org.mule.tooling.runtime.framework.MuleLibraryPresentationProvider" order="first"/>
+        <framework.type implementation="org.mule.tooling.runtime.framework.MuleFrameworkType"/>
+        <facetType implementation="org.mule.tooling.runtime.framework.facet.MuleFacetType" order="first"/>
+        <framework.detector implementation="org.mule.tooling.runtime.framework.MuleFrameworkDetector"/>
+        <library.type implementation="org.mule.tooling.runtime.framework.MuleLibraryType"/>
+
     </extensions>
 
     <application-components>
@@ -65,9 +76,12 @@
         </component>
     </application-components>
 
-    <actions>
-
-    </actions>
+    <project-components>
+        <component>
+            <implementation-class>org.mule.tooling.runtime.launcher.configuration.archive.MuleAppManager</implementation-class>
+            <!--<loadForDefaultProject/>-->
+        </component>
+    </project-components>
 
     <module-components>
         <component>
@@ -79,4 +93,12 @@
             <interface-class>org.mule.tooling.runtime.tooling.ToolingArtifactManager</interface-class>
         </component>
     </module-components>
+
+    <actions>
+        <action id="Mule.AddDependencyFromExchange"
+                class="org.mule.tooling.runtime.actions.AddDependencyFromExchangeAction">
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="after" relative-to-action="NewGroup1"/>
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
+    </actions>
 </idea-plugin>
