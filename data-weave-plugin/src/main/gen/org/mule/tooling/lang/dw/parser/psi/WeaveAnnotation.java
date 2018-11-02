@@ -11,6 +11,6 @@ public interface WeaveAnnotation extends PsiElement {
   WeaveAnnotationArguments getAnnotationArguments();
 
   @NotNull
-  WeaveIdentifier getIdentifier();
+  WeaveFqnIdentifier getFqnIdentifier();
 
 }

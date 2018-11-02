@@ -30,6 +30,7 @@ public class WeaveVisitor extends PsiElementVisitor {
 
   public void visitAnnotationDirective(@NotNull WeaveAnnotationDirective o) {
     visitDirective(o);
+    // visitNamedElement(o);
   }
 
   public void visitAnnotationParameter(@NotNull WeaveAnnotationParameter o) {

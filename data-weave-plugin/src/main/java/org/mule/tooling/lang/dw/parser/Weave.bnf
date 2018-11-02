@@ -127,7 +127,13 @@ Directive
            | ImportDirective
            | FunctionDirective {recoverWhile=HeaderRecover}
 
-AnnotationDirective ::= Annotation* 'annotation' Identifier '('( AnnotationParameter ( ',' AnnotationParameter )*  )?')' {pin = 2}
+AnnotationDirective ::= Annotation* 'annotation' Identifier '('( AnnotationParameter ( ',' AnnotationParameter )*  )?')'
+{
+     methods = [getName setName getNameIdentifier]
+     implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
+     mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
+     pin=2
+}
 
 AnnotationParameter::= (Identifier) ':' TypeLiteral
 
@@ -275,7 +281,7 @@ private SimpleExpression ::=
             | BracketSelectorExpression
 
 
-Annotation ::= '@'Identifier AnnotationArguments? {pin=2}
+Annotation ::= '@'FqnIdentifier AnnotationArguments? {pin=2}
 
 AnnotationArguments ::= '(' (AnnotationArgument ( ',' AnnotationArgument )* )? (',')? ')'
 

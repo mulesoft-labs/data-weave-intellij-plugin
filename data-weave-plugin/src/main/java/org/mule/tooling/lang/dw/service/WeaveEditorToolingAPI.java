@@ -65,6 +65,7 @@ import scala.Option;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class WeaveEditorToolingAPI extends AbstractProjectComponent implements Disposable {
 
@@ -176,11 +177,12 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
       final WeaveDocument weaveDocument = WeavePsiUtils.getWeaveDocument(psiFile);
       final ImplicitInput currentImplicitTypes = instance.getImplicitInputTypes(weaveDocument);
       final WeaveType expectedOutput = useExpectedOutput ? instance.getExpectedOutput(weaveDocument) : null;
+      final Option<WeaveType> apply = Option.<WeaveType>apply(expectedOutput);
       if (virtualFile != null && virtualFile.isInLocalFileSystem()) {
         ImplicitInput implicitInput = currentImplicitTypes != null ? currentImplicitTypes : new ImplicitInput();
-        return dwTextDocumentService.open(file, implicitInput, Option.apply(expectedOutput));
+        return dwTextDocumentService.open(file, implicitInput, apply);
       } else {
-        return dwTextDocumentService.openInMemory(file, currentImplicitTypes != null ? currentImplicitTypes : new ImplicitInput(), Option.apply(expectedOutput));
+        return dwTextDocumentService.openInMemory(file, currentImplicitTypes != null ? currentImplicitTypes : new ImplicitInput(), apply);
       }
     });
   }
@@ -347,7 +349,7 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
   public VariableDependency[] externalScopeDependencies(PsiElement element, @Nullable VariableScope parent) {
     WeaveDocumentToolingService weaveDocumentToolingService = didOpen(element.getContainingFile(), false);
     TextRange textRange = element.getTextRange();
-    return weaveDocumentToolingService.externalScopeDependencies(textRange.getStartOffset(), textRange.getEndOffset(), Option.apply(parent));
+    return weaveDocumentToolingService.externalScopeDependencies(textRange.getStartOffset(), textRange.getEndOffset(), Option.<VariableScope>apply(parent));
   }
 
   @Override
@@ -453,7 +455,7 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
 
       CompletionData that = (CompletionData) o;
 
-      return label != null ? label.equals(that.label) : that.label == null;
+      return Objects.equals(label, that.label);
     }
 
     @Override
@@ -469,10 +471,10 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
         WeaveAgentRuntimeManager.getInstance(myProject).resolveModule(name.name(), name.loader().get(), myProject, event -> {
           if (event.content().isDefined()) {
             String content = event.content().get();
-            Option<WeaveResource> resourceOption = Option.apply(WeaveResource$.MODULE$.apply(name.name(), content));
+            Option<WeaveResource> resourceOption = Option.<WeaveResource>apply(WeaveResource$.MODULE$.apply(name.name(), content));
             callback.accept(resourceOption);
           } else {
-            Option<WeaveResource> empty = Option.empty();
+            Option<WeaveResource> empty = Option.<WeaveResource>empty();
             callback.accept(empty);
           }
         })

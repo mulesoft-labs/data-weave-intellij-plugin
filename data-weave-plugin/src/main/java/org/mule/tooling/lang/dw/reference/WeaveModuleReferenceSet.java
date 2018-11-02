@@ -67,7 +67,7 @@ public class WeaveModuleReferenceSet {
     }
 
     public PsiReference[] getAllReferences() {
-        return psiReferences.toArray(new PsiReference[psiReferences.size()]);
+      return psiReferences.toArray(new PsiReference[0]);
     }
 
     protected Set<PsiFileSystemItem> getContext(String packageName) {

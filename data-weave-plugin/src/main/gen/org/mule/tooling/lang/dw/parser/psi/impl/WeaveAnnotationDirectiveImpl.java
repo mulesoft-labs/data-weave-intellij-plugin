@@ -10,11 +10,12 @@ import org.mule.tooling.lang.dw.parser.psi.WeaveAnnotation;
 import org.mule.tooling.lang.dw.parser.psi.WeaveAnnotationDirective;
 import org.mule.tooling.lang.dw.parser.psi.WeaveAnnotationParameter;
 import org.mule.tooling.lang.dw.parser.psi.WeaveIdentifier;
+import org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl;
 import org.mule.tooling.lang.dw.parser.psi.WeaveVisitor;
 
 import java.util.List;
 
-public class WeaveAnnotationDirectiveImpl extends WeaveDirectiveImpl implements WeaveAnnotationDirective {
+public class WeaveAnnotationDirectiveImpl extends WeaveNamedElementImpl implements WeaveAnnotationDirective {
 
   public WeaveAnnotationDirectiveImpl(@NotNull ASTNode node) {
     super(node);

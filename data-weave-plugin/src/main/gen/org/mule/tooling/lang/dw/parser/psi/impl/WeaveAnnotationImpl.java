@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.parser.psi.WeaveAnnotation;
 import org.mule.tooling.lang.dw.parser.psi.WeaveAnnotationArguments;
-import org.mule.tooling.lang.dw.parser.psi.WeaveIdentifier;
+import org.mule.tooling.lang.dw.parser.psi.WeaveFqnIdentifier;
 import org.mule.tooling.lang.dw.parser.psi.WeaveVisitor;
 
 public class WeaveAnnotationImpl extends ASTWrapperPsiElement implements WeaveAnnotation {
@@ -34,8 +34,8 @@ public class WeaveAnnotationImpl extends ASTWrapperPsiElement implements WeaveAn
 
   @Override
   @NotNull
-  public WeaveIdentifier getIdentifier() {
-    return findNotNullChildByClass(WeaveIdentifier.class);
+  public WeaveFqnIdentifier getFqnIdentifier() {
+    return findNotNullChildByClass(WeaveFqnIdentifier.class);
   }
 
 }

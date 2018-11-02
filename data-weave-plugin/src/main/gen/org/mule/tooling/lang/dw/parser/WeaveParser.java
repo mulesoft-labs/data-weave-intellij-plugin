@@ -479,14 +479,14 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   };
 
   /* ********************************************************** */
-  // '@'Identifier AnnotationArguments?
+  // '@'FqnIdentifier AnnotationArguments?
   public static boolean Annotation(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "Annotation")) return false;
     if (!nextTokenIs(b, AT)) return false;
     boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, ANNOTATION, null);
     r = consumeToken(b, AT);
-    r = r && Identifier(b, l + 1);
+    r = r && FqnIdentifier(b, l + 1);
     p = r; // pin = 2
     r = r && Annotation_2(b, l + 1);
     exit_section_(b, l, m, r, p, null);
@@ -4223,7 +4223,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  final static Parser HeaderRecover_parser_ = new Parser() {
+  static final Parser HeaderRecover_parser_ = new Parser() {
     public boolean parse(PsiBuilder b, int l) {
       return HeaderRecover(b, l + 1);
     }
