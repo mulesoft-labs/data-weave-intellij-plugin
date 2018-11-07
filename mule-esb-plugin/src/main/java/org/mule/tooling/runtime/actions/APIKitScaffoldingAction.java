@@ -68,7 +68,7 @@ public class APIKitScaffoldingAction extends AnAction
         try
         {
             //TODO Mule version should be derived from Maven project?
-            new IdeaScaffolderAPI().run(ramlFiles, appDir, null, "3.8", RuntimeEdition.EE);
+            new IdeaScaffolderAPI().run(ramlFiles, appDir, null, "4.1.1", RuntimeEdition.EE);
         } catch (RuntimeException e) {
             logger.error("FINALLY CAUGHT RAML ERROR! ", e);
         }
