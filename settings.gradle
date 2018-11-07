@@ -1,4 +1,6 @@
 include 'data-weave-plugin'
 include 'mule-esb-plugin'
+include 'raml-plugin'
+
 //include 'anypoint-platform-plugin'
 

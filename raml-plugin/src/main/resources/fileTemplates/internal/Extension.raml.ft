@@ -1,0 +1,4 @@
+#%RAML 1.0 Extension
+extends: master.raml
+title: Extension
+

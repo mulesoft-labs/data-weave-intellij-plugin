@@ -1,0 +1,3 @@
+#%RAML 1.0 ResourceType
+description: A collection resource
+usage: Use this to describe resource that list items

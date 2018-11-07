@@ -6,6 +6,8 @@ import java.io.File;
 
 public class MuleDirectoriesUtils {
 
+  public static final String MULE_APP_PATH = "src/main/mule";
+
   public static File getMavenTooling() {
     File maven_repository = new File(new File(getHomeDirectory(), ".m2"), "repository");
     if (!maven_repository.exists()) {

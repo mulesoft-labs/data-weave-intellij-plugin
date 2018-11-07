@@ -100,5 +100,11 @@
             <add-to-group group-id="ProjectViewPopupMenu" anchor="after" relative-to-action="NewGroup1"/>
             <add-to-group group-id="ToolsMenu" anchor="last"/>
         </action>
+
+        <action id="Mule.GenerateFlowsFromRAML"
+                class="org.mule.tooling.runtime.actions.APIKitScaffoldingAction">
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="after" relative-to-action="NewGroup1"/>
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
     </actions>
 </idea-plugin>
