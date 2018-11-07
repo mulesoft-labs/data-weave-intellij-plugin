@@ -1,8 +1,10 @@
 <idea-plugin version="2">
     <id>org.mule.tooling.intellij.raml</id>
     <name>RAML Support</name>
-    <version>0.15</version>
-    <vendor email="achaval@gmail.com" url="https://github.com/machaval/mule-esb-plugin">Mariano Achaval</vendor>
+    <version>2.0.4</version>
+    <vendor email="mariano.achaval@mulesoft.com" url="https://github.com/mulesoft-labs/data-weave-intellij-plugin">
+        Mulesoft
+    </vendor>
     <description><![CDATA[
      RAML Plugin For IntelliJ
 
