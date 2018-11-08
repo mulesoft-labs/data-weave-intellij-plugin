@@ -27,11 +27,20 @@ dependencies {
 
     compile group: 'com.squareup', name: 'javapoet', version: '1.11.1'
 
+    compile ('org.mule.tools:mule-apikit-scaffolder:1.1.5') {
+        exclude module: 'xml-apis'
+        exclude module: 'commons-logging'
+        //exclude module: 'raml-parser-2'
+        exclude group: "org.slf4j"
+    }
+
+    compile project(':raml-plugin')
+
     testCompile 'junit:junit:4.+'
 }
 
 
 intellij {
     pluginName = 'mule-esb-plugin'
-    plugins = ['maven', 'properties', project(":data-weave-plugin")]
+    plugins = ['maven', 'properties', project(":data-weave-plugin"), project(":raml-plugin")]
 }

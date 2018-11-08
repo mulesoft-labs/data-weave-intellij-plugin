@@ -123,6 +123,8 @@ public class MuleConfiguration extends ModuleBasedConfiguration implements Modul
                                                               " is older than minimum version " + minVersion +
                                                               " required by the module " + m.getName());
                     }
+
+                    //TODO - how to check if the SDK is EE or CE?
                 } catch (IOException ioe) {
 
                 }

@@ -1,0 +1,125 @@
+<idea-plugin version="2">
+    <id>org.mule.tooling.intellij.raml</id>
+    <name>RAML Support</name>
+    <version>2.0.4</version>
+    <vendor email="mariano.achaval@mulesoft.com" url="https://github.com/mulesoft-labs/data-weave-intellij-plugin">
+        Mulesoft
+    </vendor>
+    <description><![CDATA[
+     RAML Plugin For IntelliJ
+
+    ]]></description>
+
+    <change-notes><![CDATA[
+    <h1>v0.13</h1>
+      <ul>
+       <li>
+          <p>Enhancements</p>
+          <ul>
+            <li>Generates RAML 1.0 Types from the XSD (Beta)
+            <li>RAML Parser updated to version 1.0.14
+          </ul>
+        </li>
+      </ul>
+    <h1>v0.11</h1>
+      <ul>
+       <li>
+          <p>Enhancements</p>
+          <ul>
+            <li>RAML Parser updated to version 1.0.10
+            <li>Documentation</li>
+          </ul>
+        </li>
+      </ul>
+    <h1>v0.10</h1>
+      <ul>
+       <li>
+          <p>Enhancements</p>
+          <ul>
+            <li>Code style settings added, default indent set to 2
+            <li>Bug fixes</li>
+          </ul>
+        </li>
+      </ul>
+    <h1>v0.9</h1>
+      <ul>
+       <li>
+          <p>Enhancements</p>
+          <ul>
+            <li>RAML Parser updated to version 1.0.7
+            <li>Bug fixes</li>
+          </ul>
+        </li>
+      </ul>
+    <h1>v0.8</h1>
+      <ul>
+       <li>
+          <p>Enhancements</p>
+          <ul>
+            <li>Bug fixes</li>
+          </ul>
+        </li>
+      </ul>
+    <h1>v0.7</h1>
+      <ul>
+       <li>
+          <p>Enhancements</p>
+          <ul>
+            <li>Support for go to file on import tag</li>
+            <li>New Icon.</li>
+            <li>Support for PhpStorm and WebStorm.</li>
+          </ul>
+        </li>
+      </ul>
+    ]]>
+    </change-notes>
+
+    <idea-version since-build="145"/>
+
+    <depends>org.jetbrains.plugins.yaml</depends>
+    <depends>com.intellij.modules.lang</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+
+        <!-- RAML -->
+
+        <fileTypeFactory implementation="org.mule.tooling.lang.raml.file.RamlFileTypeFactory"/>
+        <lang.parserDefinition language="RAML" implementationClass="org.mule.tooling.lang.raml.parser.RamlParserDefinition"/>
+        <lang.commenter language="RAML" implementationClass="org.mule.tooling.lang.raml.RamlCommenter"/>
+        <lang.syntaxHighlighterFactory language="RAML" implementationClass="org.jetbrains.yaml.YAMLSyntaxHighlighterFactory"/>
+        <lang.commenter language="RAML" implementationClass="org.jetbrains.yaml.YAMLCommenter"/>
+        <lang.braceMatcher language="RAML" implementationClass="org.jetbrains.yaml.YAMLPairedBraceMatcher"/>
+        <lang.foldingBuilder language="RAML" implementationClass="org.jetbrains.yaml.folding.YAMLFoldingBuilder"/>
+        <editor.backspaceModeOverride language="RAML" implementationClass="com.intellij.codeInsight.editorActions.SmartBackspaceDisabler"/>
+        <lang.psiStructureViewFactory language="RAML" implementationClass="org.jetbrains.yaml.structureView.YAMLStructureViewFactory"/>
+        <completion.contributor language="yaml"
+                                implementationClass="org.mule.tooling.lang.raml.completion.RamlCompletionContributor"
+                                order="first"/>
+        <psi.referenceContributor language="yaml" implementation="org.mule.tooling.lang.raml.reference.IncludeReferenceContributor"/>
+        <internalFileTemplate name="RAML File"/>
+
+        <externalAnnotator language="RAML" implementationClass="org.mule.tooling.lang.raml.annotator.RamlAnnotator"/>
+        <langCodeStyleSettingsProvider implementation="org.mule.tooling.lang.raml.codestyle.RamlLanguageCodeStyleSettingsProvider"/>
+        <codeStyleSettingsProvider implementation="org.mule.tooling.lang.raml.codestyle.RamlCodeStyleSettingsProvider"/>
+    </extensions>
+
+    <application-components>
+        <!-- Add your application components here -->
+    </application-components>
+
+
+    <actions>
+        <action id="RAML.GenerateRAMLFromXSD"
+                class="org.mule.tooling.lang.raml.actions.XSDToRAMLAction">
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="after" relative-to-action="NewGroup1"/>
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
+        <action id="RAML.CreateNewFileAction"
+                class="org.mule.tooling.lang.raml.actions.CreateNewFileAction" text="RAML File"
+                description="Create New RAML File">
+            <add-to-group group-id="NewGroup" anchor="first"/>
+            <!--<keyboard-shortcut keymap="$default" first-keystroke="shift ctrl W"/>-->
+        </action>
+    </actions>
+
+</idea-plugin>

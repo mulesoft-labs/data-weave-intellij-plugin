@@ -91,7 +91,7 @@ public class MuleSdkManagerStoreImpl extends MuleSdkManagerStore implements Pers
   @Override
   public MuleSdk findFromVersion(String muleVersion) {
     for (MuleSdk sdk: sdks) {
-      if (sdk.getVersion().equals(muleVersion)) {
+      if (sdk.getVersion() != null & sdk.getVersion().equals(muleVersion)) {
         return sdk;
       }
     }

@@ -26,6 +26,7 @@ public class MuleAppModuleInitializer extends MavenModuleBuilderHelper {
     protected static final Logger LOG = Logger.getInstance(MuleAppModuleInitializer.class.getName());
 
     public static final String SRC_MAIN_RESOURCES = "/src/main/resources";
+    public static final String SRC_MAIN_API = "/src/main/resources/api";
     public static final String SRC_MAIN_MULE = "/src/main/mule";
     public static final String SRC_TEST_MUNIT = "/src/test/munit";
     public static final String SRC_TEST_RESOURCES = "/src/test/resources";
@@ -39,6 +40,7 @@ public class MuleAppModuleInitializer extends MavenModuleBuilderHelper {
 
         try {
             VirtualFile srcResources = VfsUtil.createDirectories(root.getPath() + SRC_MAIN_RESOURCES);
+            VirtualFile srcApi = VfsUtil.createDirectories(root.getPath() + SRC_MAIN_API);
             VirtualFile munit = VfsUtil.createDirectories(root.getPath() + SRC_TEST_MUNIT);
             VfsUtil.createDirectories(root.getPath() + SRC_TEST_RESOURCES);
             VirtualFile muleDirectory = VfsUtil.createDirectories(root.getPath() + SRC_MAIN_MULE);

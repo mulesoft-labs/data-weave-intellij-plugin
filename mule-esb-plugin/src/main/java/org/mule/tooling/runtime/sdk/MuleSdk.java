@@ -72,6 +72,7 @@ public class MuleSdk {
         this.version = getVersionFromMuleHome(homePath);
     }
 
+    //TODO This version detection method is unreliable
     private static String getVersionFromMuleHome(String muleHome) {
         return new File(muleHome).getName().substring(HOMEPATH_PREFIX.length());
     }
@@ -224,4 +225,6 @@ public class MuleSdk {
         }
         return null;
     }
+
+    //TODO - add boolean isEE() method
 }
