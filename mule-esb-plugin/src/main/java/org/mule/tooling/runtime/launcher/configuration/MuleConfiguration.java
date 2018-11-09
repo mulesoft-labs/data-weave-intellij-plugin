@@ -88,6 +88,7 @@ public class MuleConfiguration extends ModuleBasedConfiguration implements Modul
 
     @Override
     public Collection<Module> getValidModules() {
+        //TODO - Filter to only include Mule App modules, not domains or anything else
         return Arrays.asList(ModuleManager.getInstance(project).getModules());
     }
 

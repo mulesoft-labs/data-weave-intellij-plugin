@@ -40,7 +40,7 @@ public class MuleDomainModuleInitializer extends MavenModuleBuilderHelper {
             VirtualFile muleDirectory = VfsUtil.createDirectories(root.getPath() + SRC_MAIN_MULE);
             try {
                 WriteCommandAction.writeCommandAction(project)
-                        .withName("Creating Mule App Module")
+                        .withName("Creating Mule Domain Module")
                         .run(new ThrowableRunnable<Throwable>() {
                             @Override
                             public void run() throws Throwable {
@@ -51,7 +51,7 @@ public class MuleDomainModuleInitializer extends MavenModuleBuilderHelper {
                                         root.findOrCreateChildData(this, MavenConstants.POM_XML));
 
                                 runTemplate(templateProps, RuntimeTemplateManager.MULE_DOMAIN_CONFIG_FILE, manager,
-                                        muleDirectory.findOrCreateChildData(this, projectId.getArtifactId() + ".xml"));
+                                        muleDirectory.findOrCreateChildData(this, "mule-domain-config.xml"));
 
                                 runTemplate(templateProps, RuntimeTemplateManager.MULE_DOMAIN_ARTIFACT_JSON_FILE, manager,
                                         root.findOrCreateChildData(this, "mule-artifact.json"));
