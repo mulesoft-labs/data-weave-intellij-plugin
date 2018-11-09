@@ -1,0 +1,3 @@
+{
+  "minMuleVersion": "${MULE_VERSION}",
+}
