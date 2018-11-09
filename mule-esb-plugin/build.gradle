@@ -34,7 +34,13 @@ dependencies {
         exclude group: "org.slf4j"
     }
 
-    compile project(':raml-plugin')
+//    compile ('org.apache.maven:maven-plugin-api:3.5.4')
+//    compile ('org.jdom:jdom2:2.0.6')
+//    compile ('org.mule.raml:raml-parser-interface-impl-v2:1.1.7')
+
+//    compile project(':raml-plugin') {
+//
+//    }
 
     testCompile 'junit:junit:4.+'
 }
