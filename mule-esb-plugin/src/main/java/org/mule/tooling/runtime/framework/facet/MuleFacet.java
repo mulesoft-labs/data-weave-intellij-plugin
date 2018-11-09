@@ -55,6 +55,8 @@ public class MuleFacet extends Facet<MuleFacetConfiguration> {
                     }
                     */
                 }
+
+                //TODO - configuration for domains
             }
         });
     }
