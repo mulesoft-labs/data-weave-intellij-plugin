@@ -5,11 +5,14 @@ import com.intellij.facet.FacetType;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowAnchor;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
+import org.json.JSONObject;
+import org.mule.tooling.runtime.util.MuleModuleUtils;
 //import org.mule.tooling.esb.toolwindow.globalconfigs.GlobalConfigsToolWindowPanel;
 //import org.mule.tooling.esb.util.MuleIcons;
 
@@ -36,6 +39,18 @@ public class MuleFacet extends Facet<MuleFacetConfiguration> {
         ApplicationManager.getApplication().invokeLater(new Runnable() {
             @Override
             public void run() {
+                //Initialize JSON Artifact handler
+                VirtualFile jsonArtifact = MuleModuleUtils.getMuleArtifactJson(getModule());
+                if (jsonArtifact != null) {
+                    try {
+                        String jsonString = new String(jsonArtifact.contentsToByteArray());
+                        JSONObject jsonObject = new JSONObject(jsonString);
+                        getConfiguration().setMuleArtifact(jsonObject);
+                    } catch (Exception e) {
+                        logger.error(e);
+                    }
+                }
+
                 ToolWindowManager manager = ToolWindowManager.getInstance(MuleFacet.this.getModule().getProject());
                 List<String> ids = Arrays.asList(manager.getToolWindowIds());
 

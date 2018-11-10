@@ -8,10 +8,13 @@ import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.util.WriteExternalException;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.Element;
+import org.json.JSONObject;
 
 public class MuleFacetConfiguration implements FacetConfiguration {
     public static final String MULE_FACET_TAG_NAME = "MuleFacet";
     public static final String PATH_TO_SDK_ATTR_NAME = "pathToSdk";
+
+    private JSONObject muleArtifact;
 
     private String myPathToSdk = "";
 
@@ -51,5 +54,17 @@ public class MuleFacetConfiguration implements FacetConfiguration {
         if (tab == null)
             tab = new MuleFacetConfigurationTab(this);
         return tab;
+    }
+
+    public JSONObject getMuleArtifact() {
+        return muleArtifact;
+    }
+
+    public void setMuleArtifact(JSONObject muleArtifact) {
+        this.muleArtifact = muleArtifact;
+    }
+
+    private void persistJsonArtifact() {
+
     }
 }

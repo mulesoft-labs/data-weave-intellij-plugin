@@ -83,6 +83,9 @@
             <implementation-class>org.mule.tooling.runtime.launcher.configuration.archive.MuleAppManager</implementation-class>
             <!--<loadForDefaultProject/>-->
         </component>
+        <component>
+            <implementation-class>org.mule.tooling.runtime.project.MuleProjectManager</implementation-class>
+        </component>
     </project-components>
 
     <module-components>

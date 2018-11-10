@@ -16,7 +16,9 @@ import org.jetbrains.idea.maven.model.MavenId;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.wizards.MavenModuleBuilderHelper;
 import org.mule.tooling.runtime.template.RuntimeTemplateManager;
+import org.mule.tooling.runtime.util.MuleDirectoriesUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
@@ -24,9 +26,6 @@ import java.util.Properties;
 public class MuleDomainModuleInitializer extends MavenModuleBuilderHelper {
 
     protected static final Logger LOG = Logger.getInstance(MuleDomainModuleInitializer.class.getName());
-
-    public static final String SRC_MAIN_RESOURCES = "/src/main/resources";
-    public static final String SRC_MAIN_MULE = "/src/main/mule";
 
     public MuleDomainModuleInitializer(@NotNull MavenId projectId, MavenProject aggregatorProject, MavenProject parentProject, boolean inheritGroupId, boolean inheritVersion, MavenArchetype archetype, Map<String, String> propertiesToCreateByArtifact, String commaneName) {
         super(projectId, aggregatorProject, parentProject, inheritGroupId, inheritVersion, archetype, propertiesToCreateByArtifact, commaneName);
@@ -36,8 +35,8 @@ public class MuleDomainModuleInitializer extends MavenModuleBuilderHelper {
         super.configure(project, root, false);
 
         try {
-            VirtualFile srcResources = VfsUtil.createDirectories(root.getPath() + SRC_MAIN_RESOURCES);
-            VirtualFile muleDirectory = VfsUtil.createDirectories(root.getPath() + SRC_MAIN_MULE);
+            VirtualFile srcResources = VfsUtil.createDirectories(root.getPath() + File.separator + MuleDirectoriesUtils.SRC_MAIN_RESOURCES);
+            VirtualFile muleDirectory = VfsUtil.createDirectories(root.getPath() + File.separator + MuleDirectoriesUtils.SRC_MAIN_MULE);
             try {
                 WriteCommandAction.writeCommandAction(project)
                         .withName("Creating Mule Domain Module")
