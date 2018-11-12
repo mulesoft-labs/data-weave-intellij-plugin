@@ -3,16 +3,17 @@ package org.mule.tooling.lang.dw.parser.psi;
 
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public interface WeaveNamedTypePattern extends WeavePattern, WeaveNamedElement {
 
-  @NotNull
+  @Nullable
   WeaveExpression getExpression();
 
   @NotNull
   WeaveIdentifier getIdentifier();
 
-  @NotNull
+  @Nullable
   WeaveType getType();
 
   String getName();

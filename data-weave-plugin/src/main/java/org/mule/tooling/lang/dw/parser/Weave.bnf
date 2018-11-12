@@ -143,7 +143,7 @@ VersionDirective::= '%dw'  DOUBLE_LITERAL {pin=1}
 
 ImportDirective::= IMPORT_DIRECTIVE_KEYWORD (((ImportedElement (',' ImportedElement)*) | '*') 'from')? ModuleReference ('as' Identifier)? {pin=1}
 
-ImportedElement::= Identifier ('as' Identifier)?
+ImportedElement::= Identifier ('as' Identifier)? {pin=2}
 
 NamespaceDirective::= 'ns' NamespaceDefinition {pin=1}
 
@@ -181,9 +181,9 @@ FunctionDefinition::=Identifier TypeParameterDeclaration? L_PARREN ( FunctionPar
 
 DynamicReturn ::= '?'
 
-Schema::= '{' ( SchemaElement ( ',' SchemaElement )* )? '}'
+Schema::= '{' ( SchemaElement ( ',' SchemaElement )* )? '}' {pin = 1}
 
-SchemaElement::= (Identifier | StringLiteral) ':' LiteralExpression
+SchemaElement::= (Identifier | StringLiteral) ':' Expression {pin = 2}
 
 InputDirective::= 'input' VariableNameTypeDefinition DataFormat Options? {pin=1}
 
@@ -297,7 +297,7 @@ BinaryExpression ::= Expression Identifier SimpleExpression
 }
 
 AsExpression
-         ::= Expression AS TypeLiteral {pin=2}
+         ::= Expression 'as' TypeLiteral {pin=2}
 
 DefaultValueExpression
          ::= Expression DEFAULT SimpleExpression {pin=2}
@@ -384,20 +384,24 @@ NamedLiteralPattern ::= Identifier ':' LiteralExpression '->' Expression {
      mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
 }
 
-TypePattern ::= 'is' Type '->' Expression
+TypePattern ::= 'is' Type '->' Expression {pin = 3}
 
 NamedTypePattern ::= Identifier "is" TypeLiteral '->' Expression {
     methods = [getName setName getNameIdentifier]
     implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
     mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
+    pin = 2
 }
 
-RegexPattern ::= 'matches' RegexLiteral '->' Expression
+RegexPattern ::= 'matches' RegexLiteral '->' Expression {
+    pin = 3
+}
 
 NamedRegexPattern ::= Identifier 'matches' RegexLiteral '->' Expression {
     methods = [getName setName getNameIdentifier]
     implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
     mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
+    pin = 4
 }
 
 DefaultPattern ::= ELSE '->' Expression {pin=1}
@@ -515,13 +519,13 @@ IntersectionType ::= BasicTypeExpression (IntersectionTypeExpression)* {pin= 2}
 
 private IntersectionTypeExpression ::=  ('&' BasicTypeExpression) {pin= 2}
 
-ObjectType ::=   '{' ((KeyValuePairType)? (',' KeyValuePairType)*)?  '}' (Schema)?
+ObjectType ::=   '{' ((KeyValuePairType)? (',' KeyValuePairType)*)?  '}' (Schema)? {pin = 1}
 
-CloseObjectType ::=  '{|' ((KeyValuePairType)? (',' KeyValuePairType)*)? '|}' (Schema)?
+CloseObjectType ::=  '{|' ((KeyValuePairType)? (',' KeyValuePairType)*)? '|}' (Schema)? {pin = 1}
 
-OrderedObjectType ::=   '{-' ((KeyValuePairType)? (',' KeyValuePairType)*)?  '-}' (Schema)?
+OrderedObjectType ::=   '{-' ((KeyValuePairType)? (',' KeyValuePairType)*)?  '-}' (Schema)? {pin = 1}
 
-CloseOrderedObjectType ::=   '{-|' ((KeyValuePairType)? (',' KeyValuePairType)*)?  '|-}' (Schema)?
+CloseOrderedObjectType ::=   '{-|' ((KeyValuePairType)? (',' KeyValuePairType)*)?  '|-}' (Schema)? {pin = 1}
 
 KeyValuePairType ::=  KeyType ('*')? ('?')? ":" Type
 
@@ -537,7 +541,7 @@ LambdaTypeParameter ::= NamedLambdaTypeParameter | Type
 
 private NamedLambdaTypeParameter ::= Identifier ':' Type {pin=2}
 
-ReferenceType ::= FqnIdentifier ('<' Type (',' Type)* '>')? (Schema)?
+ReferenceType ::= FqnIdentifier ('<' Type (',' Type)* '>')? (Schema)? {pin = 2}
 
 DataFormat ::= MIME_TYPE_KEYWORD
 

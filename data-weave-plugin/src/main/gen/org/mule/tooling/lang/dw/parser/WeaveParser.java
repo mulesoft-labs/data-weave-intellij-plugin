@@ -923,14 +923,15 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   public static boolean CloseObjectType(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "CloseObjectType")) return false;
     if (!nextTokenIs(b, OPEN_CLOSE_KEYWORD)) return false;
-    boolean r;
-    Marker m = enter_section_(b);
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, CLOSE_OBJECT_TYPE, null);
     r = consumeToken(b, OPEN_CLOSE_KEYWORD);
-    r = r && CloseObjectType_1(b, l + 1);
-    r = r && consumeToken(b, CLOSE_CLOSE_KEYWORD);
-    r = r && CloseObjectType_3(b, l + 1);
-    exit_section_(b, m, CLOSE_OBJECT_TYPE, r);
-    return r;
+    p = r; // pin = 1
+    r = r && report_error_(b, CloseObjectType_1(b, l + 1));
+    r = p && report_error_(b, consumeToken(b, CLOSE_CLOSE_KEYWORD)) && r;
+    r = p && CloseObjectType_3(b, l + 1) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   // ((KeyValuePairType)? (',' KeyValuePairType)*)?
@@ -1012,14 +1013,15 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   public static boolean CloseOrderedObjectType(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "CloseOrderedObjectType")) return false;
     if (!nextTokenIs(b, OPEN_CLOSE_ORDERED_KEYWORD)) return false;
-    boolean r;
-    Marker m = enter_section_(b);
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, CLOSE_ORDERED_OBJECT_TYPE, null);
     r = consumeToken(b, OPEN_CLOSE_ORDERED_KEYWORD);
-    r = r && CloseOrderedObjectType_1(b, l + 1);
-    r = r && consumeToken(b, CLOSE_CLOSE_ORDERED_KEYWORD);
-    r = r && CloseOrderedObjectType_3(b, l + 1);
-    exit_section_(b, m, CLOSE_ORDERED_OBJECT_TYPE, r);
-    return r;
+    p = r; // pin = 1
+    r = r && report_error_(b, CloseOrderedObjectType_1(b, l + 1));
+    r = p && report_error_(b, consumeToken(b, CLOSE_CLOSE_ORDERED_KEYWORD)) && r;
+    r = p && CloseOrderedObjectType_3(b, l + 1) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   // ((KeyValuePairType)? (',' KeyValuePairType)*)?
@@ -2269,30 +2271,32 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   // Identifier 'matches' RegexLiteral '->' Expression
   public static boolean NamedRegexPattern(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "NamedRegexPattern")) return false;
-    boolean r;
+    boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, NAMED_REGEX_PATTERN, "<named regex pattern>");
     r = Identifier(b, l + 1);
     r = r && consumeToken(b, MATCHES_KEYWORD);
     r = r && RegexLiteral(b, l + 1);
     r = r && consumeToken(b, ARROW_TOKEN);
+    p = r; // pin = 4
     r = r && Expression(b, l + 1, -1);
-    exit_section_(b, l, m, r, false, null);
-    return r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   /* ********************************************************** */
   // Identifier "is" TypeLiteral '->' Expression
   public static boolean NamedTypePattern(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "NamedTypePattern")) return false;
-    boolean r;
+    boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, NAMED_TYPE_PATTERN, "<named type pattern>");
     r = Identifier(b, l + 1);
     r = r && consumeToken(b, IS);
-    r = r && TypeLiteral(b, l + 1);
-    r = r && consumeToken(b, ARROW_TOKEN);
-    r = r && Expression(b, l + 1, -1);
-    exit_section_(b, l, m, r, false, null);
-    return r;
+    p = r; // pin = 2
+    r = r && report_error_(b, TypeLiteral(b, l + 1));
+    r = p && report_error_(b, consumeToken(b, ARROW_TOKEN)) && r;
+    r = p && Expression(b, l + 1, -1) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   /* ********************************************************** */
@@ -2431,14 +2435,15 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   public static boolean ObjectType(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ObjectType")) return false;
     if (!nextTokenIs(b, L_CURLY)) return false;
-    boolean r;
-    Marker m = enter_section_(b);
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, OBJECT_TYPE, null);
     r = consumeToken(b, L_CURLY);
-    r = r && ObjectType_1(b, l + 1);
-    r = r && consumeToken(b, R_CURLY);
-    r = r && ObjectType_3(b, l + 1);
-    exit_section_(b, m, OBJECT_TYPE, r);
-    return r;
+    p = r; // pin = 1
+    r = r && report_error_(b, ObjectType_1(b, l + 1));
+    r = p && report_error_(b, consumeToken(b, R_CURLY)) && r;
+    r = p && ObjectType_3(b, l + 1) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   // ((KeyValuePairType)? (',' KeyValuePairType)*)?
@@ -2567,14 +2572,15 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   public static boolean OrderedObjectType(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "OrderedObjectType")) return false;
     if (!nextTokenIs(b, OPEN_ORDERED_KEYWORD)) return false;
-    boolean r;
-    Marker m = enter_section_(b);
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, ORDERED_OBJECT_TYPE, null);
     r = consumeToken(b, OPEN_ORDERED_KEYWORD);
-    r = r && OrderedObjectType_1(b, l + 1);
-    r = r && consumeToken(b, CLOSE_ORDERED_KEYWORD);
-    r = r && OrderedObjectType_3(b, l + 1);
-    exit_section_(b, m, ORDERED_OBJECT_TYPE, r);
-    return r;
+    p = r; // pin = 1
+    r = r && report_error_(b, OrderedObjectType_1(b, l + 1));
+    r = p && report_error_(b, consumeToken(b, CLOSE_ORDERED_KEYWORD)) && r;
+    r = p && OrderedObjectType_3(b, l + 1) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   // ((KeyValuePairType)? (',' KeyValuePairType)*)?
@@ -2815,13 +2821,14 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   // FqnIdentifier ('<' Type (',' Type)* '>')? (Schema)?
   public static boolean ReferenceType(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ReferenceType")) return false;
-    boolean r;
+    boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, REFERENCE_TYPE, "<reference type>");
     r = FqnIdentifier(b, l + 1);
     r = r && ReferenceType_1(b, l + 1);
+    p = r; // pin = 2
     r = r && ReferenceType_2(b, l + 1);
-    exit_section_(b, l, m, r, false, null);
-    return r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   // ('<' Type (',' Type)* '>')?
@@ -2900,14 +2907,15 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   public static boolean RegexPattern(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "RegexPattern")) return false;
     if (!nextTokenIs(b, MATCHES_KEYWORD)) return false;
-    boolean r;
-    Marker m = enter_section_(b);
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, REGEX_PATTERN, null);
     r = consumeToken(b, MATCHES_KEYWORD);
     r = r && RegexLiteral(b, l + 1);
     r = r && consumeToken(b, ARROW_TOKEN);
+    p = r; // pin = 3
     r = r && Expression(b, l + 1, -1);
-    exit_section_(b, m, REGEX_PATTERN, r);
-    return r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   /* ********************************************************** */
@@ -2915,13 +2923,14 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   public static boolean Schema(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "Schema")) return false;
     if (!nextTokenIs(b, L_CURLY)) return false;
-    boolean r;
-    Marker m = enter_section_(b);
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, SCHEMA, null);
     r = consumeToken(b, L_CURLY);
-    r = r && Schema_1(b, l + 1);
-    r = r && consumeToken(b, R_CURLY);
-    exit_section_(b, m, SCHEMA, r);
-    return r;
+    p = r; // pin = 1
+    r = r && report_error_(b, Schema_1(b, l + 1));
+    r = p && consumeToken(b, R_CURLY) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   // ( SchemaElement ( ',' SchemaElement )* )?
@@ -2965,16 +2974,17 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // (Identifier | StringLiteral) ':' LiteralExpression
+  // (Identifier | StringLiteral) ':' Expression
   public static boolean SchemaElement(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "SchemaElement")) return false;
-    boolean r;
+    boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, SCHEMA_ELEMENT, "<schema element>");
     r = SchemaElement_0(b, l + 1);
     r = r && consumeToken(b, COLON);
-    r = r && LiteralExpression(b, l + 1);
-    exit_section_(b, l, m, r, false, null);
-    return r;
+    p = r; // pin = 2
+    r = r && Expression(b, l + 1, -1);
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   // Identifier | StringLiteral
@@ -3257,14 +3267,15 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   public static boolean TypePattern(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "TypePattern")) return false;
     if (!nextTokenIs(b, IS)) return false;
-    boolean r;
-    Marker m = enter_section_(b);
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, TYPE_PATTERN, null);
     r = consumeToken(b, IS);
     r = r && Type(b, l + 1);
     r = r && consumeToken(b, ARROW_TOKEN);
+    p = r; // pin = 3
     r = r && Expression(b, l + 1, -1);
-    exit_section_(b, m, TYPE_PATTERN, r);
-    return r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   /* ********************************************************** */
@@ -3678,7 +3689,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // AS TypeLiteral
+  // 'as' TypeLiteral
   private static boolean AsExpression_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "AsExpression_0")) return false;
     boolean r;

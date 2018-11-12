@@ -15,6 +15,7 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.indexing.FileBasedIndex;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.WeaveFileType;
+import org.mule.tooling.lang.dw.parser.psi.WeaveAnnotationDirective;
 import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
 import org.mule.tooling.lang.dw.parser.psi.WeaveFunctionDefinition;
 import org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement;
@@ -59,7 +60,7 @@ public class WeaveQualifiedNameProvider implements QualifiedNameProvider {
                     return document.getQualifiedName() + NameIdentifier.SEPARATOR() + ((WeaveNamedElement) psiElement).getName();
                 }
             }
-        } else if (psiElement instanceof WeaveTypeDirective) {
+        } else if (psiElement instanceof WeaveTypeDirective || psiElement instanceof WeaveAnnotationDirective) {
             // HeaderNode -> DocumentNode
             if (getParent(psiElement, 2) instanceof WeaveDocument) {
                 WeaveDocument document = WeavePsiUtils.getDocument(psiElement);
