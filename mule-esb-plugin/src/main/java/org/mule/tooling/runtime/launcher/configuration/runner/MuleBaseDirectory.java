@@ -95,11 +95,11 @@ public interface MuleBaseDirectory {
                 }
 
                 final File domains = getOrCreateFolder(muleBase, FOLDER_DOMAINS);
-                //for some reason the runtime wipes out the `domains/default` folder on each run, see https://www.mulesoft.org/jira/browse/MULE-16039
-                final Path defaultAnchorFile = domains.toPath().resolve("default-anchor.txt");
-                Files.deleteIfExists(defaultAnchorFile);
-                getOrCreateFolder(domains, "default");
-                Files.write(defaultAnchorFile, "content to avoid removing the domain in the anchor file".getBytes());
+                if (domains.list().length == 0) {
+                    //for some reason the runtime wipes out the `domains/default` folder on each run, see https://www.mulesoft.org/jira/browse/MULE-16039
+                    getOrCreateFolder(domains, "default");
+                    Files.write(domains.toPath().resolve("default-anchor.txt"), "content to avoid removing the domain in the anchor file".getBytes());
+                }
 
                 final File services = getOrCreateFolder(muleBase, "services");
                 if (services.list().length == 0) {
