@@ -58,6 +58,8 @@ public class MuleRunnerEditor extends SettingsEditor<MuleConfiguration> {
       selectedButton = this.configurationPanel.getNeverRadioButton();
 
     selectedButton.setSelected(true);
+
+    this.configurationPanel.getDeployInContainer().setSelected(runnerConfiguration.isDeployInContainer());
   }
 
   /**
@@ -78,6 +80,8 @@ public class MuleRunnerEditor extends SettingsEditor<MuleConfiguration> {
       runnerConfiguration.setClearData(CLEAR_DATA_NEVER);
     else
       runnerConfiguration.setClearData(CLEAR_DATA_PROMPT);
+
+    runnerConfiguration.setDeployInContainer(this.configurationPanel.getDeployInContainer().isSelected());
 
     Module[] selectedModules = this.configurationPanel.getModulesList().getSelectedModules(runnerConfiguration.getProject());
 //        final Module selectedModule = this.configurationPanel.getModuleCombo().getSelectedModule();

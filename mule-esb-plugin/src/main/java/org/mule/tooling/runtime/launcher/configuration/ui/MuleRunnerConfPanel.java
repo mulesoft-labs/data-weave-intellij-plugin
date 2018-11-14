@@ -16,6 +16,7 @@ public class MuleRunnerConfPanel {
     private JRadioButton promptRadioButton;
 
     private JTextField debugPort;
+    private JCheckBox deployInContainer;
 
     public MuleRunnerConfPanel() {
 
@@ -51,5 +52,9 @@ public class MuleRunnerConfPanel {
 
     public JTextField getDebugPort() {
         return debugPort;
+    }
+
+    public JCheckBox getDeployInContainer() {
+        return deployInContainer;
     }
 }

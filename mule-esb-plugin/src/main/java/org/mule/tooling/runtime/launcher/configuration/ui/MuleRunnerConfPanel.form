@@ -2,11 +2,11 @@
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="org.mule.tooling.runtime.launcher.configuration.ui.MuleRunnerConfPanel">
   <grid id="27dc6" binding="mainPanel" layout-manager="FormLayout">
     <rowspec value="center:d:noGrow"/>
-    <rowspec value="top:4dlu:noGrow"/>
+    <rowspec value="top:3dlu:noGrow"/>
     <rowspec value="center:max(d;4px):noGrow"/>
     <colspec value="fill:d:grow"/>
     <constraints>
-      <xy x="20" y="20" width="565" height="402"/>
+      <xy x="20" y="20" width="589" height="402"/>
     </constraints>
     <properties/>
     <border type="none"/>
@@ -16,6 +16,10 @@
         <rowspec value="top:3dlu:noGrow"/>
         <rowspec value="center:max(d;4px):noGrow"/>
         <rowspec value="top:4dlu:noGrow"/>
+        <rowspec value="center:max(d;4px):noGrow"/>
+        <rowspec value="top:3dlu:noGrow"/>
+        <rowspec value="center:max(d;4px):noGrow"/>
+        <rowspec value="top:3dlu:noGrow"/>
         <rowspec value="center:max(d;4px):noGrow"/>
         <rowspec value="top:3dlu:noGrow"/>
         <rowspec value="center:max(d;4px):noGrow"/>
@@ -157,6 +161,26 @@
             </constraints>
             <properties>
               <toolTipText value="Numeric port value for Mule debugger server (default is 6666)"/>
+            </properties>
+          </component>
+          <component id="eb2f" class="javax.swing.JLabel">
+            <constraints>
+              <grid row="12" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <forms/>
+            </constraints>
+            <properties>
+              <text value="Deployment folder:"/>
+            </properties>
+          </component>
+          <component id="d30e8" class="javax.swing.JCheckBox" binding="deployInContainer">
+            <constraints>
+              <grid row="12" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <forms/>
+            </constraints>
+            <properties>
+              <selected value="true"/>
+              <text value="Use default contanier's base folder (not recommended)"/>
+              <toolTipText value="When set to &quot;true&quot;, the application will be deployed under the current MULE_HOME/app directory, while leaving it to false will rely on the MULE_BASE/apps folder, not changing runtime's filesystem"/>
             </properties>
           </component>
         </children>
