@@ -34,8 +34,6 @@ dependencies {
         exclude group: "org.slf4j"
     }
 
-    compile project(':raml-plugin')
-
     testCompile 'junit:junit:4.+'
 }
 
