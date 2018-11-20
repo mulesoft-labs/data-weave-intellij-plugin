@@ -36,6 +36,12 @@ public class MuleRunnerEditor extends SettingsEditor<MuleConfiguration> {
     for (Module m: selectedModules) {
       this.configurationPanel.getModulesList().selectModule(m, true);
     }
+    runnerConfiguration.getValidModules()
+            .stream()
+            .filter(module -> module.getName().equals(runnerConfiguration.getProject().getName()))
+            .findFirst()
+            .ifPresent(module -> this.configurationPanel.getModulesList().selectModule(module, true));
+
     this.configurationPanel.getVmArgsField().setText(runnerConfiguration.getVmArgs());
 
     String muleHome = runnerConfiguration.getMuleHome();
@@ -47,7 +53,9 @@ public class MuleRunnerEditor extends SettingsEditor<MuleConfiguration> {
         }
       }
     }
-    this.configurationPanel.getMuleHome().setSelectedItem(MuleSdkManager.getInstance().getSdkByVersion(muleHome));
+  if (!StringUtils.isBlank(muleHome)) {
+      this.configurationPanel.getMuleHome().setSelectedItem(MuleSdkManager.getInstance().getSdkByVersion(muleHome));
+  }
 
     String clearData = runnerConfiguration.getClearData();
     JRadioButton selectedButton = this.configurationPanel.getPromptRadioButton();
