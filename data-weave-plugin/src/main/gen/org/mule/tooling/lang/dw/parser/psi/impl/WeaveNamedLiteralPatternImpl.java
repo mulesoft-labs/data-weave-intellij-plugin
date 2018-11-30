@@ -5,11 +5,7 @@ import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
-import org.mule.tooling.lang.dw.parser.psi.WeaveExpression;
-import org.mule.tooling.lang.dw.parser.psi.WeaveIdentifier;
-import org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl;
-import org.mule.tooling.lang.dw.parser.psi.WeaveNamedLiteralPattern;
-import org.mule.tooling.lang.dw.parser.psi.WeaveVisitor;
+import org.mule.tooling.lang.dw.parser.psi.*;
 
 import java.util.List;
 

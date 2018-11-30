@@ -7,12 +7,7 @@ import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiReference;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.mule.tooling.lang.dw.parser.psi.WeaveContainerModuleIdentifier;
-import org.mule.tooling.lang.dw.parser.psi.WeaveCustomLoader;
-import org.mule.tooling.lang.dw.parser.psi.WeaveIdentifier;
-import org.mule.tooling.lang.dw.parser.psi.WeaveModuleReference;
-import org.mule.tooling.lang.dw.parser.psi.WeavePsiImplUtils;
-import org.mule.tooling.lang.dw.parser.psi.WeaveVisitor;
+import org.mule.tooling.lang.dw.parser.psi.*;
 
 public class WeaveModuleReferenceImpl extends ASTWrapperPsiElement implements WeaveModuleReference {
 

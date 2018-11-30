@@ -6,11 +6,7 @@ import com.intellij.navigation.ItemPresentation;
 import com.intellij.psi.PsiElementVisitor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.mule.tooling.lang.dw.parser.psi.WeaveMultipleKeyValuePairObj;
-import org.mule.tooling.lang.dw.parser.psi.WeaveObjectExpression;
-import org.mule.tooling.lang.dw.parser.psi.WeavePsiImplUtils;
-import org.mule.tooling.lang.dw.parser.psi.WeaveSingleKeyValuePairObj;
-import org.mule.tooling.lang.dw.parser.psi.WeaveVisitor;
+import org.mule.tooling.lang.dw.parser.psi.*;
 
 public class WeaveObjectExpressionImpl extends WeaveExpressionImpl implements WeaveObjectExpression {
 

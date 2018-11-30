@@ -35,23 +35,10 @@ import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.qn.WeaveQualifiedNameProvider;
 import org.mule.tooling.lang.dw.service.agent.WeaveAgentRuntimeManager;
 import org.mule.tooling.lang.dw.util.AsyncCache;
-import org.mule.weave.v2.completion.DataFormatDescriptor;
-import org.mule.weave.v2.completion.DataFormatDescriptorProvider;
-import org.mule.weave.v2.completion.DataFormatDescriptorProvider$;
-import org.mule.weave.v2.completion.DataFormatProperty;
-import org.mule.weave.v2.completion.EmptyDataFormatDescriptorProvider$;
-import org.mule.weave.v2.completion.Suggestion;
-import org.mule.weave.v2.completion.SuggestionType;
+import org.mule.weave.v2.completion.*;
 import org.mule.weave.v2.debugger.event.WeaveDataFormatDescriptor;
 import org.mule.weave.v2.debugger.event.WeaveDataFormatProperty;
-import org.mule.weave.v2.editor.ImplicitInput;
-import org.mule.weave.v2.editor.ReformatResult;
-import org.mule.weave.v2.editor.SpecificModuleResourceResolver;
-import org.mule.weave.v2.editor.ValidationMessages;
-import org.mule.weave.v2.editor.VariableDependency;
-import org.mule.weave.v2.editor.VirtualFile;
-import org.mule.weave.v2.editor.WeaveDocumentToolingService;
-import org.mule.weave.v2.editor.WeaveToolingService;
+import org.mule.weave.v2.editor.*;
 import org.mule.weave.v2.hover.HoverMessage;
 import org.mule.weave.v2.parser.ast.AstNode;
 import org.mule.weave.v2.parser.ast.variables.NameIdentifier;
@@ -83,12 +70,12 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
   @Override
   public void initComponent() {
     projectVirtualFileSystem = new IJVirtualFileSystemAdaptor(myProject);
-    final RemoteResourceResolver resourceResolver = new RemoteResourceResolver(myProject);
-    final SpecificModuleResourceResolver java = SpecificModuleResourceResolver.apply("java", resourceResolver);
-    final SpecificModuleResourceResolver[] moduleResourceResolvers = {java};
-    projectVirtualFileSystem.changeListener(file -> {
-      resourceResolver.invalidateCache(file.getNameIdentifier());
-    });
+//    final RemoteResourceResolver resourceResolver = new RemoteResourceResolver(myProject);
+//    final SpecificModuleResourceResolver java = SpecificModuleResourceResolver.apply("java", resourceResolver);
+    final SpecificModuleResourceResolver[] moduleResourceResolvers = {};
+//    projectVirtualFileSystem.changeListener(file -> {
+//      resourceResolver.invalidateCache(file.getNameIdentifier());
+//    });
     dwTextDocumentService = WeaveToolingService.apply(projectVirtualFileSystem, EmptyDataFormatDescriptorProvider$.MODULE$, moduleResourceResolvers);
     final WeaveRuntimeContextManager instance = WeaveRuntimeContextManager.getInstance(myProject);
     instance.addListener(new WeaveRuntimeContextManager.StatusChangeListener() {

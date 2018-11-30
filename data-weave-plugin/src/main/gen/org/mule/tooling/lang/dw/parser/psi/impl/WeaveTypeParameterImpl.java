@@ -5,11 +5,7 @@ import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElementVisitor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.mule.tooling.lang.dw.parser.psi.WeaveIdentifier;
-import org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl;
-import org.mule.tooling.lang.dw.parser.psi.WeaveType;
-import org.mule.tooling.lang.dw.parser.psi.WeaveTypeParameter;
-import org.mule.tooling.lang.dw.parser.psi.WeaveVisitor;
+import org.mule.tooling.lang.dw.parser.psi.*;
 
 public class WeaveTypeParameterImpl extends WeaveNamedElementImpl implements WeaveTypeParameter {
 

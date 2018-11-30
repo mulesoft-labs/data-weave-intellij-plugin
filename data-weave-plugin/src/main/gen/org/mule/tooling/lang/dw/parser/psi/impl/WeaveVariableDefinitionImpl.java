@@ -6,13 +6,7 @@ import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.mule.tooling.lang.dw.parser.psi.WeaveAnnotation;
-import org.mule.tooling.lang.dw.parser.psi.WeaveExpression;
-import org.mule.tooling.lang.dw.parser.psi.WeaveIdentifier;
-import org.mule.tooling.lang.dw.parser.psi.WeaveType;
-import org.mule.tooling.lang.dw.parser.psi.WeaveVariableDefinition;
-import org.mule.tooling.lang.dw.parser.psi.WeaveVariableImpl;
-import org.mule.tooling.lang.dw.parser.psi.WeaveVisitor;
+import org.mule.tooling.lang.dw.parser.psi.*;
 
 import java.util.List;
 

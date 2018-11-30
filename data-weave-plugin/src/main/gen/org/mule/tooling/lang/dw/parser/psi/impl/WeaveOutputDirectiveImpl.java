@@ -5,11 +5,7 @@ import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElementVisitor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.mule.tooling.lang.dw.parser.psi.WeaveDataFormat;
-import org.mule.tooling.lang.dw.parser.psi.WeaveOptions;
-import org.mule.tooling.lang.dw.parser.psi.WeaveOutputDirective;
-import org.mule.tooling.lang.dw.parser.psi.WeaveType;
-import org.mule.tooling.lang.dw.parser.psi.WeaveVisitor;
+import org.mule.tooling.lang.dw.parser.psi.*;
 
 public class WeaveOutputDirectiveImpl extends WeaveDirectiveImpl implements WeaveOutputDirective {
 

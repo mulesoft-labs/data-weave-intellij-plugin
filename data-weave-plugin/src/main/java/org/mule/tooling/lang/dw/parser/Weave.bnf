@@ -114,10 +114,11 @@ Document ::= Header ('---'  Body) ? | Body {
     methods=[getPresentation getQualifiedName getName setName isMappingDocument isModuleDocument]
 }
 
-Header::= Directive+ {pin=2}
+Header::= (Directive)+
 
 Directive
-         ::= VersionDirective
+         ::= Annotation*
+         (VersionDirective
            | NamespaceDirective
            | VariableDirective
            | AnnotationDirective
@@ -125,19 +126,24 @@ Directive
            | InputDirective
            | TypeDirective
            | ImportDirective
-           | FunctionDirective {recoverWhile=HeaderRecover}
+           | FunctionDirective) {recoverWhile=HeaderRecover}
 
-AnnotationDirective ::= Annotation* 'annotation' Identifier '('( AnnotationParameter ( ',' AnnotationParameter )*  )?')'
+AnnotationDirective ::= 'annotation' AnnotationDefinition
+{
+     pin=1
+}
+
+AnnotationDefinition ::= Identifier '('( AnnotationParameter ( ',' AnnotationParameter )*  )?')'
 {
      methods = [getName setName getNameIdentifier]
      implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
      mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
-     pin=2
+     pin=1
 }
 
 AnnotationParameter::= (Identifier) ':' TypeLiteral
 
-private HeaderRecover::= !('---'|OUTPUT_DIRECTIVE_KEYWORD|'type'|'fun'|'ns'|'var'|'%dw'|'input'|IMPORT_DIRECTIVE_KEYWORD|'@' | 'annotation')
+private HeaderRecover::= !('---'|OUTPUT_DIRECTIVE_KEYWORD|'type'|'fun'|'ns'|'var'|'%dw'|'input'|IMPORT_DIRECTIVE_KEYWORD | '@' | 'annotation')
 
 VersionDirective::= '%dw'  DOUBLE_LITERAL {pin=1}
 
@@ -155,7 +161,7 @@ NamespaceDefinition::=Identifier NAMESPACE_URI
       pin=1
  }
 
-VariableDirective::= Annotation* 'var' VariableDefinition {pin=2}
+VariableDirective::= 'var' VariableDefinition {pin=1}
 
 OutputDirective::= OUTPUT_DIRECTIVE_KEYWORD (":" Type)? DataFormat Options? {pin=1}
 
@@ -169,7 +175,7 @@ TypeDefinition::=Identifier TypeParameterDeclaration? '=' (TypeLiteral | Undefin
                       pin=1
                  }
 
-FunctionDirective::= Annotation* 'fun' FunctionDefinition {pin=2}
+FunctionDirective::=  'fun' FunctionDefinition {pin=1}
 
 FunctionDefinition::=Identifier TypeParameterDeclaration? L_PARREN ( FunctionParameter ( ',' FunctionParameter )* )? R_PARREN ( ":" (Type | DynamicReturn) "=" | "=")? Expression
 {
@@ -449,11 +455,11 @@ DoExpression ::= 'do' '{' (DoDirectives+ '---')?  Expression'}'
 
 
 private DoDirectives
-         ::= VariableDirective
+         ::=  Annotation* (VariableDirective
            | TypeDirective
            | ImportDirective
            | NamespaceDirective
-           | FunctionDirective {recoverWhile=HeaderRecover}
+           | FunctionDirective) {recoverWhile=HeaderRecover}
 
 UndefinedLiteral ::= '?''?''?'
 

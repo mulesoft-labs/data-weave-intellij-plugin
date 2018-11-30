@@ -5,12 +5,7 @@ import com.intellij.execution.DefaultExecutionResult;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.ExecutionResult;
 import com.intellij.execution.Executor;
-import com.intellij.execution.configurations.CommandLineState;
-import com.intellij.execution.configurations.GeneralCommandLine;
-import com.intellij.execution.configurations.ParametersList;
-import com.intellij.execution.configurations.RunProfile;
-import com.intellij.execution.configurations.RunProfileState;
-import com.intellij.execution.configurations.SimpleJavaParameters;
+import com.intellij.execution.configurations.*;
 import com.intellij.execution.executors.DefaultRunExecutor;
 import com.intellij.execution.process.OSProcessHandler;
 import com.intellij.execution.process.ProcessAdapter;
@@ -47,14 +42,7 @@ import org.mule.weave.v2.debugger.client.ConnectionRetriesListener;
 import org.mule.weave.v2.debugger.client.DefaultWeaveAgentClientListener;
 import org.mule.weave.v2.debugger.client.WeaveAgentClient;
 import org.mule.weave.v2.debugger.client.tcp.TcpClientProtocol;
-import org.mule.weave.v2.debugger.event.AvailableModulesEvent;
-import org.mule.weave.v2.debugger.event.DataFormatsDefinitionsEvent;
-import org.mule.weave.v2.debugger.event.ImplicitInputTypesEvent;
-import org.mule.weave.v2.debugger.event.InferWeaveTypeEvent;
-import org.mule.weave.v2.debugger.event.ModuleResolvedEvent;
-import org.mule.weave.v2.debugger.event.PreviewExecutedEvent;
-import org.mule.weave.v2.debugger.event.PreviewExecutedFailedEvent;
-import org.mule.weave.v2.debugger.event.PreviewExecutedSuccessfulEvent;
+import org.mule.weave.v2.debugger.event.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -97,7 +85,7 @@ public class WeaveAgentRuntimeManager extends AbstractProjectComponent {
       }
     });
 
-    Runtime.getRuntime().addShutdownHook(new Thread(() -> tearDown()));
+    Runtime.getRuntime().addShutdownHook(new Thread(this::tearDown));
   }
 
 //  private void start() {
@@ -230,19 +218,21 @@ public class WeaveAgentRuntimeManager extends AbstractProjectComponent {
         FileDocumentManager.getInstance().saveAllDocuments();
         ApplicationManager.getApplication().executeOnPooledThread(() -> {
           final String[] paths = getClasspath(module);
-          client.runPreview(inputsPath, script, identifier, url, maxTime, paths, new DefaultWeaveAgentClientListener() {
-            @Override
-            public void onPreviewExecuted(PreviewExecutedEvent result) {
-              ApplicationManager.getApplication().invokeLater(() -> {
-                if (result instanceof PreviewExecutedSuccessfulEvent) {
-                  PreviewExecutedSuccessfulEvent successfulEvent = (PreviewExecutedSuccessfulEvent) result;
-                  callback.onPreviewSuccessful(successfulEvent);
-                } else if (result instanceof PreviewExecutedFailedEvent) {
-                  callback.onPreviewFailed((PreviewExecutedFailedEvent) result);
-                }
-              });
-            }
-          });
+          if (client != null) {
+            client.runPreview(inputsPath, script, identifier, url, maxTime, paths, new DefaultWeaveAgentClientListener() {
+              @Override
+              public void onPreviewExecuted(PreviewExecutedEvent result) {
+                ApplicationManager.getApplication().invokeLater(() -> {
+                  if (result instanceof PreviewExecutedSuccessfulEvent) {
+                    PreviewExecutedSuccessfulEvent successfulEvent = (PreviewExecutedSuccessfulEvent) result;
+                    callback.onPreviewSuccessful(successfulEvent);
+                  } else if (result instanceof PreviewExecutedFailedEvent) {
+                    callback.onPreviewFailed((PreviewExecutedFailedEvent) result);
+                  }
+                });
+              }
+            });
+          }
         });
       });
     });
@@ -334,53 +324,61 @@ public class WeaveAgentRuntimeManager extends AbstractProjectComponent {
     checkClientConnected(() -> {
       //Make sure all files are persisted before running preview
       ApplicationManager.getApplication().invokeLater(() -> {
-        client.inferWeaveType(path, new DefaultWeaveAgentClientListener() {
-          @Override
-          public void onWeaveTypeInfer(InferWeaveTypeEvent result) {
-            ApplicationManager.getApplication().invokeLater(() -> {
-              callback.onType(result);
-            });
-          }
-        });
+        if (client != null) {
+          client.inferWeaveType(path, new DefaultWeaveAgentClientListener() {
+            @Override
+            public void onWeaveTypeInfer(InferWeaveTypeEvent result) {
+              ApplicationManager.getApplication().invokeLater(() -> {
+                callback.onType(result);
+              });
+            }
+          });
+        }
       });
     });
   }
 
   public void dataFormats(DataFormatsDefinitionCallback callback) {
     checkClientConnected(() -> {
-      client.definedDataFormats(new DefaultWeaveAgentClientListener() {
-        @Override
-        public void onDataFormatDefinitionCalculated(DataFormatsDefinitionsEvent dfde) {
-          ApplicationManager.getApplication().invokeLater(() -> {
-            callback.onDataFormatsLoaded(dfde);
-          });
-        }
-      });
-    });
-  }
-
-  public void availableModules(AvailableModulesCallback callback) {
-    client.availableModules(new DefaultWeaveAgentClientListener() {
-      @Override
-      public void onAvailableModules(AvailableModulesEvent am) {
-        ApplicationManager.getApplication().invokeLater(() -> {
-          callback.onAvailableModules(am);
+      if (client != null) {
+        client.definedDataFormats(new DefaultWeaveAgentClientListener() {
+          @Override
+          public void onDataFormatDefinitionCalculated(DataFormatsDefinitionsEvent dfde) {
+            ApplicationManager.getApplication().invokeLater(() -> {
+              callback.onDataFormatsLoaded(dfde);
+            });
+          }
         });
       }
     });
   }
 
-  public void resolveModule(String identifier, String loader, Project module, ModuleLoadedCallback callback) {
-    final String[] paths = getClasspath(module);
-    checkClientConnected(() -> {
-      client.resolveModule(identifier, loader, paths, new DefaultWeaveAgentClientListener() {
+  public void availableModules(AvailableModulesCallback callback) {
+    if (client != null) {
+      client.availableModules(new DefaultWeaveAgentClientListener() {
         @Override
-        public void onModuleLoaded(ModuleResolvedEvent result) {
+        public void onAvailableModules(AvailableModulesEvent am) {
           ApplicationManager.getApplication().invokeLater(() -> {
-            callback.onModuleResolved(result);
+            callback.onAvailableModules(am);
           });
         }
       });
+    }
+  }
+
+  public void resolveModule(String identifier, String loader, Project module, ModuleLoadedCallback callback) {
+    final String[] paths = getClasspath(module);
+    checkClientConnected(() -> {
+      if (client != null) {
+        client.resolveModule(identifier, loader, paths, new DefaultWeaveAgentClientListener() {
+          @Override
+          public void onModuleLoaded(ModuleResolvedEvent result) {
+            ApplicationManager.getApplication().invokeLater(() -> {
+              callback.onModuleResolved(result);
+            });
+          }
+        });
+      }
     });
   }
 
