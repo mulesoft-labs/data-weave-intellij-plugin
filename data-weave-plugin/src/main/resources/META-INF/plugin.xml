@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>org.mule.tooling.intellij.dataweave.v2</id>
     <name>DataWeave 2.0.</name>
-    <version>2.0.4</version>
+    <version>2.0.6</version>
     <vendor email="mariano.achaval@mulesoft.com" url="https://github.com/mulesoft-labs/data-weave-intellij-plugin">
         Mulesoft
     </vendor>
@@ -57,6 +57,15 @@
             <li>Autocompletion of media types with writer properties</li>
             <li>Introduce Type</li>
             <li>Debugging tests</li>
+          </ul>
+        </li>
+      </ul>
+       <h1>v2.0.5</h1>
+      <ul>
+       <li>
+          <p>DataWeave 2.0 Support</p>
+          <ul>
+            <li>Lots of Bug Fixes</li>
           </ul>
         </li>
       </ul>
@@ -147,6 +156,14 @@
         <toolWindow id="Weave Internals" anchor="bottom"
                     factoryClass="org.mule.tooling.lang.dw.develop_view.DevelopToolingWindowFactory"
                     icon="AllIcons.Actions.Dump"/>
+        <applicationConfigurable instance="org.mule.tooling.lang.dw.settings.DataWeaveSettings" id="Anypoint DataWeave"
+                                 displayName="Anypoint DataWeave"
+                                 groupId="root"
+        />
+
+        <applicationService id="DataWeave State"
+                            serviceInterface="org.mule.tooling.lang.dw.settings.DataWeaveSettingsState"
+                            serviceImplementation="org.mule.tooling.lang.dw.settings.DataWeaveSettingsState"/>
     </extensions>
 
     <project-components>

@@ -34,7 +34,6 @@ public class WeaveRunnerCommandLine extends WeaveCommandLineState {
 
     final JavaParameters javaParams = WeaveRunnerHelper.createJavaParameters(project);
     if (isDebug) {
-//      javaParams.getVMParametersList().add("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005");
       javaParams.getProgramParametersList().add("-debug");
     }
     final String scenario = model.getScenario();

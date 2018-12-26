@@ -1,4 +1,4 @@
-<idea-plugin version="2">
+<idea-plugin>
     <id>org.mule.tooling.intellij.raml</id>
     <name>RAML Support</name>
     <version>2.0.4</version>
@@ -6,7 +6,7 @@
         Mulesoft
     </vendor>
     <description><![CDATA[
-     RAML Plugin For IntelliJ
+     RAML 2.0 and 1.0 Plugin For IntelliJ. It provides autocompletion validation and simple navigation features
 
     ]]></description>
 

@@ -14,11 +14,11 @@ import org.mule.tooling.lang.dw.WeaveIcons;
 
 import javax.swing.*;
 import java.io.File;
+import java.util.Objects;
 
 public class WeaveModuleBuilder extends MavenModuleBuilder implements SourcePathsBuilder {
 
-    private String weaveVersion = "2.1.4-SNAPSHOT";
-
+    private String weaveVersion = "2.2.0-SNAPSHOT";
 
     public WeaveModuleBuilder() {
         setProjectId(new MavenId("org.mule.weave.module", "my-weave-module", "1.0.0-SNAPSHOT"));
@@ -41,7 +41,7 @@ public class WeaveModuleBuilder extends MavenModuleBuilder implements SourcePath
     }
 
     private VirtualFile createAndGetContentEntry() {
-        String path = FileUtil.toSystemIndependentName(this.getContentEntryPath());
+        final String path = FileUtil.toSystemIndependentName(Objects.requireNonNull(this.getContentEntryPath()));
         new File(path).mkdirs();
         return LocalFileSystem.getInstance().refreshAndFindFileByPath(path);
     }
@@ -69,16 +69,7 @@ public class WeaveModuleBuilder extends MavenModuleBuilder implements SourcePath
 
     @Override
     public String getDescription() {
-        return "Create a Weave Module. ";
+        return "Create a Weave Module.";
     }
-
-//    @Nullable
-//    @Override
-//    public ModuleWizardStep getCustomOptionsStep(WizardContext context, Disposable parentDisposable) {
-//        MuleVersionConfiguration step = new MuleVersionConfiguration(this, muleVersion);
-//        Disposer.register(parentDisposable, step);
-//        return step;
-//    }
-
 
 }
