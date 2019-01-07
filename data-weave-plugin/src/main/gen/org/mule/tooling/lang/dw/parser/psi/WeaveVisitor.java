@@ -218,7 +218,7 @@ public class WeaveVisitor extends PsiElementVisitor {
   }
 
   public void visitFunctionParameter(@NotNull WeaveFunctionParameter o) {
-    visitVariable(o);
+    visitNamedElement(o);
   }
 
   public void visitGreaterThanExpression(@NotNull WeaveGreaterThanExpression o) {
@@ -499,7 +499,7 @@ public class WeaveVisitor extends PsiElementVisitor {
   }
 
   public void visitVariableDefinition(@NotNull WeaveVariableDefinition o) {
-    visitVariable(o);
+    visitNamedElement(o);
   }
 
   public void visitVariableDirective(@NotNull WeaveVariableDirective o) {
@@ -519,10 +519,6 @@ public class WeaveVisitor extends PsiElementVisitor {
   }
 
   public void visitNamedElement(@NotNull WeaveNamedElement o) {
-    visitPsiElement(o);
-  }
-
-  public void visitVariable(@NotNull WeaveVariable o) {
     visitPsiElement(o);
   }
 
