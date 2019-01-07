@@ -15,7 +15,7 @@ public interface WeaveTypes {
   IElementType ANNOTATION = new WeaveElementType("ANNOTATION");
   IElementType ANNOTATION_ARGUMENT = new WeaveElementType("ANNOTATION_ARGUMENT");
   IElementType ANNOTATION_ARGUMENTS = new WeaveElementType("ANNOTATION_ARGUMENTS");
-    IElementType ANNOTATION_DEFINITION = new WeaveElementType("ANNOTATION_DEFINITION");
+  IElementType ANNOTATION_DEFINITION = new WeaveElementType("ANNOTATION_DEFINITION");
   IElementType ANNOTATION_DIRECTIVE = new WeaveElementType("ANNOTATION_DIRECTIVE");
   IElementType ANNOTATION_PARAMETER = new WeaveElementType("ANNOTATION_PARAMETER");
   IElementType ANY_DATE_LITERAL = new WeaveElementType("ANY_DATE_LITERAL");
@@ -232,7 +232,7 @@ public interface WeaveTypes {
       } else if (type == ANNOTATION_ARGUMENTS) {
         return new WeaveAnnotationArgumentsImpl(node);
       } else if (type == ANNOTATION_DEFINITION) {
-          return new WeaveAnnotationDefinitionImpl(node);
+        return new WeaveAnnotationDefinitionImpl(node);
       } else if (type == ANNOTATION_DIRECTIVE) {
         return new WeaveAnnotationDirectiveImpl(node);
       } else if (type == ANNOTATION_PARAMETER) {

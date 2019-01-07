@@ -435,9 +435,9 @@ VariableReferenceExpression ::= FqnIdentifier
 
 
 VariableDefinition ::= VariableNameTypeDefinition '='  Expression  {
-            methods=[getVariableName getVariableValue getName setName getNameIdentifier]
-            mixin="org.mule.tooling.lang.dw.parser.psi.WeaveVariableImpl"
-            implements="org.mule.tooling.lang.dw.parser.psi.WeaveVariable"
+            methods=[getName setName getNameIdentifier]
+            implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
+            mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
         }
 
 private VariableNameTypeDefinition ::= Annotation* Identifier (":" Type)?
@@ -468,9 +468,9 @@ LambdaLiteral ::= TypeParameterDeclaration? '(' ( FunctionParameter ( ',' Functi
 private TypeParameterDeclaration ::= '<' (TypeParameter (',' TypeParameter)*)? '>'
 
 FunctionParameter ::= VariableNameTypeDefinition ('=' Expression)?  {
-        methods=[getVariableName getVariableValue getName setName getNameIdentifier]
-        mixin="org.mule.tooling.lang.dw.parser.psi.WeaveVariableImpl"
-        implements="org.mule.tooling.lang.dw.parser.psi.WeaveVariable"
+        methods=[getName setName getNameIdentifier]
+        mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
+        implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
 
      }
 

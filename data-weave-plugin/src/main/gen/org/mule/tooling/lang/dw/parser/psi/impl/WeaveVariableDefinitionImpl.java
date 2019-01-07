@@ -10,7 +10,7 @@ import org.mule.tooling.lang.dw.parser.psi.*;
 
 import java.util.List;
 
-public class WeaveVariableDefinitionImpl extends WeaveVariableImpl implements WeaveVariableDefinition {
+public class WeaveVariableDefinitionImpl extends WeaveNamedElementImpl implements WeaveVariableDefinition {
 
   public WeaveVariableDefinitionImpl(@NotNull ASTNode node) {
     super(node);

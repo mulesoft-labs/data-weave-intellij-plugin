@@ -3,9 +3,7 @@ package org.mule.tooling.lang.dw.parser.psi;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiReference;
 import org.jetbrains.annotations.NotNull;
-import org.mule.tooling.lang.dw.reference.WeaveIdentifierPsiReference;
 
 public abstract class WeaveNamedElementImpl extends ASTWrapperPsiElement implements WeaveNamedElement {
 
@@ -30,16 +28,18 @@ public abstract class WeaveNamedElementImpl extends ASTWrapperPsiElement impleme
         return this;
     }
 
-    public PsiElement getNameIdentifier() {
-        return getIdentifier();
+    @Override
+    public int getTextOffset() {
+        PsiElement nameIdentifier = getNameIdentifier();
+        if (nameIdentifier != null) {
+            return nameIdentifier.getTextOffset();
+        } else {
+            return super.getTextOffset();
+        }
     }
 
-    public PsiReference getReference() {
-        if (getNameIdentifier() != null) {
-            return new WeaveIdentifierPsiReference(this);
-        } else {
-            return null;
-        }
+    public PsiElement getNameIdentifier() {
+        return getIdentifier();
     }
 
 
