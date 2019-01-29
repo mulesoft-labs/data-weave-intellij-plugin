@@ -69,6 +69,17 @@
           </ul>
         </li>
       </ul>
+      <h1>v2.0.7</h1>
+      <ul>
+       <li>
+          <p>DataWeave 2.0 Support</p>
+          <ul>
+            <li>Fix find usages</li>
+            <li>Fix rename</li>
+            <li>Make Agent tear down when it is not used</li>
+          </ul>
+        </li>
+      </ul>
     ]]>
     </change-notes>
 
