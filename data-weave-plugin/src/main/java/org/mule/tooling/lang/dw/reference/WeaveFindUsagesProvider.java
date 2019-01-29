@@ -50,8 +50,10 @@ public class WeaveFindUsagesProvider implements FindUsagesProvider {
             return "parameter";
         } else if (psiElement instanceof WeaveVariableDefinition || psiElement instanceof WeaveVariableReferenceExpression) {
             return "variable";
-        } else if (psiElement instanceof WeaveTypeDirective || psiElement instanceof WeaveReferenceType) {
+        } else if (psiElement instanceof WeaveTypeDefinition || psiElement instanceof WeaveReferenceType) {
             return "type";
+        } else if (psiElement instanceof WeaveAnnotationDefinition) {
+            return "annotation";
         } else {
             return psiElement.getClass().getSimpleName();
         }

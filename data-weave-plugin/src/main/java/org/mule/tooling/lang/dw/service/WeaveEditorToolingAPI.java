@@ -70,12 +70,12 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
   @Override
   public void initComponent() {
     projectVirtualFileSystem = new IJVirtualFileSystemAdaptor(myProject);
-//    final RemoteResourceResolver resourceResolver = new RemoteResourceResolver(myProject);
-//    final SpecificModuleResourceResolver java = SpecificModuleResourceResolver.apply("java", resourceResolver);
-    final SpecificModuleResourceResolver[] moduleResourceResolvers = {};
-//    projectVirtualFileSystem.changeListener(file -> {
-//      resourceResolver.invalidateCache(file.getNameIdentifier());
-//    });
+    final RemoteResourceResolver resourceResolver = new RemoteResourceResolver(myProject);
+    final SpecificModuleResourceResolver java = SpecificModuleResourceResolver.apply("java", resourceResolver);
+    final SpecificModuleResourceResolver[] moduleResourceResolvers = {java};
+    projectVirtualFileSystem.changeListener(file -> {
+      resourceResolver.invalidateCache(file.getNameIdentifier());
+    });
     dwTextDocumentService = WeaveToolingService.apply(projectVirtualFileSystem, EmptyDataFormatDescriptorProvider$.MODULE$, moduleResourceResolvers);
     final WeaveRuntimeContextManager instance = WeaveRuntimeContextManager.getInstance(myProject);
     instance.addListener(new WeaveRuntimeContextManager.StatusChangeListener() {
