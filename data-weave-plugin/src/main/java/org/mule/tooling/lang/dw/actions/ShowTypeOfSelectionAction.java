@@ -32,7 +32,6 @@ public class ShowTypeOfSelectionAction extends AbstractWeaveAction {
       if (weaveType == null) {
         weaveType = "Unable to infer type of expression.";
       }
-      selectionModel.getSelectionEnd();
       final LightweightHint hint = new LightweightHint(new JLabel(weaveType));
       final VisualPosition selectionStartPosition = selectionModel.getSelectionStartPosition();
       final VisualPosition selectionEndPosition = selectionModel.getSelectionEndPosition();

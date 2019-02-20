@@ -189,6 +189,9 @@
         <component>
             <implementation-class>org.mule.tooling.lang.dw.service.WeaveRuntimeContextManager</implementation-class>
         </component>
+        <component>
+            <implementation-class>org.mule.tooling.lang.dw.hints.WeaveTypeHintPassFactory</implementation-class>
+        </component>
     </project-components>
     <application-components>
         <!-- Add your application components here -->
