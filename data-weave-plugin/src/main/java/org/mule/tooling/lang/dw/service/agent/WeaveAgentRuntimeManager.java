@@ -79,34 +79,16 @@ public class WeaveAgentRuntimeManager extends AbstractProjectComponent implement
     @Override
     public void projectOpened() {
         super.projectOpened();
-//    start();
         myProject.getMessageBus().connect(myProject).subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootListener() {
             @Override
             public void rootsChanged(ModuleRootEvent event) {
-//        Notifications.Bus.notify(new Notification("Data Weave", "Restarting server", "Restarting weave server as classpath has changed", NotificationType.INFORMATION));
                 //We stop the server as classpath has changed
                 tearDown();
-//        start();
             }
         });
-
         Runtime.getRuntime().addShutdownHook(new Thread(this::tearDown));
     }
 
-//  private void start() {
-//    DumbService.getInstance(myProject).runWithAlternativeResolveEnabled(() -> {
-//      if (isWeaveRuntimeInstalled()) {
-//        //We initialized if it is installed
-//        ProgressManager.getInstance().run(new Task.Backgroundable(myProject, "Initializing Weave Agent", true) {
-//          @Override
-//          public void run(@NotNull ProgressIndicator indicator) {
-//            init(indicator);
-//          }
-//
-//        });
-//      }
-//    });
-//  }
 
     public void disable() {
         this.disabled = true;

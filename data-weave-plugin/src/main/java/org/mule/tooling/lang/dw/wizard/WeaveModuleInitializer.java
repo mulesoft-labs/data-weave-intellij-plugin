@@ -17,20 +17,20 @@ import java.util.Properties;
 
 public class WeaveModuleInitializer {
 
-    public static void configure(final Project project, final MavenId projectId, final String weaveVersion, final VirtualFile root, @Nullable MavenId parentId) {
+    public static void configure(final Project project, final MavenId projectId, final String weaveVersion, final VirtualFile root, @Nullable MavenId parentId, String wtfVersion) {
         try {
             VfsUtil.createDirectories(root.getPath() + "/src/main/resources");
             VfsUtil.createDirectories(root.getPath() + "/src/test/dwit");
             VfsUtil.createDirectories(root.getPath() + "/src/test/dwtest");
             VfsUtil.createDirectories(root.getPath() + "/src/test/resources");
-            createPomFile(project, projectId, weaveVersion, root);
+            createPomFile(project, projectId, wtfVersion, weaveVersion, root);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
 
-    private static void createPomFile(final Project project, final MavenId projectId, final String weaveVersion, final VirtualFile root) {
+    private static void createPomFile(final Project project, final MavenId projectId, final String wtfVersion, final String weaveVersion, final VirtualFile root) {
         try {
             WriteCommandAction.writeCommandAction(project).withName("Create Weave Module").run(new ThrowableRunnable<Throwable>() {
                 @Override
@@ -41,6 +41,7 @@ public class WeaveModuleInitializer {
                     templateProps.setProperty("ARTIFACT_ID", projectId.getArtifactId());
                     templateProps.setProperty("VERSION", projectId.getVersion());
                     templateProps.setProperty("WEAVE_VERSION", weaveVersion);
+                    templateProps.setProperty("WTF_VERSION", wtfVersion);
                     final FileTemplateManager manager = FileTemplateManager.getInstance(project);
                     final FileTemplate template = manager.getInternalTemplate(WeaveFilesTemplateManager.WEAVE_MAVEN_MODULE);
                     final Properties defaultProperties = manager.getDefaultProperties();

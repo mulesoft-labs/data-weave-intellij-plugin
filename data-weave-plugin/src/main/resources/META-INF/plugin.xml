@@ -175,6 +175,8 @@
         <applicationService id="DataWeave State"
                             serviceInterface="org.mule.tooling.lang.dw.settings.DataWeaveSettingsState"
                             serviceImplementation="org.mule.tooling.lang.dw.settings.DataWeaveSettingsState"/>
+        <codeInsight.parameterNameHints language="Weave"
+                                        implementationClass="org.mule.tooling.lang.dw.hints.WeaveInlayParameterHintsProvider"/>
     </extensions>
 
     <project-components>

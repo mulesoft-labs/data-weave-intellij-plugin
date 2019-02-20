@@ -22,8 +22,22 @@
 
         <dependency>
             <groupId>org.mule.weave</groupId>
-            <artifactId>wtf</artifactId>
+            <artifactId>core-modules</artifactId>
             <version>${WEAVE_VERSION}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mule.weave</groupId>
+            <artifactId>java-module</artifactId>
+            <version>${WEAVE_VERSION}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mule.weave</groupId>
+            <artifactId>wtf</artifactId>
+            <version>${WTF_VERSION}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
