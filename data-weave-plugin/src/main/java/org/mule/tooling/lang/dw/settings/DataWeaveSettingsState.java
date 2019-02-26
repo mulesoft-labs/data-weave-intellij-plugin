@@ -15,6 +15,9 @@ public class DataWeaveSettingsState implements PersistentStateComponent<DataWeav
 
     private String cmdPath = DOT_PATH;
 
+    private Boolean showParametersName = true;
+    private Boolean showTypeInference = true;
+
     public DataWeaveSettingsState() {
     }
 
@@ -28,6 +31,22 @@ public class DataWeaveSettingsState implements PersistentStateComponent<DataWeav
 
     public void setCmdPath(String cmdPath) {
         this.cmdPath = cmdPath;
+    }
+
+    public Boolean getShowParametersName() {
+        return showParametersName;
+    }
+
+    public void setShowParametersName(Boolean showParametersName) {
+        this.showParametersName = showParametersName;
+    }
+
+    public Boolean getShowTypeInference() {
+        return showTypeInference;
+    }
+
+    public void setShowTypeInference(Boolean showTypeInference) {
+        this.showTypeInference = showTypeInference;
     }
 
     @Nullable

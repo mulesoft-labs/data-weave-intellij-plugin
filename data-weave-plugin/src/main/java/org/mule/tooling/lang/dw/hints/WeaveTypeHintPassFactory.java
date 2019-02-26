@@ -12,6 +12,7 @@ import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.WeaveFileType;
+import org.mule.tooling.lang.dw.settings.DataWeaveSettingsState;
 
 public class WeaveTypeHintPassFactory extends AbstractProjectComponent implements TextEditorHighlightingPassFactory {
 
@@ -23,10 +24,11 @@ public class WeaveTypeHintPassFactory extends AbstractProjectComponent implement
         registrar.registerTextEditorHighlightingPass(this, null, null, false, -1);
     }
 
+
     @Nullable
     @Override
     public TextEditorHighlightingPass createHighlightingPass(@NotNull PsiFile file, @NotNull Editor editor) {
-        if (file.getFileType() == WeaveFileType.getInstance()) {
+        if (DataWeaveSettingsState.getInstance().getShowParametersName() && file.getFileType() == WeaveFileType.getInstance()) {
             return new WeaveElementProcessingTypeHintPass(file, editor, stampHolder);
         }
         return null;
