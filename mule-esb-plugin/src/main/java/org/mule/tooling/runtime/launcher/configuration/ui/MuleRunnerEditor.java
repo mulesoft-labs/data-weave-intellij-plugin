@@ -36,6 +36,12 @@ public class MuleRunnerEditor extends SettingsEditor<MuleConfiguration> {
     for (Module m: selectedModules) {
       this.configurationPanel.getModulesList().selectModule(m, true);
     }
+    runnerConfiguration.getValidModules()
+            .stream()
+            .filter(module -> module.getName().equals(runnerConfiguration.getProject().getName()))
+            .findFirst()
+            .ifPresent(module -> this.configurationPanel.getModulesList().selectModule(module, true));
+
     this.configurationPanel.getVmArgsField().setText(runnerConfiguration.getVmArgs());
 
     String muleHome = runnerConfiguration.getMuleHome();
@@ -47,7 +53,9 @@ public class MuleRunnerEditor extends SettingsEditor<MuleConfiguration> {
         }
       }
     }
-    this.configurationPanel.getMuleHome().setSelectedItem(MuleSdkManager.getInstance().getSdkByVersion(muleHome));
+  if (!StringUtils.isBlank(muleHome)) {
+      this.configurationPanel.getMuleHome().setSelectedItem(MuleSdkManager.getInstance().getSdkByVersion(muleHome));
+  }
 
     String clearData = runnerConfiguration.getClearData();
     JRadioButton selectedButton = this.configurationPanel.getPromptRadioButton();
@@ -58,6 +66,8 @@ public class MuleRunnerEditor extends SettingsEditor<MuleConfiguration> {
       selectedButton = this.configurationPanel.getNeverRadioButton();
 
     selectedButton.setSelected(true);
+
+    this.configurationPanel.getDeployInContainer().setSelected(runnerConfiguration.isDeployInContainer());
   }
 
   /**
@@ -78,6 +88,8 @@ public class MuleRunnerEditor extends SettingsEditor<MuleConfiguration> {
       runnerConfiguration.setClearData(CLEAR_DATA_NEVER);
     else
       runnerConfiguration.setClearData(CLEAR_DATA_PROMPT);
+
+    runnerConfiguration.setDeployInContainer(this.configurationPanel.getDeployInContainer().isSelected());
 
     Module[] selectedModules = this.configurationPanel.getModulesList().getSelectedModules(runnerConfiguration.getProject());
 //        final Module selectedModule = this.configurationPanel.getModuleCombo().getSelectedModule();

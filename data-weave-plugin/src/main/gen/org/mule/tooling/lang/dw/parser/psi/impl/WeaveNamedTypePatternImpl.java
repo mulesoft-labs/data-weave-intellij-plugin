@@ -4,12 +4,8 @@ package org.mule.tooling.lang.dw.parser.psi.impl;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElementVisitor;
 import org.jetbrains.annotations.NotNull;
-import org.mule.tooling.lang.dw.parser.psi.WeaveExpression;
-import org.mule.tooling.lang.dw.parser.psi.WeaveIdentifier;
-import org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl;
-import org.mule.tooling.lang.dw.parser.psi.WeaveNamedTypePattern;
-import org.mule.tooling.lang.dw.parser.psi.WeaveType;
-import org.mule.tooling.lang.dw.parser.psi.WeaveVisitor;
+import org.jetbrains.annotations.Nullable;
+import org.mule.tooling.lang.dw.parser.psi.*;
 
 public class WeaveNamedTypePatternImpl extends WeaveNamedElementImpl implements WeaveNamedTypePattern {
 
@@ -27,9 +23,9 @@ public class WeaveNamedTypePatternImpl extends WeaveNamedElementImpl implements 
   }
 
   @Override
-  @NotNull
+  @Nullable
   public WeaveExpression getExpression() {
-    return findNotNullChildByClass(WeaveExpression.class);
+    return findChildByClass(WeaveExpression.class);
   }
 
   @Override
@@ -39,9 +35,9 @@ public class WeaveNamedTypePatternImpl extends WeaveNamedElementImpl implements 
   }
 
   @Override
-  @NotNull
+  @Nullable
   public WeaveType getType() {
-    return findNotNullChildByClass(WeaveType.class);
+    return findChildByClass(WeaveType.class);
   }
 
 }

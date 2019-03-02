@@ -32,7 +32,7 @@ public class WeaveTestConfigurationProducer extends JavaRunConfigurationProducer
                         weaveConfiguration.setWeaveFile(nameIdentifier.name());
                     }
                     weaveConfiguration.setModule(configurationContext.getModule());
-                    weaveConfiguration.setName("Run WeaveTest " + StringUtils.capitalize(containingFile.getVirtualFile().getName()));
+                    weaveConfiguration.setName("Run Test " + StringUtils.capitalize(containingFile.getVirtualFile().getNameWithoutExtension()));
                     return true;
                 }
             }

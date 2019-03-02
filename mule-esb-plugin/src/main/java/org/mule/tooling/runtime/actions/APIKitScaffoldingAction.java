@@ -1,20 +1,25 @@
 package org.mule.tooling.runtime.actions;
 
-import com.intellij.icons.AllIcons;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
+import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.apache.maven.plugin.logging.Log;
-//import org.mule.tooling.lang.raml.file.RamlFileType;
-//import org.mule.tooling.lang.raml.util.RamlIcons;
+import org.jetbrains.idea.maven.dom.MavenDomUtil;
+import org.jetbrains.idea.maven.dom.model.MavenDomDependency;
+import org.jetbrains.idea.maven.dom.model.MavenDomProjectModel;
+import org.jetbrains.idea.maven.model.MavenId;
+import org.jetbrains.idea.maven.project.MavenProject;
+import org.jetbrains.idea.maven.utils.actions.MavenActionUtil;
 import org.mule.tooling.lang.raml.file.RamlFileType;
 import org.mule.tooling.lang.raml.util.RamlIcons;
 import org.mule.tooling.runtime.util.MuleDirectoriesUtils;
@@ -23,15 +28,17 @@ import org.mule.tools.apikit.ScaffolderAPI;
 import org.mule.tools.apikit.model.RuntimeEdition;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
+
+import static org.mule.tooling.runtime.actions.AddDependencyFromExchangeAction.MULE_PLUGIN_CLASSIFIER;
 
 public class APIKitScaffoldingAction extends AnAction
 {
 
     final static Logger logger = Logger.getInstance(APIKitScaffoldingAction.class);
+    private static final String APIKIT_GROUP_ID = "org.mule.modules";
+    private static final String APIKIT_ARTIFACT_ID = "mule-apikit-module";
+    private static final String APIKIT_VERSION = "1.1.9";
 
     public APIKitScaffoldingAction()
     {
@@ -75,6 +82,7 @@ public class APIKitScaffoldingAction extends AnAction
         {
             //TODO min Mule version should be derived from the module's artifact JSON
             new IdeaScaffolderAPI().run(ramlFiles, appDir, null, "4.1.1", RuntimeEdition.EE);
+            addApikitDependency(anActionEvent.getDataContext(), project);
         } catch (RuntimeException e) {
             logger.error("FINALLY CAUGHT RAML ERROR! ", e);
         }
@@ -88,6 +96,28 @@ public class APIKitScaffoldingAction extends AnAction
                 }
             });
         }
+    }
+
+    private void addApikitDependency(DataContext dataContext, Project project) {
+        MavenProject mavenProject = MavenActionUtil.getMavenProject(dataContext);
+        final MavenDomProjectModel model = MavenDomUtil.getMavenDomProjectModel(project, mavenProject.getFile());
+        if (model == null) {
+            return;
+        }
+        boolean missingApikitDependency = mavenProject.getDependencies().stream()
+                .noneMatch(mavenArtifact ->
+                        APIKIT_GROUP_ID.equals(mavenArtifact.getGroupId())
+                                && APIKIT_ARTIFACT_ID.equals(mavenArtifact.getArtifactId()));
+
+        if (missingApikitDependency){
+            WriteCommandAction.writeCommandAction(project)
+            .run(() -> {
+                final MavenId mavenId = new MavenId(APIKIT_GROUP_ID, APIKIT_ARTIFACT_ID, APIKIT_VERSION);
+                final MavenDomDependency dependency = MavenDomUtil.createDomDependency(model, null, mavenId);
+                dependency.getClassifier().setStringValue(MULE_PLUGIN_CLASSIFIER);
+            });
+        }
+
     }
 
     @Override

@@ -196,6 +196,7 @@ public class IJVirtualFileSystemAdaptor implements VirtualFileSystem, Disposable
 
     private VirtualFileSystem fs;
     private VirtualFile vfs;
+    @Nullable
     private Document document;
     private Project project;
     private NameIdentifier name;
@@ -215,7 +216,13 @@ public class IJVirtualFileSystemAdaptor implements VirtualFileSystem, Disposable
 
     @Override
     public String read() {
-      return ReadAction.compute(() -> document.getText());
+      return ReadAction.compute(() -> {
+        if (document != null) {
+          return document.getText();
+        } else {
+          return "";
+        }
+      });
     }
 
     @Override

@@ -34,7 +34,7 @@ public class WeaveFunctionDirectiveView extends PsiTreeElementBase<WeaveFunction
     List<WeaveFunctionParameter> functionParameterList = functionDefinition.getFunctionParameterList();
     StringBuilder params = new StringBuilder();
     for (WeaveFunctionParameter weaveFunctionParameter : functionParameterList) {
-      String variableName = weaveFunctionParameter.getVariableName();
+        String variableName = weaveFunctionParameter.getNameIdentifier().getText();
       WeaveType type = weaveFunctionParameter.getType();
       if (type != null) {
         variableName = variableName + ": " + type.getText();

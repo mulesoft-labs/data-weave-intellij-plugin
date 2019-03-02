@@ -174,7 +174,7 @@ fun log <T>(prefix: String = "", value: T): T = native("system::log")
 * <name>DataWeave</name>
 * ----
 */
-fun read(stringToParse: String | Binary, contentType: String = "application/dw", readerProperties: Object = {}) = native("system::read")
+fun read(stringToParse: String | Binary, contentType: String = "application/dw", readerProperties: Object = {}): Any = native("system::read")
 
 // sduke: added an example and more detailed description
 /**
@@ -202,7 +202,7 @@ fun read(stringToParse: String | Binary, contentType: String = "application/dw",
 * <url>https://www.mulesoft.com/</url>
 * ----
 */
-fun readUrl(url: String, contentType: String = "application/dw", readerProperties: Object = {}) = native("system::readUrl")
+fun readUrl(url: String, contentType: String = "application/dw", readerProperties: Object = {}): Any = native("system::readUrl")
 
 // sduke: tried to dumb down the initial description... pls verify. fixed example.
 /**

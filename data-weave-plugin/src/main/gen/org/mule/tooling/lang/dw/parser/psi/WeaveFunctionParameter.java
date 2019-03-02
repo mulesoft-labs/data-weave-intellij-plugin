@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public interface WeaveFunctionParameter extends WeaveVariable {
+public interface WeaveFunctionParameter extends WeaveNamedElement {
 
   @NotNull
   List<WeaveAnnotation> getAnnotationList();
@@ -20,12 +20,6 @@ public interface WeaveFunctionParameter extends WeaveVariable {
 
   @Nullable
   WeaveType getType();
-
-  @Nullable
-  String getVariableName();
-
-  @Nullable
-  WeaveExpression getVariableValue();
 
   String getName();
 

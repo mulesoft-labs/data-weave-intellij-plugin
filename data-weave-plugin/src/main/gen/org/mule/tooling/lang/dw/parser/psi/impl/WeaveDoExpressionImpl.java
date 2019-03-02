@@ -6,10 +6,7 @@ import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.mule.tooling.lang.dw.parser.psi.WeaveDirective;
-import org.mule.tooling.lang.dw.parser.psi.WeaveDoExpression;
-import org.mule.tooling.lang.dw.parser.psi.WeaveExpression;
-import org.mule.tooling.lang.dw.parser.psi.WeaveVisitor;
+import org.mule.tooling.lang.dw.parser.psi.*;
 
 import java.util.List;
 
@@ -27,6 +24,12 @@ public class WeaveDoExpressionImpl extends WeaveExpressionImpl implements WeaveD
     if (visitor instanceof WeaveVisitor) accept((WeaveVisitor)visitor);
     else super.accept(visitor);
   }
+
+    @Override
+    @NotNull
+    public List<WeaveAnnotation> getAnnotationList() {
+        return PsiTreeUtil.getChildrenOfTypeAsList(this, WeaveAnnotation.class);
+    }
 
   @Override
   @NotNull

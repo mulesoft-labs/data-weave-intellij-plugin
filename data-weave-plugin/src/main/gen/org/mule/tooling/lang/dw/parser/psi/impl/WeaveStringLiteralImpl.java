@@ -11,9 +11,7 @@ import org.mule.tooling.lang.dw.parser.psi.WeaveStringLiteral;
 import org.mule.tooling.lang.dw.parser.psi.WeaveStringLiteralMixin;
 import org.mule.tooling.lang.dw.parser.psi.WeaveVisitor;
 
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.BACKTIKED_QUOTED_STRING;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DOUBLE_QUOTED_STRING;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.SINGLE_QUOTED_STRING;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.*;
 
 public class WeaveStringLiteralImpl extends WeaveStringLiteralMixin implements WeaveStringLiteral {
 

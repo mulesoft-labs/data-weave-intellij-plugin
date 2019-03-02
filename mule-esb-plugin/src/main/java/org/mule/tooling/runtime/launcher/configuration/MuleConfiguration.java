@@ -37,10 +37,12 @@ public class MuleConfiguration extends ModuleBasedConfiguration implements Modul
     public static final String VM_ARGS_FIELD = PREFIX + "VmArgs";
     public static final String MULE_HOME_FIELD = PREFIX + "MuleHome";
     public static final String CLEAR_DATA_FIELD = PREFIX + "ClearData";
+    public static final String USE_CONTAINER_FOR_DEPLOY_FIELD = PREFIX + "UseContainerForDeploy";
 
     private String vmArgs;
     private String muleHome;
     private String clearData;
+    private boolean deployInContainer;
 
     private Module[] modules = new Module[]{};
 
@@ -71,6 +73,7 @@ public class MuleConfiguration extends ModuleBasedConfiguration implements Modul
         this.vmArgs = JDOMExternalizerUtil.readField(element, VM_ARGS_FIELD);
         this.muleHome = JDOMExternalizerUtil.readField(element, MULE_HOME_FIELD);
         this.clearData = JDOMExternalizerUtil.readField(element, CLEAR_DATA_FIELD);
+        this.deployInContainer = Boolean.valueOf(JDOMExternalizerUtil.readField(element, USE_CONTAINER_FOR_DEPLOY_FIELD));
 
         getConfigurationModule().readExternal(element);
     }
@@ -82,6 +85,7 @@ public class MuleConfiguration extends ModuleBasedConfiguration implements Modul
         JDOMExternalizerUtil.writeField(element, VM_ARGS_FIELD, this.getVmArgs());
         JDOMExternalizerUtil.writeField(element, MULE_HOME_FIELD, this.getMuleHome());
         JDOMExternalizerUtil.writeField(element, CLEAR_DATA_FIELD, this.getClearData());
+        JDOMExternalizerUtil.writeField(element, USE_CONTAINER_FOR_DEPLOY_FIELD, Boolean.toString(this.isDeployInContainer()));
 
         getConfigurationModule().writeExternal(element);
     }
@@ -154,6 +158,14 @@ public class MuleConfiguration extends ModuleBasedConfiguration implements Modul
 
     public void setMuleHome(@Nullable String muleHome) {
         this.muleHome = muleHome;
+    }
+
+    public boolean isDeployInContainer() {
+        return deployInContainer;
+    }
+
+    public void setDeployInContainer(boolean deployInContainer) {
+        this.deployInContainer = deployInContainer;
     }
 
     @Nullable

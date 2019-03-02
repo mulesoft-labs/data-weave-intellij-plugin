@@ -14,11 +14,12 @@ import org.mule.tooling.lang.dw.WeaveIcons;
 
 import javax.swing.*;
 import java.io.File;
+import java.util.Objects;
 
 public class WeaveModuleBuilder extends MavenModuleBuilder implements SourcePathsBuilder {
 
-    private String weaveVersion = "2.1.4-SNAPSHOT";
-
+    private String weaveVersion = "2.2.0-SNAPSHOT";
+    private String wtfVersion = "1.0.0-SNAPSHOT";
 
     public WeaveModuleBuilder() {
         setProjectId(new MavenId("org.mule.weave.module", "my-weave-module", "1.0.0-SNAPSHOT"));
@@ -31,18 +32,20 @@ public class WeaveModuleBuilder extends MavenModuleBuilder implements SourcePath
         final Project project = rootModel.getProject();
         final VirtualFile root = createAndGetContentEntry();
         rootModel.addContentEntry(root);
-
         //Check if this is a module and has parent
         final MavenId parentId = (this.getParentProject() != null ? this.getParentProject().getMavenId() : null);
 
         MavenUtil.runWhenInitialized(project, (DumbAwareRunnable) () -> {
-            WeaveModuleInitializer.configure(project, getProjectId(), weaveVersion, root, parentId);
+            WeaveModuleInitializer.configure(project, getProjectId(), weaveVersion, root, parentId, wtfVersion);
         });
     }
 
     private VirtualFile createAndGetContentEntry() {
-        String path = FileUtil.toSystemIndependentName(this.getContentEntryPath());
-        new File(path).mkdirs();
+        final String path = FileUtil.toSystemIndependentName(Objects.requireNonNull(this.getContentEntryPath()));
+        boolean mkdirs = new File(path).mkdirs();
+        if (!mkdirs) {
+            System.out.println("Unable to create " + path);
+        }
         return LocalFileSystem.getInstance().refreshAndFindFileByPath(path);
     }
 
@@ -69,16 +72,7 @@ public class WeaveModuleBuilder extends MavenModuleBuilder implements SourcePath
 
     @Override
     public String getDescription() {
-        return "Create a Weave Module. ";
+        return "Create a Weave Module.";
     }
-
-//    @Nullable
-//    @Override
-//    public ModuleWizardStep getCustomOptionsStep(WizardContext context, Disposable parentDisposable) {
-//        MuleVersionConfiguration step = new MuleVersionConfiguration(this, muleVersion);
-//        Disposer.register(parentDisposable, step);
-//        return step;
-//    }
-
 
 }

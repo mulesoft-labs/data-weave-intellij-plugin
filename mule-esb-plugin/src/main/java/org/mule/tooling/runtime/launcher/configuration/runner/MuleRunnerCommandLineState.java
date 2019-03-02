@@ -17,6 +17,7 @@ import org.mule.tooling.runtime.launcher.configuration.MuleConfiguration;
 import org.mule.tooling.runtime.launcher.configuration.archive.MuleAppHandler;
 import org.mule.tooling.runtime.launcher.configuration.archive.MuleAppManager;
 import org.mule.tooling.runtime.sdk.DefaultMuleClassPathConfig;
+import org.mule.tooling.runtime.tooling.MuleRuntimeServerManager;
 import org.mule.tooling.runtime.util.MuleModuleUtils;
 
 import java.io.File;
@@ -31,11 +32,16 @@ public class MuleRunnerCommandLineState extends JavaCommandLineState implements 
     private MuleConfiguration model;
 
     private final boolean isDebug;
+    private final MuleBaseDirectory muleBaseDirectory;
 
     public MuleRunnerCommandLineState(@NotNull ExecutionEnvironment environment, @NotNull MuleConfiguration model) {
         super(environment);
         this.model = model;
         this.isDebug = DefaultDebugExecutor.EXECUTOR_ID.equals(environment.getExecutor().getId());
+        this.muleBaseDirectory =
+                model.isDeployInContainer() ?
+                        MuleBaseDirectory.sameMuleBase(model.getMuleHome()):
+                        MuleBaseDirectory.newFrom(model.getMuleHome(),model.getProject().getName(), MuleRuntimeServerManager.getMuleVersionOf(this.model.getProject()));
     }
 
     @Override
@@ -60,7 +66,7 @@ public class MuleRunnerCommandLineState extends JavaCommandLineState implements 
 
         //Add default vm parameters
         javaParams.getVMParametersList().add("-Dmule.home=" + muleHome);
-        javaParams.getVMParametersList().add("-Dmule.base=" + muleHome);
+        javaParams.getVMParametersList().add("-Dmule.base=" + muleBaseDirectory.getMuleBase().getAbsolutePath());
         javaParams.getVMParametersList().add("-Dmule.testingMode=true");
         javaParams.getVMParametersList().add("-Djava.net.preferIPv4Stack=TRUE ");
         javaParams.getVMParametersList().add("-Dmvel2.disable.jit=TRUE");
@@ -116,15 +122,11 @@ public class MuleRunnerCommandLineState extends JavaCommandLineState implements 
     }
 
     private void deployApp() throws ExecutionException {
-        final String muleHome = model.getMuleHome();
-        final File apps = new File(muleHome, "apps");
-        final File domains = new File(muleHome, "domains");
-        final File muleAppData = new File(muleHome, ".mule");
 
         boolean clearData = isClearAppData();
 
         try {
-            FileUtils.cleanDirectory(apps);
+            FileUtils.cleanDirectory(muleBaseDirectory.getAppsFolder());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -133,7 +135,7 @@ public class MuleRunnerCommandLineState extends JavaCommandLineState implements 
 
         for (Module m : modules) {
             if (clearData) {
-                File moduleAppData = new File(muleAppData, m.getName());
+                File moduleAppData = new File(muleBaseDirectory.getAppDataFolder(), m.getName());
                 FileUtil.delete(moduleAppData);
             }
 
@@ -141,6 +143,11 @@ public class MuleRunnerCommandLineState extends JavaCommandLineState implements 
             final File file = MuleAppManager.getInstance(model.getProject()).getMuleApp(m);
 
             try {
+//        if (MuleConfigUtils.isMuleDomainModule(m))
+//          FileUtil.copy(file, new File(domains, m.getName() + ".zip"));
+//        else
+                //FileUtil.copy(file, new File(muleBaseDirectory.getAppsFolder(), m.getName() + MuleAppHandler.MULE_APP_SUFFIX));
+                //FileUtil.copy(file, new File(apps, model.getProject().getName() + ".zip"));
                 File destination = MuleModuleUtils.isMuleDomainModule(m) ? domains : apps;
 
                 //Domains require FQN including version, e.g. my-domain-1.0.0-SNAPSHOT-mule-domain

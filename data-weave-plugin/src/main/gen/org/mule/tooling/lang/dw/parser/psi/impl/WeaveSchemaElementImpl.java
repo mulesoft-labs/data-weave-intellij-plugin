@@ -7,8 +7,8 @@ import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.mule.tooling.lang.dw.parser.psi.WeaveExpression;
 import org.mule.tooling.lang.dw.parser.psi.WeaveIdentifier;
-import org.mule.tooling.lang.dw.parser.psi.WeaveLiteralExpression;
 import org.mule.tooling.lang.dw.parser.psi.WeaveSchemaElement;
 import org.mule.tooling.lang.dw.parser.psi.WeaveVisitor;
 
@@ -30,15 +30,15 @@ public class WeaveSchemaElementImpl extends ASTWrapperPsiElement implements Weav
   }
 
   @Override
-  @Nullable
-  public WeaveIdentifier getIdentifier() {
-    return findChildByClass(WeaveIdentifier.class);
+  @NotNull
+  public List<WeaveExpression> getExpressionList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, WeaveExpression.class);
   }
 
   @Override
-  @NotNull
-  public List<WeaveLiteralExpression> getLiteralExpressionList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, WeaveLiteralExpression.class);
+  @Nullable
+  public WeaveIdentifier getIdentifier() {
+    return findChildByClass(WeaveIdentifier.class);
   }
 
 }
