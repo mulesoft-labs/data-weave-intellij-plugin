@@ -6,6 +6,7 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.roots.CompilerModuleExtension;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
+import org.mule.tooling.runtime.util.MuleModuleUtils;
 
 import java.io.File;
 
@@ -39,7 +40,8 @@ public class MuleAppMavenHandler implements MuleAppHandler {
         }
 
         File applicationZip = null;
-        final File[] zips = outputDir.listFiles((dir, name) -> name.endsWith(MuleAppHandler.MULE_APP_SUFFIX));
+        final String suffix = MuleModuleUtils.isMuleDomainModule(module) ? MuleAppHandler.MULE_DOMAIN_SUFFIX : MuleAppHandler.MULE_APP_SUFFIX;
+        final File[] zips = outputDir.listFiles((dir, name) -> name.endsWith(suffix));
         if (zips.length > 0) {
             applicationZip = zips[0];
         }

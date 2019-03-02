@@ -22,6 +22,9 @@ public class RuntimeTemplateManager implements FileTemplateGroupDescriptorFactor
     public static final String MULE_APP_LOG4J_FILE = "MuleApp Log4j";
     public static final String MULE_APP_POM_FILE = "MuleApp Pom";
 
+    public static final String MULE_DOMAIN_CONFIG_FILE = "MuleDomain ConfigFile";
+    public static final String MULE_DOMAIN_POM_FILE = "MuleDomain Pom";
+    public static final String MULE_DOMAIN_ARTIFACT_JSON_FILE = "MuleDomain Artifact";
 
     @Override
     public FileTemplateGroupDescriptor getFileTemplatesDescriptor() {
@@ -41,6 +44,11 @@ public class RuntimeTemplateManager implements FileTemplateGroupDescriptorFactor
         group.addTemplate(new FileTemplateDescriptor(MULE_APP_POM_FILE, RuntimeIcons.MuleSdk));
         group.addTemplate(new FileTemplateDescriptor(MULE_APP_ARTIFACT_JSON_FILE, RuntimeIcons.MuleSdk));
         group.addTemplate(new FileTemplateDescriptor(MULE_APP_LOG4J_FILE, RuntimeIcons.MuleSdk));
+
+        group.addTemplate(new FileTemplateDescriptor(MULE_DOMAIN_CONFIG_FILE, RuntimeIcons.MuleSdk));
+        group.addTemplate(new FileTemplateDescriptor(MULE_DOMAIN_POM_FILE, RuntimeIcons.MuleSdk));
+        group.addTemplate(new FileTemplateDescriptor(MULE_DOMAIN_ARTIFACT_JSON_FILE, RuntimeIcons.MuleSdk));
+
         return group;
     }
 }

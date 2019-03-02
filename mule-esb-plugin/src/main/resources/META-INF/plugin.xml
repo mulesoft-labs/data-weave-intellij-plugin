@@ -34,6 +34,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <moduleBuilder builderClass="org.mule.tooling.runtime.wizard.SdkModuleBuilder"/>
         <moduleBuilder builderClass="org.mule.tooling.runtime.wizard.MuleAppModuleBuilder"/>
+        <moduleBuilder builderClass="org.mule.tooling.runtime.wizard.MuleDomainModuleBuilder"/>
 
         <fileTemplateGroup implementation="org.mule.tooling.runtime.template.RuntimeTemplateManager"/>
         <xml.schemaProvider implementation="org.mule.tooling.runtime.schema.MuleSchemaProvider"/>
@@ -81,6 +82,9 @@
         <component>
             <implementation-class>org.mule.tooling.runtime.launcher.configuration.archive.MuleAppManager</implementation-class>
             <!--<loadForDefaultProject/>-->
+        </component>
+        <component>
+            <implementation-class>org.mule.tooling.runtime.project.MuleProjectManager</implementation-class>
         </component>
     </project-components>
 

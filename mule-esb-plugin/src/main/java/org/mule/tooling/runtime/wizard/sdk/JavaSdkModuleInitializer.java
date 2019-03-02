@@ -19,12 +19,14 @@ import static org.mule.tooling.runtime.wizard.sdk.builder.ExtensionClassName.SOU
 
 import org.mule.runtime.api.scheduler.Scheduler;
 import org.mule.tooling.runtime.template.RuntimeTemplateManager;
+import org.mule.tooling.runtime.util.MuleDirectoriesUtils;
 import org.mule.tooling.runtime.wizard.BaseModuleInitializer;
 import org.mule.tooling.runtime.wizard.sdk.builder.ConnectionProviderBuilder;
 import org.mule.tooling.runtime.wizard.sdk.builder.JavaType;
 import org.mule.tooling.runtime.wizard.sdk.builder.OperationContainerBuilder;
 import org.mule.tooling.runtime.wizard.sdk.builder.SourceBuilder;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
@@ -53,17 +55,13 @@ import org.jetbrains.idea.maven.model.MavenId;
 public class JavaSdkModuleInitializer extends BaseModuleInitializer {
 
     private static final Logger LOG = Logger.getInstance(JavaSdkModuleInitializer.class.getName());
-    private static final String SRC_MAIN_RESOURCES = "/src/main/resources";
-    private static final String SRC_MAIN_JAVA = "/src/main/java";
-    private static final String SRC_TEST_MUNIT = "/src/test/munit";
-    private static final String SRC_TEST_RESOURCES = "/src/test/resources";
 
     public static void configure(final Project project, final MavenId projectId, final VirtualFile root, SdkProject sdkProject) {
         try {
-            VirtualFile srcResources = VfsUtil.createDirectories(root.getPath() + SRC_MAIN_RESOURCES);
-            VirtualFile srcJava = VfsUtil.createDirectories(root.getPath() + SRC_MAIN_JAVA);
-            VirtualFile munit = VfsUtil.createDirectories(root.getPath() + SRC_TEST_MUNIT);
-            VirtualFile testResources = VfsUtil.createDirectories(root.getPath() + SRC_TEST_RESOURCES);
+            VirtualFile srcResources = VfsUtil.createDirectories(root.getPath() + File.separator + MuleDirectoriesUtils.SRC_MAIN_RESOURCES);
+            VirtualFile srcJava = VfsUtil.createDirectories(root.getPath() + File.separator + MuleDirectoriesUtils.SRC_MAIN_JAVA);
+            VirtualFile munit = VfsUtil.createDirectories(root.getPath() + File.separator + MuleDirectoriesUtils.SRC_TEST_MUNIT);
+            VirtualFile testResources = VfsUtil.createDirectories(root.getPath() + File.separator + MuleDirectoriesUtils.SRC_TEST_RESOURCES);
             try {
                 WriteCommandAction.writeCommandAction(project)
                         .withName("Creating Mule Module")

@@ -23,12 +23,11 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
 
-public class MuleAppModuleInitializer extends MavenModuleBuilderHelper {
+public class MuleDomainModuleInitializer extends MavenModuleBuilderHelper {
 
-    protected static final Logger LOG = Logger.getInstance(MuleAppModuleInitializer.class.getName());
+    protected static final Logger LOG = Logger.getInstance(MuleDomainModuleInitializer.class.getName());
 
-
-    public MuleAppModuleInitializer(@NotNull MavenId projectId, MavenProject aggregatorProject, MavenProject parentProject, boolean inheritGroupId, boolean inheritVersion, MavenArchetype archetype, Map<String, String> propertiesToCreateByArtifact, String commaneName) {
+    public MuleDomainModuleInitializer(@NotNull MavenId projectId, MavenProject aggregatorProject, MavenProject parentProject, boolean inheritGroupId, boolean inheritVersion, MavenArchetype archetype, Map<String, String> propertiesToCreateByArtifact, String commaneName) {
         super(projectId, aggregatorProject, parentProject, inheritGroupId, inheritVersion, archetype, propertiesToCreateByArtifact, commaneName);
     }
 
@@ -37,33 +36,24 @@ public class MuleAppModuleInitializer extends MavenModuleBuilderHelper {
 
         try {
             VirtualFile srcResources = VfsUtil.createDirectories(root.getPath() + File.separator + MuleDirectoriesUtils.SRC_MAIN_RESOURCES);
-            VirtualFile srcApi = VfsUtil.createDirectories(root.getPath() + File.separator + MuleDirectoriesUtils.SRC_MAIN_API);
-            VirtualFile munit = VfsUtil.createDirectories(root.getPath() + File.separator + MuleDirectoriesUtils.SRC_TEST_MUNIT);
-            VfsUtil.createDirectories(root.getPath() + File.separator + MuleDirectoriesUtils.SRC_TEST_RESOURCES);
             VirtualFile muleDirectory = VfsUtil.createDirectories(root.getPath() + File.separator + MuleDirectoriesUtils.SRC_MAIN_MULE);
             try {
                 WriteCommandAction.writeCommandAction(project)
-                        .withName("Creating Mule App Module")
+                        .withName("Creating Mule Domain Module")
                         .run(new ThrowableRunnable<Throwable>() {
                             @Override
                             public void run() throws Throwable {
                                 final Properties templateProps = createTemplateProperties(projectId, muleVersion, muleMavenPluginVersion, mtfVersion);
                                 final FileTemplateManager manager = FileTemplateManager.getInstance(project);
 
-                                runTemplate(templateProps, RuntimeTemplateManager.MULE_APP_POM_FILE, manager,
+                                runTemplate(templateProps, RuntimeTemplateManager.MULE_DOMAIN_POM_FILE, manager,
                                         root.findOrCreateChildData(this, MavenConstants.POM_XML));
 
-                                runTemplate(templateProps, RuntimeTemplateManager.MULE_APP_CONFIG_FILE, manager,
-                                        muleDirectory.findOrCreateChildData(this, projectId.getArtifactId() + ".xml"));
+                                runTemplate(templateProps, RuntimeTemplateManager.MULE_DOMAIN_CONFIG_FILE, manager,
+                                        muleDirectory.findOrCreateChildData(this, "mule-domain-config.xml"));
 
-                                runTemplate(templateProps, RuntimeTemplateManager.MULE_APP_LOG4J_FILE, manager,
-                                        srcResources.findOrCreateChildData(this, "log4j2.xml"));
-
-
-                                runTemplate(templateProps, RuntimeTemplateManager.MULE_APP_ARTIFACT_JSON_FILE, manager,
+                                runTemplate(templateProps, RuntimeTemplateManager.MULE_DOMAIN_ARTIFACT_JSON_FILE, manager,
                                         root.findOrCreateChildData(this, "mule-artifact.json"));
-
-
 
                                 return;
                             }

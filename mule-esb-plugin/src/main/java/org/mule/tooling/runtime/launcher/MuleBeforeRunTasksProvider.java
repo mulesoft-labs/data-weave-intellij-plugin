@@ -98,7 +98,8 @@ public class MuleBeforeRunTasksProvider extends BeforeRunTaskProvider<MuleBefore
       //final MavenProject mavenProject = getMavenProject(runConfiguration, project);
       final MavenProject mavenProject = getMavenProject(nextModule);
       try {
-        ApplicationManager.getApplication().invokeAndWait(new Runnable() {
+        ApplicationManager.getApplication().runWriteAction(new Runnable() {
+          //ApplicationManager.getApplication().invokeAndWait(new Runnable() {
           public void run() {
             if (!project.isDisposed() && mavenProject != null) {
               FileDocumentManager.getInstance().saveAllDocuments();
@@ -109,8 +110,8 @@ public class MuleBeforeRunTasksProvider extends BeforeRunTaskProvider<MuleBefore
                 public void run(@NotNull ProgressIndicator indicator) {
                   try {
                     MavenRunnerParameters params =
-                        new MavenRunnerParameters(true, mavenProject.getDirectory(), ParametersListUtil.parse("package"), explicitProfiles.getEnabledProfiles(),
-                            explicitProfiles.getDisabledProfiles());
+                            new MavenRunnerParameters(true, mavenProject.getDirectory(), ParametersListUtil.parse("package"), explicitProfiles.getEnabledProfiles(),
+                                    explicitProfiles.getDisabledProfiles());
                     boolean result = mavenRunner.runBatch(Collections.singletonList(params), null, null, TasksBundle.message("maven.tasks.executing"), indicator);
                     results.add(result);
                   } finally {
@@ -128,7 +129,8 @@ public class MuleBeforeRunTasksProvider extends BeforeRunTaskProvider<MuleBefore
               }).queue();
             }
           }
-        }, ModalityState.NON_MODAL);
+          //}, ModalityState.NON_MODAL);
+        });
       } catch (Exception exeception) {
         return false;
       }

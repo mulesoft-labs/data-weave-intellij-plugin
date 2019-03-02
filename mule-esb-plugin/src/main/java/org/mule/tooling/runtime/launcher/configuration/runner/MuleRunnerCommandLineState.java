@@ -10,13 +10,15 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.util.io.FileUtil;
-import org.codehaus.plexus.util.FileUtils;
+//import org.codehaus.plexus.util.FileUtils;
+import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 import org.mule.tooling.runtime.launcher.configuration.MuleConfiguration;
 import org.mule.tooling.runtime.launcher.configuration.archive.MuleAppHandler;
 import org.mule.tooling.runtime.launcher.configuration.archive.MuleAppManager;
 import org.mule.tooling.runtime.sdk.DefaultMuleClassPathConfig;
 import org.mule.tooling.runtime.tooling.MuleRuntimeServerManager;
+import org.mule.tooling.runtime.util.MuleModuleUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -144,8 +146,17 @@ public class MuleRunnerCommandLineState extends JavaCommandLineState implements 
 //        if (MuleConfigUtils.isMuleDomainModule(m))
 //          FileUtil.copy(file, new File(domains, m.getName() + ".zip"));
 //        else
-                FileUtil.copy(file, new File(muleBaseDirectory.getAppsFolder(), m.getName() + MuleAppHandler.MULE_APP_SUFFIX));
+                //FileUtil.copy(file, new File(muleBaseDirectory.getAppsFolder(), m.getName() + MuleAppHandler.MULE_APP_SUFFIX));
                 //FileUtil.copy(file, new File(apps, model.getProject().getName() + ".zip"));
+                File destination = MuleModuleUtils.isMuleDomainModule(m) ? domains : apps;
+
+                //Domains require FQN including version, e.g. my-domain-1.0.0-SNAPSHOT-mule-domain
+                //Apps don't. Makes no sense but it is what it is.
+                String deployableName = MuleModuleUtils.isMuleDomainModule(m) ?
+                                            file.getName() :
+                                            m.getName() + MuleAppHandler.MULE_APP_SUFFIX;
+                FileUtil.copy(file, new File(destination, deployableName));
+
             } catch (IOException e) {
                 e.printStackTrace();
             }

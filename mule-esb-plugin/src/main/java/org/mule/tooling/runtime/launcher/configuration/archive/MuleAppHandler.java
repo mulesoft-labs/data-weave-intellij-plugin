@@ -9,6 +9,7 @@ import java.io.File;
 
 public interface MuleAppHandler {
     public static String MULE_APP_SUFFIX = "-mule-application.jar";
+    public static String MULE_DOMAIN_SUFFIX = "-mule-domain.jar";
 
     @NotNull
     File getMuleApp(Module module) throws ExecutionException;
