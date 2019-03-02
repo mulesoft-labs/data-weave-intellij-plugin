@@ -108,30 +108,33 @@ public class MuleConfiguration extends ModuleBasedConfiguration implements Modul
         }
 
         MuleSdk sdk = MuleSdkManagerStore.getInstance().findSdk(muleHome);
-        String sdkVersion = sdk.getVersion();
+        if (sdk != null) {
+            String sdkVersion = sdk.getVersion();
 
-        for (Module m : getModules()) {
-            VirtualFile jsonArtifact = MuleModuleUtils.getMuleArtifactJson(m);
-            if (jsonArtifact != null) {
-                try {
-                    String jsonString = new String(jsonArtifact.contentsToByteArray());
-                    JSONObject jsonObject = new JSONObject(jsonString);
-                    String minVersion = jsonObject.getString("minMuleVersion");
+            for (Module m : getModules()) {
+                if (m != null) {
+                    VirtualFile jsonArtifact = MuleModuleUtils.getMuleArtifactJson(m);
+                    if (jsonArtifact != null) {
+                        try {
+                            String jsonString = new String(jsonArtifact.contentsToByteArray());
+                            JSONObject jsonObject = new JSONObject(jsonString);
+                            String minVersion = jsonObject.getString("minMuleVersion");
 
-                    //TODO Add quickfix to change the minMuleVersion in mule-artifact.json???
-                    if (new MavenVersionComparable(minVersion).compareTo(new MavenVersionComparable(sdkVersion)) > 0) {
-                        throw new RuntimeConfigurationWarning("Selected Mule Runtime version " + sdkVersion +
-                                                              " is older than minimum version " + minVersion +
-                                                              " required by the module " + m.getName());
+                            //TODO Add quickfix to change the minMuleVersion in mule-artifact.json???
+                            if (new MavenVersionComparable(minVersion).compareTo(new MavenVersionComparable(sdkVersion)) > 0) {
+                                throw new RuntimeConfigurationWarning("Selected Mule Runtime version " + sdkVersion +
+                                        " is older than minimum version " + minVersion +
+                                        " required by the module " + m.getName());
+                            }
+
+                            //TODO - how to check if the SDK is EE or CE?
+                        } catch (IOException ioe) {
+
+                        }
                     }
-
-                    //TODO - how to check if the SDK is EE or CE?
-                } catch (IOException ioe) {
-
                 }
             }
         }
-
         super.checkConfiguration();
     }
 
