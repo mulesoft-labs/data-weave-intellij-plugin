@@ -143,12 +143,7 @@ public class MuleRunnerCommandLineState extends JavaCommandLineState implements 
             final File file = MuleAppManager.getInstance(model.getProject()).getMuleApp(m);
 
             try {
-//        if (MuleConfigUtils.isMuleDomainModule(m))
-//          FileUtil.copy(file, new File(domains, m.getName() + ".zip"));
-//        else
-                //FileUtil.copy(file, new File(muleBaseDirectory.getAppsFolder(), m.getName() + MuleAppHandler.MULE_APP_SUFFIX));
-                //FileUtil.copy(file, new File(apps, model.getProject().getName() + ".zip"));
-                File destination = MuleModuleUtils.isMuleDomainModule(m) ? domains : apps;
+                File destination = MuleModuleUtils.isMuleDomainModule(m) ? muleBaseDirectory.getDomainsFolder() : muleBaseDirectory.getAppsFolder();
 
                 //Domains require FQN including version, e.g. my-domain-1.0.0-SNAPSHOT-mule-domain
                 //Apps don't. Makes no sense but it is what it is.
