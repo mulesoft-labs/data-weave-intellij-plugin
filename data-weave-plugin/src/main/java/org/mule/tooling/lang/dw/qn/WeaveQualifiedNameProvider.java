@@ -15,14 +15,7 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.indexing.FileBasedIndex;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.WeaveFileType;
-import org.mule.tooling.lang.dw.parser.psi.WeaveAnnotationDirective;
-import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
-import org.mule.tooling.lang.dw.parser.psi.WeaveFunctionDefinition;
-import org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement;
-import org.mule.tooling.lang.dw.parser.psi.WeavePsiImplUtils;
-import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
-import org.mule.tooling.lang.dw.parser.psi.WeaveTypeDirective;
-import org.mule.tooling.lang.dw.parser.psi.WeaveVariableDefinition;
+import org.mule.tooling.lang.dw.parser.psi.*;
 import org.mule.weave.v2.parser.ast.variables.NameIdentifier;
 import org.mule.weave.v2.sdk.NameIdentifierHelper;
 import scala.Option;
@@ -47,23 +40,21 @@ public class WeaveQualifiedNameProvider implements QualifiedNameProvider {
         } else if (psiElement instanceof PsiFile) {
             boolean isDataFile = ((PsiFile) psiElement).getFileType() == WeaveFileType.getInstance();
             if (isDataFile) {
-                NameIdentifier nameIdentifier = WeavePsiImplUtils.getNameIdentifier((PsiFile) psiElement);
-                if (nameIdentifier != null) {
-                    return nameIdentifier.toString();
-                }
+                final NameIdentifier nameIdentifier = WeavePsiImplUtils.getNameIdentifier((PsiFile) psiElement);
+                return nameIdentifier.toString();
             }
-        } else if (psiElement instanceof WeaveFunctionDefinition || psiElement instanceof WeaveVariableDefinition) {
+        } else if (psiElement instanceof WeaveFunctionDefinition || psiElement instanceof WeaveVariableDefinition || psiElement instanceof WeaveAnnotationDefinition) {
             //WeaveFunctionDirective -> HeaderNode -> DocumentNode
             if (getParent(psiElement, 3) instanceof WeaveDocument) {
-                WeaveDocument document = WeavePsiUtils.getDocument(psiElement);
+                final WeaveDocument document = WeavePsiUtils.getDocument(psiElement);
                 if (document != null) {
                     return document.getQualifiedName() + NameIdentifier.SEPARATOR() + ((WeaveNamedElement) psiElement).getName();
                 }
             }
-        } else if (psiElement instanceof WeaveTypeDirective || psiElement instanceof WeaveAnnotationDirective) {
+        } else if (psiElement instanceof WeaveTypeDirective) {
             // HeaderNode -> DocumentNode
             if (getParent(psiElement, 2) instanceof WeaveDocument) {
-                WeaveDocument document = WeavePsiUtils.getDocument(psiElement);
+                final WeaveDocument document = WeavePsiUtils.getDocument(psiElement);
                 if (document != null) {
                     return document.getQualifiedName() + NameIdentifier.SEPARATOR() + ((WeaveNamedElement) psiElement).getName();
                 }
