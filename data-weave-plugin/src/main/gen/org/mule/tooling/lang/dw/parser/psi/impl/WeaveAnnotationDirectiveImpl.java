@@ -20,7 +20,7 @@ public class WeaveAnnotationDirectiveImpl extends WeaveDirectiveImpl implements 
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
-      if (visitor instanceof WeaveVisitor) accept((WeaveVisitor) visitor);
+    if (visitor instanceof WeaveVisitor) accept((WeaveVisitor) visitor);
     else super.accept(visitor);
   }
 

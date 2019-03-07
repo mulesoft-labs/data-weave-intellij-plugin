@@ -28,7 +28,7 @@ public class WeaveConditionalAttributeImpl extends WeaveAttributeImpl implements
   @Override
   @Nullable
   public WeaveExpression getExpression() {
-      return findChildByClass(WeaveExpression.class);
+    return findChildByClass(WeaveExpression.class);
   }
 
   @Override

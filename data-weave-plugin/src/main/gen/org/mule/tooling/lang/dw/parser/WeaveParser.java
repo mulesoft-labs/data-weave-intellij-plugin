@@ -2186,17 +2186,43 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // DOUBLE_LITERAL | INTEGER_LITERAL
+  // ('+' | '-')? (DOUBLE_LITERAL | INTEGER_LITERAL)
   public static boolean NumberLiteral(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "NumberLiteral")) return false;
-    if (!nextTokenIs(b, "<number literal>", DOUBLE_LITERAL, INTEGER_LITERAL)) return false;
-    boolean r;
-    Marker m = enter_section_(b, l, _NONE_, NUMBER_LITERAL, "<number literal>");
-    r = consumeToken(b, DOUBLE_LITERAL);
-    if (!r) r = consumeToken(b, INTEGER_LITERAL);
-    exit_section_(b, l, m, r, false, null);
-    return r;
+      if (!recursion_guard_(b, l, "NumberLiteral")) return false;
+      boolean r;
+      Marker m = enter_section_(b, l, _NONE_, NUMBER_LITERAL, "<number literal>");
+      r = NumberLiteral_0(b, l + 1);
+      r = r && NumberLiteral_1(b, l + 1);
+      exit_section_(b, l, m, r, false, null);
+      return r;
   }
+
+    // ('+' | '-')?
+    private static boolean NumberLiteral_0(PsiBuilder b, int l) {
+        if (!recursion_guard_(b, l, "NumberLiteral_0")) return false;
+        NumberLiteral_0_0(b, l + 1);
+        return true;
+    }
+
+    // '+' | '-'
+    private static boolean NumberLiteral_0_0(PsiBuilder b, int l) {
+        if (!recursion_guard_(b, l, "NumberLiteral_0_0")) return false;
+        boolean r;
+        Marker m = enter_section_(b);
+        r = consumeToken(b, PLUS);
+        if (!r) r = consumeToken(b, MINUS);
+        exit_section_(b, m, null, r);
+        return r;
+    }
+
+    // DOUBLE_LITERAL | INTEGER_LITERAL
+    private static boolean NumberLiteral_1(PsiBuilder b, int l) {
+        if (!recursion_guard_(b, l, "NumberLiteral_1")) return false;
+        boolean r;
+        r = consumeToken(b, DOUBLE_LITERAL);
+        if (!r) r = consumeToken(b, INTEGER_LITERAL);
+        return r;
+    }
 
   /* ********************************************************** */
   // '{' Identifier ':' Identifier '~' Identifier '}' '->' Expression

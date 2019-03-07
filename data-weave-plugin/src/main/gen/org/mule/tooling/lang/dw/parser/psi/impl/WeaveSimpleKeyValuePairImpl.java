@@ -26,7 +26,7 @@ public class WeaveSimpleKeyValuePairImpl extends WeaveKeyValuePairImpl implement
   @Override
   @Nullable
   public WeaveExpression getExpression() {
-      return findChildByClass(WeaveExpression.class);
+    return findChildByClass(WeaveExpression.class);
   }
 
   @Override

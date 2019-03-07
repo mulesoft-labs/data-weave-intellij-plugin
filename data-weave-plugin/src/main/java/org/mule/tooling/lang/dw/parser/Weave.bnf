@@ -552,7 +552,7 @@ ReferenceType ::= FqnIdentifier ('<' Type (',' Type)* '>')? (Schema)? {pin = 2}
 
 DataFormat ::= MIME_TYPE_KEYWORD
 
-NumberLiteral ::= DOUBLE_LITERAL | INTEGER_LITERAL
+NumberLiteral ::= ('+' | '-')? (DOUBLE_LITERAL | INTEGER_LITERAL)
 
 FqnIdentifier ::= CustomLoader? ContainerModuleIdentifier Identifier
 {
