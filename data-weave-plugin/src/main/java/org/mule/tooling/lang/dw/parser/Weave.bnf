@@ -195,7 +195,7 @@ InputDirective::= 'input' VariableNameTypeDefinition DataFormat Options? {pin=1}
 
 Options::= OptionElement ( ',' OptionElement )*
 
-OptionElement::= Identifier '=' LiteralExpression
+OptionElement::= Identifier '=' LiteralExpression {pin=2}
 
 Body ::= Expression
 
@@ -218,8 +218,9 @@ SimpleKeyValuePair ::= Key ':' Expression
 {
     implements="com.intellij.psi.NavigatablePsiElement"
     methods=[getPresentation]
+    pin=2
 }
-ConditionalKeyValuePair ::= '(' SimpleKeyValuePair ')' IF SimpleExpression
+ConditionalKeyValuePair ::= '(' SimpleKeyValuePair ')' IF SimpleExpression {pin = 4}
 
 Key::=  QualifiedName Attributes?
 
@@ -237,7 +238,7 @@ DynamicAttribute ::= EnclosedExpression
 
 SimpleAttribute::= QualifiedName ':' Expression
 
-ConditionalAttribute::= '(' SimpleAttribute ')' IF Expression {pin = 6}
+ConditionalAttribute::= '(' SimpleAttribute ')' IF Expression {pin = 4}
 
 Expression::= MatchExpression
             | CustomInterpolatorExpression
@@ -320,7 +321,7 @@ EqualityExpression
 IsExpression
          ::= Expression IS TypeLiteral {pin=2}
 
-NotExpression ::= 'not' ValueExpression
+NotExpression ::= ('!' | 'not') ValueExpression {pin=1}
 
 GreaterThanExpression
          ::= Expression  ( '>' !('>') | '>=' |  '<' !('<') | '<=' ) AdditionSubtractionExpression {pin=2}
@@ -376,18 +377,20 @@ ObjectDeconstructPattern ::= '{' Identifier ':' Identifier '~' Identifier '}' '-
 
 ArrayDeconstructPattern::= '[' Identifier '~' Identifier ']' '->' Expression {pin=3}
 
-LiteralPattern ::= LiteralExpression '->' Expression
+LiteralPattern ::= LiteralExpression '->' Expression {pin=2}
 
 ExpressionPattern ::= Identifier IF SimpleExpression '->' Expression {
      methods = [getName setName getNameIdentifier]
      implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
      mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
+     pin=2
 }
 
 NamedLiteralPattern ::= Identifier ':' LiteralExpression '->' Expression {
      methods = [getName setName getNameIdentifier]
      implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
      mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
+     pin=2
 }
 
 TypePattern ::= 'is' Type '->' Expression {pin = 3}
@@ -438,6 +441,7 @@ VariableDefinition ::= VariableNameTypeDefinition '='  Expression  {
             methods=[getName setName getNameIdentifier]
             implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
             mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
+            pin=2
         }
 
 private VariableNameTypeDefinition ::= Annotation* Identifier (":" Type)?
@@ -541,7 +545,7 @@ AttributesType ::= "@""(" NameType ":" Type (',' NameType ":" Type)* ")" {pin= 1
 
 NameType ::= ((Identifier"#")?(Identifier | StringLiteral) ('?')?) | '_' | '('TypeParameter')'
 
-LambdaType ::= '(' (LambdaTypeParameter (',' LambdaTypeParameter)*)? ')' '->' Type {pin= 5}
+LambdaType ::= '(' (LambdaTypeParameter (',' LambdaTypeParameter)*)? ')' '->' Type {pin= 4}
 
 LambdaTypeParameter ::= NamedLambdaTypeParameter | Type
 
@@ -551,7 +555,7 @@ ReferenceType ::= FqnIdentifier ('<' Type (',' Type)* '>')? (Schema)? {pin = 2}
 
 DataFormat ::= MIME_TYPE_KEYWORD
 
-NumberLiteral ::= DOUBLE_LITERAL | INTEGER_LITERAL
+NumberLiteral ::= ('+' | '-')? (DOUBLE_LITERAL | INTEGER_LITERAL)
 
 FqnIdentifier ::= CustomLoader? ContainerModuleIdentifier Identifier
 {

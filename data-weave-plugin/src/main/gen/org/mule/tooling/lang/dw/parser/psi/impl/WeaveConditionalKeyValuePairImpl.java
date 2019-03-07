@@ -4,6 +4,7 @@ package org.mule.tooling.lang.dw.parser.psi.impl;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElementVisitor;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.parser.psi.WeaveConditionalKeyValuePair;
 import org.mule.tooling.lang.dw.parser.psi.WeaveExpression;
 import org.mule.tooling.lang.dw.parser.psi.WeaveSimpleKeyValuePair;
@@ -25,9 +26,9 @@ public class WeaveConditionalKeyValuePairImpl extends WeaveKeyValuePairImpl impl
   }
 
   @Override
-  @NotNull
+  @Nullable
   public WeaveExpression getExpression() {
-    return findNotNullChildByClass(WeaveExpression.class);
+      return findChildByClass(WeaveExpression.class);
   }
 
   @Override

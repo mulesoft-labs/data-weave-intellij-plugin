@@ -5,6 +5,7 @@ import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.parser.psi.WeaveLambdaType;
 import org.mule.tooling.lang.dw.parser.psi.WeaveLambdaTypeParameter;
 import org.mule.tooling.lang.dw.parser.psi.WeaveType;
@@ -34,9 +35,9 @@ public class WeaveLambdaTypeImpl extends WeaveTypeImpl implements WeaveLambdaTyp
   }
 
   @Override
-  @NotNull
+  @Nullable
   public WeaveType getType() {
-    return findNotNullChildByClass(WeaveType.class);
+      return findChildByClass(WeaveType.class);
   }
 
 }

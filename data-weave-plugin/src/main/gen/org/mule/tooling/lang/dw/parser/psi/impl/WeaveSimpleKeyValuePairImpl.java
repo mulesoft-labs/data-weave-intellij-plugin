@@ -5,6 +5,7 @@ import com.intellij.lang.ASTNode;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.psi.PsiElementVisitor;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.parser.psi.*;
 
 public class WeaveSimpleKeyValuePairImpl extends WeaveKeyValuePairImpl implements WeaveSimpleKeyValuePair {
@@ -23,9 +24,9 @@ public class WeaveSimpleKeyValuePairImpl extends WeaveKeyValuePairImpl implement
   }
 
   @Override
-  @NotNull
+  @Nullable
   public WeaveExpression getExpression() {
-    return findNotNullChildByClass(WeaveExpression.class);
+    return findChildByClass(WeaveExpression.class);
   }
 
   @Override

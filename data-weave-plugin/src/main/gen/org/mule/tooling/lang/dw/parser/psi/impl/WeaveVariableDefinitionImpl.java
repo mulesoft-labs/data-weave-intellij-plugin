@@ -32,9 +32,9 @@ public class WeaveVariableDefinitionImpl extends WeaveNamedElementImpl implement
   }
 
   @Override
-  @NotNull
+  @Nullable
   public WeaveExpression getExpression() {
-    return findNotNullChildByClass(WeaveExpression.class);
+      return findChildByClass(WeaveExpression.class);
   }
 
   @Override

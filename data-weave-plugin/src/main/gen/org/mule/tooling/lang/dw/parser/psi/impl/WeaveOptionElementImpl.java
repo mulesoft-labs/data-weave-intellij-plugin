@@ -5,6 +5,7 @@ import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElementVisitor;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.parser.psi.WeaveIdentifier;
 import org.mule.tooling.lang.dw.parser.psi.WeaveLiteralExpression;
 import org.mule.tooling.lang.dw.parser.psi.WeaveOptionElement;
@@ -32,9 +33,9 @@ public class WeaveOptionElementImpl extends ASTWrapperPsiElement implements Weav
   }
 
   @Override
-  @NotNull
+  @Nullable
   public WeaveLiteralExpression getLiteralExpression() {
-    return findNotNullChildByClass(WeaveLiteralExpression.class);
+      return findChildByClass(WeaveLiteralExpression.class);
   }
 
 }
