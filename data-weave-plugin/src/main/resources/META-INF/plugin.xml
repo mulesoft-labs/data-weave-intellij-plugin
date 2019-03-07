@@ -80,6 +80,17 @@
           </ul>
         </li>
       </ul>
+       <h1>v2.0.11</h1>
+      <ul>
+       <li>
+          <p>DataWeave 2.0 Support</p>
+          <ul>
+            <li>Shows type hints and parameters names</li>
+            <li>Fix grammar should support ! and fix issue with + on numbers and addition</li>
+            <li>Improve extract method</li>
+          </ul>
+        </li>
+      </ul>
     ]]>
     </change-notes>
 
