@@ -6,5 +6,9 @@
   e: -(in0.salary),
   f: 3 + -4,
   g: 3 * -3 * -2 + 1,
-  h: - (3 + 2)
+  h: - (3 + 2),
+  i: !true,
+  j: !(in0.age > 30),
+  k: !true or !false
+
 }

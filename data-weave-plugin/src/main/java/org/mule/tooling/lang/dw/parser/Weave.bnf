@@ -195,7 +195,7 @@ InputDirective::= 'input' VariableNameTypeDefinition DataFormat Options? {pin=1}
 
 Options::= OptionElement ( ',' OptionElement )*
 
-OptionElement::= Identifier '=' LiteralExpression
+OptionElement::= Identifier '=' LiteralExpression {pin=2}
 
 Body ::= Expression
 
@@ -218,8 +218,9 @@ SimpleKeyValuePair ::= Key ':' Expression
 {
     implements="com.intellij.psi.NavigatablePsiElement"
     methods=[getPresentation]
+    pin=2
 }
-ConditionalKeyValuePair ::= '(' SimpleKeyValuePair ')' IF SimpleExpression
+ConditionalKeyValuePair ::= '(' SimpleKeyValuePair ')' IF SimpleExpression {pin = 4}
 
 Key::=  QualifiedName Attributes?
 
@@ -237,7 +238,7 @@ DynamicAttribute ::= EnclosedExpression
 
 SimpleAttribute::= QualifiedName ':' Expression
 
-ConditionalAttribute::= '(' SimpleAttribute ')' IF Expression {pin = 6}
+ConditionalAttribute::= '(' SimpleAttribute ')' IF Expression {pin = 4}
 
 Expression::= MatchExpression
             | CustomInterpolatorExpression
@@ -320,7 +321,7 @@ EqualityExpression
 IsExpression
          ::= Expression IS TypeLiteral {pin=2}
 
-NotExpression ::= 'not' ValueExpression
+NotExpression ::= ('!' | 'not') ValueExpression {pin=1}
 
 GreaterThanExpression
          ::= Expression  ( '>' !('>') | '>=' |  '<' !('<') | '<=' ) AdditionSubtractionExpression {pin=2}
