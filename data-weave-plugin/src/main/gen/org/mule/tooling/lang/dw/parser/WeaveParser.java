@@ -1221,15 +1221,16 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   // Identifier IF SimpleExpression '->' Expression
   public static boolean ExpressionPattern(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ExpressionPattern")) return false;
-    boolean r;
+      boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, EXPRESSION_PATTERN, "<expression pattern>");
     r = Identifier(b, l + 1);
     r = r && consumeToken(b, IF);
-    r = r && Expression(b, l + 1, 3);
-    r = r && consumeToken(b, ARROW_TOKEN);
-    r = r && Expression(b, l + 1, -1);
-    exit_section_(b, l, m, r, false, null);
-    return r;
+      p = r; // pin = 2
+      r = r && report_error_(b, Expression(b, l + 1, 3));
+      r = p && report_error_(b, consumeToken(b, ARROW_TOKEN)) && r;
+      r = p && Expression(b, l + 1, -1) && r;
+      exit_section_(b, l, m, r, p, null);
+      return r || p;
   }
 
   /* ********************************************************** */
@@ -1814,14 +1815,15 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   public static boolean LambdaType(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "LambdaType")) return false;
     if (!nextTokenIs(b, L_PARREN)) return false;
-    boolean r;
-    Marker m = enter_section_(b);
+      boolean r, p;
+      Marker m = enter_section_(b, l, _NONE_, LAMBDA_TYPE, null);
     r = consumeToken(b, L_PARREN);
     r = r && LambdaType_1(b, l + 1);
-    r = r && consumeTokens(b, 0, R_PARREN, ARROW_TOKEN);
+      r = r && consumeTokens(b, 2, R_PARREN, ARROW_TOKEN);
+      p = r; // pin = 4
     r = r && Type(b, l + 1);
-    exit_section_(b, m, LAMBDA_TYPE, r);
-    return r;
+      exit_section_(b, l, m, r, p, null);
+      return r || p;
   }
 
   // (LambdaTypeParameter (',' LambdaTypeParameter)*)?
@@ -1880,13 +1882,14 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   // LiteralExpression '->' Expression
   public static boolean LiteralPattern(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "LiteralPattern")) return false;
-    boolean r;
+      boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, LITERAL_PATTERN, "<literal pattern>");
     r = LiteralExpression(b, l + 1);
     r = r && consumeToken(b, ARROW_TOKEN);
+      p = r; // pin = 2
     r = r && Expression(b, l + 1, -1);
-    exit_section_(b, l, m, r, false, null);
-    return r;
+      exit_section_(b, l, m, r, p, null);
+      return r || p;
   }
 
   /* ********************************************************** */
@@ -2091,15 +2094,16 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   // Identifier ':' LiteralExpression '->' Expression
   public static boolean NamedLiteralPattern(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "NamedLiteralPattern")) return false;
-    boolean r;
+      boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, NAMED_LITERAL_PATTERN, "<named literal pattern>");
     r = Identifier(b, l + 1);
     r = r && consumeToken(b, COLON);
-    r = r && LiteralExpression(b, l + 1);
-    r = r && consumeToken(b, ARROW_TOKEN);
-    r = r && Expression(b, l + 1, -1);
-    exit_section_(b, l, m, r, false, null);
-    return r;
+      p = r; // pin = 2
+      r = r && report_error_(b, LiteralExpression(b, l + 1));
+      r = p && report_error_(b, consumeToken(b, ARROW_TOKEN)) && r;
+      r = p && Expression(b, l + 1, -1) && r;
+      exit_section_(b, l, m, r, p, null);
+      return r || p;
   }
 
   /* ********************************************************** */
@@ -3209,13 +3213,14 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   // VariableNameTypeDefinition '='  Expression
   public static boolean VariableDefinition(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "VariableDefinition")) return false;
-    boolean r;
+      boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, VARIABLE_DEFINITION, "<variable definition>");
     r = VariableNameTypeDefinition(b, l + 1);
     r = r && consumeToken(b, EQ);
+      p = r; // pin = 2
     r = r && Expression(b, l + 1, -1);
-    exit_section_(b, l, m, r, false, null);
-    return r;
+      exit_section_(b, l, m, r, p, null);
+      return r || p;
   }
 
   /* ********************************************************** */

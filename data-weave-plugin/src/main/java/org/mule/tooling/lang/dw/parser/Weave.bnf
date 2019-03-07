@@ -377,18 +377,20 @@ ObjectDeconstructPattern ::= '{' Identifier ':' Identifier '~' Identifier '}' '-
 
 ArrayDeconstructPattern::= '[' Identifier '~' Identifier ']' '->' Expression {pin=3}
 
-LiteralPattern ::= LiteralExpression '->' Expression
+LiteralPattern ::= LiteralExpression '->' Expression {pin=2}
 
 ExpressionPattern ::= Identifier IF SimpleExpression '->' Expression {
      methods = [getName setName getNameIdentifier]
      implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
      mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
+     pin=2
 }
 
 NamedLiteralPattern ::= Identifier ':' LiteralExpression '->' Expression {
      methods = [getName setName getNameIdentifier]
      implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
      mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
+     pin=2
 }
 
 TypePattern ::= 'is' Type '->' Expression {pin = 3}
@@ -439,6 +441,7 @@ VariableDefinition ::= VariableNameTypeDefinition '='  Expression  {
             methods=[getName setName getNameIdentifier]
             implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
             mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
+            pin=2
         }
 
 private VariableNameTypeDefinition ::= Annotation* Identifier (":" Type)?
@@ -542,7 +545,7 @@ AttributesType ::= "@""(" NameType ":" Type (',' NameType ":" Type)* ")" {pin= 1
 
 NameType ::= ((Identifier"#")?(Identifier | StringLiteral) ('?')?) | '_' | '('TypeParameter')'
 
-LambdaType ::= '(' (LambdaTypeParameter (',' LambdaTypeParameter)*)? ')' '->' Type {pin= 5}
+LambdaType ::= '(' (LambdaTypeParameter (',' LambdaTypeParameter)*)? ')' '->' Type {pin= 4}
 
 LambdaTypeParameter ::= NamedLambdaTypeParameter | Type
 

@@ -12,7 +12,7 @@ public interface WeaveVariableDefinition extends WeaveNamedElement {
   @NotNull
   List<WeaveAnnotation> getAnnotationList();
 
-  @NotNull
+    @Nullable
   WeaveExpression getExpression();
 
   @NotNull
