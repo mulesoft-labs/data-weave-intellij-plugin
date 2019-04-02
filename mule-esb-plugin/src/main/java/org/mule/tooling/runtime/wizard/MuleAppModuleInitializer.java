@@ -40,6 +40,8 @@ public class MuleAppModuleInitializer extends MavenModuleBuilderHelper {
             VirtualFile srcApi = VfsUtil.createDirectories(root.getPath() + File.separator + MuleDirectoriesUtils.SRC_MAIN_API);
             VirtualFile munit = VfsUtil.createDirectories(root.getPath() + File.separator + MuleDirectoriesUtils.SRC_TEST_MUNIT);
             VfsUtil.createDirectories(root.getPath() + File.separator + MuleDirectoriesUtils.SRC_TEST_RESOURCES);
+            VfsUtil.createDirectories(root.getPath() + File.separator + MuleDirectoriesUtils.SRC_TEST_DWIT);
+
             VirtualFile muleDirectory = VfsUtil.createDirectories(root.getPath() + File.separator + MuleDirectoriesUtils.SRC_MAIN_MULE);
             try {
                 WriteCommandAction.writeCommandAction(project)

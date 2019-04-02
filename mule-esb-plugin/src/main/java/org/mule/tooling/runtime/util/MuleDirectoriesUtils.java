@@ -16,6 +16,8 @@ public class MuleDirectoriesUtils {
     public static final String SRC_TEST_MUNIT = "src/test/munit";
     public static final String SRC_TEST_RESOURCES = "src/test/resources";
 
+    public static final String SRC_TEST_DWIT = "src/test/dwit";
+
     public static File getMavenTooling() {
         File maven_repository = new File(new File(getHomeDirectory(), ".m2"), "repository");
         if (!maven_repository.exists()) {
