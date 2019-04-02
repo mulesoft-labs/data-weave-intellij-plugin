@@ -154,6 +154,12 @@ public class MuleProjectManager extends AbstractProjectComponent {
 
     private void addConfigFile(MuleFacet muleFacet, String configPath) {
         JSONObject muleArtifact = muleFacet.getConfiguration().getMuleArtifact();
+
+        if (muleArtifact == null) {
+            logger.info("Mule Artifact is null, not adding config file");
+            return;
+        }
+
         JSONArray configs = null;
         if (muleArtifact.has("configs"))
             configs = muleArtifact.getJSONArray("configs");

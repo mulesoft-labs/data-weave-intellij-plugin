@@ -4,14 +4,20 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ModuleRootManager;
+import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileSystem;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -109,14 +115,22 @@ public class MuleModuleUtils {
     }
 
     private static VirtualFile getModuleBaseDir(@NotNull Module module) {
-        VirtualFile moduleFile = module.getModuleFile();
         VirtualFile baseDir = null;
-        if (moduleFile != null) {
-            baseDir = moduleFile.getParent();
+
+        VirtualFile[] roots = ModuleRootManager.getInstance(module).getContentRoots();
+
+        if (roots.length > 0)
+            baseDir = roots[0];
+        else {
+            String moduleFilePath = module.getModuleFilePath();
+            File moduleFile = new File(moduleFilePath).getParentFile();
+            baseDir = LocalFileSystem.getInstance().findFileByIoFile(moduleFile);
+
+            if (baseDir == null) {
+                baseDir = module.getProject().getBaseDir();
+            }
         }
-        if (baseDir == null) {
-            baseDir = module.getProject().getBaseDir();
-        }
+
         return baseDir;
     }
 

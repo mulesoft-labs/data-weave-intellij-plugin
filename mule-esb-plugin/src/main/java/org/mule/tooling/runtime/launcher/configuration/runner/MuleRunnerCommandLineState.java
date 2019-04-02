@@ -22,6 +22,7 @@ import org.mule.tooling.runtime.util.MuleModuleUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MuleRunnerCommandLineState extends JavaCommandLineState implements MuleRunnerState {
@@ -133,25 +134,48 @@ public class MuleRunnerCommandLineState extends JavaCommandLineState implements 
 
         Module[] modules = model.getModules();
 
+        //We need to sort out domains and apps and deploy domains first
+        List<Module> domainsList = new ArrayList<>();
+        List<Module> appsList = new ArrayList<>();
+
         for (Module m : modules) {
+            if (MuleModuleUtils.isMuleDomainModule(m))
+                domainsList.add(m);
+            else
+                appsList.add(m);
+        }
+
+        for (Module m : domainsList) {
             if (clearData) {
                 File moduleAppData = new File(muleBaseDirectory.getAppDataFolder(), m.getName());
                 FileUtil.delete(moduleAppData);
             }
-
             //Get the zip and deploy it
             final File file = MuleAppManager.getInstance(model.getProject()).getMuleApp(m);
 
             try {
-                File destination = MuleModuleUtils.isMuleDomainModule(m) ? muleBaseDirectory.getDomainsFolder() : muleBaseDirectory.getAppsFolder();
-
+                File destination = muleBaseDirectory.getDomainsFolder();
                 //Domains require FQN including version, e.g. my-domain-1.0.0-SNAPSHOT-mule-domain
                 //Apps don't. Makes no sense but it is what it is.
-                String deployableName = MuleModuleUtils.isMuleDomainModule(m) ?
-                                            file.getName() :
-                                            m.getName() + MuleAppHandler.MULE_APP_SUFFIX;
-                FileUtil.copy(file, new File(destination, deployableName));
+                FileUtil.copy(file, new File(destination, file.getName()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
+        for (Module m : appsList) {
+            if (clearData) {
+                File moduleAppData = new File(muleBaseDirectory.getAppDataFolder(), m.getName());
+                FileUtil.delete(moduleAppData);
+            }
+            //Get the zip and deploy it
+            final File file = MuleAppManager.getInstance(model.getProject()).getMuleApp(m);
+
+            try {
+                File destination = muleBaseDirectory.getAppsFolder();
+                //Domains require FQN including version, e.g. my-domain-1.0.0-SNAPSHOT-mule-domain
+                //Apps don't. Makes no sense but it is what it is.
+                FileUtil.copy(file, new File(destination, m.getName() + MuleAppHandler.MULE_APP_SUFFIX));
             } catch (IOException e) {
                 e.printStackTrace();
             }

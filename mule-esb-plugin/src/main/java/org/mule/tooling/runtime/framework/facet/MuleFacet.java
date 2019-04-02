@@ -83,13 +83,17 @@ public class MuleFacet extends Facet<MuleFacetConfiguration> {
 
                 if (!MuleModuleUtils.isMuleDomainModule(thisModule)) {
                     //Get ID of the domain this module is assigned to
+                    MavenArtifact domainArtifact = null;
+
                     MuleModuleUtils.waitForMavenProjectsManager(thisModule);
                     MavenProject thisModuleMavenProject = MuleModuleUtils.getMavenProject(thisModule);
-                    List<MavenArtifact> dependencies = thisModuleMavenProject.getDependencies();
-                    MavenArtifact domainArtifact = null;
-                    for (MavenArtifact dependency : dependencies) {
-                        if (MuleModuleUtils.MULE_DOMAIN_PACKAGING.equalsIgnoreCase(dependency.getClassifier())) {
-                            domainArtifact = dependency;
+                    if (thisModuleMavenProject != null) {
+                        List<MavenArtifact> dependencies = thisModuleMavenProject.getDependencies();
+
+                        for (MavenArtifact dependency : dependencies) {
+                            if (MuleModuleUtils.MULE_DOMAIN_PACKAGING.equalsIgnoreCase(dependency.getClassifier())) {
+                                domainArtifact = dependency;
+                            }
                         }
                     }
                     List<String> domainNames = new ArrayList<>();
