@@ -64,6 +64,12 @@
         <framework.detector implementation="org.mule.tooling.runtime.framework.MuleFrameworkDetector"/>
         <library.type implementation="org.mule.tooling.runtime.framework.MuleLibraryType"/>
 
+        <liveTemplateContext implementation="org.mule.tooling.runtime.template.MuleConfigLiveTemplateContextType"/>
+        <liveTemplateContext implementation="org.mule.tooling.runtime.template.MuleFlowElementLiveTemplateContextType"/>
+        <liveTemplateContext implementation="org.mule.tooling.runtime.template.MuleTopElementLiveTemplateContextType"/>
+
+        <defaultLiveTemplatesProvider implementation="org.mule.tooling.runtime.template.MuleConfigLiveTemplatesProvider"/>
+
     </extensions>
 
     <application-components>

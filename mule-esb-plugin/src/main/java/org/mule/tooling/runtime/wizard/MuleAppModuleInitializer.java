@@ -61,11 +61,11 @@ public class MuleAppModuleInitializer extends MavenModuleBuilderHelper {
                                 runTemplate(templateProps, RuntimeTemplateManager.MULE_APP_LOG4J_FILE, manager,
                                         srcResources.findOrCreateChildData(this, "log4j2.xml"));
 
-
                                 runTemplate(templateProps, RuntimeTemplateManager.MULE_APP_ARTIFACT_JSON_FILE, manager,
                                         root.findOrCreateChildData(this, "mule-artifact.json"));
 
-
+                                runTemplate(templateProps, RuntimeTemplateManager.GITIGNORE_FILE, manager,
+                                        root.findOrCreateChildData(this, ".gitignore"));
 
                                 return;
                             }

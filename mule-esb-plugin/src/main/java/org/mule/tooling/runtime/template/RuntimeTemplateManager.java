@@ -26,6 +26,8 @@ public class RuntimeTemplateManager implements FileTemplateGroupDescriptorFactor
     public static final String MULE_DOMAIN_POM_FILE = "MuleDomain Pom";
     public static final String MULE_DOMAIN_ARTIFACT_JSON_FILE = "MuleDomain Artifact";
 
+    public static final String GITIGNORE_FILE = "GitIgnore";
+
     @Override
     public FileTemplateGroupDescriptor getFileTemplatesDescriptor() {
         final FileTemplateGroupDescriptor group = new FileTemplateGroupDescriptor("Mule Sdk", RuntimeIcons.MuleSdk);
@@ -48,6 +50,8 @@ public class RuntimeTemplateManager implements FileTemplateGroupDescriptorFactor
         group.addTemplate(new FileTemplateDescriptor(MULE_DOMAIN_CONFIG_FILE, RuntimeIcons.MuleSdk));
         group.addTemplate(new FileTemplateDescriptor(MULE_DOMAIN_POM_FILE, RuntimeIcons.MuleSdk));
         group.addTemplate(new FileTemplateDescriptor(MULE_DOMAIN_ARTIFACT_JSON_FILE, RuntimeIcons.MuleSdk));
+
+        group.addTemplate(new FileTemplateDescriptor(GITIGNORE_FILE, RuntimeIcons.MuleSdk));
 
         return group;
     }
