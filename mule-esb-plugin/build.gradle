@@ -27,6 +27,8 @@ dependencies {
 
     compile group: 'com.squareup', name: 'javapoet', version: '1.11.1'
 
+    compile group: 'com.mulesoft.modules', name: 'mule-secure-configuration-property-module', version: '1.0.2', classifier: 'mule-plugin'
+    
     compile ('org.mule.tools:mule-apikit-scaffolder:1.1.5') {
         exclude module: 'xml-apis'
         exclude module: 'commons-logging'
