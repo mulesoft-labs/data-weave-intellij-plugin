@@ -70,6 +70,11 @@
 
         <defaultLiveTemplatesProvider implementation="org.mule.tooling.runtime.template.MuleConfigLiveTemplatesProvider"/>
 
+        <psi.referenceContributor language="XML"
+                                  implementation="org.mule.tooling.runtime.reference.MuleConfigurationReferenceContributor"/>
+        <psi.referenceContributor language="JAVA"
+                                  implementation="org.mule.tooling.runtime.reference.FlowConstructReferenceContributor"/>
+        <dom.fileDescription implementation="org.mule.tooling.runtime.model.MuleDomFileDescription"/>
     </extensions>
 
     <application-components>
