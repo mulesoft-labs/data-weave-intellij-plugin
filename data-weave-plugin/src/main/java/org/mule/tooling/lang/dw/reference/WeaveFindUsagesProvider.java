@@ -16,18 +16,14 @@ import org.mule.tooling.lang.dw.parser.psi.*;
 
 public class WeaveFindUsagesProvider implements FindUsagesProvider {
 
-    private static final DefaultWordsScanner WORDS_SCANNER =
-            new DefaultWordsScanner(new WeaveLexer(),
-                    TokenSet.create(WeaveTypes.ID),
-                    WeaveParserDefinition.COMMENTS,
-                    WeaveParserDefinition.STRING_TYPES
-            );
-
-
     @Nullable
     @Override
     public WordsScanner getWordsScanner() {
-        return WORDS_SCANNER;
+        return new DefaultWordsScanner(new WeaveLexer(),
+                TokenSet.create(WeaveTypes.ID),
+                WeaveParserDefinition.COMMENTS,
+                WeaveParserDefinition.STRING_TYPES
+        );
     }
 
     @Override
