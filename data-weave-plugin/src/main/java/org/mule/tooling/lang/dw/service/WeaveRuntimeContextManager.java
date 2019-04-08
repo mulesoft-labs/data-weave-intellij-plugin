@@ -1,6 +1,9 @@
 package org.mule.tooling.lang.dw.service;
 
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.application.Application;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.components.AbstractProjectComponent;
 import com.intellij.openapi.module.Module;
@@ -10,6 +13,8 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.util.ProgressIndicatorUtils;
 import com.intellij.openapi.progress.util.ReadTask;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ContentEntry;
+import com.intellij.openapi.roots.ModifiableRootModel;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.*;
 import com.intellij.psi.PsiFile;
@@ -29,6 +34,7 @@ import org.mule.weave.v2.editor.ImplicitInput;
 import org.mule.weave.v2.ts.AnyType;
 import org.mule.weave.v2.ts.WeaveType;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -382,13 +388,16 @@ public class WeaveRuntimeContextManager extends AbstractProjectComponent impleme
             try {
                 //TODO: handle creation of dwit folder
                 VirtualFile dwitFolder = getScenariosRootFolder(weaveFile);
+
                 WeaveDocument document = WeavePsiUtils.getWeaveDocument(weaveFile);
-                if (document != null && dwitFolder != null) {
-                    String qName = document.getQualifiedName();
-                    return dwitFolder.createChildDirectory(this, qName);
+                if (document != null) {
+                        String qName = document.getQualifiedName();
+                        return dwitFolder.createChildDirectory(this, qName);
+
                 } else {
-                    return null;
-                }
+
+                        return null;
+                    }
             } catch (IOException e) {
                 return null;
             }
@@ -414,13 +423,63 @@ public class WeaveRuntimeContextManager extends AbstractProjectComponent impleme
         if (maybeFolder != null) {
             return maybeFolder;
         }
-        VirtualFile[] sourceRoots = ModuleRootManager.getInstance(module).getSourceRoots(true);
+
+        ModuleRootManager rootManager = ModuleRootManager.getInstance(module);
+
+        VirtualFile[] sourceRoots = rootManager.getSourceRoots(true);
         for (VirtualFile sourceRoot : sourceRoots) {
             if (sourceRoot.isDirectory() && sourceRoot.getName().endsWith(WeaveConstants.INTEGRATION_TEST_FOLDER_NAME)) {
                 dwitFolders.put(moduleName, sourceRoot);
                 return sourceRoot;
             }
         }
+
+        if (dwitFolders.get(moduleName) == null) { //Need to create one
+            try {
+                //See if "src/test/dwit exists, if not, create it
+                VirtualFile moduleRoot = rootManager.getContentRoots()[0];
+                VirtualFile testDwit = LocalFileSystem.getInstance().findFileByIoFile(new File(rootManager.getContentRoots()[0].getCanonicalPath(), WeaveConstants.INTEGRATION_TEST_FOLDER_PATH));
+                if (testDwit == null) {
+                    //Create it here
+                    testDwit = LocalFileSystem.getInstance().createChildDirectory(this, moduleRoot, "src/test/dwit");
+                }
+
+                final VirtualFile dwitFile = testDwit;
+
+                final Application app = ApplicationManager.getApplication();
+                Runnable action = new Runnable() {
+                    @Override
+                    public void run() {
+                        app.runWriteAction(new Runnable() {
+                            @Override
+                            public void run() {
+                                ModifiableRootModel model = ModuleRootManager.getInstance(module).getModifiableModel();
+                                ContentEntry[] entries = model.getContentEntries();
+                                for (ContentEntry entry : entries) {
+                                    if (entry.getFile() == moduleRoot)
+                                        entry.addSourceFolder(dwitFile, true);
+                                }
+                                model.commit();
+                            }
+                        });
+                    }
+                };
+
+                if (app.isDispatchThread()) {
+                    action.run();
+                }
+                else {
+                    app.invokeAndWait(action, ModalityState.current());
+                }
+
+                dwitFolders.put(moduleName, testDwit);
+                return testDwit;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+
         return null;
     }
 
