@@ -23,6 +23,8 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.util.PsiUtil;
+import org.commonmark.Extension;
+import org.commonmark.ext.gfm.tables.TablesExtension;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
@@ -51,6 +53,7 @@ import org.mule.weave.v2.ts.WeaveType;
 import scala.Option;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -294,7 +297,7 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
             HoverMessage hoverMessage = hoverMessageOption.get();
             Option<String> documentation = hoverMessage.markdownDocs();
             if (documentation.isDefined()) {
-                result = toHtml(hoverMessage.markdownDocs().get());
+                result = toHtml(documentation.get());
             }
         }
         return result;
@@ -321,9 +324,10 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
         if (text == null) {
             return null;
         }
-        Parser parser = Parser.builder().build();
+        List<Extension> extensions = Arrays.asList(TablesExtension.create());
+        Parser parser = Parser.builder().extensions(extensions).build();
         Node document = parser.parse(text);
-        HtmlRenderer renderer = HtmlRenderer.builder().build();
+        HtmlRenderer renderer = HtmlRenderer.builder().extensions(extensions).build();
         return renderer.render(document);
     }
 
