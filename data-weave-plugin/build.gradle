@@ -6,13 +6,9 @@ sourceSets {
     }
 }
 
-//repositories {
-//    maven {
-//        name "jetbrains-markdown"
-//        url "https://dl.bintray.com/jetbrains/markdown"
-//    }
-//    mavenLocal()
-//}
+repositories {
+    mavenLocal()
+}
 
 
 

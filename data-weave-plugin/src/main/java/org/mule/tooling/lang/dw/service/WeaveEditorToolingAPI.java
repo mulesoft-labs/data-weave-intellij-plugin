@@ -52,10 +52,7 @@ import org.mule.weave.v2.sdk.WeaveResourceResolver;
 import org.mule.weave.v2.ts.WeaveType;
 import scala.Option;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class WeaveEditorToolingAPI extends AbstractProjectComponent implements Disposable {
 
@@ -153,6 +150,22 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
             final TextRange textRange = element.getTextRange();
             return weaveDocument.typeOf(textRange.getStartOffset(), textRange.getEndOffset());
         }
+    }
+
+    public Optional<String> scaffoldWeaveDocOf(@NotNull PsiElement element) {
+        final WeaveDocumentToolingService weaveDocument = didOpen(element.getContainingFile(), false);
+        final TextRange textRange = element.getTextRange();
+        Option<String> stringOption = weaveDocument.scaffoldDocs(textRange.getStartOffset(), textRange.getEndOffset());
+        if (stringOption.isDefined()) {
+            return Optional.of(stringOption.get());
+        } else {
+            return Optional.empty();
+        }
+    }
+
+
+    public ValidationMessages weaveDocCheck(PsiFile file) {
+        return didOpen(file, false).validateDocs();
     }
 
     private WeaveDocumentToolingService didOpen(PsiFile psiFile, boolean useExpectedOutput) {

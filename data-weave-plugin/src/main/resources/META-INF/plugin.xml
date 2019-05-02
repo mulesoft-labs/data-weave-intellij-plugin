@@ -127,7 +127,6 @@
         <lang.syntaxHighlighterFactory language="Weave"
                                        implementationClass="org.mule.tooling.lang.dw.highlighter.WeaveSyntaxHighlighterFactory"/>
         <colorSettingsPage implementation="org.mule.tooling.lang.dw.highlighter.WeaveColorSettingsPage"/>
-        <lang.commenter language="Weave" implementationClass="org.mule.tooling.lang.dw.WeaveCommenter"/>
         <lang.braceMatcher language="Weave" implementationClass="org.mule.tooling.lang.dw.WeavePairedBraceMatcher"/>
         <quoteHandler fileType="Weave" className="org.mule.tooling.lang.dw.WeaveQuoteHandler"/>
 
@@ -154,7 +153,6 @@
         <languageInjector implementation="org.mule.tooling.lang.dw.injector.MuleLanguageInjector"/>
         <languageInjector implementation="org.mule.tooling.lang.dw.injector.StringInterpolationLanguageInjector"/>
 
-        <documentationProvider implementation="org.mule.tooling.lang.dw.documentation.WeaveDocumentationProvider"/>
         <breadcrumbsInfoProvider implementation="org.mule.tooling.lang.dw.breadcrums.WeaveBreadcrumbsInfoProvider"/>
         <spellchecker.support language="Weave" implementationClass="org.mule.tooling.lang.dw.spellchecker.WeaveSpellCheckerStrategy"/>
         <!--<toolWindow id="Design Center" anchor="bottom"-->
@@ -199,6 +197,12 @@
                             serviceImplementation="org.mule.tooling.lang.dw.settings.DataWeaveSettingsState"/>
         <codeInsight.parameterNameHints language="Weave"
                                         implementationClass="org.mule.tooling.lang.dw.hints.WeaveInlayParameterHintsProvider"/>
+        <lang.commenter language="Weave"
+                        implementationClass="org.mule.tooling.lang.dw.documentation.WeaveCodeDocumentationAwareCommenter"/>
+        <lang.documentationProvider language="Weave"
+                                    implementationClass="org.mule.tooling.lang.dw.documentation.WeaveCodeDocumentationProvider"/>
+        <externalAnnotator language="Weave"
+                           implementationClass="org.mule.tooling.lang.dw.annotator.WeaveDocsAnnotator"/>
     </extensions>
 
     <project-components>
