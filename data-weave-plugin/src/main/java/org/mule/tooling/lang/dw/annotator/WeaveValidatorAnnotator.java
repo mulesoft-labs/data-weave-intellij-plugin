@@ -44,14 +44,14 @@ public class WeaveValidatorAnnotator extends ExternalAnnotator<PsiFile, Validati
   @Nullable
   @Override
   public ValidationMessages doAnnotate(PsiFile file) {
-    WeaveDocument weaveDocument = ReadAction.compute(() -> WeavePsiUtils.getWeaveDocument(file));
+    final WeaveDocument weaveDocument = ReadAction.compute(() -> WeavePsiUtils.getWeaveDocument(file));
     if (weaveDocument == null) return null;
-    Project project = file.getProject();
+    final Project project = file.getProject();
     if (project.isDisposed()) return null;
 
-    WeaveRuntimeContextManager scenariosManager = WeaveRuntimeContextManager.getInstance(project);
-    WeaveEditorToolingAPI toolingAPI = WeaveEditorToolingAPI.getInstance(project);
-    ImplicitInput currentImplicitTypes = ReadAction.compute(() -> scenariosManager.getImplicitInputTypes(weaveDocument));
+    final WeaveRuntimeContextManager scenariosManager = WeaveRuntimeContextManager.getInstance(project);
+    final WeaveEditorToolingAPI toolingAPI = WeaveEditorToolingAPI.getInstance(project);
+    final ImplicitInput currentImplicitTypes = ReadAction.compute(() -> scenariosManager.getImplicitInputTypes(weaveDocument));
     if (weaveDocument.isModuleDocument() || currentImplicitTypes != null) {
       return toolingAPI.typeCheck(file);
     } else {
@@ -68,20 +68,19 @@ public class WeaveValidatorAnnotator extends ExternalAnnotator<PsiFile, Validati
 
   @Override
   public void apply(@NotNull PsiFile file, ValidationMessages annotationResult, @NotNull AnnotationHolder holder) {
-    ValidationMessage[] errorMessage = annotationResult.errorMessage();
+    final ValidationMessage[] errorMessage = annotationResult.errorMessage();
     apply(holder, errorMessage, HighlightSeverity.ERROR);
-    ValidationMessage[] validationMessages = annotationResult.warningMessage();
+    final ValidationMessage[] validationMessages = annotationResult.warningMessage();
     apply(holder, validationMessages, HighlightSeverity.WARNING);
-
   }
 
   public void apply(@NotNull AnnotationHolder holder, ValidationMessage[] errorMessage, HighlightSeverity severity) {
     for (ValidationMessage validationMessage : errorMessage) {
-      WeaveLocation location = validationMessage.location();
-      int startIndex = getValidIndex(location.startPosition());
-      int endIndex = getValidIndex(location.endPosition());
-      Annotation annotation = holder.createAnnotation(severity, new TextRange(startIndex, endIndex), validationMessage.message().message(), WeaveEditorToolingAPI.toHtml(validationMessage.message().message()));
-      QuickFix[] quickFixes = validationMessage.quickFix();
+      final WeaveLocation location = validationMessage.location();
+      final int startIndex = getValidIndex(location.startPosition());
+      final int endIndex = getValidIndex(location.endPosition());
+      final Annotation annotation = holder.createAnnotation(severity, new TextRange(startIndex, endIndex), validationMessage.message().message(), WeaveEditorToolingAPI.toHtml(validationMessage.message().message()));
+      final QuickFix[] quickFixes = validationMessage.quickFix();
       for (QuickFix quickFix : quickFixes) {
         annotation.registerFix(new WeaveIntentionAction(quickFix));
       }

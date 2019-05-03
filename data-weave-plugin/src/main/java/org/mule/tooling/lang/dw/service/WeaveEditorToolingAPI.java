@@ -23,6 +23,8 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.util.PsiUtil;
+import org.commonmark.Extension;
+import org.commonmark.ext.gfm.tables.TablesExtension;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
@@ -50,9 +52,7 @@ import org.mule.weave.v2.sdk.WeaveResourceResolver;
 import org.mule.weave.v2.ts.WeaveType;
 import scala.Option;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class WeaveEditorToolingAPI extends AbstractProjectComponent implements Disposable {
 
@@ -150,6 +150,22 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
             final TextRange textRange = element.getTextRange();
             return weaveDocument.typeOf(textRange.getStartOffset(), textRange.getEndOffset());
         }
+    }
+
+    public Optional<String> scaffoldWeaveDocOf(@NotNull PsiElement element) {
+        final WeaveDocumentToolingService weaveDocument = didOpen(element.getContainingFile(), false);
+        final TextRange textRange = element.getTextRange();
+        Option<String> stringOption = weaveDocument.scaffoldDocs(textRange.getStartOffset(), textRange.getEndOffset());
+        if (stringOption.isDefined()) {
+            return Optional.of(stringOption.get());
+        } else {
+            return Optional.empty();
+        }
+    }
+
+
+    public ValidationMessages weaveDocCheck(PsiFile file) {
+        return didOpen(file, false).validateDocs();
     }
 
     private WeaveDocumentToolingService didOpen(PsiFile psiFile, boolean useExpectedOutput) {
@@ -294,7 +310,7 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
             HoverMessage hoverMessage = hoverMessageOption.get();
             Option<String> documentation = hoverMessage.markdownDocs();
             if (documentation.isDefined()) {
-                result = toHtml(hoverMessage.markdownDocs().get());
+                result = toHtml(documentation.get());
             }
         }
         return result;
@@ -321,9 +337,10 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
         if (text == null) {
             return null;
         }
-        Parser parser = Parser.builder().build();
+        List<Extension> extensions = Arrays.asList(TablesExtension.create());
+        Parser parser = Parser.builder().extensions(extensions).build();
         Node document = parser.parse(text);
-        HtmlRenderer renderer = HtmlRenderer.builder().build();
+        HtmlRenderer renderer = HtmlRenderer.builder().extensions(extensions).build();
         return renderer.render(document);
     }
 
