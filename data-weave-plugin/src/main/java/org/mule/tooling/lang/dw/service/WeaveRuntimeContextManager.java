@@ -440,8 +440,14 @@ public class WeaveRuntimeContextManager extends AbstractProjectComponent impleme
                 VirtualFile moduleRoot = rootManager.getContentRoots()[0];
                 VirtualFile testDwit = LocalFileSystem.getInstance().findFileByIoFile(new File(rootManager.getContentRoots()[0].getCanonicalPath(), WeaveConstants.INTEGRATION_TEST_FOLDER_PATH));
                 if (testDwit == null) {
+                    VirtualFile srcDir = moduleRoot.findFileByRelativePath("src");
+                    if (srcDir == null)
+                        srcDir = moduleRoot.createChildDirectory(this, "src");
+                    VirtualFile testDir = srcDir.findFileByRelativePath("test");
+                    if (testDir == null)
+                        testDir = srcDir.createChildDirectory(this, "test");
                     //Create it here
-                    testDwit = LocalFileSystem.getInstance().createChildDirectory(this, moduleRoot, "src/test/dwit");
+                    testDwit = testDir.createChildDirectory(this, WeaveConstants.INTEGRATION_TEST_FOLDER_NAME);
                 }
 
                 final VirtualFile dwitFile = testDwit;
