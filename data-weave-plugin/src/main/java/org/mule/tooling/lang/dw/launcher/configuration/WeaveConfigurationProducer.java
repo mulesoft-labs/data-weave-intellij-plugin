@@ -17,53 +17,58 @@ import org.mule.tooling.lang.dw.util.WeaveUtils;
 import org.mule.weave.v2.parser.ast.variables.NameIdentifier;
 
 public class WeaveConfigurationProducer extends JavaRunConfigurationProducerBase<WeaveConfiguration> {
-  protected WeaveConfigurationProducer() {
-    super(WeaveConfigurationType.getInstance());
-  }
+    protected WeaveConfigurationProducer() {
+        super(WeaveConfigurationType.getInstance());
+    }
 
-  @Override
-  protected boolean setupConfigurationFromContext(WeaveConfiguration weaveConfiguration, ConfigurationContext configurationContext, Ref<PsiElement> ref) {
-    final Location location = configurationContext.getLocation();
-    if (location != null) {
-      final PsiFile containingFile = location.getPsiElement().getContainingFile();
-      if (containingFile != null) {
-        final WeaveDocument weaveDocument = WeavePsiUtils.getWeaveDocument(containingFile);
-          if (weaveDocument != null && !WeaveUtils.isTestFile(weaveDocument)) {
-          final String nameIdentifier = weaveDocument.getQualifiedName();
-          weaveConfiguration.setNameIdentifier(nameIdentifier);
-          final Module module = configurationContext.getModule();
-          weaveConfiguration.setModule(module);
-          final WeaveRuntimeContextManager instance = WeaveRuntimeContextManager.getInstance(module.getProject());
-          final Scenario currentScenarioFor = instance.getCurrentScenarioFor(weaveDocument);
-          if (currentScenarioFor != null) {
-            weaveConfiguration.setScenario(currentScenarioFor.getName());
-          }
-              weaveConfiguration.setName("Run Mapping " + StringUtils.capitalize(containingFile.getVirtualFile().getNameWithoutExtension()));
-          return true;
+    @Override
+    protected boolean setupConfigurationFromContext(WeaveConfiguration weaveConfiguration, ConfigurationContext configurationContext, Ref<PsiElement> ref) {
+        final Location location = configurationContext.getLocation();
+        if (location != null) {
+            final PsiFile containingFile = location.getPsiElement().getContainingFile();
+            if (containingFile != null) {
+                final WeaveDocument weaveDocument = WeavePsiUtils.getWeaveDocument(containingFile);
+                if (weaveDocument != null && !WeaveUtils.isTestFile(weaveDocument)) {
+                    final String nameIdentifier = weaveDocument.getQualifiedName();
+                    weaveConfiguration.setNameIdentifier(nameIdentifier);
+                    final Module module = configurationContext.getModule();
+                    if (module != null) {
+                        weaveConfiguration.setModule(module);
+                        final WeaveRuntimeContextManager instance = WeaveRuntimeContextManager.getInstance(module.getProject());
+                        final Scenario currentScenarioFor = instance.getCurrentScenarioFor(weaveDocument);
+                        if (currentScenarioFor != null) {
+                            weaveConfiguration.setScenario(currentScenarioFor.getName());
+                        }
+                        weaveConfiguration.setName("Run Mapping " + StringUtils.capitalize(containingFile.getVirtualFile().getNameWithoutExtension()));
+                    }
+                    return true;
+                }
+            }
         }
-      }
+        return false;
     }
-    return false;
-  }
 
-  @Override
-  public boolean isConfigurationFromContext(WeaveConfiguration muleConfiguration, ConfigurationContext configurationContext) {
-    final String configurationNameIdentifier = muleConfiguration.getNameIdentifier();
-    if (configurationNameIdentifier == null) {
-      return false;
+    @Override
+    public boolean isConfigurationFromContext(WeaveConfiguration muleConfiguration, ConfigurationContext configurationContext) {
+        final String configurationNameIdentifier = muleConfiguration.getNameIdentifier();
+        if (configurationNameIdentifier == null) {
+            return false;
+        }
+        final Module module = configurationContext.getModule();
+        if (module == null) {
+            return false;
+        }
+        final PsiElement psiLocation = configurationContext.getPsiLocation();
+        if (psiLocation == null) {
+            return false;
+        }
+        final PsiFile containingFile = psiLocation.getContainingFile();
+        if (containingFile == null) {
+            return false;
+        }
+        final NameIdentifier nameIdentifier = VirtualFileSystemUtils.calculateNameIdentifier(containingFile.getProject(), containingFile.getVirtualFile());
+        final String currentNameIdentifier = nameIdentifier.name();
+        WeaveDocument document = WeavePsiUtils.getDocument(containingFile);
+        return module != null && module.equals(muleConfiguration.getModule()) && configurationNameIdentifier.equals(currentNameIdentifier) && !WeaveUtils.isTestFile(document);
     }
-    final Module module = configurationContext.getModule();
-    final PsiElement psiLocation = configurationContext.getPsiLocation();
-    if (psiLocation == null) {
-      return false;
-    }
-    final PsiFile containingFile = psiLocation.getContainingFile();
-    if (containingFile == null) {
-      return false;
-    }
-    final NameIdentifier nameIdentifier = VirtualFileSystemUtils.calculateNameIdentifier(containingFile.getProject(), containingFile.getVirtualFile());
-    final String currentNameIdentifier = nameIdentifier.name();
-      WeaveDocument document = WeavePsiUtils.getDocument(containingFile);
-      return module != null && module.equals(muleConfiguration.getModule()) && configurationNameIdentifier.equals(currentNameIdentifier) && !WeaveUtils.isTestFile(document);
-  }
 }
