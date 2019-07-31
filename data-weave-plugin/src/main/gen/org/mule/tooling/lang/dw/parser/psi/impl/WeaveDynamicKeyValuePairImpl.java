@@ -3,10 +3,13 @@ package org.mule.tooling.lang.dw.parser.psi.impl;
 
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElementVisitor;
+import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.mule.tooling.lang.dw.parser.psi.WeaveDynamicKeyValuePair;
-import org.mule.tooling.lang.dw.parser.psi.WeaveEnclosedExpression;
+import org.mule.tooling.lang.dw.parser.psi.WeaveExpression;
 import org.mule.tooling.lang.dw.parser.psi.WeaveVisitor;
+
+import java.util.List;
 
 public class WeaveDynamicKeyValuePairImpl extends WeaveKeyValuePairImpl implements WeaveDynamicKeyValuePair {
 
@@ -25,8 +28,8 @@ public class WeaveDynamicKeyValuePairImpl extends WeaveKeyValuePairImpl implemen
 
   @Override
   @NotNull
-  public WeaveEnclosedExpression getEnclosedExpression() {
-    return findNotNullChildByClass(WeaveEnclosedExpression.class);
+  public List<WeaveExpression> getExpressionList() {
+      return PsiTreeUtil.getChildrenOfTypeAsList(this, WeaveExpression.class);
   }
 
 }

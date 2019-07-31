@@ -54,9 +54,13 @@ DOUBLE_LITERAL=({FLOATING_POINT_LITERAL1})|({FLOATING_POINT_LITERAL3})
 FLOATING_POINT_LITERAL1=({DIGIT})+{DOT}({DIGIT})*({EXPONENT_PART})?
 FLOATING_POINT_LITERAL3=({DIGIT})+({EXPONENT_PART})
 EXPONENT_PART=[Ee]["+""-"]?({DIGIT})*
+AT_SPACE="@"[\ \t\f\n]
+CARET_SPACE="^"[\ \t\f\n]
 
 %%
 <YYINITIAL> {
+  {CARET_SPACE}                 {return CARET_SPACE;}
+  {AT_SPACE}                 {return AT_SPACE;}
   {WHITE_SPACE}               { return com.intellij.psi.TokenType.WHITE_SPACE; }
   "("                         { return L_PARREN; }
   ")"                         { return R_PARREN; }

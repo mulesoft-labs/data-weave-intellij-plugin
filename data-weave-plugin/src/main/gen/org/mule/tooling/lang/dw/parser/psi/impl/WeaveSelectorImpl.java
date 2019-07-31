@@ -23,6 +23,18 @@ public class WeaveSelectorImpl extends ASTWrapperPsiElement implements WeaveSele
     else super.accept(visitor);
   }
 
+    @Override
+    @Nullable
+    public WeaveAllAttributeSelector getAllAttributeSelector() {
+        return findChildByClass(WeaveAllAttributeSelector.class);
+    }
+
+    @Override
+    @Nullable
+    public WeaveAllSchemaSelector getAllSchemaSelector() {
+        return findChildByClass(WeaveAllSchemaSelector.class);
+    }
+
   @Override
   @Nullable
   public WeaveAttributeSelector getAttributeSelector() {

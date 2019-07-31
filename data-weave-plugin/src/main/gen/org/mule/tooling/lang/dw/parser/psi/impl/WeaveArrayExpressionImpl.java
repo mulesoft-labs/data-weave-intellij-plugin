@@ -34,8 +34,9 @@ public class WeaveArrayExpressionImpl extends WeaveExpressionImpl implements Wea
     return PsiTreeUtil.getChildrenOfTypeAsList(this, WeaveExpression.class);
   }
 
-  public ItemPresentation getPresentation() {
-    return WeavePsiImplUtils.getPresentation(this);
-  }
+    @Override
+    public ItemPresentation getPresentation() {
+        return WeavePsiImplUtils.getPresentation(this);
+    }
 
 }

@@ -1,13 +1,13 @@
 // This is a generated file. Not intended for manual editing.
 package org.mule.tooling.lang.dw.parser.psi;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.List;
-import org.jetbrains.annotations.*;
-import com.intellij.psi.PsiElement;
 
 public interface WeaveDynamicAttribute extends WeaveAttribute {
 
   @NotNull
-  WeaveEnclosedExpression getEnclosedExpression();
+  List<WeaveExpression> getExpressionList();
 
 }

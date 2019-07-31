@@ -15,6 +15,8 @@
         L_PARREN='('
         R_PARREN=')'
 
+        AT_SPACE='@ '
+        CARET_SPACE='^ '
         L_CURLY='{'
         R_CURLY='}'
         L_BRACKET='['
@@ -210,9 +212,9 @@ MultipleKeyValuePairObj::= '{' objectEntryRule? (',' objectEntryRule)* ','? '}' 
 
 private objectEntryRule ::= KeyValuePair | DynamicKeyValuePair
 
-KeyValuePair::= ConditionalKeyValuePair | SimpleKeyValuePair
+KeyValuePair::=  SimpleKeyValuePair
 
-DynamicKeyValuePair ::= EnclosedExpression
+DynamicKeyValuePair ::= '(' Expression ')' (IF Expression)? {pin=2}
 
 SimpleKeyValuePair ::= Key ':' Expression
 {
@@ -220,25 +222,21 @@ SimpleKeyValuePair ::= Key ':' Expression
     methods=[getPresentation]
     pin=2
 }
-ConditionalKeyValuePair ::= '(' SimpleKeyValuePair ')' IF SimpleExpression {pin = 4}
 
 Key::=  QualifiedName Attributes?
 
-QualifiedName::= DeclaredNamespace? (Identifier | StringLiteral| EnclosedExpression)
+QualifiedName::= DeclaredNamespace? (Identifier | StringLiteral| '(' Expression ')')
 
 DeclaredNamespace::= Identifier '#'
 
-Attributes::= '@(' ( Attribute ( ',' Attribute )* )? ')'
+Attributes::= '@(' ( Attribute ( ',' Attribute )* )? ')' {pin=1}
 
-Attribute::= ConditionalAttribute
-           | SimpleAttribute
+Attribute::= SimpleAttribute
            | DynamicAttribute
 
-DynamicAttribute ::= EnclosedExpression
+DynamicAttribute ::= '(' Expression ')' (IF Expression)? {pin=2}
 
 SimpleAttribute::= QualifiedName ':' Expression
-
-ConditionalAttribute::= '(' SimpleAttribute ')' IF Expression {pin = 4}
 
 Expression::= MatchExpression
             | CustomInterpolatorExpression
@@ -344,7 +342,7 @@ FunctionCallArguments ::= '(' ( Expression ( ',' Expression )* )? (',')? ')'
 UsingExpression ::=USING '(' VariableDefinition ( ',' VariableDefinition )* ')' Expression {pin=1}
 
 
-ConditionalExpression ::= ( IF | UNLESS ) EnclosedExpression Expression ELSE Expression {pin=1}
+ConditionalExpression ::= ( IF | UNLESS ) '(' Expression ')' Expression ELSE Expression {pin=1}
 
 EnclosedExpression ::= '(' Expression ')'
 
@@ -416,23 +414,29 @@ NamedRegexPattern ::= Identifier 'matches' RegexLiteral '->' Expression {
 DefaultPattern ::= ELSE '->' Expression {pin=1}
 
 Selector ::= (ValueSelector |
+         AllAttributeSelector |
          AttributeSelector |
          NamespaceSelector |
+         AllSchemaSelector |
          SchemaSelector |
          ObjectSelector |
          MultiValueSelector)
 
 ValueSelector ::= (DeclaredNamespace? (StringLiteral|Identifier))
 
-AttributeSelector ::='@'(DeclaredNamespace? (StringLiteral|Identifier))?
+AllAttributeSelector ::=AT_SPACE  {pin=1}
 
-ObjectSelector ::='&'(DeclaredNamespace? (StringLiteral|Identifier))?
+AllSchemaSelector ::=CARET_SPACE  {pin=1}
 
-SchemaSelector ::='^'(DeclaredNamespace? (StringLiteral|Identifier))?
+AttributeSelector ::='@'(DeclaredNamespace? (StringLiteral|Identifier))? {pin=1}
+
+ObjectSelector ::='&'(DeclaredNamespace? (StringLiteral|Identifier))  {pin=1}
+
+SchemaSelector ::='^'(DeclaredNamespace? (StringLiteral|Identifier))?  {pin=1}
 
 NamespaceSelector ::='#'
 
-MultiValueSelector ::= '*'(DeclaredNamespace? (StringLiteral|Identifier))
+MultiValueSelector ::= '*'(DeclaredNamespace? (StringLiteral|Identifier))  {pin=1}
 
 VariableReferenceExpression ::= FqnIdentifier
 
@@ -455,7 +459,7 @@ LiteralExpression
            | AnyDateLiteral
            | RegexLiteral
 
-DoExpression ::= 'do' '{' (DoDirectives+ '---')?  Expression'}'
+DoExpression ::= 'do' '{' (DoDirectives+ '---')?  Expression'}' {pin=1}
 
 
 private DoDirectives

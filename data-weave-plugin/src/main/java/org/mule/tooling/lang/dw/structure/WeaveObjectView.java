@@ -6,12 +6,7 @@ import com.intellij.ide.structureView.impl.common.PsiTreeElementBase;
 import com.intellij.navigation.ItemPresentation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.mule.tooling.lang.dw.parser.psi.WeaveConditionalKeyValuePair;
-import org.mule.tooling.lang.dw.parser.psi.WeaveKeyValuePair;
-import org.mule.tooling.lang.dw.parser.psi.WeaveMultipleKeyValuePairObj;
-import org.mule.tooling.lang.dw.parser.psi.WeaveObjectExpression;
-import org.mule.tooling.lang.dw.parser.psi.WeaveSimpleKeyValuePair;
-import org.mule.tooling.lang.dw.parser.psi.WeaveSingleKeyValuePairObj;
+import org.mule.tooling.lang.dw.parser.psi.*;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -49,8 +44,6 @@ public class WeaveObjectView extends PsiTreeElementBase<WeaveObjectExpression> {
     private void addKeyValuePair(List<StructureViewTreeElement> result, WeaveKeyValuePair weaveKeyValuePair) {
         if (weaveKeyValuePair instanceof WeaveSimpleKeyValuePair) {
             result.add(new WeavePropertyView((WeaveSimpleKeyValuePair) weaveKeyValuePair));
-        } else if (weaveKeyValuePair instanceof WeaveConditionalKeyValuePair) {
-            result.add(new WeavePropertyView(((WeaveConditionalKeyValuePair) weaveKeyValuePair).getSimpleKeyValuePair()));
         }
     }
 

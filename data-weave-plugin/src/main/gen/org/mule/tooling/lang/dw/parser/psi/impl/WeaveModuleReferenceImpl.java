@@ -42,17 +42,20 @@ public class WeaveModuleReferenceImpl extends ASTWrapperPsiElement implements We
     return findNotNullChildByClass(WeaveIdentifier.class);
   }
 
-  public String getPath() {
-    return WeavePsiImplUtils.getPath(this);
-  }
+    @Override
+    public String getPath() {
+        return WeavePsiImplUtils.getPath(this);
+    }
 
-  public String getModuleFQN() {
-    return WeavePsiImplUtils.getModuleFQN(this);
-  }
+    @Override
+    public String getModuleFQN() {
+        return WeavePsiImplUtils.getModuleFQN(this);
+    }
 
-  @NotNull
-  public PsiReference[] getReferences() {
-    return WeavePsiImplUtils.getReferences(this);
-  }
+    @Override
+    @NotNull
+    public PsiReference[] getReferences() {
+        return WeavePsiImplUtils.getReferences(this);
+    }
 
 }

@@ -36,30 +36,36 @@ public class WeaveDocumentImpl extends ASTWrapperPsiElement implements WeaveDocu
     return findChildByClass(WeaveHeader.class);
   }
 
-  public ItemPresentation getPresentation() {
-    return WeavePsiImplUtils.getPresentation(this);
-  }
+    @Override
+    public ItemPresentation getPresentation() {
+        return WeavePsiImplUtils.getPresentation(this);
+    }
 
-  @NotNull
-  public String getQualifiedName() {
-    return WeavePsiImplUtils.getQualifiedName(this);
-  }
+    @Override
+    @NotNull
+    public String getQualifiedName() {
+        return WeavePsiImplUtils.getQualifiedName(this);
+    }
 
-  @NotNull
-  public String getName() {
-    return WeavePsiImplUtils.getName(this);
-  }
+    @Override
+    @NotNull
+    public String getName() {
+        return WeavePsiImplUtils.getName(this);
+    }
 
-  public WeaveDocument setName(String name) {
-    return WeavePsiImplUtils.setName(this, name);
-  }
+    @Override
+    public WeaveDocument setName(String name) {
+        return WeavePsiImplUtils.setName(this, name);
+    }
 
-  public boolean isMappingDocument() {
-    return WeavePsiImplUtils.isMappingDocument(this);
-  }
+    @Override
+    public boolean isMappingDocument() {
+        return WeavePsiImplUtils.isMappingDocument(this);
+    }
 
-  public boolean isModuleDocument() {
-    return WeavePsiImplUtils.isModuleDocument(this);
-  }
+    @Override
+    public boolean isModuleDocument() {
+        return WeavePsiImplUtils.isModuleDocument(this);
+    }
 
 }

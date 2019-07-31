@@ -12,6 +12,14 @@ public class WeaveVisitor extends PsiElementVisitor {
     visitExpression(o);
   }
 
+  public void visitAllAttributeSelector(@NotNull WeaveAllAttributeSelector o) {
+    visitPsiElement(o);
+  }
+
+  public void visitAllSchemaSelector(@NotNull WeaveAllSchemaSelector o) {
+    visitPsiElement(o);
+  }
+
   public void visitAndExpression(@NotNull WeaveAndExpression o) {
     visitExpression(o);
   }
@@ -98,16 +106,8 @@ public class WeaveVisitor extends PsiElementVisitor {
     visitType(o);
   }
 
-  public void visitConditionalAttribute(@NotNull WeaveConditionalAttribute o) {
-    visitAttribute(o);
-  }
-
   public void visitConditionalExpression(@NotNull WeaveConditionalExpression o) {
     visitExpression(o);
-  }
-
-  public void visitConditionalKeyValuePair(@NotNull WeaveConditionalKeyValuePair o) {
-    visitKeyValuePair(o);
   }
 
   public void visitContainerModuleIdentifier(@NotNull WeaveContainerModuleIdentifier o) {

@@ -35,8 +35,9 @@ public class WeaveSimpleKeyValuePairImpl extends WeaveKeyValuePairImpl implement
     return findNotNullChildByClass(WeaveKey.class);
   }
 
-  public ItemPresentation getPresentation() {
-    return WeavePsiImplUtils.getPresentation(this);
-  }
+    @Override
+    public ItemPresentation getPresentation() {
+        return WeavePsiImplUtils.getPresentation(this);
+    }
 
 }

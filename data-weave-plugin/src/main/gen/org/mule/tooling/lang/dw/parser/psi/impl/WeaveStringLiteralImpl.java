@@ -46,6 +46,7 @@ public class WeaveStringLiteralImpl extends WeaveStringLiteralMixin implements W
     return findChildByType(SINGLE_QUOTED_STRING);
   }
 
+  @Override
   @NotNull
   public String getValue() {
     return WeavePsiImplUtils.getValue(this);

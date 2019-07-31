@@ -41,8 +41,9 @@ public class WeaveFqnIdentifierImpl extends WeaveNamedElementImpl implements Wea
     return findNotNullChildByClass(WeaveIdentifier.class);
   }
 
-  public PsiReference[] getReferences() {
-    return WeavePsiImplUtils.getReferences(this);
-  }
+    @Override
+    public PsiReference[] getReferences() {
+        return WeavePsiImplUtils.getReferences(this);
+    }
 
 }

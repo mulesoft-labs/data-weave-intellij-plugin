@@ -24,8 +24,9 @@ public class WeaveIdentifierImpl extends ASTWrapperPsiElement implements WeaveId
     else super.accept(visitor);
   }
 
-  public String getName() {
-    return WeavePsiImplUtils.getName(this);
-  }
+    @Override
+    public String getName() {
+        return WeavePsiImplUtils.getName(this);
+    }
 
 }

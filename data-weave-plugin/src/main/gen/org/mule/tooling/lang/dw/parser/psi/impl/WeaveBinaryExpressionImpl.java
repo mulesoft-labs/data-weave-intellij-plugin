@@ -37,14 +37,16 @@ public class WeaveBinaryExpressionImpl extends WeaveNamedElementImpl implements 
     return findNotNullChildByClass(WeaveIdentifier.class);
   }
 
-  @Nullable
-  public WeaveExpression getLeft() {
-    return WeavePsiImplUtils.getLeft(this);
-  }
+    @Override
+    @Nullable
+    public WeaveExpression getLeft() {
+        return WeavePsiImplUtils.getLeft(this);
+    }
 
-  @Nullable
-  public WeaveExpression getRight() {
-    return WeavePsiImplUtils.getRight(this);
-  }
+    @Override
+    @Nullable
+    public WeaveExpression getRight() {
+        return WeavePsiImplUtils.getRight(this);
+    }
 
 }

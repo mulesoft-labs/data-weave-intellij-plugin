@@ -35,8 +35,9 @@ public class WeaveObjectExpressionImpl extends WeaveExpressionImpl implements We
     return findChildByClass(WeaveSingleKeyValuePairObj.class);
   }
 
-  public ItemPresentation getPresentation() {
-    return WeavePsiImplUtils.getPresentation(this);
-  }
+    @Override
+    public ItemPresentation getPresentation() {
+        return WeavePsiImplUtils.getPresentation(this);
+    }
 
 }

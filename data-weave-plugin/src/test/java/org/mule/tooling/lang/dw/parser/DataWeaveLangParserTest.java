@@ -67,6 +67,7 @@ public class DataWeaveLangParserTest extends ParsingTestCase {
                 assertEquals("psi text mismatch", text, myFile.getText());
                 ensureCorrectReparse(myFile);
                 List<PsiErrorElement> errors = getErrors(myFile);
+                System.out.println(toParseTreeText(myFile, true, true));
                 assertEmpty(name + " has errors \n" + toParseTreeText(myFile, true, true), errors);
             } catch (Exception e) {
                 fail(e.getMessage());
