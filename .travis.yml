@@ -1,6 +1,6 @@
 language: java
 jdk:
-  - oraclejdk8
+  - openjdk8
 
 before_install:
     - "git clone -b travis `git config --get remote.origin.url` build/travis"
