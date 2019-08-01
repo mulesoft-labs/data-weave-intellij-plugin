@@ -152,8 +152,8 @@ public class MuleProjectManager extends AbstractProjectComponent {
         return muleFacet;
     }
 
-    private void addConfigFile(MuleFacet muleFacet, String configPath) {
-        JSONObject muleArtifact = muleFacet.getConfiguration().getMuleArtifact();
+    private void addConfigFile(@NotNull MuleFacet muleFacet, String configPath) {
+        JSONObject muleArtifact = muleFacet.getConfiguration().getMuleArtifact();//TODO Check for NPE here
 
         if (muleArtifact == null) {
             logger.info("Mule Artifact is null, not adding config file");
@@ -177,7 +177,7 @@ public class MuleProjectManager extends AbstractProjectComponent {
         }
     }
 
-    private void deleteConfigFile(MuleFacet muleFacet, String configPath) {
+    private void deleteConfigFile(@NotNull MuleFacet muleFacet, String configPath) {
         JSONObject muleArtifact = muleFacet.getConfiguration().getMuleArtifact();
 
         if (muleArtifact.has("configs")) {

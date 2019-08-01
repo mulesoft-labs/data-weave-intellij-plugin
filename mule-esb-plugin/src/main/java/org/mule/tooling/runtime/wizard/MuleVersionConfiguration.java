@@ -23,7 +23,9 @@ public class MuleVersionConfiguration extends ModuleWizardStep implements Dispos
     {
         this.moduleBuilder = moduleBuilder;
         //muleSdkCombo.setSelectedSdk(MuleSdkManager.getInstance().getSdkByVersion(muleVersion));
-        muleSdkCombo.setSelectedSdk(MuleSdkManagerStore.getInstance().findFromVersion(muleVersion));
+        MuleSdk sdk = MuleSdkManagerStore.getInstance().findFromVersion(muleVersion);
+        if (sdk != null)
+            muleSdkCombo.setSelectedSdk(sdk);
     }
 
     @Override
