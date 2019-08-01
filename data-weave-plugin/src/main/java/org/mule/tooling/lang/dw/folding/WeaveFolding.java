@@ -46,7 +46,7 @@ public class WeaveFolding implements FoldingBuilder, DumbAware {
   }
 
   private static boolean isObject(IElementType type) {
-    return type == WeaveTypes.MULTIPLE_KEY_VALUE_PAIR_OBJ || type == WeaveTypes.SINGLE_KEY_VALUE_PAIR_OBJ;
+    return type == WeaveTypes.OBJECT_EXPRESSION;
   }
 
   @Nullable

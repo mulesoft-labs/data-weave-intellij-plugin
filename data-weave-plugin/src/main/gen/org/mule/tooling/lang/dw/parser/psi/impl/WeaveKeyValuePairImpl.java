@@ -10,8 +10,9 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import org.mule.tooling.lang.dw.parser.psi.*;
+import com.intellij.navigation.ItemPresentation;
 
-public abstract class WeaveKeyValuePairImpl extends ASTWrapperPsiElement implements WeaveKeyValuePair {
+public class WeaveKeyValuePairImpl extends ASTWrapperPsiElement implements WeaveKeyValuePair {
 
   public WeaveKeyValuePairImpl(@NotNull ASTNode node) {
     super(node);
@@ -24,6 +25,23 @@ public abstract class WeaveKeyValuePairImpl extends ASTWrapperPsiElement impleme
   public void accept(@NotNull PsiElementVisitor visitor) {
     if (visitor instanceof WeaveVisitor) accept((WeaveVisitor)visitor);
     else super.accept(visitor);
+  }
+
+  @Override
+  @Nullable
+  public WeaveExpression getExpression() {
+    return findChildByClass(WeaveExpression.class);
+  }
+
+  @Override
+  @NotNull
+  public WeaveKey getKey() {
+    return findNotNullChildByClass(WeaveKey.class);
+  }
+
+  @Override
+  public ItemPresentation getPresentation() {
+    return WeavePsiImplUtils.getPresentation(this);
   }
 
 }

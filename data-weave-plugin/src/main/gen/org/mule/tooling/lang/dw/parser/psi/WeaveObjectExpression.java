@@ -9,11 +9,8 @@ import com.intellij.navigation.ItemPresentation;
 
 public interface WeaveObjectExpression extends WeaveExpression, NavigatablePsiElement {
 
-  @Nullable
-  WeaveMultipleKeyValuePairObj getMultipleKeyValuePairObj();
-
-  @Nullable
-  WeaveSingleKeyValuePairObj getSingleKeyValuePairObj();
+  @NotNull
+  List<WeaveKeyValuePair> getKeyValuePairList();
 
   ItemPresentation getPresentation();
 

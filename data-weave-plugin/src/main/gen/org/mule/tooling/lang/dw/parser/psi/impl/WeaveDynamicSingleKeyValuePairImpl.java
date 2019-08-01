@@ -8,17 +8,16 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.*;
-import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import org.mule.tooling.lang.dw.parser.psi.*;
 
-public class WeaveSingleKeyValuePairObjImpl extends ASTWrapperPsiElement implements WeaveSingleKeyValuePairObj {
+public class WeaveDynamicSingleKeyValuePairImpl extends WeaveKeyValuePairImpl implements WeaveDynamicSingleKeyValuePair {
 
-  public WeaveSingleKeyValuePairObjImpl(@NotNull ASTNode node) {
+  public WeaveDynamicSingleKeyValuePairImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull WeaveVisitor visitor) {
-    visitor.visitSingleKeyValuePairObj(this);
+    visitor.visitDynamicSingleKeyValuePair(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -27,9 +26,15 @@ public class WeaveSingleKeyValuePairObjImpl extends ASTWrapperPsiElement impleme
   }
 
   @Override
+  @Nullable
+  public WeaveAttributes getAttributes() {
+    return findChildByClass(WeaveAttributes.class);
+  }
+
+  @Override
   @NotNull
-  public WeaveKeyValuePair getKeyValuePair() {
-    return findNotNullChildByClass(WeaveKeyValuePair.class);
+  public WeaveExpression getExpression() {
+    return findNotNullChildByClass(WeaveExpression.class);
   }
 
 }

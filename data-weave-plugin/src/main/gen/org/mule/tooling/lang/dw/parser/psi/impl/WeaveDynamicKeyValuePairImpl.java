@@ -26,6 +26,12 @@ public class WeaveDynamicKeyValuePairImpl extends WeaveKeyValuePairImpl implemen
   }
 
   @Override
+  @Nullable
+  public WeaveAttributes getAttributes() {
+    return findChildByClass(WeaveAttributes.class);
+  }
+
+  @Override
   @NotNull
   public List<WeaveExpression> getExpressionList() {
     return PsiTreeUtil.getChildrenOfTypeAsList(this, WeaveExpression.class);

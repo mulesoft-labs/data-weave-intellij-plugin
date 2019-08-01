@@ -11,9 +11,9 @@ public interface WeaveQualifiedName extends PsiElement {
   WeaveDeclaredNamespace getDeclaredNamespace();
 
   @Nullable
-  WeaveExpression getExpression();
+  WeaveIdentifier getIdentifier();
 
   @Nullable
-  WeaveIdentifier getIdentifier();
+  WeaveStringLiteral getStringLiteral();
 
 }

@@ -4,7 +4,17 @@ package org.mule.tooling.lang.dw.parser.psi;
 import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.NavigatablePsiElement;
+import com.intellij.navigation.ItemPresentation;
 
-public interface WeaveKeyValuePair extends PsiElement {
+public interface WeaveKeyValuePair extends NavigatablePsiElement {
+
+  @Nullable
+  WeaveExpression getExpression();
+
+  @NotNull
+  WeaveKey getKey();
+
+  ItemPresentation getPresentation();
 
 }

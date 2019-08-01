@@ -27,15 +27,9 @@ public class WeaveObjectExpressionImpl extends WeaveExpressionImpl implements We
   }
 
   @Override
-  @Nullable
-  public WeaveMultipleKeyValuePairObj getMultipleKeyValuePairObj() {
-    return findChildByClass(WeaveMultipleKeyValuePairObj.class);
-  }
-
-  @Override
-  @Nullable
-  public WeaveSingleKeyValuePairObj getSingleKeyValuePairObj() {
-    return findChildByClass(WeaveSingleKeyValuePairObj.class);
+  @NotNull
+  public List<WeaveKeyValuePair> getKeyValuePairList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, WeaveKeyValuePair.class);
   }
 
   @Override

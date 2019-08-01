@@ -27,6 +27,12 @@ public class WeaveEnclosedExpressionImpl extends WeaveExpressionImpl implements 
 
   @Override
   @Nullable
+  public WeaveDynamicSingleKeyValuePair getDynamicSingleKeyValuePair() {
+    return findChildByClass(WeaveDynamicSingleKeyValuePair.class);
+  }
+
+  @Override
+  @Nullable
   public WeaveExpression getExpression() {
     return findChildByClass(WeaveExpression.class);
   }

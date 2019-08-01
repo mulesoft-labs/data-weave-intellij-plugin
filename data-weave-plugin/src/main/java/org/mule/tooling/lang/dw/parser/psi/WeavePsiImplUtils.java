@@ -118,7 +118,7 @@ public class WeavePsiImplUtils {
         };
     }
 
-    public static ItemPresentation getPresentation(final WeaveSimpleKeyValuePair kvp) {
+    public static ItemPresentation getPresentation(final WeaveKeyValuePair kvp) {
         return new ItemPresentation() {
 
             @Nullable

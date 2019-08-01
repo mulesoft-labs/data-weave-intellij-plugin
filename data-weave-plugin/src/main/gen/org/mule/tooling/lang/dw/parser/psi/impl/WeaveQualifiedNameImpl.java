@@ -34,14 +34,14 @@ public class WeaveQualifiedNameImpl extends ASTWrapperPsiElement implements Weav
 
   @Override
   @Nullable
-  public WeaveExpression getExpression() {
-    return findChildByClass(WeaveExpression.class);
+  public WeaveIdentifier getIdentifier() {
+    return findChildByClass(WeaveIdentifier.class);
   }
 
   @Override
   @Nullable
-  public WeaveIdentifier getIdentifier() {
-    return findChildByClass(WeaveIdentifier.class);
+  public WeaveStringLiteral getStringLiteral() {
+    return findChildByClass(WeaveStringLiteral.class);
   }
 
 }

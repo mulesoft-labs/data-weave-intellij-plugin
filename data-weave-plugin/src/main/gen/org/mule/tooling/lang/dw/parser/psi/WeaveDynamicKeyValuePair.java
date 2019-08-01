@@ -7,6 +7,9 @@ import com.intellij.psi.PsiElement;
 
 public interface WeaveDynamicKeyValuePair extends WeaveKeyValuePair {
 
+  @Nullable
+  WeaveAttributes getAttributes();
+
   @NotNull
   List<WeaveExpression> getExpressionList();
 

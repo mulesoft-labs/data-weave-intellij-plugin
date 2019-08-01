@@ -50,6 +50,7 @@ public interface WeaveTypes {
   IElementType DYNAMIC_ATTRIBUTE = new WeaveElementType("DYNAMIC_ATTRIBUTE");
   IElementType DYNAMIC_KEY_VALUE_PAIR = new WeaveElementType("DYNAMIC_KEY_VALUE_PAIR");
   IElementType DYNAMIC_RETURN = new WeaveElementType("DYNAMIC_RETURN");
+  IElementType DYNAMIC_SINGLE_KEY_VALUE_PAIR = new WeaveElementType("DYNAMIC_SINGLE_KEY_VALUE_PAIR");
   IElementType EMPTY_ARRAY_PATTERN = new WeaveElementType("EMPTY_ARRAY_PATTERN");
   IElementType EMPTY_OBJECT_PATTERN = new WeaveElementType("EMPTY_OBJECT_PATTERN");
   IElementType ENCLOSED_EXPRESSION = new WeaveElementType("ENCLOSED_EXPRESSION");
@@ -82,7 +83,6 @@ public interface WeaveTypes {
   IElementType LITERAL_PATTERN = new WeaveElementType("LITERAL_PATTERN");
   IElementType MATCH_EXPRESSION = new WeaveElementType("MATCH_EXPRESSION");
   IElementType MODULE_REFERENCE = new WeaveElementType("MODULE_REFERENCE");
-  IElementType MULTIPLE_KEY_VALUE_PAIR_OBJ = new WeaveElementType("MULTIPLE_KEY_VALUE_PAIR_OBJ");
   IElementType MULTIPLICATION_DIVISION_EXPRESSION = new WeaveElementType("MULTIPLICATION_DIVISION_EXPRESSION");
   IElementType MULTI_VALUE_SELECTOR = new WeaveElementType("MULTI_VALUE_SELECTOR");
   IElementType NAMED_LITERAL_PATTERN = new WeaveElementType("NAMED_LITERAL_PATTERN");
@@ -117,8 +117,6 @@ public interface WeaveTypes {
   IElementType SCHEMA_SELECTOR = new WeaveElementType("SCHEMA_SELECTOR");
   IElementType SELECTOR = new WeaveElementType("SELECTOR");
   IElementType SIMPLE_ATTRIBUTE = new WeaveElementType("SIMPLE_ATTRIBUTE");
-  IElementType SIMPLE_KEY_VALUE_PAIR = new WeaveElementType("SIMPLE_KEY_VALUE_PAIR");
-  IElementType SINGLE_KEY_VALUE_PAIR_OBJ = new WeaveElementType("SINGLE_KEY_VALUE_PAIR_OBJ");
   IElementType STRING_LITERAL = new WeaveElementType("STRING_LITERAL");
   IElementType TYPE = new WeaveElementType("TYPE");
   IElementType TYPE_DEFINITION = new WeaveElementType("TYPE_DEFINITION");
@@ -339,6 +337,9 @@ public interface WeaveTypes {
       else if (type == DYNAMIC_RETURN) {
         return new WeaveDynamicReturnImpl(node);
       }
+      else if (type == DYNAMIC_SINGLE_KEY_VALUE_PAIR) {
+        return new WeaveDynamicSingleKeyValuePairImpl(node);
+      }
       else if (type == EMPTY_ARRAY_PATTERN) {
         return new WeaveEmptyArrayPatternImpl(node);
       }
@@ -402,6 +403,9 @@ public interface WeaveTypes {
       else if (type == KEY_TYPE) {
         return new WeaveKeyTypeImpl(node);
       }
+      else if (type == KEY_VALUE_PAIR) {
+        return new WeaveKeyValuePairImpl(node);
+      }
       else if (type == KEY_VALUE_PAIR_TYPE) {
         return new WeaveKeyValuePairTypeImpl(node);
       }
@@ -425,9 +429,6 @@ public interface WeaveTypes {
       }
       else if (type == MODULE_REFERENCE) {
         return new WeaveModuleReferenceImpl(node);
-      }
-      else if (type == MULTIPLE_KEY_VALUE_PAIR_OBJ) {
-        return new WeaveMultipleKeyValuePairObjImpl(node);
       }
       else if (type == MULTIPLICATION_DIVISION_EXPRESSION) {
         return new WeaveMultiplicationDivisionExpressionImpl(node);
@@ -527,12 +528,6 @@ public interface WeaveTypes {
       }
       else if (type == SIMPLE_ATTRIBUTE) {
         return new WeaveSimpleAttributeImpl(node);
-      }
-      else if (type == SIMPLE_KEY_VALUE_PAIR) {
-        return new WeaveSimpleKeyValuePairImpl(node);
-      }
-      else if (type == SINGLE_KEY_VALUE_PAIR_OBJ) {
-        return new WeaveSingleKeyValuePairObjImpl(node);
       }
       else if (type == STRING_LITERAL) {
         return new WeaveStringLiteralImpl(node);

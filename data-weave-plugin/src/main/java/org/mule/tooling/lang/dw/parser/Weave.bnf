@@ -206,26 +206,31 @@ ObjectExpression ::= SingleKeyValuePairObj | MultipleKeyValuePairObj {
     methods=[getPresentation]
 }
 
-SingleKeyValuePairObj ::= KeyValuePair
+private SingleKeyValuePairObj ::= KeyValuePair
 
-MultipleKeyValuePairObj::= '{' objectEntryRule? (',' objectEntryRule)* ','? '}' {pin= 1}
+private MultipleKeyValuePairObj::= '{' objectEntryRule? (',' objectEntryRule)* ','? '}' {pin= 1}
 
 private objectEntryRule ::= KeyValuePair | DynamicKeyValuePair
 
-KeyValuePair::=  SimpleKeyValuePair
+KeyValuePair::=  Key ':' Expression
+                 {
+                     implements="com.intellij.psi.NavigatablePsiElement"
+                     methods=[getPresentation]
+                     pin=2
+                 }
 
-DynamicKeyValuePair ::= '(' Expression ')' (IF Expression)? {pin=2}
+DynamicKeyValuePair ::= '(' Expression ')' (dynamicKV | conditionalKV)?
 
-SimpleKeyValuePair ::= Key ':' Expression
-{
-    implements="com.intellij.psi.NavigatablePsiElement"
-    methods=[getPresentation]
-    pin=2
+private conditionalKV ::= IF Expression {pin=1}
+
+private dynamicKV ::= (Attributes)? ':' Expression {pin=2}
+
+
+Key::= QualifiedName Attributes?
+
+QualifiedName::= DeclaredNamespace? (Identifier | StringLiteral) {
+    name="Key Name"
 }
-
-Key::=  QualifiedName Attributes?
-
-QualifiedName::= DeclaredNamespace? (Identifier | StringLiteral| '(' Expression ')')
 
 DeclaredNamespace::= Identifier '#'
 
@@ -234,7 +239,7 @@ Attributes::= '@(' ( Attribute ( ',' Attribute )* )? ')' {pin=1}
 Attribute::= SimpleAttribute
            | DynamicAttribute
 
-DynamicAttribute ::= '(' Expression ')' (IF Expression)? {pin=2}
+DynamicAttribute ::= '(' Expression ')' ((':' Expression) | (IF Expression))?
 
 SimpleAttribute::= QualifiedName ':' Expression
 
@@ -280,10 +285,10 @@ private SimpleExpression ::=
             | MultiplicationDivisionExpression
             | AsExpression
             | IsExpression
-            | ValueExpression
             | FunctionCallExpression
             | DotSelectorExpression
             | BracketSelectorExpression
+            | ValueExpression
 
 
 Annotation ::= '@'FqnIdentifier AnnotationArguments? {pin=2}
@@ -337,19 +342,21 @@ MultiplicationDivisionExpression ::= Expression  ( '*' | '/' ) Expression {pin=2
 
 FunctionCallExpression ::= Expression FunctionCallArguments
 
-FunctionCallArguments ::= '(' ( Expression ( ',' Expression )* )? (',')? ')'
+FunctionCallArguments ::= '(' ( Expression ( ',' Expression )* )? (',')? ')' {pin=1}
 
 UsingExpression ::=USING '(' VariableDefinition ( ',' VariableDefinition )* ')' Expression {pin=1}
 
 
 ConditionalExpression ::= ( IF | UNLESS ) '(' Expression ')' Expression ELSE Expression {pin=1}
 
-EnclosedExpression ::= '(' Expression ')'
+EnclosedExpression ::= '(' Expression ')' (DynamicSingleKeyValuePair)?
+
+DynamicSingleKeyValuePair ::= (Attributes)? ':' Expression
 
 //Selectors
 DotSelectorExpression ::=Expression ( '..' | '.' ) Selector? ('!'| '?')? {pin=2}
 
-BracketSelectorExpression::=Expression '[' ('?' |'@' | '&' | '^' |'*')?  (BinaryExpression | SimpleExpression )  ']' ('!'| '?')? {pin=5}
+BracketSelectorExpression::=Expression '[' (('?' |'@' | '&' | '^' |'*')?  (Expression ))  ']' ('!'| '?')?
 
 MatchExpression ::= Expression 'match' (PatternMatcherExpression )
 
@@ -503,13 +510,14 @@ mixin = "org.mule.tooling.lang.dw.parser.psi.WeaveRegexLiteralMixin"
 
 ObjectDeconstructExpression ::= '{' KeyValuePair '~' Expression '}' {pin=3}
 
-ArrayExpression::= '[' ']' | '[' ( ArrayElement (('~' Expression)  | ( ',' ArrayElement )* (',')? )?) ']'
+ArrayExpression::= '[' (ArrayElement (('~' Expression) | ( ',' ArrayElement )* (',')? )?)? ']'
 {
     implements="com.intellij.psi.NavigatablePsiElement"
     methods=[getPresentation]
+    pin=1
 }
 
-private ArrayElement::= Expression (IF SimpleExpression)? {pin=2}
+private ArrayElement::= Expression (IF SimpleExpression)?
 
 private TypeLiteral ::= Type
 
@@ -564,6 +572,7 @@ FqnIdentifier ::= CustomLoader? ContainerModuleIdentifier Identifier
      methods = [getName setName getNameIdentifier getReferences]
      implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
      mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
+     name="Identifier"
 }
 
 ModuleReference ::= CustomLoader? ContainerModuleIdentifier Identifier  {
@@ -574,4 +583,4 @@ ContainerModuleIdentifier ::= (Identifier '::')*
 
 CustomLoader ::= Identifier"!"
 
-Identifier ::= (DOLLAR_VARIABLE | ID | 'match' |'matches' | 'from' | 'not')  {methods = [getName] }
+Identifier ::= (DOLLAR_VARIABLE | ID | 'match' |'matches' | 'from' | 'not')  {methods = [getName] name="Identifier" }

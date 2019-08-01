@@ -40,7 +40,7 @@ public class WeaveBreadcrumbsInfoProvider extends BreadcrumbsInfoProvider {
 
     @Override
     public boolean acceptElement(@NotNull PsiElement e) {
-        return e instanceof WeaveLiteralExpression || WeavePsiUtils.isArrayItem(e) || e instanceof WeaveNamedElement || e instanceof WeaveDocument || e instanceof WeaveSimpleKeyValuePair || e instanceof WeaveSimpleAttribute;
+        return e instanceof WeaveLiteralExpression || WeavePsiUtils.isArrayItem(e) || e instanceof WeaveNamedElement || e instanceof WeaveDocument || e instanceof WeaveKeyValuePair || e instanceof WeaveSimpleAttribute;
     }
 
     @NotNull
@@ -49,12 +49,12 @@ public class WeaveBreadcrumbsInfoProvider extends BreadcrumbsInfoProvider {
         String result;
         if (e instanceof WeaveNamedElement) {
             result = ((WeaveNamedElement) e).getIdentifier().getName();
-        } else if (e instanceof WeaveSimpleKeyValuePair) {
+        } else if (e instanceof WeaveKeyValuePair) {
             String prefix = ":";
             if (e.getParent() instanceof WeaveDynamicKeyValuePair) {
                 prefix = "?:";
             }
-            result = getElementInfo(((WeaveSimpleKeyValuePair) e).getKey()) + prefix;
+            result = getElementInfo(((WeaveKeyValuePair) e).getKey()) + prefix;
         } else if (e instanceof WeaveSimpleAttribute) {
             String prefix = ":";
             if (e.getParent() instanceof WeaveDynamicKeyValuePair) {

@@ -6,15 +6,15 @@ import com.intellij.ide.structureView.impl.common.PsiTreeElementBase;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.parser.psi.WeaveExpression;
-import org.mule.tooling.lang.dw.parser.psi.WeaveSimpleKeyValuePair;
+import org.mule.tooling.lang.dw.parser.psi.WeaveKeyValuePair;
 
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class WeavePropertyView extends PsiTreeElementBase<WeaveSimpleKeyValuePair> {
-    protected WeavePropertyView(WeaveSimpleKeyValuePair psiElement) {
+public class WeavePropertyView extends PsiTreeElementBase<WeaveKeyValuePair> {
+    protected WeavePropertyView(WeaveKeyValuePair psiElement) {
         super(psiElement);
     }
 
@@ -22,7 +22,7 @@ public class WeavePropertyView extends PsiTreeElementBase<WeaveSimpleKeyValuePai
     @Override
     public Collection<StructureViewTreeElement> getChildrenBase() {
         final List<StructureViewTreeElement> result = new ArrayList<>();
-        WeaveSimpleKeyValuePair element = getElement();
+        WeaveKeyValuePair element = getElement();
         if (element != null) {
             final WeaveExpression expression = element.getExpression();
             final StructureViewTreeElement treeElement = WeaveStructureElementFactory.create(expression);
