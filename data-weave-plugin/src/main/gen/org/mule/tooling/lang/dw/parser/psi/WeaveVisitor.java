@@ -1,10 +1,11 @@
 // This is a generated file. Not intended for manual editing.
 package org.mule.tooling.lang.dw.parser.psi;
 
-import com.intellij.psi.NavigatablePsiElement;
-import com.intellij.psi.PsiElement;
+import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElementVisitor;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.NavigatablePsiElement;
+import com.intellij.psi.PsiQualifiedNamedElement;
 
 public class WeaveVisitor extends PsiElementVisitor {
 

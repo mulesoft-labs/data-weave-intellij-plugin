@@ -430,7 +430,7 @@ AllSchemaSelector ::=CARET_SPACE  {pin=1}
 
 AttributeSelector ::='@'(DeclaredNamespace? (StringLiteral|Identifier))? {pin=1}
 
-ObjectSelector ::='&'(DeclaredNamespace? (StringLiteral|Identifier))  {pin=1}
+ObjectSelector ::='&'(DeclaredNamespace? (StringLiteral|Identifier))?  {pin=1}
 
 SchemaSelector ::='^'(DeclaredNamespace? (StringLiteral|Identifier))?  {pin=1}
 
@@ -509,9 +509,7 @@ ArrayExpression::= '[' ']' | '[' ( ArrayElement (('~' Expression)  | ( ',' Array
     methods=[getPresentation]
 }
 
-private ArrayElement::= ConditionalArrayElement | Expression
-
-private ConditionalArrayElement ::= '(' Expression ')' IF SimpleExpression {pin=4}
+private ArrayElement::= Expression (IF SimpleExpression)? {pin=2}
 
 private TypeLiteral ::= Type
 
