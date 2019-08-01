@@ -28,6 +28,12 @@ public class WeaveObjectExpressionImpl extends WeaveExpressionImpl implements We
 
   @Override
   @NotNull
+  public List<WeaveDynamicKeyValuePair> getDynamicKeyValuePairList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, WeaveDynamicKeyValuePair.class);
+  }
+
+  @Override
+  @NotNull
   public List<WeaveKeyValuePair> getKeyValuePairList() {
     return PsiTreeUtil.getChildrenOfTypeAsList(this, WeaveKeyValuePair.class);
   }

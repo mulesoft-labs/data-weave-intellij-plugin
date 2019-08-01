@@ -104,7 +104,6 @@
     extends(".*(Type)")=Type
     extends(".*(Pattern)")=Pattern
     extends(".*(Literal)")=LiteralExpression
-    extends(".*(KeyValuePair)")=KeyValuePair
     extends(".*(Attribute)")=Attribute
 
 }
@@ -224,7 +223,6 @@ DynamicKeyValuePair ::= '(' Expression ')' (dynamicKV | conditionalKV)?
 private conditionalKV ::= IF Expression {pin=1}
 
 private dynamicKV ::= (Attributes)? ':' Expression {pin=2}
-
 
 Key::= QualifiedName Attributes?
 

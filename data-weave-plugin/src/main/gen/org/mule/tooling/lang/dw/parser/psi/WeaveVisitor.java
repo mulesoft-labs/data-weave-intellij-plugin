@@ -166,7 +166,7 @@ public class WeaveVisitor extends PsiElementVisitor {
   }
 
   public void visitDynamicKeyValuePair(@NotNull WeaveDynamicKeyValuePair o) {
-    visitKeyValuePair(o);
+    visitPsiElement(o);
   }
 
   public void visitDynamicReturn(@NotNull WeaveDynamicReturn o) {
@@ -174,7 +174,7 @@ public class WeaveVisitor extends PsiElementVisitor {
   }
 
   public void visitDynamicSingleKeyValuePair(@NotNull WeaveDynamicSingleKeyValuePair o) {
-    visitKeyValuePair(o);
+    visitPsiElement(o);
   }
 
   public void visitEmptyArrayPattern(@NotNull WeaveEmptyArrayPattern o) {

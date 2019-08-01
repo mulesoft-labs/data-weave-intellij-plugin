@@ -8,9 +8,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import org.mule.tooling.lang.dw.parser.psi.*;
 
-public class WeaveDynamicSingleKeyValuePairImpl extends WeaveKeyValuePairImpl implements WeaveDynamicSingleKeyValuePair {
+public class WeaveDynamicSingleKeyValuePairImpl extends ASTWrapperPsiElement implements WeaveDynamicSingleKeyValuePair {
 
   public WeaveDynamicSingleKeyValuePairImpl(@NotNull ASTNode node) {
     super(node);
