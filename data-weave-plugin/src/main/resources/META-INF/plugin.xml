@@ -102,6 +102,17 @@
           </ul>
         </li>
       </ul>
+      <h1>v2.0.17</h1>
+      <ul>
+       <li>
+          <p>DataWeave 2.0 Support</p>
+          <ul>
+            <li>Performance Improvement</li>
+            <li>Fix error with outline on dynamic scripts</li>
+            <li>Add support for weavedocs generation</li>
+          </ul>
+        </li>
+      </ul>
     ]]>
     </change-notes>
 
