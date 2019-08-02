@@ -199,6 +199,7 @@ public class WeaveAgentRuntimeManager extends AbstractProjectComponent implement
                     listener.agentStarted();
                 }
             } else {
+                LOG.error("WeaveAgentRuntimeManager cannot be started, disabling...");
                 //disable the service as for some weird reason it can not be started
                 disable();
             }
@@ -397,6 +398,7 @@ public class WeaveAgentRuntimeManager extends AbstractProjectComponent implement
     }
 
     public synchronized void tearDown() {
+        LOG.info("Tearing down WeaveAgent");
         //Kill the process
         if (processHandler != null) {
             processHandler.destroyProcess();
