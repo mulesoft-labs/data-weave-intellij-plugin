@@ -475,7 +475,8 @@ public class WeaveRuntimeContextManager extends AbstractProjectComponent impleme
                     action.run();
                 }
                 else {
-                    app.invokeAndWait(action, ModalityState.current());
+                    app.invokeAndWait(action, ModalityState.any());
+                    //app.invokeAndWait(action, ModalityState.current());
                 }
 
                 dwitFolders.put(moduleName, testDwit);
