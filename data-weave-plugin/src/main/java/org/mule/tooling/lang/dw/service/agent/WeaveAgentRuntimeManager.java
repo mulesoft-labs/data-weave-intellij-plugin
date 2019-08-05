@@ -172,7 +172,7 @@ public class WeaveAgentRuntimeManager extends AbstractProjectComponent implement
                 @Override
                 public void failToConnect(String reason) {
                     indicator.setText2("Fail to connect to the agent client at port " + finalFreePort + " reason " + reason);
-                    LOG.error("Fail to connect to the agent client at port " + finalFreePort + " reason " + reason);
+                    LOG.warn("Fail to connect to the agent client at port " + finalFreePort + " reason " + reason + " ; will retry in 1 second");
                 }
 
                 @Override
