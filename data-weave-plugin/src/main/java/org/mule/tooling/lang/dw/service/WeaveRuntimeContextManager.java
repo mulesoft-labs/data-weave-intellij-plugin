@@ -148,32 +148,35 @@ public class WeaveRuntimeContextManager extends AbstractProjectComponent impleme
         if (myProject.isDisposed()) {
             return;
         }
+        final Application app = ApplicationManager.getApplication();
+        if (!app.isDispatchThread()) {
+            return;
+        }
+
         final Module moduleForFile = ModuleUtil.findModuleForFile(modifiedFile, myProject);
 
-        final Application app = ApplicationManager.getApplication();
-        Runnable action = new Runnable() {
+        app.runWriteAction(new Runnable() {
             @Override
             public void run() {
-                app.runWriteAction(new Runnable() {
-                    @Override
-                    public void run() {
-                        final VirtualFile dwitFolder = getScenariosRootFolder(moduleForFile);
-                        if (dwitFolder != null && VfsUtil.isAncestor(dwitFolder, modifiedFile, true)) {
-                            VirtualFile scenario = findScenario(modifiedFile, dwitFolder);
-                            onModified(new Scenario(scenario));
-                        }
-                    }
-                });
+                final VirtualFile dwitFolder = getScenariosRootFolder(moduleForFile);
+                if (dwitFolder != null && VfsUtil.isAncestor(dwitFolder, modifiedFile, true)) {
+                    VirtualFile scenario = findScenario(modifiedFile, dwitFolder);
+                    onModified(new Scenario(scenario));
+                }
             }
-        };
+        });
 
-        if (app.isDispatchThread()) {
-            action.run();
-        }
-        else {
-            app.invokeAndWait(action, ModalityState.any());
+//        Runnable action = new Runnable() {
+//            @Override
+//            public void run() {
+//            }
+//        };
+//
+//        action.run();
+        //else {
+        //    app.invokeAndWait(action, ModalityState.any());
             //app.invokeAndWait(action, ModalityState.current());
-        }
+        //}
     }
 
     @NotNull
