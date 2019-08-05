@@ -94,6 +94,7 @@ public class WeaveRuntimeContextManager extends AbstractProjectComponent impleme
             });
         });
 
+        //TODO = are we mixing read and write actions?
         PsiManager.getInstance(myProject).addPsiTreeChangeListener(new PsiTreeChangeAdapter() {
             @Override
             public void childReplaced(@NotNull PsiTreeChangeEvent event) {
@@ -149,10 +150,29 @@ public class WeaveRuntimeContextManager extends AbstractProjectComponent impleme
         }
         final Module moduleForFile = ModuleUtil.findModuleForFile(modifiedFile, myProject);
 
-        final VirtualFile dwitFolder = getScenariosRootFolder(moduleForFile);
-        if (dwitFolder != null && VfsUtil.isAncestor(dwitFolder, modifiedFile, true)) {
-            VirtualFile scenario = findScenario(modifiedFile, dwitFolder);
-            onModified(new Scenario(scenario));
+        final Application app = ApplicationManager.getApplication();
+        Runnable action = new Runnable() {
+            @Override
+            public void run() {
+                app.runWriteAction(new Runnable() {
+                    @Override
+                    public void run() {
+                        final VirtualFile dwitFolder = getScenariosRootFolder(moduleForFile);
+                        if (dwitFolder != null && VfsUtil.isAncestor(dwitFolder, modifiedFile, true)) {
+                            VirtualFile scenario = findScenario(modifiedFile, dwitFolder);
+                            onModified(new Scenario(scenario));
+                        }
+                    }
+                });
+            }
+        };
+
+        if (app.isDispatchThread()) {
+            action.run();
+        }
+        else {
+            app.invokeAndWait(action, ModalityState.any());
+            //app.invokeAndWait(action, ModalityState.current());
         }
     }
 
@@ -324,7 +344,6 @@ public class WeaveRuntimeContextManager extends AbstractProjectComponent impleme
         return null;
     }
 
-
     @NotNull
     public List<Scenario> getScenariosFor(WeaveDocument weaveDocument) {
         final List<Scenario> result = new ArrayList<>();
@@ -450,34 +469,13 @@ public class WeaveRuntimeContextManager extends AbstractProjectComponent impleme
                     testDwit = testDir.createChildDirectory(this, WeaveConstants.INTEGRATION_TEST_FOLDER_NAME);
                 }
 
-                final VirtualFile dwitFile = testDwit;
-
-                final Application app = ApplicationManager.getApplication();
-                Runnable action = new Runnable() {
-                    @Override
-                    public void run() {
-                        app.runWriteAction(new Runnable() {
-                            @Override
-                            public void run() {
-                                ModifiableRootModel model = ModuleRootManager.getInstance(module).getModifiableModel();
-                                ContentEntry[] entries = model.getContentEntries();
-                                for (ContentEntry entry : entries) {
-                                    if (entry.getFile() == moduleRoot)
-                                        entry.addSourceFolder(dwitFile, true);
-                                }
-                                model.commit();
-                            }
-                        });
-                    }
-                };
-
-                if (app.isDispatchThread()) {
-                    action.run();
+                ModifiableRootModel model = ModuleRootManager.getInstance(module).getModifiableModel();
+                ContentEntry[] entries = model.getContentEntries();
+                for (ContentEntry entry : entries) {
+                    if (entry.getFile() == moduleRoot)
+                        entry.addSourceFolder(testDwit, true);
                 }
-                else {
-                    app.invokeAndWait(action, ModalityState.any());
-                    //app.invokeAndWait(action, ModalityState.current());
-                }
+                model.commit();
 
                 dwitFolders.put(moduleName, testDwit);
                 return testDwit;
