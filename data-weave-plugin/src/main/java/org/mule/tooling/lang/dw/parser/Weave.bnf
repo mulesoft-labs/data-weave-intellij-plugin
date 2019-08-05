@@ -15,6 +15,8 @@
         L_PARREN='('
         R_PARREN=')'
 
+        AT_SPACE='@ '
+        CARET_SPACE='^ '
         L_CURLY='{'
         R_CURLY='}'
         L_BRACKET='['
@@ -102,7 +104,6 @@
     extends(".*(Type)")=Type
     extends(".*(Pattern)")=Pattern
     extends(".*(Literal)")=LiteralExpression
-    extends(".*(KeyValuePair)")=KeyValuePair
     extends(".*(Attribute)")=Attribute
 
 }
@@ -204,41 +205,41 @@ ObjectExpression ::= SingleKeyValuePairObj | MultipleKeyValuePairObj {
     methods=[getPresentation]
 }
 
-SingleKeyValuePairObj ::= KeyValuePair
+private SingleKeyValuePairObj ::= KeyValuePair
 
-MultipleKeyValuePairObj::= '{' objectEntryRule? (',' objectEntryRule)* ','? '}' {pin= 1}
+private MultipleKeyValuePairObj::= '{' objectEntryRule? (',' objectEntryRule)* ','? '}' {pin= 1}
 
 private objectEntryRule ::= KeyValuePair | DynamicKeyValuePair
 
-KeyValuePair::= ConditionalKeyValuePair | SimpleKeyValuePair
+KeyValuePair::=  Key ':' Expression
+                 {
+                     implements="com.intellij.psi.NavigatablePsiElement"
+                     methods=[getPresentation]
+                     pin=2
+                 }
 
-DynamicKeyValuePair ::= EnclosedExpression
+DynamicKeyValuePair ::= '(' Expression ')' (dynamicKV | conditionalKV)?
 
-SimpleKeyValuePair ::= Key ':' Expression
-{
-    implements="com.intellij.psi.NavigatablePsiElement"
-    methods=[getPresentation]
-    pin=2
+private conditionalKV ::= IF Expression {pin=1}
+
+private dynamicKV ::= (Attributes)? ':' Expression {pin=2}
+
+Key::= QualifiedName Attributes?
+
+QualifiedName::= DeclaredNamespace? (Identifier | StringLiteral) {
+    name="Key Name"
 }
-ConditionalKeyValuePair ::= '(' SimpleKeyValuePair ')' IF SimpleExpression {pin = 4}
-
-Key::=  QualifiedName Attributes?
-
-QualifiedName::= DeclaredNamespace? (Identifier | StringLiteral| EnclosedExpression)
 
 DeclaredNamespace::= Identifier '#'
 
-Attributes::= '@(' ( Attribute ( ',' Attribute )* )? ')'
+Attributes::= '@(' ( Attribute ( ',' Attribute )* )? ')' {pin=1}
 
-Attribute::= ConditionalAttribute
-           | SimpleAttribute
+Attribute::= SimpleAttribute
            | DynamicAttribute
 
-DynamicAttribute ::= EnclosedExpression
+DynamicAttribute ::= '(' Expression ')' ((':' Expression) | (IF Expression))?
 
 SimpleAttribute::= QualifiedName ':' Expression
-
-ConditionalAttribute::= '(' SimpleAttribute ')' IF Expression {pin = 4}
 
 Expression::= MatchExpression
             | CustomInterpolatorExpression
@@ -282,10 +283,10 @@ private SimpleExpression ::=
             | MultiplicationDivisionExpression
             | AsExpression
             | IsExpression
-            | ValueExpression
             | FunctionCallExpression
             | DotSelectorExpression
             | BracketSelectorExpression
+            | ValueExpression
 
 
 Annotation ::= '@'FqnIdentifier AnnotationArguments? {pin=2}
@@ -339,19 +340,21 @@ MultiplicationDivisionExpression ::= Expression  ( '*' | '/' ) Expression {pin=2
 
 FunctionCallExpression ::= Expression FunctionCallArguments
 
-FunctionCallArguments ::= '(' ( Expression ( ',' Expression )* )? (',')? ')'
+FunctionCallArguments ::= '(' ( Expression ( ',' Expression )* )? (',')? ')' {pin=1}
 
 UsingExpression ::=USING '(' VariableDefinition ( ',' VariableDefinition )* ')' Expression {pin=1}
 
 
-ConditionalExpression ::= ( IF | UNLESS ) EnclosedExpression Expression ELSE Expression {pin=1}
+ConditionalExpression ::= ( IF | UNLESS ) '(' Expression ')' Expression ELSE Expression {pin=1}
 
-EnclosedExpression ::= '(' Expression ')'
+EnclosedExpression ::= '(' Expression ')' (DynamicSingleKeyValuePair)?
+
+DynamicSingleKeyValuePair ::= (Attributes)? ':' Expression
 
 //Selectors
 DotSelectorExpression ::=Expression ( '..' | '.' ) Selector? ('!'| '?')? {pin=2}
 
-BracketSelectorExpression::=Expression '[' ('?' |'@' | '&' | '^' |'*')?  (BinaryExpression | SimpleExpression )  ']' ('!'| '?')? {pin=5}
+BracketSelectorExpression::=Expression '[' (('?' |'@' | '&' | '^' |'*')?  (Expression ))  ']' ('!'| '?')?
 
 MatchExpression ::= Expression 'match' (PatternMatcherExpression )
 
@@ -416,23 +419,29 @@ NamedRegexPattern ::= Identifier 'matches' RegexLiteral '->' Expression {
 DefaultPattern ::= ELSE '->' Expression {pin=1}
 
 Selector ::= (ValueSelector |
+         AllAttributeSelector |
          AttributeSelector |
          NamespaceSelector |
+         AllSchemaSelector |
          SchemaSelector |
          ObjectSelector |
          MultiValueSelector)
 
 ValueSelector ::= (DeclaredNamespace? (StringLiteral|Identifier))
 
-AttributeSelector ::='@'(DeclaredNamespace? (StringLiteral|Identifier))?
+AllAttributeSelector ::=AT_SPACE  {pin=1}
 
-ObjectSelector ::='&'(DeclaredNamespace? (StringLiteral|Identifier))?
+AllSchemaSelector ::=CARET_SPACE  {pin=1}
 
-SchemaSelector ::='^'(DeclaredNamespace? (StringLiteral|Identifier))?
+AttributeSelector ::='@'(DeclaredNamespace? (StringLiteral|Identifier))? {pin=1}
+
+ObjectSelector ::='&'(DeclaredNamespace? (StringLiteral|Identifier))?  {pin=1}
+
+SchemaSelector ::='^'(DeclaredNamespace? (StringLiteral|Identifier))?  {pin=1}
 
 NamespaceSelector ::='#'
 
-MultiValueSelector ::= '*'(DeclaredNamespace? (StringLiteral|Identifier))
+MultiValueSelector ::= '*'(DeclaredNamespace? (StringLiteral|Identifier))  {pin=1}
 
 VariableReferenceExpression ::= FqnIdentifier
 
@@ -455,7 +464,7 @@ LiteralExpression
            | AnyDateLiteral
            | RegexLiteral
 
-DoExpression ::= 'do' '{' (DoDirectives+ '---')?  Expression'}'
+DoExpression ::= 'do' '{' (DoDirectives+ '---')?  Expression'}' {pin=1}
 
 
 private DoDirectives
@@ -499,15 +508,14 @@ mixin = "org.mule.tooling.lang.dw.parser.psi.WeaveRegexLiteralMixin"
 
 ObjectDeconstructExpression ::= '{' KeyValuePair '~' Expression '}' {pin=3}
 
-ArrayExpression::= '[' ']' | '[' ( ArrayElement (('~' Expression)  | ( ',' ArrayElement )* (',')? )?) ']'
+ArrayExpression::= '[' (ArrayElement (('~' Expression) | ( ',' ArrayElement )* (',')? )?)? ']'
 {
     implements="com.intellij.psi.NavigatablePsiElement"
     methods=[getPresentation]
+    pin=1
 }
 
-private ArrayElement::= ConditionalArrayElement | Expression
-
-private ConditionalArrayElement ::= '(' Expression ')' IF SimpleExpression {pin=4}
+private ArrayElement::= Expression (IF SimpleExpression)?
 
 private TypeLiteral ::= Type
 
@@ -562,6 +570,7 @@ FqnIdentifier ::= CustomLoader? ContainerModuleIdentifier Identifier
      methods = [getName setName getNameIdentifier getReferences]
      implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
      mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
+     name="Identifier"
 }
 
 ModuleReference ::= CustomLoader? ContainerModuleIdentifier Identifier  {
@@ -572,4 +581,4 @@ ContainerModuleIdentifier ::= (Identifier '::')*
 
 CustomLoader ::= Identifier"!"
 
-Identifier ::= (DOLLAR_VARIABLE | ID | 'match' |'matches' | 'from' | 'not')  {methods = [getName] }
+Identifier ::= (DOLLAR_VARIABLE | ID | 'match' |'matches' | 'from' | 'not')  {methods = [getName] name="Identifier" }

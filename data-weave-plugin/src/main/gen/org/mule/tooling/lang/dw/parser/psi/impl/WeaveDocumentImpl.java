@@ -1,13 +1,16 @@
 // This is a generated file. Not intended for manual editing.
 package org.mule.tooling.lang.dw.parser.psi.impl;
 
-import com.intellij.extapi.psi.ASTWrapperPsiElement;
+import java.util.List;
+import org.jetbrains.annotations.*;
 import com.intellij.lang.ASTNode;
-import com.intellij.navigation.ItemPresentation;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import com.intellij.psi.util.PsiTreeUtil;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import org.mule.tooling.lang.dw.parser.psi.*;
+import com.intellij.navigation.ItemPresentation;
 
 public class WeaveDocumentImpl extends ASTWrapperPsiElement implements WeaveDocument {
 
@@ -36,28 +39,34 @@ public class WeaveDocumentImpl extends ASTWrapperPsiElement implements WeaveDocu
     return findChildByClass(WeaveHeader.class);
   }
 
+  @Override
   public ItemPresentation getPresentation() {
     return WeavePsiImplUtils.getPresentation(this);
   }
 
+  @Override
   @NotNull
   public String getQualifiedName() {
     return WeavePsiImplUtils.getQualifiedName(this);
   }
 
+  @Override
   @NotNull
   public String getName() {
     return WeavePsiImplUtils.getName(this);
   }
 
+  @Override
   public WeaveDocument setName(String name) {
     return WeavePsiImplUtils.setName(this, name);
   }
 
+  @Override
   public boolean isMappingDocument() {
     return WeavePsiImplUtils.isMappingDocument(this);
   }
 
+  @Override
   public boolean isModuleDocument() {
     return WeavePsiImplUtils.isModuleDocument(this);
   }

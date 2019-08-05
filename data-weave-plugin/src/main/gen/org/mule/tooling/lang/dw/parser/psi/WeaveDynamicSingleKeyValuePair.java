@@ -5,9 +5,12 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface WeaveSingleKeyValuePairObj extends PsiElement {
+public interface WeaveDynamicSingleKeyValuePair extends PsiElement {
+
+  @Nullable
+  WeaveAttributes getAttributes();
 
   @NotNull
-  WeaveKeyValuePair getKeyValuePair();
+  WeaveExpression getExpression();
 
 }

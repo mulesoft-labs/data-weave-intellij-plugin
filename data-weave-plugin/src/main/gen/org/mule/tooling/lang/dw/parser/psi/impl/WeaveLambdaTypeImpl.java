@@ -1,17 +1,14 @@
 // This is a generated file. Not intended for manual editing.
 package org.mule.tooling.lang.dw.parser.psi.impl;
 
+import java.util.List;
+import org.jetbrains.annotations.*;
 import com.intellij.lang.ASTNode;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.mule.tooling.lang.dw.parser.psi.WeaveLambdaType;
-import org.mule.tooling.lang.dw.parser.psi.WeaveLambdaTypeParameter;
-import org.mule.tooling.lang.dw.parser.psi.WeaveType;
-import org.mule.tooling.lang.dw.parser.psi.WeaveVisitor;
-
-import java.util.List;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.*;
+import org.mule.tooling.lang.dw.parser.psi.*;
 
 public class WeaveLambdaTypeImpl extends WeaveTypeImpl implements WeaveLambdaType {
 
@@ -37,7 +34,7 @@ public class WeaveLambdaTypeImpl extends WeaveTypeImpl implements WeaveLambdaTyp
   @Override
   @Nullable
   public WeaveType getType() {
-      return findChildByClass(WeaveType.class);
+    return findChildByClass(WeaveType.class);
   }
 
 }

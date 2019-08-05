@@ -1,11 +1,14 @@
 // This is a generated file. Not intended for manual editing.
 package org.mule.tooling.lang.dw.parser.psi.impl;
 
-import com.intellij.extapi.psi.ASTWrapperPsiElement;
+import java.util.List;
+import org.jetbrains.annotations.*;
 import com.intellij.lang.ASTNode;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import com.intellij.psi.util.PsiTreeUtil;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import org.mule.tooling.lang.dw.parser.psi.*;
 
 public class WeaveQualifiedNameImpl extends ASTWrapperPsiElement implements WeaveQualifiedName {
@@ -31,14 +34,14 @@ public class WeaveQualifiedNameImpl extends ASTWrapperPsiElement implements Weav
 
   @Override
   @Nullable
-  public WeaveExpression getExpression() {
-    return findChildByClass(WeaveExpression.class);
+  public WeaveIdentifier getIdentifier() {
+    return findChildByClass(WeaveIdentifier.class);
   }
 
   @Override
   @Nullable
-  public WeaveIdentifier getIdentifier() {
-    return findChildByClass(WeaveIdentifier.class);
+  public WeaveStringLiteral getStringLiteral() {
+    return findChildByClass(WeaveStringLiteral.class);
   }
 
 }

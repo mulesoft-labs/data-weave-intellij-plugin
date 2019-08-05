@@ -1,15 +1,24 @@
 // This is a generated file. Not intended for manual editing.
 package org.mule.tooling.lang.dw.parser.psi;
 
-import com.intellij.psi.NavigatablePsiElement;
-import com.intellij.psi.PsiElement;
+import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElementVisitor;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.NavigatablePsiElement;
+import com.intellij.psi.PsiQualifiedNamedElement;
 
 public class WeaveVisitor extends PsiElementVisitor {
 
   public void visitAdditionSubtractionExpression(@NotNull WeaveAdditionSubtractionExpression o) {
     visitExpression(o);
+  }
+
+  public void visitAllAttributeSelector(@NotNull WeaveAllAttributeSelector o) {
+    visitPsiElement(o);
+  }
+
+  public void visitAllSchemaSelector(@NotNull WeaveAllSchemaSelector o) {
+    visitPsiElement(o);
   }
 
   public void visitAndExpression(@NotNull WeaveAndExpression o) {
@@ -98,16 +107,8 @@ public class WeaveVisitor extends PsiElementVisitor {
     visitType(o);
   }
 
-  public void visitConditionalAttribute(@NotNull WeaveConditionalAttribute o) {
-    visitAttribute(o);
-  }
-
   public void visitConditionalExpression(@NotNull WeaveConditionalExpression o) {
     visitExpression(o);
-  }
-
-  public void visitConditionalKeyValuePair(@NotNull WeaveConditionalKeyValuePair o) {
-    visitKeyValuePair(o);
   }
 
   public void visitContainerModuleIdentifier(@NotNull WeaveContainerModuleIdentifier o) {
@@ -165,10 +166,14 @@ public class WeaveVisitor extends PsiElementVisitor {
   }
 
   public void visitDynamicKeyValuePair(@NotNull WeaveDynamicKeyValuePair o) {
-    visitKeyValuePair(o);
+    visitPsiElement(o);
   }
 
   public void visitDynamicReturn(@NotNull WeaveDynamicReturn o) {
+    visitPsiElement(o);
+  }
+
+  public void visitDynamicSingleKeyValuePair(@NotNull WeaveDynamicSingleKeyValuePair o) {
     visitPsiElement(o);
   }
 
@@ -262,7 +267,7 @@ public class WeaveVisitor extends PsiElementVisitor {
   }
 
   public void visitKeyValuePair(@NotNull WeaveKeyValuePair o) {
-    visitPsiElement(o);
+    visitNavigatablePsiElement(o);
   }
 
   public void visitKeyValuePairType(@NotNull WeaveKeyValuePairType o) {
@@ -302,10 +307,6 @@ public class WeaveVisitor extends PsiElementVisitor {
   }
 
   public void visitMultiValueSelector(@NotNull WeaveMultiValueSelector o) {
-    visitPsiElement(o);
-  }
-
-  public void visitMultipleKeyValuePairObj(@NotNull WeaveMultipleKeyValuePairObj o) {
     visitPsiElement(o);
   }
 
@@ -443,15 +444,6 @@ public class WeaveVisitor extends PsiElementVisitor {
 
   public void visitSimpleAttribute(@NotNull WeaveSimpleAttribute o) {
     visitAttribute(o);
-  }
-
-  public void visitSimpleKeyValuePair(@NotNull WeaveSimpleKeyValuePair o) {
-    visitKeyValuePair(o);
-    // visitNavigatablePsiElement(o);
-  }
-
-  public void visitSingleKeyValuePairObj(@NotNull WeaveSingleKeyValuePairObj o) {
-    visitPsiElement(o);
   }
 
   public void visitStringLiteral(@NotNull WeaveStringLiteral o) {

@@ -8,6 +8,12 @@ import com.intellij.psi.PsiElement;
 public interface WeaveSelector extends PsiElement {
 
   @Nullable
+  WeaveAllAttributeSelector getAllAttributeSelector();
+
+  @Nullable
+  WeaveAllSchemaSelector getAllSchemaSelector();
+
+  @Nullable
   WeaveAttributeSelector getAttributeSelector();
 
   @Nullable

@@ -22,19 +22,7 @@ import com.intellij.xml.breadcrumbs.BreadcrumbsInfoProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.WeaveLanguage;
-import org.mule.tooling.lang.dw.parser.psi.WeaveArrayExpression;
-import org.mule.tooling.lang.dw.parser.psi.WeaveConditionalAttribute;
-import org.mule.tooling.lang.dw.parser.psi.WeaveConditionalKeyValuePair;
-import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
-import org.mule.tooling.lang.dw.parser.psi.WeaveExpression;
-import org.mule.tooling.lang.dw.parser.psi.WeaveIdentifier;
-import org.mule.tooling.lang.dw.parser.psi.WeaveKey;
-import org.mule.tooling.lang.dw.parser.psi.WeaveLiteralExpression;
-import org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement;
-import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
-import org.mule.tooling.lang.dw.parser.psi.WeaveQualifiedName;
-import org.mule.tooling.lang.dw.parser.psi.WeaveSimpleAttribute;
-import org.mule.tooling.lang.dw.parser.psi.WeaveSimpleKeyValuePair;
+import org.mule.tooling.lang.dw.parser.psi.*;
 import org.mule.weave.v2.parser.ast.variables.NameIdentifier;
 import scala.Option;
 
@@ -52,7 +40,7 @@ public class WeaveBreadcrumbsInfoProvider extends BreadcrumbsInfoProvider {
 
     @Override
     public boolean acceptElement(@NotNull PsiElement e) {
-        return e instanceof WeaveLiteralExpression || WeavePsiUtils.isArrayItem(e) || e instanceof WeaveNamedElement || e instanceof WeaveDocument || e instanceof WeaveSimpleKeyValuePair || e instanceof WeaveSimpleAttribute;
+        return e instanceof WeaveLiteralExpression || WeavePsiUtils.isArrayItem(e) || e instanceof WeaveNamedElement || e instanceof WeaveDocument || e instanceof WeaveKeyValuePair || e instanceof WeaveSimpleAttribute;
     }
 
     @NotNull
@@ -61,15 +49,15 @@ public class WeaveBreadcrumbsInfoProvider extends BreadcrumbsInfoProvider {
         String result;
         if (e instanceof WeaveNamedElement) {
             result = ((WeaveNamedElement) e).getIdentifier().getName();
-        } else if (e instanceof WeaveSimpleKeyValuePair) {
+        } else if (e instanceof WeaveKeyValuePair) {
             String prefix = ":";
-            if (e.getParent() instanceof WeaveConditionalKeyValuePair) {
+            if (e.getParent() instanceof WeaveDynamicKeyValuePair) {
                 prefix = "?:";
             }
-            result = getElementInfo(((WeaveSimpleKeyValuePair) e).getKey()) + prefix;
+            result = getElementInfo(((WeaveKeyValuePair) e).getKey()) + prefix;
         } else if (e instanceof WeaveSimpleAttribute) {
             String prefix = ":";
-            if (e.getParent() instanceof WeaveConditionalAttribute) {
+            if (e.getParent() instanceof WeaveDynamicKeyValuePair) {
                 prefix = "?:";
             }
             result = "@" + getElementInfo(((WeaveSimpleAttribute) e).getQualifiedName()) + prefix;

@@ -8,6 +8,6 @@ import com.intellij.psi.PsiElement;
 public interface WeaveDynamicAttribute extends WeaveAttribute {
 
   @NotNull
-  WeaveEnclosedExpression getEnclosedExpression();
+  List<WeaveExpression> getExpressionList();
 
 }

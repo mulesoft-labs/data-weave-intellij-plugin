@@ -8,6 +8,9 @@ import com.intellij.psi.PsiElement;
 public interface WeaveEnclosedExpression extends WeaveExpression {
 
   @Nullable
+  WeaveDynamicSingleKeyValuePair getDynamicSingleKeyValuePair();
+
+  @Nullable
   WeaveExpression getExpression();
 
 }

@@ -6,12 +6,10 @@ import com.intellij.ide.structureView.impl.common.PsiTreeElementBase;
 import com.intellij.navigation.ItemPresentation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.mule.tooling.lang.dw.parser.psi.WeaveConditionalKeyValuePair;
 import org.mule.tooling.lang.dw.parser.psi.WeaveKeyValuePair;
-import org.mule.tooling.lang.dw.parser.psi.WeaveMultipleKeyValuePairObj;
+
 import org.mule.tooling.lang.dw.parser.psi.WeaveObjectExpression;
-import org.mule.tooling.lang.dw.parser.psi.WeaveSimpleKeyValuePair;
-import org.mule.tooling.lang.dw.parser.psi.WeaveSingleKeyValuePairObj;
+
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -30,27 +28,17 @@ public class WeaveObjectView extends PsiTreeElementBase<WeaveObjectExpression> {
         List<StructureViewTreeElement> result = new ArrayList<>();
         final WeaveObjectExpression weaveObjectExpression = getElement();
         if (weaveObjectExpression != null) {
-            final WeaveMultipleKeyValuePairObj keyValuePairObj = weaveObjectExpression.getMultipleKeyValuePairObj();
-            if (keyValuePairObj != null) {
-                final List<WeaveKeyValuePair> valuePairList = keyValuePairObj.getKeyValuePairList();
-                for (WeaveKeyValuePair weaveKeyValuePair : valuePairList) {
-                    addKeyValuePair(result, weaveKeyValuePair);
-                }
-            }
-            final WeaveSingleKeyValuePairObj singleKeyValuePairObj = weaveObjectExpression.getSingleKeyValuePairObj();
-            if (singleKeyValuePairObj != null) {
-                final WeaveKeyValuePair keyValuePair = singleKeyValuePairObj.getKeyValuePair();
-                addKeyValuePair(result, keyValuePair);
+            final List<WeaveKeyValuePair> valuePairList = weaveObjectExpression.getKeyValuePairList();
+            for (WeaveKeyValuePair weaveKeyValuePair : valuePairList) {
+                addKeyValuePair(result, weaveKeyValuePair);
             }
         }
         return result;
     }
 
     private void addKeyValuePair(List<StructureViewTreeElement> result, WeaveKeyValuePair weaveKeyValuePair) {
-        if (weaveKeyValuePair instanceof WeaveSimpleKeyValuePair) {
-            result.add(new WeavePropertyView((WeaveSimpleKeyValuePair) weaveKeyValuePair));
-        } else if (weaveKeyValuePair instanceof WeaveConditionalKeyValuePair) {
-            result.add(new WeavePropertyView(((WeaveConditionalKeyValuePair) weaveKeyValuePair).getSimpleKeyValuePair()));
+        if (weaveKeyValuePair != null) {
+            result.add(new WeavePropertyView(weaveKeyValuePair));
         }
     }
 

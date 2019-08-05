@@ -67,6 +67,7 @@ public class DataWeaveLangParserTest extends ParsingTestCase {
                 assertEquals("psi text mismatch", text, myFile.getText());
                 ensureCorrectReparse(myFile);
                 List<PsiErrorElement> errors = getErrors(myFile);
+//                System.out.println(toParseTreeText(myFile, true, true));
                 assertEmpty(name + " has errors \n" + toParseTreeText(myFile, true, true), errors);
             } catch (Exception e) {
                 fail(e.getMessage());
@@ -95,7 +96,7 @@ public class DataWeaveLangParserTest extends ParsingTestCase {
         Class<DataWeaveLangParserTest> dataWeaveLangParserTestClass = DataWeaveLangParserTest.class;
         String path = dataWeaveLangParserTestClass.getPackage().getName().replace('.', File.separatorChar);
         File parentFile = new File(dataWeaveLangParserTestClass.getClassLoader().getResource(path + File.separatorChar + "array.dwl").getPath()).getParentFile();
-        String[] list = parentFile.list((dir, name) -> name.endsWith(DWL));
+        String[] list = parentFile.list((dir, name) -> name.endsWith(DWL) || name.endsWith(".lwd"));
         List<Object[]> result = new ArrayList<>();
         if (list != null) {
             for (String testName : list) {

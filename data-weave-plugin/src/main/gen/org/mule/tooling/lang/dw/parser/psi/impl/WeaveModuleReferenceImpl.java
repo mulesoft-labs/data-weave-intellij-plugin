@@ -1,13 +1,16 @@
 // This is a generated file. Not intended for manual editing.
 package org.mule.tooling.lang.dw.parser.psi.impl;
 
-import com.intellij.extapi.psi.ASTWrapperPsiElement;
+import java.util.List;
+import org.jetbrains.annotations.*;
 import com.intellij.lang.ASTNode;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
-import com.intellij.psi.PsiReference;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import com.intellij.psi.util.PsiTreeUtil;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import org.mule.tooling.lang.dw.parser.psi.*;
+import com.intellij.psi.PsiReference;
 
 public class WeaveModuleReferenceImpl extends ASTWrapperPsiElement implements WeaveModuleReference {
 
@@ -42,14 +45,17 @@ public class WeaveModuleReferenceImpl extends ASTWrapperPsiElement implements We
     return findNotNullChildByClass(WeaveIdentifier.class);
   }
 
+  @Override
   public String getPath() {
     return WeavePsiImplUtils.getPath(this);
   }
 
+  @Override
   public String getModuleFQN() {
     return WeavePsiImplUtils.getModuleFQN(this);
   }
 
+  @Override
   @NotNull
   public PsiReference[] getReferences() {
     return WeavePsiImplUtils.getReferences(this);

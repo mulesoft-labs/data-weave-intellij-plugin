@@ -1,15 +1,15 @@
 // This is a generated file. Not intended for manual editing.
 package org.mule.tooling.lang.dw.parser.psi.impl;
 
-import com.intellij.extapi.psi.ASTWrapperPsiElement;
+import java.util.List;
+import org.jetbrains.annotations.*;
 import com.intellij.lang.ASTNode;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.mule.tooling.lang.dw.parser.psi.WeaveIdentifier;
-import org.mule.tooling.lang.dw.parser.psi.WeaveLiteralExpression;
-import org.mule.tooling.lang.dw.parser.psi.WeaveOptionElement;
-import org.mule.tooling.lang.dw.parser.psi.WeaveVisitor;
+import com.intellij.psi.util.PsiTreeUtil;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
+import org.mule.tooling.lang.dw.parser.psi.*;
 
 public class WeaveOptionElementImpl extends ASTWrapperPsiElement implements WeaveOptionElement {
 
@@ -35,7 +35,7 @@ public class WeaveOptionElementImpl extends ASTWrapperPsiElement implements Weav
   @Override
   @Nullable
   public WeaveLiteralExpression getLiteralExpression() {
-      return findChildByClass(WeaveLiteralExpression.class);
+    return findChildByClass(WeaveLiteralExpression.class);
   }
 
 }

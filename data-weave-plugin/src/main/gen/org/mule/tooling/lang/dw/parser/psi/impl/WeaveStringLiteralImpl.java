@@ -1,17 +1,15 @@
 // This is a generated file. Not intended for manual editing.
 package org.mule.tooling.lang.dw.parser.psi.impl;
 
+import java.util.List;
+import org.jetbrains.annotations.*;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.mule.tooling.lang.dw.parser.psi.WeavePsiImplUtils;
-import org.mule.tooling.lang.dw.parser.psi.WeaveStringLiteral;
-import org.mule.tooling.lang.dw.parser.psi.WeaveStringLiteralMixin;
-import org.mule.tooling.lang.dw.parser.psi.WeaveVisitor;
-
+import com.intellij.psi.util.PsiTreeUtil;
 import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.*;
+import org.mule.tooling.lang.dw.parser.psi.WeaveStringLiteralMixin;
+import org.mule.tooling.lang.dw.parser.psi.*;
 
 public class WeaveStringLiteralImpl extends WeaveStringLiteralMixin implements WeaveStringLiteral {
 
@@ -46,6 +44,7 @@ public class WeaveStringLiteralImpl extends WeaveStringLiteralMixin implements W
     return findChildByType(SINGLE_QUOTED_STRING);
   }
 
+  @Override
   @NotNull
   public String getValue() {
     return WeavePsiImplUtils.getValue(this);

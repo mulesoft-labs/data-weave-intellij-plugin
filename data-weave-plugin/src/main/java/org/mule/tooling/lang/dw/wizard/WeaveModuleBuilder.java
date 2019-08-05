@@ -18,8 +18,8 @@ import java.util.Objects;
 
 public class WeaveModuleBuilder extends MavenModuleBuilder implements SourcePathsBuilder {
 
-    private String weaveVersion = "2.2.0";
-    private String wtfVersion = "1.0.0-SNAPSHOT";
+    private String weaveVersion = "2.2.1";
+    private String wtfVersion = "1.0.0";
 
     public WeaveModuleBuilder() {
         setProjectId(new MavenId("org.mule.weave.module", "my-weave-module", "1.0.0-SNAPSHOT"));

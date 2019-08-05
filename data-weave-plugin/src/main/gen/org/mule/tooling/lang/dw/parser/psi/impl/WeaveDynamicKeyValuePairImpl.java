@@ -1,14 +1,17 @@
 // This is a generated file. Not intended for manual editing.
 package org.mule.tooling.lang.dw.parser.psi.impl;
 
+import java.util.List;
+import org.jetbrains.annotations.*;
 import com.intellij.lang.ASTNode;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
-import org.jetbrains.annotations.NotNull;
-import org.mule.tooling.lang.dw.parser.psi.WeaveDynamicKeyValuePair;
-import org.mule.tooling.lang.dw.parser.psi.WeaveEnclosedExpression;
-import org.mule.tooling.lang.dw.parser.psi.WeaveVisitor;
+import com.intellij.psi.util.PsiTreeUtil;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
+import org.mule.tooling.lang.dw.parser.psi.*;
 
-public class WeaveDynamicKeyValuePairImpl extends WeaveKeyValuePairImpl implements WeaveDynamicKeyValuePair {
+public class WeaveDynamicKeyValuePairImpl extends ASTWrapperPsiElement implements WeaveDynamicKeyValuePair {
 
   public WeaveDynamicKeyValuePairImpl(@NotNull ASTNode node) {
     super(node);
@@ -24,9 +27,15 @@ public class WeaveDynamicKeyValuePairImpl extends WeaveKeyValuePairImpl implemen
   }
 
   @Override
+  @Nullable
+  public WeaveAttributes getAttributes() {
+    return findChildByClass(WeaveAttributes.class);
+  }
+
+  @Override
   @NotNull
-  public WeaveEnclosedExpression getEnclosedExpression() {
-    return findNotNullChildByClass(WeaveEnclosedExpression.class);
+  public List<WeaveExpression> getExpressionList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, WeaveExpression.class);
   }
 
 }
