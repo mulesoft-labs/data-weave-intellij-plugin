@@ -15,16 +15,13 @@ configurations {
 }
 
 dependencies {
-	compile ('org.raml:raml-parser-2:1.0.29')
+	compile ('org.raml:raml-parser-2:1.0.34')
 }
 
 intellij {
 	version = ideaVersion
 	plugins = ["yaml"]
 	pluginName 'raml-plugin'
-	publish {
-		pluginId '8459'
-	}
 }
 
 //prepareSandbox {
