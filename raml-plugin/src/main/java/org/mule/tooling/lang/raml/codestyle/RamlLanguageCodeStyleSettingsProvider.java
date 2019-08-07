@@ -1,9 +1,7 @@
 package org.mule.tooling.lang.raml.codestyle;
 
 import com.intellij.lang.Language;
-import com.intellij.lang.java.JavaLanguage;
 import com.intellij.psi.codeStyle.CodeStyleSettingsCustomizable;
-import com.intellij.psi.codeStyle.CommonCodeStyleSettings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.yaml.YAMLLanguageCodeStyleSettingsProvider;
 import org.mule.tooling.lang.raml.RamlLanguage;
