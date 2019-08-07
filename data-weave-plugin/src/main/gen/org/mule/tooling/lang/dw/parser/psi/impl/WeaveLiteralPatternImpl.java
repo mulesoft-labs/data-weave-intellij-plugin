@@ -31,4 +31,10 @@ public class WeaveLiteralPatternImpl extends WeavePatternImpl implements WeaveLi
     return PsiTreeUtil.getChildrenOfTypeAsList(this, WeaveExpression.class);
   }
 
+  @Override
+  @Nullable
+  public WeaveFqnIdentifier getFqnIdentifier() {
+    return findChildByClass(WeaveFqnIdentifier.class);
+  }
+
 }

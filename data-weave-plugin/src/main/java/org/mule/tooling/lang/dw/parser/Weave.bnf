@@ -380,7 +380,7 @@ ObjectDeconstructPattern ::= '{' Identifier ':' Identifier '~' Identifier '}' '-
 
 ArrayDeconstructPattern::= '[' Identifier '~' Identifier ']' '->' Expression {pin=3}
 
-LiteralPattern ::= LiteralExpression '->' Expression {pin=2}
+LiteralPattern ::= (LiteralExpression | FqnIdentifier ) '->' Expression {pin=2}
 
 ExpressionPattern ::= Identifier IF SimpleExpression '->' Expression {
      methods = [getName setName getNameIdentifier]

@@ -1772,17 +1772,26 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // LiteralExpression '->' Expression
+  // (LiteralExpression | FqnIdentifier ) '->' Expression
   public static boolean LiteralPattern(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "LiteralPattern")) return false;
     boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, LITERAL_PATTERN, "<literal pattern>");
-    r = LiteralExpression(b, l + 1);
+    r = LiteralPattern_0(b, l + 1);
     r = r && consumeToken(b, ARROW_TOKEN);
     p = r; // pin = 2
     r = r && Expression(b, l + 1, -1);
     exit_section_(b, l, m, r, p, null);
     return r || p;
+  }
+
+  // LiteralExpression | FqnIdentifier
+  private static boolean LiteralPattern_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "LiteralPattern_0")) return false;
+    boolean r;
+    r = LiteralExpression(b, l + 1);
+    if (!r) r = FqnIdentifier(b, l + 1);
+    return r;
   }
 
   /* ********************************************************** */

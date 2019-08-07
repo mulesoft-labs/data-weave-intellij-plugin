@@ -10,4 +10,7 @@ public interface WeaveLiteralPattern extends WeavePattern {
   @NotNull
   List<WeaveExpression> getExpressionList();
 
+  @Nullable
+  WeaveFqnIdentifier getFqnIdentifier();
+
 }
