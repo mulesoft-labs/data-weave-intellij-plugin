@@ -29,6 +29,7 @@ public interface WeaveTypes {
   IElementType ATTRIBUTES_TYPE = new WeaveElementType("ATTRIBUTES_TYPE");
   IElementType ATTRIBUTE_SELECTOR = new WeaveElementType("ATTRIBUTE_SELECTOR");
   IElementType BINARY_EXPRESSION = new WeaveElementType("BINARY_EXPRESSION");
+  IElementType BINARY_FUNCTION_IDENTIFIER = new WeaveElementType("BINARY_FUNCTION_IDENTIFIER");
   IElementType BODY = new WeaveElementType("BODY");
   IElementType BOOLEAN_LITERAL = new WeaveElementType("BOOLEAN_LITERAL");
   IElementType BRACKET_SELECTOR_EXPRESSION = new WeaveElementType("BRACKET_SELECTOR_EXPRESSION");
@@ -273,6 +274,9 @@ public interface WeaveTypes {
       }
       else if (type == BINARY_EXPRESSION) {
         return new WeaveBinaryExpressionImpl(node);
+      }
+      else if (type == BINARY_FUNCTION_IDENTIFIER) {
+        return new WeaveBinaryFunctionIdentifierImpl(node);
       }
       else if (type == BODY) {
         return new WeaveBodyImpl(node);

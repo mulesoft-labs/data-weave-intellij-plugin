@@ -8,10 +8,9 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.*;
-import org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl;
 import org.mule.tooling.lang.dw.parser.psi.*;
 
-public class WeaveBinaryExpressionImpl extends WeaveNamedElementImpl implements WeaveBinaryExpression {
+public class WeaveBinaryExpressionImpl extends WeaveExpressionImpl implements WeaveBinaryExpression {
 
   public WeaveBinaryExpressionImpl(@NotNull ASTNode node) {
     super(node);
@@ -28,26 +27,14 @@ public class WeaveBinaryExpressionImpl extends WeaveNamedElementImpl implements 
 
   @Override
   @NotNull
-  public List<WeaveExpression> getExpressionList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, WeaveExpression.class);
+  public WeaveBinaryFunctionIdentifier getBinaryFunctionIdentifier() {
+    return findNotNullChildByClass(WeaveBinaryFunctionIdentifier.class);
   }
 
   @Override
   @NotNull
-  public WeaveIdentifier getIdentifier() {
-    return findNotNullChildByClass(WeaveIdentifier.class);
-  }
-
-  @Override
-  @Nullable
-  public WeaveExpression getLeft() {
-    return WeavePsiImplUtils.getLeft(this);
-  }
-
-  @Override
-  @Nullable
-  public WeaveExpression getRight() {
-    return WeavePsiImplUtils.getRight(this);
+  public List<WeaveExpression> getExpressionList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, WeaveExpression.class);
   }
 
 }

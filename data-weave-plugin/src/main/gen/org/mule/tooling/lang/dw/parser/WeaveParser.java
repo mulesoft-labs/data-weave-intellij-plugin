@@ -522,6 +522,26 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
+  // CustomLoader? ContainerModuleIdentifier Identifier
+  public static boolean BinaryFunctionIdentifier(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "BinaryFunctionIdentifier")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NONE_, BINARY_FUNCTION_IDENTIFIER, "<Identifier>");
+    r = BinaryFunctionIdentifier_0(b, l + 1);
+    r = r && ContainerModuleIdentifier(b, l + 1);
+    r = r && Identifier(b, l + 1);
+    exit_section_(b, l, m, r, false, null);
+    return r;
+  }
+
+  // CustomLoader?
+  private static boolean BinaryFunctionIdentifier_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "BinaryFunctionIdentifier_0")) return false;
+    CustomLoader(b, l + 1);
+    return true;
+  }
+
+  /* ********************************************************** */
   // Expression
   public static boolean Body(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "Body")) return false;
@@ -3294,7 +3314,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
         r = Expression(b, l, 3);
         exit_section_(b, l, m, DEFAULT_VALUE_EXPRESSION, r, true, null);
       }
-      else if (g < 3 && Identifier(b, l + 1)) {
+      else if (g < 3 && BinaryFunctionIdentifier(b, l + 1)) {
         r = Expression(b, l, 3);
         exit_section_(b, l, m, BINARY_EXPRESSION, r, true, null);
       }

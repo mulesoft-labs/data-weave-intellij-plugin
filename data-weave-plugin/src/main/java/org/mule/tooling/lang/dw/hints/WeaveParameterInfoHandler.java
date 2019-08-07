@@ -204,23 +204,23 @@ public class WeaveParameterInfoHandler implements ParameterInfoHandler<WeavePara
 
         @Override
         public PsiElement getFunction() {
-            return binaryExpression.getIdentifier();
+            return binaryExpression.getBinaryFunctionIdentifier();
         }
 
         @Override
         public PsiElement getHintElement() {
-            return binaryExpression.getIdentifier();
+            return binaryExpression.getBinaryFunctionIdentifier();
         }
 
         @Override
         public int getStartOffset() {
-            return binaryExpression.getIdentifier().getTextRange().getStartOffset();
+            return binaryExpression.getBinaryFunctionIdentifier().getTextRange().getStartOffset();
         }
 
         @Override
         public int getCurrentParameterIndex(UpdateParameterInfoContext context) {
             int offset = context.getEditor().getCaretModel().getOffset();
-            int endOffset = binaryExpression.getIdentifier().getTextRange().getEndOffset();
+            int endOffset = binaryExpression.getBinaryFunctionIdentifier().getTextRange().getEndOffset();
             if (endOffset < offset) {
                 return 1;
             } else {

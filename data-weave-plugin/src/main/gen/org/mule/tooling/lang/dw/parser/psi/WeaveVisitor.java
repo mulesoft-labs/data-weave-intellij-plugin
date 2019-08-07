@@ -84,7 +84,10 @@ public class WeaveVisitor extends PsiElementVisitor {
 
   public void visitBinaryExpression(@NotNull WeaveBinaryExpression o) {
     visitExpression(o);
-    // visitNamedElement(o);
+  }
+
+  public void visitBinaryFunctionIdentifier(@NotNull WeaveBinaryFunctionIdentifier o) {
+    visitNamedElement(o);
   }
 
   public void visitBody(@NotNull WeaveBody o) {

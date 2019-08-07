@@ -297,11 +297,14 @@ AnnotationArgument ::= Identifier '=' Expression
 
 UnaryMinusExpression ::= '-' SimpleExpression {pin=1}
 
-BinaryExpression ::= Expression Identifier SimpleExpression
+BinaryExpression ::= Expression BinaryFunctionIdentifier SimpleExpression {pin=2}
+
+BinaryFunctionIdentifier ::= CustomLoader? ContainerModuleIdentifier Identifier
 {
-     methods = [getName setName getNameIdentifier getLeft getRight]
+     methods = [getName setName getNameIdentifier getReferences]
      implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
      mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
+     name="Identifier"
 }
 
 AsExpression
@@ -444,7 +447,6 @@ NamespaceSelector ::='#'
 MultiValueSelector ::= '*'(DeclaredNamespace? (StringLiteral|Identifier))  {pin=1}
 
 VariableReferenceExpression ::= FqnIdentifier
-
 
 VariableDefinition ::= VariableNameTypeDefinition '='  Expression  {
             methods=[getName setName getNameIdentifier]
