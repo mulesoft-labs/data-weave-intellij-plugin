@@ -40,5 +40,5 @@ dependencies {
 
 intellij {
     pluginName = 'mule-esb-plugin'
-    plugins = ['maven', 'properties', project(":data-weave-plugin"), project(":raml-plugin")]
+    plugins = ['maven', 'properties', 'java', project(":data-weave-plugin"), project(":raml-plugin")]
 }
