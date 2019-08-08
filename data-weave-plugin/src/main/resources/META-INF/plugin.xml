@@ -113,6 +113,16 @@
           </ul>
         </li>
       </ul>
+      <h1>v2.0.19</h1>
+      <ul>
+       <li>
+          <p>DataWeave 2.0 Support</p>
+          <ul>
+            <li>Navigation/Find Usage of binary function support</li>
+            <li>Fix wrong param name when calling function with default prefix</li>
+          </ul>
+        </li>
+      </ul>
     ]]>
     </change-notes>
 
