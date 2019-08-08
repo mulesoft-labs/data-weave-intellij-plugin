@@ -21,7 +21,7 @@ public class WeaveStructureElementFactory {
     } else if (element instanceof WeaveArrayExpression) {
       return new WeaveArrayView((WeaveArrayExpression) element);
     } else if (element instanceof WeaveBinaryExpression) {
-      return create(((WeaveBinaryExpression) element).getRight());
+      return create(((WeaveBinaryExpression) element).getLastChild());
     } else if (element instanceof WeaveUsingExpression) {
       return create(((WeaveUsingExpression) element).getExpression());
     } else if (element instanceof WeaveFunctionDirective) {

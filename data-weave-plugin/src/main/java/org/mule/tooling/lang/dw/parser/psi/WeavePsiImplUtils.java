@@ -190,6 +190,22 @@ public class WeavePsiImplUtils {
         return new WeaveModuleReferenceSet(importDirective, importDirective.getModuleFQN()).getAllReferences();
     }
 
+    public static PsiReference[] getReferences(WeaveBinaryFunctionIdentifier identifier) {
+        List<PsiReference> result = new ArrayList<>();
+        if (!identifier.getContainerModuleIdentifier().getIdentifierList().isEmpty()) {
+            String containerModuleFQN = getContainerModuleFQN(identifier);
+            PsiReference[] allReferences = new WeaveModuleReferenceSet(identifier, containerModuleFQN).getAllReferences();
+            result.addAll(Arrays.asList(allReferences));
+        }
+        result.add(new WeaveIdentifierPsiReference(identifier));
+        return result.toArray(new PsiReference[result.size()]);
+    }
+
+    public static String getContainerModuleFQN(WeaveBinaryFunctionIdentifier identifier) {
+        WeaveContainerModuleIdentifier identifierPackage = identifier.getContainerModuleIdentifier();
+        return identifierPackage.getIdentifierList().stream().map(i -> i.getName()).reduce((v, a) -> v + "::" + a).orElse("");
+    }
+
     public static PsiReference[] getReferences(WeaveFqnIdentifier identifier) {
         List<PsiReference> result = new ArrayList<>();
         if (!identifier.getContainerModuleIdentifier().getIdentifierList().isEmpty()) {
@@ -200,6 +216,7 @@ public class WeavePsiImplUtils {
         result.add(new WeaveIdentifierPsiReference(identifier));
         return result.toArray(new PsiReference[result.size()]);
     }
+
 
 
     public static String getContainerModuleFQN(WeaveFqnIdentifier identifier) {
