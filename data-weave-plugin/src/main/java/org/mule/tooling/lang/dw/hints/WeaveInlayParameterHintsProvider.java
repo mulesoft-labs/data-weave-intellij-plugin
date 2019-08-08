@@ -40,7 +40,28 @@ public class WeaveInlayParameterHintsProvider implements InlayParameterHintsProv
                     FunctionType ft = (FunctionType) weaveType;
                     List<FunctionTypeParameter> functionTypeParameters = ScalaUtils.toList(ft.params());
                     if (functionTypeParameters.size() > currentParameterIndex) {
-                        String name = functionTypeParameters.get(currentParameterIndex).name();
+                        String name;
+                        if (functionTypeParameters.get(0).optional()) {
+                            int optionalParams = 0;
+                            for (FunctionTypeParameter functionTypeParameter : functionTypeParameters) {
+                                if (functionTypeParameter.optional()) {
+                                    optionalParams = optionalParams + 1;
+                                } else {
+                                    break;
+                                }
+                            }
+                            int shift;
+                            if(parent.getChildren().length > (functionTypeParameters.size() - optionalParams)){
+                                shift = functionTypeParameters.size() - parent.getChildren().length;
+                            }else{
+                                shift = optionalParams;
+                            }
+                            name = functionTypeParameters.get(currentParameterIndex + shift).name();
+
+                        } else {
+                            name = functionTypeParameters.get(currentParameterIndex).name();
+
+                        }
                         return Collections.singletonList(new InlayInfo(name, element.getTextOffset()));
                     }
                 }
