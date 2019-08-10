@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xsd:schema xmlns="http://www.mulesoft.org/schema/mule/api-gateway"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:core="http://www.mulesoft.org/schema/mule/core"
+            targetNamespace="http://www.mulesoft.org/schema/mule/api-gateway"
+            attributeFormDefault="unqualified"
+            elementFormDefault="qualified">
+
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
+    <xsd:import namespace="http://www.springframework.org/schema/beans"
+                schemaLocation="http://www.springframework.org/schema/beans/spring-beans-3.1.xsd"/>
+    <xsd:import namespace="http://www.springframework.org/schema/context"
+                schemaLocation="http://www.springframework.org/schema/context/spring-context-3.1.xsd"/>
+    <xsd:import schemaLocation="http://www.mulesoft.org/schema/mule/core/current/mule.xsd"
+                namespace="http://www.mulesoft.org/schema/mule/core"/>
+
+    <xsd:element name="autodiscovery" type="apiType"
+                 substitutionGroup="core:abstract-extension">
+        <xsd:annotation>
+            <xsd:documentation>
+                API definition to be used in conjuntion with the flow using the flowRef attribute.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    <xsd:complexType name="apiType">
+        <xsd:complexContent>
+            <xsd:extension base="core:abstractExtensionType">
+                <xsd:attribute name="apiId" type="xsd:string" use="required">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The id of the API in API Manager.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="flowRef" type="xsd:string" use="required">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            A reference to the Flow configuration. This replaces the use of the register-as element.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+</xsd:schema>

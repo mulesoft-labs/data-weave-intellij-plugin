@@ -37,11 +37,13 @@ public class MuleConfiguration extends ModuleBasedConfiguration implements Modul
     public static final String VM_ARGS_FIELD = PREFIX + "VmArgs";
     public static final String MULE_HOME_FIELD = PREFIX + "MuleHome";
     public static final String CLEAR_DATA_FIELD = PREFIX + "ClearData";
+    public static final String MULE_DEBUG_PORT = PREFIX + "DebugPort";
     public static final String USE_CONTAINER_FOR_DEPLOY_FIELD = PREFIX + "UseContainerForDeploy";
 
     private String vmArgs;
     private String muleHome;
     private String clearData;
+    private String debugPort;
     private boolean deployInContainer;
 
     private Module[] modules = new Module[]{};
@@ -75,6 +77,7 @@ public class MuleConfiguration extends ModuleBasedConfiguration implements Modul
         this.muleHome = JDOMExternalizerUtil.readField(element, MULE_HOME_FIELD);
         this.clearData = JDOMExternalizerUtil.readField(element, CLEAR_DATA_FIELD);
         this.deployInContainer = Boolean.valueOf(JDOMExternalizerUtil.readField(element, USE_CONTAINER_FOR_DEPLOY_FIELD));
+        this.debugPort = JDOMExternalizerUtil.readField(element, MULE_DEBUG_PORT);
 
         getConfigurationModule().readExternal(element);
     }
@@ -86,6 +89,7 @@ public class MuleConfiguration extends ModuleBasedConfiguration implements Modul
         JDOMExternalizerUtil.writeField(element, VM_ARGS_FIELD, this.getVmArgs());
         JDOMExternalizerUtil.writeField(element, MULE_HOME_FIELD, this.getMuleHome());
         JDOMExternalizerUtil.writeField(element, CLEAR_DATA_FIELD, this.getClearData());
+        JDOMExternalizerUtil.writeField(element, MULE_DEBUG_PORT, this.getDebugPort());
         JDOMExternalizerUtil.writeField(element, USE_CONTAINER_FOR_DEPLOY_FIELD, Boolean.toString(this.isDeployInContainer()));
 
         getConfigurationModule().writeExternal(element);
@@ -140,6 +144,15 @@ public class MuleConfiguration extends ModuleBasedConfiguration implements Modul
                 }
             }
         }
+
+        try {
+            int x = Integer.parseInt(getDebugPort());
+            if (x > 65535)
+                throw new Exception();
+        } catch (Exception e) {
+            throw new RuntimeConfigurationException("Debug port can not be empty and must be a valid Integer between 0-65535.");
+        }
+
         super.checkConfiguration();
     }
 
@@ -167,6 +180,14 @@ public class MuleConfiguration extends ModuleBasedConfiguration implements Modul
 
     public void setDeployInContainer(boolean deployInContainer) {
         this.deployInContainer = deployInContainer;
+    }
+
+    public String getDebugPort() {
+        return debugPort;
+    }
+
+    public void setDebugPort(String debugPort) {
+        this.debugPort = debugPort;
     }
 
     @Nullable

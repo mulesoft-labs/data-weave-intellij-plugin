@@ -36,6 +36,7 @@ import com.intellij.xml.impl.schema.ComplexTypeDescriptor;
 import com.intellij.xml.impl.schema.TypeDescriptor;
 import com.intellij.xml.impl.schema.XmlElementDescriptorImpl;
 //import com.mulesoft.mule.debugger.commons.*;
+import com.mulesoft.mule.debugger.commons.*;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -48,6 +49,7 @@ import org.jetbrains.annotations.Nullable;
 //import org.mule.tooling.esb.framework.facet.MuleFacetType;
 //import org.mule.tooling.esb.sdk.MuleSdk;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
+import org.mule.tooling.runtime.debugger.MuleElementType;
 import org.mule.tooling.runtime.model.Flow;
 import org.mule.tooling.runtime.model.Mule;
 import org.mule.tooling.runtime.model.SubFlow;
@@ -425,4 +427,259 @@ public class MuleConfigUtils {
         return null;
     }
 
+    @NotNull
+    public static Breakpoint toMuleBreakpoint(Project project, XLineBreakpoint<XBreakpointProperties> lineBreakpoint, @Nullable Map<String, String> modulesToAppsMap) {
+        final XSourcePosition sourcePosition = lineBreakpoint.getSourcePosition();
+        final XExpression conditionExpression = lineBreakpoint.getConditionExpression();
+        return toMuleBreakpoint(project, sourcePosition, conditionExpression, modulesToAppsMap);
+    }
+
+    @NotNull
+    public static Breakpoint toMuleBreakpoint(Project project, XLineBreakpoint<XBreakpointProperties> lineBreakpoint) {
+        return toMuleBreakpoint(project, lineBreakpoint, null);
+    }
+
+    @NotNull
+    public static Breakpoint toMuleBreakpoint(Project project, @NotNull XSourcePosition sourcePosition, XExpression conditionExpression, @Nullable Map<String, String> modulesToAppsMap) {
+        VirtualFile file = sourcePosition.getFile();
+        Module module = ModuleUtilCore.findModuleForFile(file, project);
+
+        String deployableName = module.getName();
+
+        if (modulesToAppsMap != null && !StringUtils.isEmpty(modulesToAppsMap.get(deployableName)))
+            deployableName = modulesToAppsMap.get(deployableName);
+
+        //boolean isMule4 = MuleConfigUtils.isMule4Module(module);
+        //If Mule 4 - add "mule-application"
+        //if (isMule4)
+        deployableName = deployableName + "-mule-application";
+
+        final String conditionScript = conditionExpression != null ? asMelScript(conditionExpression.getExpression()) : null;
+        final XmlTag tag = getXmlTagAt(module.getProject(), sourcePosition);
+        if (tag != null) {
+            //TODO - Module name is an app name - but can I get it from Maven? Or override it by using the additional param?
+            return new Breakpoint(getMulePath(tag), conditionScript, deployableName);
+        } else {
+            final int line = sourcePosition.getLine();
+            final Document document = FileDocumentManager.getInstance().getDocument(sourcePosition.getFile());
+            final PsiElement xmlElement = WeavePsiUtils.getFirstWeaveElement(module.getProject(), document, line);
+            if (xmlElement != null) {
+                PsiLanguageInjectionHost parent = PsiTreeUtil.getParentOfType(xmlElement, PsiLanguageInjectionHost.class);
+                if (parent != null) {
+                    final XmlTag weavePart = PsiTreeUtil.getParentOfType(xmlElement, XmlTag.class);
+                    final XmlTag weaveTag = PsiTreeUtil.getParentOfType(weavePart, XmlTag.class);
+                    int lineNumber = line + 1 - XSourcePositionImpl.createByElement(xmlElement).getLine();
+                    final String mulePath = getMulePath(weaveTag);
+                    //TODO - Module name is an app name - but can I get it from Maven? Or override it by using the additional param?
+                    return new Breakpoint(mulePath, getPrefix(weavePart) + "/" + (lineNumber + 1), conditionScript, deployableName);
+                }
+            }
+        }
+        return new Breakpoint("", conditionScript, deployableName);
+    }
+
+    public static String getMulePath(XmlTag tag) {
+        return getMulePath(tag, true);
+    }
+
+    public static String getMulePath(XmlTag tag, boolean isMule4) {
+        final LinkedList<XmlTag> elements = new LinkedList<>();
+        while (!isMuleTag(tag)) {
+            elements.push(tag);
+            tag = tag.getParentTag();
+        }
+        String path = "";
+        for (int i = 0; i < elements.size(); i++) {
+            final XmlTag element = elements.get(i);
+            switch (i) {
+                case 0: {
+                    final XmlAttribute name = element.getAttribute(MuleConfigUtils.NAME_ATTRIBUTE);
+                    if (name != null) {
+                        //path = "/" + MulePathUtils.escape(name.getValue()) + getGlobalElementCategory(element);
+                        path = MulePathUtils.escape(name.getValue()) + getGlobalElementCategory(element);
+                        if (!isMule4)
+                            path = "/" + path;
+                    }
+                    break;
+                }
+                default: {
+                    final XmlTag parentTag = element.getParentTag();
+                    int index = 0;
+                    for (XmlTag xmlTag : parentTag.getSubTags()) {
+                        if (xmlTag == element) {
+                            break;
+                        }
+                        final MuleElementType muleElementType = getMuleElementTypeFromXmlElement(xmlTag);
+                        if (muleElementType == MuleElementType.MESSAGE_PROCESSOR) {
+                            index = index + 1;
+                        }
+                    }
+                    path = path + "/" + index;
+                }
+            }
+        }
+        System.out.println("path = " + path);
+        return path;
+    }
+
+    @Nullable
+    public static MuleElementType getMuleElementTypeFromXmlElement(XmlTag xmlTag) {
+        final XmlElementDescriptor descriptor = xmlTag.getDescriptor();
+        if (descriptor instanceof XmlElementDescriptorImpl) {
+            final XmlElementDescriptorImpl xmlElementDescriptor = (XmlElementDescriptorImpl) descriptor;
+            final TypeDescriptor schemaType = xmlElementDescriptor.getType();
+            if (schemaType instanceof ComplexTypeDescriptor) {
+                final XmlTag complexTypeTag = schemaType.getDeclaration();
+                final MuleElementType typeReference = MuleSchemaUtils.getElementTypeFromComplexType(complexTypeTag);
+                if (typeReference != null) {
+                    return typeReference;
+                }
+            }
+        } else {
+            //This is to handle unknown elements
+            if (!(xmlTag.getName().equals("description")) && isContainer(xmlTag.getParentTag())) {
+                return (isKnownMS(xmlTag)) ? MuleElementType.MESSAGE_SOURCE : MuleElementType.MESSAGE_PROCESSOR;
+            }
+        }
+        return null;
+    }
+    private static boolean isContainer(XmlTag parentTag) {
+        return parentTag.getName().equals("flow")
+                || parentTag.getName().equals("sub-flow")
+                || parentTag.getName().equals("foreach")
+                || parentTag.getName().equals("when")
+                || parentTag.getName().equals("otherwise")
+                || parentTag.getName().equals("cache")
+                || parentTag.getName().equals("enricher")
+                || parentTag.getName().equals("processor-chain")
+                || parentTag.getName().equals("scatter-gather")
+                || parentTag.getName().equals("all")
+                ;
+    }
+    private static boolean isKnownMS(XmlTag xmlTag) {
+        return xmlTag.getName().equals("poll") || xmlTag.getName().endsWith("listener") || xmlTag.getName().equals("inbound-endpoint");
+    }
+
+    @NotNull
+    private static String getGlobalElementCategory(XmlTag element) {
+        switch (element.getLocalName()) {
+            case "flow":
+                return "/processors";
+            case "sub-flow":
+                return "/subprocessors";
+            case "test":
+                return "/tests";
+            default:
+                return "/es";
+        }
+
+    }
+    @Nullable
+    public static XmlTag getTagAt(Project project, String path) {
+        final MessageProcessorPath messageProcessorPath = fromPath(path);
+        final MessageProcessorPathType type = messageProcessorPath.getType();
+        final String flowName = messageProcessorPath.getFlowName();
+        final Collection<VirtualFile> files = FileTypeIndex.getFiles(StdFileTypes.XML, GlobalSearchScope.projectScope(project));
+        final DomManager manager = DomManager.getDomManager(project);
+        for (VirtualFile file : files) {
+            final PsiFile xmlFile = PsiManager.getInstance(project).findFile(file);
+            if (isMuleFile(xmlFile)) {
+                final DomFileElement<Mule> fileElement = manager.getFileElement((XmlFile) xmlFile, Mule.class);
+                if (fileElement != null) {
+
+                    final Mule rootElement = fileElement.getRootElement();
+                    switch (type) {
+                        case processors:
+                            final List<Flow> flows = rootElement.getFlows();
+                            for (Flow flow : flows) {
+                                final XmlAttributeValue xmlAttributeValue = flow.getName().getXmlAttributeValue();
+                                if (xmlAttributeValue != null) {
+                                    if (flowName.equals(xmlAttributeValue.getValue())) {
+                                        XmlTag xmlTag = flow.getXmlTag();
+                                        return findChildMessageProcessorByPath(messageProcessorPath, xmlTag);
+                                    }
+                                }
+                            }
+                            break;
+                        case subprocessors:
+                            final List<SubFlow> subFlows = rootElement.getSubFlows();
+                            for (SubFlow subFlow : subFlows) {
+                                final XmlAttributeValue xmlAttributeValue = subFlow.getName().getXmlAttributeValue();
+                                if (xmlAttributeValue != null && xmlAttributeValue.getValue().equals(flowName)) {
+                                    XmlTag xmlTag = subFlow.getXmlTag();
+                                    return findChildMessageProcessorByPath(messageProcessorPath, xmlTag);
+                                }
+                            }
+                            break;
+                        default:
+                            final XmlTag rootTag = ((XmlFile) xmlFile).getRootTag();
+                            if (rootTag != null) {
+                                final XmlTag[] subTags = rootTag.getSubTags();
+                                for (XmlTag subTag : subTags) {
+                                    final XmlAttribute name = subTag.getAttribute(MuleConfigUtils.NAME_ATTRIBUTE);
+                                    if (name != null && name.getValue() != null && name.getValue().equals(flowName)) {
+                                        return findChildMessageProcessorByPath(messageProcessorPath, subTag);
+                                    }
+                                }
+                            }
+                            break;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+    private static XmlTag findChildMessageProcessorByPath(MessageProcessorPath messageProcessorPath, XmlTag xmlTag) {
+        final List<MessageProcessorPathNode> nodes = messageProcessorPath.getNodes();
+        for (MessageProcessorPathNode node : nodes) {
+            final String elementName = node.getElementName();
+            final int i = Integer.parseInt(elementName);
+            final XmlTag[] subTags = xmlTag.getSubTags();
+            int index = -1;
+            for (XmlTag subTag : subTags) {
+                final MuleElementType muleElementType = getMuleElementTypeFromXmlElement(subTag);
+                if (muleElementType == MuleElementType.MESSAGE_PROCESSOR) {
+                    xmlTag = subTag;
+                    index = index + 1;
+                }
+                if (index == i) {
+                    break;
+                }
+            }
+        }
+        return xmlTag;
+    }
+    public static MessageProcessorPath fromPath(String path) {
+        final ArrayList<MessageProcessorPathNode> elements = new ArrayList<>();
+        final List<String> tokens = new MessageProcessorPathTokenizer().tokens(path);
+        String flowName = null;
+        MessageProcessorPathType type = MessageProcessorPathType.unknown;
+        for (String token : tokens) {
+            if (flowName == null) {
+                flowName = MulePathUtils.unescape(token);
+            } else if (type == MessageProcessorPathType.unknown) {
+                try {
+                    type = MessageProcessorPathType.valueOf(token);
+                } catch (IllegalArgumentException iae) {
+                    //Ignore
+                }
+            } else if (isElementNumber(token)) {
+                elements.add(new MessageProcessorPathNode(flowName, token));
+            } else {
+                flowName = MulePathUtils.unescape(token);
+                elements.clear();
+                type = MessageProcessorPathType.unknown;
+            }
+        }
+
+        return new MessageProcessorPath(flowName, type, elements);
+    }
+    private static boolean isElementNumber(String token) {
+        try {
+            Integer.parseInt(token);
+            return true;
+        } catch (NumberFormatException var2) {
+            return false;
+        }
+    }
 }

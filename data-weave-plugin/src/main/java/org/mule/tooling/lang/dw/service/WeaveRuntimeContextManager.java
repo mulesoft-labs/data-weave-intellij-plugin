@@ -327,11 +327,18 @@ public class WeaveRuntimeContextManager extends AbstractProjectComponent impleme
         PsiFile psiFile = PsiManager.getInstance(myProject).findFile(file);
         if (psiFile != null) {
             final WeaveDocument weaveDocument = WeavePsiUtils.getWeaveDocument(psiFile);
+<<<<<<< Updated upstream
             if (weaveDocument != null) {
                 return getScenariosFor(weaveDocument);
             } else {
                 return Collections.emptyList();
             }
+=======
+            if (weaveDocument != null)
+                return getScenariosFor(weaveDocument);
+            else
+                return Collections.emptyList();
+>>>>>>> Stashed changes
         } else {
             return Collections.emptyList();
         }
@@ -485,7 +492,6 @@ public class WeaveRuntimeContextManager extends AbstractProjectComponent impleme
                 e.printStackTrace();
             }
         }
-
 
         return null;
     }

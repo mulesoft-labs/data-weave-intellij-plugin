@@ -75,6 +75,10 @@
         <psi.referenceContributor language="JAVA"
                                   implementation="org.mule.tooling.runtime.reference.FlowConstructReferenceContributor"/>
         <dom.fileDescription implementation="org.mule.tooling.runtime.model.MuleDomFileDescription"/>
+
+        <xdebugger.breakpointType implementation="org.mule.tooling.runtime.debugger.breakpoint.MuleBreakpointType"/>
+        <programRunner id="Debug" implementation="org.mule.tooling.runtime.debugger.runner.MuleProgramDebugger" order="last"/>
+
     </extensions>
 
     <application-components>
