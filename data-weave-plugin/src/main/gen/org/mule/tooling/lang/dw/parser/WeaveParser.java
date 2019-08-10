@@ -288,17 +288,17 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // '[' Identifier '~' Identifier ']' '->' Expression
+  // '[' DeconstructVariableDeclaration '~' DeconstructVariableDeclaration ']' '->' Expression
   public static boolean ArrayDeconstructPattern(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ArrayDeconstructPattern")) return false;
     if (!nextTokenIs(b, L_BRACKET)) return false;
     boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, ARRAY_DECONSTRUCT_PATTERN, null);
     r = consumeToken(b, L_BRACKET);
-    r = r && Identifier(b, l + 1);
+    r = r && DeconstructVariableDeclaration(b, l + 1);
     r = r && consumeToken(b, TILDE);
     p = r; // pin = 3
-    r = r && report_error_(b, Identifier(b, l + 1));
+    r = r && report_error_(b, DeconstructVariableDeclaration(b, l + 1));
     r = p && report_error_(b, consumeTokens(b, -1, R_BRACKET, ARROW_TOKEN)) && r;
     r = p && Expression(b, l + 1, -1) && r;
     exit_section_(b, l, m, r, p, null);
@@ -815,6 +815,17 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     Marker m = enter_section_(b, l, _NONE_, DECLARED_NAMESPACE, "<declared namespace>");
     r = Identifier(b, l + 1);
     r = r && consumeToken(b, HASH);
+    exit_section_(b, l, m, r, false, null);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // Identifier
+  public static boolean DeconstructVariableDeclaration(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "DeconstructVariableDeclaration")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NONE_, DECONSTRUCT_VARIABLE_DECLARATION, "<deconstruct variable declaration>");
+    r = Identifier(b, l + 1);
     exit_section_(b, l, m, r, false, null);
     return r;
   }
@@ -2152,19 +2163,19 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // '{' Identifier ':' Identifier '~' Identifier '}' '->' Expression
+  // '{' DeconstructVariableDeclaration ':' DeconstructVariableDeclaration '~' DeconstructVariableDeclaration '}' '->' Expression
   public static boolean ObjectDeconstructPattern(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ObjectDeconstructPattern")) return false;
     if (!nextTokenIs(b, L_CURLY)) return false;
     boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, OBJECT_DECONSTRUCT_PATTERN, null);
     r = consumeToken(b, L_CURLY);
-    r = r && Identifier(b, l + 1);
+    r = r && DeconstructVariableDeclaration(b, l + 1);
     r = r && consumeToken(b, COLON);
-    r = r && Identifier(b, l + 1);
+    r = r && DeconstructVariableDeclaration(b, l + 1);
     r = r && consumeToken(b, TILDE);
     p = r; // pin = 5
-    r = r && report_error_(b, Identifier(b, l + 1));
+    r = r && report_error_(b, DeconstructVariableDeclaration(b, l + 1));
     r = p && report_error_(b, consumeTokens(b, -1, R_CURLY, ARROW_TOKEN)) && r;
     r = p && Expression(b, l + 1, -1) && r;
     exit_section_(b, l, m, r, p, null);

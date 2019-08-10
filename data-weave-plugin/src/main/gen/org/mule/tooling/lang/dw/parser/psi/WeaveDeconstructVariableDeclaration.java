@@ -5,12 +5,15 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface WeaveObjectDeconstructPattern extends WeavePattern {
+public interface WeaveDeconstructVariableDeclaration extends WeaveNamedElement {
 
   @NotNull
-  List<WeaveDeconstructVariableDeclaration> getDeconstructVariableDeclarationList();
+  WeaveIdentifier getIdentifier();
 
-  @Nullable
-  WeaveExpression getExpression();
+  String getName();
+
+  PsiElement setName(@NotNull String newName);
+
+  PsiElement getNameIdentifier();
 
 }

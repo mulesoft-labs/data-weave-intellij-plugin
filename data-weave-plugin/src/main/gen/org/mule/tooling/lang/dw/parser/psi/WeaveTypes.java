@@ -42,6 +42,7 @@ public interface WeaveTypes {
   IElementType CUSTOM_LOADER = new WeaveElementType("CUSTOM_LOADER");
   IElementType DATA_FORMAT = new WeaveElementType("DATA_FORMAT");
   IElementType DECLARED_NAMESPACE = new WeaveElementType("DECLARED_NAMESPACE");
+  IElementType DECONSTRUCT_VARIABLE_DECLARATION = new WeaveElementType("DECONSTRUCT_VARIABLE_DECLARATION");
   IElementType DEFAULT_PATTERN = new WeaveElementType("DEFAULT_PATTERN");
   IElementType DEFAULT_VALUE_EXPRESSION = new WeaveElementType("DEFAULT_VALUE_EXPRESSION");
   IElementType DIRECTIVE = new WeaveElementType("DIRECTIVE");
@@ -313,6 +314,9 @@ public interface WeaveTypes {
       }
       else if (type == DECLARED_NAMESPACE) {
         return new WeaveDeclaredNamespaceImpl(node);
+      }
+      else if (type == DECONSTRUCT_VARIABLE_DECLARATION) {
+        return new WeaveDeconstructVariableDeclarationImpl(node);
       }
       else if (type == DEFAULT_PATTERN) {
         return new WeaveDefaultPatternImpl(node);

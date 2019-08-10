@@ -139,6 +139,10 @@ public class WeaveVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitDeconstructVariableDeclaration(@NotNull WeaveDeconstructVariableDeclaration o) {
+    visitNamedElement(o);
+  }
+
   public void visitDefaultPattern(@NotNull WeaveDefaultPattern o) {
     visitPattern(o);
   }

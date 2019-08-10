@@ -379,9 +379,16 @@ EmptyArrayPattern ::= '['']'  '->' Expression
 
 EmptyObjectPattern ::= '{''}'  '->' Expression
 
-ObjectDeconstructPattern ::= '{' Identifier ':' Identifier '~' Identifier '}' '->' Expression {pin=5}
+ObjectDeconstructPattern ::= '{' DeconstructVariableDeclaration ':' DeconstructVariableDeclaration '~' DeconstructVariableDeclaration '}' '->' Expression {pin=5}
 
-ArrayDeconstructPattern::= '[' Identifier '~' Identifier ']' '->' Expression {pin=3}
+ArrayDeconstructPattern::= '[' DeconstructVariableDeclaration '~' DeconstructVariableDeclaration ']' '->' Expression {pin=3}
+
+DeconstructVariableDeclaration::=Identifier {
+     methods = [getName setName getNameIdentifier]
+     implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
+     mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
+     pin=2
+}
 
 LiteralPattern ::= (LiteralExpression | FqnIdentifier ) '->' Expression {pin=2}
 

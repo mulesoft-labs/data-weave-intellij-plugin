@@ -7,10 +7,10 @@ import com.intellij.psi.PsiElement;
 
 public interface WeaveArrayDeconstructPattern extends WeavePattern {
 
+  @NotNull
+  List<WeaveDeconstructVariableDeclaration> getDeconstructVariableDeclarationList();
+
   @Nullable
   WeaveExpression getExpression();
-
-  @NotNull
-  List<WeaveIdentifier> getIdentifierList();
 
 }

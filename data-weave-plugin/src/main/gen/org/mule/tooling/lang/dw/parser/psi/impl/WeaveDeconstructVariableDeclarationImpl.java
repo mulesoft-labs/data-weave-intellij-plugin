@@ -8,16 +8,17 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.*;
+import org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl;
 import org.mule.tooling.lang.dw.parser.psi.*;
 
-public class WeaveArrayDeconstructPatternImpl extends WeavePatternImpl implements WeaveArrayDeconstructPattern {
+public class WeaveDeconstructVariableDeclarationImpl extends WeaveNamedElementImpl implements WeaveDeconstructVariableDeclaration {
 
-  public WeaveArrayDeconstructPatternImpl(@NotNull ASTNode node) {
+  public WeaveDeconstructVariableDeclarationImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull WeaveVisitor visitor) {
-    visitor.visitArrayDeconstructPattern(this);
+    visitor.visitDeconstructVariableDeclaration(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -27,14 +28,8 @@ public class WeaveArrayDeconstructPatternImpl extends WeavePatternImpl implement
 
   @Override
   @NotNull
-  public List<WeaveDeconstructVariableDeclaration> getDeconstructVariableDeclarationList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, WeaveDeconstructVariableDeclaration.class);
-  }
-
-  @Override
-  @Nullable
-  public WeaveExpression getExpression() {
-    return findChildByClass(WeaveExpression.class);
+  public WeaveIdentifier getIdentifier() {
+    return findNotNullChildByClass(WeaveIdentifier.class);
   }
 
 }

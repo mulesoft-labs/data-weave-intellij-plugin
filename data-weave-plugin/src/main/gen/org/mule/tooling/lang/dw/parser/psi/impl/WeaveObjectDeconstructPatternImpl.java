@@ -26,15 +26,15 @@ public class WeaveObjectDeconstructPatternImpl extends WeavePatternImpl implemen
   }
 
   @Override
-  @Nullable
-  public WeaveExpression getExpression() {
-    return findChildByClass(WeaveExpression.class);
+  @NotNull
+  public List<WeaveDeconstructVariableDeclaration> getDeconstructVariableDeclarationList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, WeaveDeconstructVariableDeclaration.class);
   }
 
   @Override
-  @NotNull
-  public List<WeaveIdentifier> getIdentifierList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, WeaveIdentifier.class);
+  @Nullable
+  public WeaveExpression getExpression() {
+    return findChildByClass(WeaveExpression.class);
   }
 
 }
