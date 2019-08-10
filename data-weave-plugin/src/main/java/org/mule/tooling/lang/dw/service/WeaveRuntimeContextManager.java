@@ -465,25 +465,19 @@ public class WeaveRuntimeContextManager extends AbstractProjectComponent impleme
             try {
                 //See if "src/test/dwit exists, if not, create it
                 VirtualFile moduleRoot = rootManager.getContentRoots()[0];
-                VirtualFile testDwit = LocalFileSystem.getInstance().findFileByIoFile(new File(rootManager.getContentRoots()[0].getCanonicalPath(), WeaveConstants.INTEGRATION_TEST_FOLDER_PATH));
+                VirtualFile testDwit = LocalFileSystem.getInstance().findFileByIoFile(new File(moduleRoot.getCanonicalPath(), WeaveConstants.INTEGRATION_TEST_FOLDER_PATH));
                 if (testDwit == null) {
-                    VirtualFile srcDir = moduleRoot.findFileByRelativePath("src");
-                    if (srcDir == null)
-                        srcDir = moduleRoot.createChildDirectory(this, "src");
-                    VirtualFile testDir = srcDir.findFileByRelativePath("test");
-                    if (testDir == null)
-                        testDir = srcDir.createChildDirectory(this, "test");
                     //Create it here
-                    testDwit = testDir.createChildDirectory(this, WeaveConstants.INTEGRATION_TEST_FOLDER_NAME);
+                    testDwit = moduleRoot.createChildDirectory(this, "test").createChildDirectory(this,WeaveConstants.INTEGRATION_TEST_FOLDER_NAME);
                 }
 
-                ModifiableRootModel model = ModuleRootManager.getInstance(module).getModifiableModel();
-                ContentEntry[] entries = model.getContentEntries();
-                for (ContentEntry entry : entries) {
-                    if (Objects.equals(entry.getFile(), moduleRoot))
-                        entry.addSourceFolder(testDwit, true);
-                }
-                model.commit();
+//                ModifiableRootModel model = ModuleRootManager.getInstance(module).getModifiableModel();
+//                ContentEntry[] entries = model.getContentEntries();
+//                for (ContentEntry entry : entries) {
+//                    if (Objects.equals(entry.getFile(), moduleRoot))
+//                        entry.addSourceFolder(testDwit, true);
+//                }
+//                model.commit();
 
                 dwitFolders.put(moduleName, testDwit);
                 return testDwit;

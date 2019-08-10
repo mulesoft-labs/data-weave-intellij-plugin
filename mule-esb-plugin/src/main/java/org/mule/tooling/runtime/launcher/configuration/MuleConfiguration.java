@@ -47,6 +47,7 @@ public class MuleConfiguration extends ModuleBasedConfiguration implements Modul
     private Module[] modules = new Module[]{};
 
     private Project project;
+    private String port = "6666";
 
     protected MuleConfiguration(String name, @NotNull ConfigurationFactory factory, Project project) {
         //super(name, new JavaRunConfigurationModule(project, true), factory);
@@ -187,5 +188,14 @@ public class MuleConfiguration extends ModuleBasedConfiguration implements Modul
     public void setModules(Module[] modules) {
         MuleRunConfigurationModule configurationModule = (MuleRunConfigurationModule) this.getConfigurationModule();
         configurationModule.setModules(modules);
+    }
+
+    public String getDebugPort() {
+        return port;
+    }
+
+    public void setDebugPort(String port) {
+
+        this.port = port;
     }
 }
