@@ -155,14 +155,11 @@ public class WeaveRuntimeContextManager extends AbstractProjectComponent impleme
 
         final Module moduleForFile = ModuleUtil.findModuleForFile(modifiedFile, myProject);
 
-        app.runWriteAction(new Runnable() {
-            @Override
-            public void run() {
-                final VirtualFile dwitFolder = getScenariosRootFolder(moduleForFile);
-                if (dwitFolder != null && VfsUtil.isAncestor(dwitFolder, modifiedFile, true)) {
-                    VirtualFile scenario = findScenario(modifiedFile, dwitFolder);
-                    onModified(new Scenario(scenario));
-                }
+        app.runWriteAction(() -> {
+            final VirtualFile dwitFolder = getScenariosRootFolder(moduleForFile);
+            if (dwitFolder != null && VfsUtil.isAncestor(dwitFolder, modifiedFile, true)) {
+                VirtualFile scenario = findScenario(modifiedFile, dwitFolder);
+                onModified(new Scenario(scenario));
             }
         });
 
@@ -175,7 +172,7 @@ public class WeaveRuntimeContextManager extends AbstractProjectComponent impleme
 //        action.run();
         //else {
         //    app.invokeAndWait(action, ModalityState.any());
-            //app.invokeAndWait(action, ModalityState.current());
+        //app.invokeAndWait(action, ModalityState.current());
         //}
     }
 
@@ -330,7 +327,11 @@ public class WeaveRuntimeContextManager extends AbstractProjectComponent impleme
         PsiFile psiFile = PsiManager.getInstance(myProject).findFile(file);
         if (psiFile != null) {
             final WeaveDocument weaveDocument = WeavePsiUtils.getWeaveDocument(psiFile);
-            return getScenariosFor(weaveDocument);
+            if (weaveDocument != null) {
+                return getScenariosFor(weaveDocument);
+            } else {
+                return Collections.emptyList();
+            }
         } else {
             return Collections.emptyList();
         }
@@ -396,8 +397,12 @@ public class WeaveRuntimeContextManager extends AbstractProjectComponent impleme
             VirtualFile scenarioFolder = WriteAction.compute(() -> testFolder.createChildDirectory(this, scenarioName));
             Scenario scenario = new Scenario(scenarioFolder);
             WeaveDocument weaveDocument = WeavePsiUtils.getWeaveDocument(psiFile);
-            setCurrentScenario(weaveDocument, scenario);
-            return scenario;
+            if (weaveDocument != null) {
+                setCurrentScenario(weaveDocument, scenario);
+                return scenario;
+            } else {
+                return null;
+            }
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -413,13 +418,13 @@ public class WeaveRuntimeContextManager extends AbstractProjectComponent impleme
 
                 WeaveDocument document = WeavePsiUtils.getWeaveDocument(weaveFile);
                 if (document != null) {
-                        String qName = document.getQualifiedName();
-                        return dwitFolder.createChildDirectory(this, qName);
+                    String qName = document.getQualifiedName();
+                    return dwitFolder.createChildDirectory(this, qName);
 
                 } else {
 
-                        return null;
-                    }
+                    return null;
+                }
             } catch (IOException e) {
                 return null;
             }
@@ -475,7 +480,7 @@ public class WeaveRuntimeContextManager extends AbstractProjectComponent impleme
                 ModifiableRootModel model = ModuleRootManager.getInstance(module).getModifiableModel();
                 ContentEntry[] entries = model.getContentEntries();
                 for (ContentEntry entry : entries) {
-                    if (entry.getFile() == moduleRoot)
+                    if (Objects.equals(entry.getFile(), moduleRoot))
                         entry.addSourceFolder(testDwit, true);
                 }
                 model.commit();
