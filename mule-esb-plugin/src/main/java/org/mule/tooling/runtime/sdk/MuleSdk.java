@@ -24,16 +24,18 @@ import com.intellij.openapi.roots.OrderRootType;
 import com.intellij.openapi.roots.impl.libraries.LibraryEx;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.xmlb.annotations.Tag;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.lang.StringUtils;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.runtime.framework.MuleLibraryKind;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -69,13 +71,35 @@ public class MuleSdk {
 
     private MuleSdk(String homePath) {
         this.muleHome = homePath;
-        this.version = getVersionFromMuleHome(homePath);
+        //this.version = getVersionFromMuleHome(homePath);
+        this.version = detectMuleSdkVersion(homePath);
     }
 
-    //TODO This version detection method is unreliable
-    private static String getVersionFromMuleHome(String muleHome) {
-        return new File(muleHome).getName().substring(HOMEPATH_PREFIX.length());
+    private String detectMuleSdkVersion(String muleHomePath) {
+        String defaultVersion = UNDEFINED_VERSION;
+
+        File libMule = new File(muleHomePath, "lib/mule");
+        Collection<File> cores = FileUtils.listFiles(libMule, new WildcardFileFilter("mule-core*.jar"), null);
+
+        for (File coreJar : cores) {
+            try {
+                Manifest m = new JarFile(coreJar).getManifest();
+                String implementationVersion = m.getMainAttributes().getValue("Implementation-Version");
+                if (implementationVersion != null)
+                    return implementationVersion;
+                //Attributes
+            } catch (Exception e) {
+
+            }
+        }
+
+        return defaultVersion;
     }
+
+//
+//    private static String getVersionFromMuleHome(String muleHome) {
+//        return new File(muleHome).getName().substring(HOMEPATH_PREFIX.length());
+//    }
 
     private static boolean isValidHomePath(String homePath) {
         return new File(homePath).getName().startsWith(HOMEPATH_PREFIX);

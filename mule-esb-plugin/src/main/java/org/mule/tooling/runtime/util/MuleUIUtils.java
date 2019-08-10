@@ -43,8 +43,13 @@ public class MuleUIUtils
         }
         MuleSdk sdk = MuleSdkManagerStore.getInstance().findSdk(dir.getCanonicalPath());
         if (sdk == null) {
-            sdk = MuleSdk.create(dir.getCanonicalPath()).get();
-            MuleSdkManagerStore.getInstance().addSdk(sdk);
+            try {
+                sdk = MuleSdk.create(dir.getCanonicalPath()).get();
+                MuleSdkManagerStore.getInstance().addSdk(sdk);
+            } catch (Exception e) {
+                sdk = null;
+                e.printStackTrace();
+            }
         }
         return sdk;
     }

@@ -16,7 +16,9 @@ import org.jetbrains.idea.maven.model.MavenId;
 import org.jetbrains.idea.maven.project.MavenProject;
 import org.jetbrains.idea.maven.wizards.MavenModuleBuilderHelper;
 import org.mule.tooling.runtime.template.RuntimeTemplateManager;
+import org.mule.tooling.runtime.util.MuleDirectoriesUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
@@ -25,11 +27,6 @@ public class MuleAppModuleInitializer extends MavenModuleBuilderHelper {
 
     protected static final Logger LOG = Logger.getInstance(MuleAppModuleInitializer.class.getName());
 
-    public static final String SRC_MAIN_RESOURCES = "/src/main/resources";
-    public static final String SRC_MAIN_API = "/src/main/resources/api";
-    public static final String SRC_MAIN_MULE = "/src/main/mule";
-    public static final String SRC_TEST_MUNIT = "/src/test/munit";
-    public static final String SRC_TEST_RESOURCES = "/src/test/resources";
 
     public MuleAppModuleInitializer(@NotNull MavenId projectId, MavenProject aggregatorProject, MavenProject parentProject, boolean inheritGroupId, boolean inheritVersion, MavenArchetype archetype, Map<String, String> propertiesToCreateByArtifact, String commaneName) {
         super(projectId, aggregatorProject, parentProject, inheritGroupId, inheritVersion, archetype, propertiesToCreateByArtifact, commaneName);
@@ -39,11 +36,13 @@ public class MuleAppModuleInitializer extends MavenModuleBuilderHelper {
         super.configure(project, root, false);
 
         try {
-            VirtualFile srcResources = VfsUtil.createDirectories(root.getPath() + SRC_MAIN_RESOURCES);
-            VirtualFile srcApi = VfsUtil.createDirectories(root.getPath() + SRC_MAIN_API);
-            VirtualFile munit = VfsUtil.createDirectories(root.getPath() + SRC_TEST_MUNIT);
-            VfsUtil.createDirectories(root.getPath() + SRC_TEST_RESOURCES);
-            VirtualFile muleDirectory = VfsUtil.createDirectories(root.getPath() + SRC_MAIN_MULE);
+            VirtualFile srcResources = VfsUtil.createDirectories(root.getPath() + File.separator + MuleDirectoriesUtils.SRC_MAIN_RESOURCES);
+            VirtualFile srcApi = VfsUtil.createDirectories(root.getPath() + File.separator + MuleDirectoriesUtils.SRC_MAIN_API);
+            VirtualFile munit = VfsUtil.createDirectories(root.getPath() + File.separator + MuleDirectoriesUtils.SRC_TEST_MUNIT);
+            VfsUtil.createDirectories(root.getPath() + File.separator + MuleDirectoriesUtils.SRC_TEST_RESOURCES);
+            VfsUtil.createDirectories(root.getPath() + File.separator + MuleDirectoriesUtils.SRC_TEST_DWIT);
+
+            VirtualFile muleDirectory = VfsUtil.createDirectories(root.getPath() + File.separator + MuleDirectoriesUtils.SRC_MAIN_MULE);
             try {
                 WriteCommandAction.writeCommandAction(project)
                         .withName("Creating Mule App Module")
@@ -62,11 +61,11 @@ public class MuleAppModuleInitializer extends MavenModuleBuilderHelper {
                                 runTemplate(templateProps, RuntimeTemplateManager.MULE_APP_LOG4J_FILE, manager,
                                         srcResources.findOrCreateChildData(this, "log4j2.xml"));
 
-
                                 runTemplate(templateProps, RuntimeTemplateManager.MULE_APP_ARTIFACT_JSON_FILE, manager,
                                         root.findOrCreateChildData(this, "mule-artifact.json"));
 
-
+                                runTemplate(templateProps, RuntimeTemplateManager.GITIGNORE_FILE, manager,
+                                        root.findOrCreateChildData(this, ".gitignore"));
 
                                 return;
                             }

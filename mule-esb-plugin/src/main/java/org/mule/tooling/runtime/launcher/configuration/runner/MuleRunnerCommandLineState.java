@@ -6,23 +6,31 @@ import com.intellij.execution.configurations.JavaParameters;
 import com.intellij.execution.executors.DefaultDebugExecutor;
 import com.intellij.execution.process.OSProcessHandler;
 import com.intellij.execution.runners.ExecutionEnvironment;
+import com.intellij.icons.AllIcons;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.io.FileUtil;
-import org.codehaus.plexus.util.FileUtils;
+//import org.codehaus.plexus.util.FileUtils;
+import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 import org.mule.tooling.runtime.launcher.configuration.MuleConfiguration;
 import org.mule.tooling.runtime.launcher.configuration.archive.MuleAppHandler;
 import org.mule.tooling.runtime.launcher.configuration.archive.MuleAppManager;
+import org.mule.tooling.runtime.launcher.configuration.ui.MuleRunnerEditor;
 import org.mule.tooling.runtime.sdk.DefaultMuleClassPathConfig;
 import org.mule.tooling.runtime.tooling.MuleRuntimeServerManager;
+import org.mule.tooling.runtime.util.MuleModuleUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MuleRunnerCommandLineState extends JavaCommandLineState implements MuleRunnerState {
+    private static final Logger logger = Logger.getInstance(MuleRunnerCommandLineState.class);
 
     //Mule Main Class
     public static final String MAIN_CLASS = "org.mule.runtime.module.launcher.MuleContainer";
@@ -76,8 +84,12 @@ public class MuleRunnerCommandLineState extends JavaCommandLineState implements 
         javaParams.getVMParametersList().add("-Dmule.forceConsoleLog=true");
 
         if (isDebug) {
-            javaParams.getVMParametersList().add("-Dmule.debug.enable=true");
-            javaParams.getVMParametersList().add("-Dmule.debug.suspend=true");
+//            javaParams.getVMParametersList().add("-Dmule.debug.enable=true");
+//            javaParams.getVMParametersList().add("-Dmule.debug.suspend=false");
+//            javaParams.getVMParametersList().add("-Dmule.debug.port=" + getPort());
+
+            javaParams.getVMParametersList().add("-Xdebug");
+            javaParams.getVMParametersList().add("-agentlib:jdwp=transport=dt_socket,address=" + getHost() + ":" + getPort() + ",suspend=n,server=n");
         }
 
         javaParams.getVMParametersList().add("-Xms1024m");
@@ -114,7 +126,14 @@ public class MuleRunnerCommandLineState extends JavaCommandLineState implements 
     private boolean isClearAppData() {
         String clearDataString = model.getClearData();
 
-        boolean clearData = false;
+        boolean clearData = (MuleRunnerEditor.CLEAR_DATA_ALWAYS.equals(clearDataString));
+
+        if (!clearData) {
+            if (MuleRunnerEditor.CLEAR_DATA_PROMPT.equals(clearDataString)) {
+                int result = Messages.showYesNoDialog("Clear the application data (caches, object stores) before the launch?", "Clear Application Data", AllIcons.General.QuestionDialog);
+                clearData = (result == Messages.YES);
+            }
+        }
 
         return clearData;
     }
@@ -131,21 +150,48 @@ public class MuleRunnerCommandLineState extends JavaCommandLineState implements 
 
         Module[] modules = model.getModules();
 
-        for (Module m : modules) {
-            if (clearData) {
-                File moduleAppData = new File(muleBaseDirectory.getAppDataFolder(), m.getName());
-                FileUtil.delete(moduleAppData);
-            }
+        //We need to sort out domains and apps and deploy domains first
+        List<Module> domainsList = new ArrayList<>();
+        List<Module> appsList = new ArrayList<>();
 
+        for (Module m : modules) {
+            if (MuleModuleUtils.isMuleDomainModule(m))
+                domainsList.add(m);
+            else
+                appsList.add(m);
+        }
+
+        for (Module m : domainsList) {
+//            if (clearData) {
+//                File moduleAppData = new File(muleBaseDirectory.getAppDataFolder(), m.getName());
+//                FileUtil.delete(moduleAppData);
+//            }
             //Get the zip and deploy it
             final File file = MuleAppManager.getInstance(model.getProject()).getMuleApp(m);
 
             try {
-//        if (MuleConfigUtils.isMuleDomainModule(m))
-//          FileUtil.copy(file, new File(domains, m.getName() + ".zip"));
-//        else
-                FileUtil.copy(file, new File(muleBaseDirectory.getAppsFolder(), m.getName() + MuleAppHandler.MULE_APP_SUFFIX));
-                //FileUtil.copy(file, new File(apps, model.getProject().getName() + ".zip"));
+                File destination = muleBaseDirectory.getDomainsFolder();
+                //Domains require FQN including version, e.g. my-domain-1.0.0-SNAPSHOT-mule-domain
+                //Apps don't. Makes no sense but it is what it is.
+                FileUtil.copy(file, new File(destination, file.getName()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        for (Module m : appsList) {
+            if (clearData) {
+                File moduleAppData = new File(muleBaseDirectory.getAppDataFolder(), m.getName());
+                FileUtil.delete(moduleAppData);
+            }
+            //Get the zip and deploy it
+            final File file = MuleAppManager.getInstance(model.getProject()).getMuleApp(m);
+
+            try {
+                File destination = muleBaseDirectory.getAppsFolder();
+                //Domains require FQN including version, e.g. my-domain-1.0.0-SNAPSHOT-mule-domain
+                //Apps don't. Makes no sense but it is what it is.
+                FileUtil.copy(file, new File(destination, m.getName() + MuleAppHandler.MULE_APP_SUFFIX));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -165,11 +211,16 @@ public class MuleRunnerCommandLineState extends JavaCommandLineState implements 
 
     @Override
     public String getHost() {
-        return "localhost";
+        return "0.0.0.0";
     }
 
     @Override
     public int getPort() {
-        return 6666;
+        try {
+            return Integer.parseInt(model.getDebugPort());
+        } catch (Exception e) {
+            logger.error("Unable to parse debug port, returning default 6666 : ", e);
+            return 6666;
+        }
     }
 }

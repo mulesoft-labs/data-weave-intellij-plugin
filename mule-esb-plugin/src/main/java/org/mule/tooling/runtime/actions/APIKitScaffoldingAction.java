@@ -8,6 +8,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.command.WriteCommandAction;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectRootManager;
@@ -51,7 +52,7 @@ public class APIKitScaffoldingAction extends AnAction
         final VirtualFile file = CommonDataKeys.VIRTUAL_FILE.getData(anActionEvent.getDataContext());
         final Project project = anActionEvent.getProject();
         final VirtualFile moduleContentRoot = ProjectRootManager.getInstance(project).getFileIndex().getContentRootForFile(file);
-        String appPath = moduleContentRoot.getPath() + File.separator + MuleDirectoriesUtils.MULE_APP_PATH;
+        String appPath = moduleContentRoot.getPath() + File.separator + MuleDirectoriesUtils.SRC_MAIN_MULE;
 
         logger.debug("*** APP PATH IS " + appPath);
 
@@ -70,11 +71,16 @@ public class APIKitScaffoldingAction extends AnAction
 //        }
 
         //TODO - go through the list of modules and see if any one of them is a Mule domain
-//                if (MuleConfigUtils.isMuleDomainModule(module))
+        /*
+            1. Get the POM of the module
+            2. See if one of the dependencies is a domain and get its artifact ID
+            3. Find module with artifact ID equals #2
+            4. Get its directory
+         */
 
         try
         {
-            //TODO Mule version should be derived from Maven project?
+            //TODO min Mule version should be derived from the module's artifact JSON
             new IdeaScaffolderAPI().run(ramlFiles, appDir, null, "4.1.1", RuntimeEdition.EE);
             addApikitDependency(anActionEvent.getDataContext(), project);
         } catch (RuntimeException e) {
@@ -82,7 +88,13 @@ public class APIKitScaffoldingAction extends AnAction
         }
         finally
         {
-            file.getParent().getParent().refresh(false, true);
+            ApplicationManager.getApplication().invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    file.getParent().getParent().refresh(false, true);
+                    moduleContentRoot.refresh(false, true);
+                }
+            });
         }
     }
 

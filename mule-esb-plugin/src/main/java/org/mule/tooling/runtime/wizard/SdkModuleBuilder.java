@@ -144,7 +144,7 @@ public class SdkModuleBuilder extends MavenModuleBuilder implements SourcePathsB
 
     @Override
     public Icon getNodeIcon() {
-        return RuntimeIcons.MuleSdk;
+        return RuntimeIcons.MuleRunConfigIcon;
     }
 
     @Override

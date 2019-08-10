@@ -20,6 +20,7 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.components.AbstractProjectComponent;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
@@ -63,6 +64,8 @@ public class WeaveAgentRuntimeManager extends AbstractProjectComponent implement
     private List<WeaveAgentStatusListener> listeners;
 
     private Alarm idleAgentAlarm = new Alarm(Alarm.ThreadToUse.POOLED_THREAD, this);
+
+    private static final Logger LOG = Logger.getInstance(WeaveAgentRuntimeManager.class);
 
     protected WeaveAgentRuntimeManager(Project project) {
         super(project);
@@ -121,6 +124,9 @@ public class WeaveAgentRuntimeManager extends AbstractProjectComponent implement
             } catch (IOException e) {
                 freePort = 2333;
             }
+
+            LOG.info("DataWeave agent is starting on port " + freePort);
+
             final ProgramRunner runner = new DefaultProgramRunner() {
                 @Override
                 @NotNull
@@ -145,13 +151,14 @@ public class WeaveAgentRuntimeManager extends AbstractProjectComponent implement
 
                     @Override
                     public void onTextAvailable(@NotNull ProcessEvent event, @NotNull Key outputType) {
-                        System.out.print("[Agent Process] " + event.getText());
+                        LOG.info("[Agent Process] " + event.getText());
                     }
                 });
                 //Wait for it to init
                 processHandler.waitFor(ONE_SECOND_DELAY);
             } catch (Throwable e) {
                 Notifications.Bus.notify(new Notification("Data Weave", "Unable to start agent", "Unable to start agent. Reason: \n" + e.getMessage(), NotificationType.ERROR));
+                LOG.error("\"Unable to start agent. Reason: \\n\" + e.getMessage()", e);
                 e.printStackTrace();
                 disable();
                 return;
@@ -165,17 +172,20 @@ public class WeaveAgentRuntimeManager extends AbstractProjectComponent implement
                 @Override
                 public void failToConnect(String reason) {
                     indicator.setText2("Fail to connect to the agent client at port " + finalFreePort + " reason " + reason);
+                    LOG.warn("Fail to connect to the agent client at port " + finalFreePort + " reason " + reason + " ; will retry in 1 second");
                 }
 
                 @Override
                 public void connectedSuccessfully() {
                     indicator.setText2("Agent connected successfully");
-                    Notifications.Bus.notify(new Notification("Data Weave", "Server Started", "Weave server was started and is reachable at port " + finalFreePort, NotificationType.INFORMATION));
+                    Notifications.Bus.notify(new Notification("Data Weave", "Server Started", "Weave Server started and is reachable at port " + finalFreePort, NotificationType.INFORMATION));
+                    LOG.info("Weave Server started and is reachable at port " + finalFreePort);
                 }
 
                 @Override
                 public void startConnecting() {
                     indicator.setText2("Trying to connect to the agent client at port " + finalFreePort);
+                    LOG.info("Trying to connect to the agent client at port " + finalFreePort);
                 }
 
                 @Override
@@ -184,11 +194,12 @@ public class WeaveAgentRuntimeManager extends AbstractProjectComponent implement
                 }
             });
             if (client != null && client.isConnected()) {
-                System.out.println("Weave agent connected to server. Port: " + finalFreePort);
+                LOG.info("Weave agent connected to server. Port: " + finalFreePort);
                 for (WeaveAgentStatusListener listener : listeners) {
                     listener.agentStarted();
                 }
             } else {
+                LOG.error("WeaveAgentRuntimeManager cannot be started, disabling...");
                 //disable the service as for some weird reason it can not be started
                 disable();
             }
@@ -277,6 +288,7 @@ public class WeaveAgentRuntimeManager extends AbstractProjectComponent implement
                 onConnected.run();
             } else {
                 Notifications.Bus.notify(new Notification("Data Weave", "Unable to connect", "Client is not able to connect to runtime", NotificationType.WARNING));
+                LOG.error("Unable to connect; Client is " + client);
             }
         }
     }
@@ -290,6 +302,7 @@ public class WeaveAgentRuntimeManager extends AbstractProjectComponent implement
             GlobalSearchScope scope = GlobalSearchScope.allScope(myProject);
             JavaPsiFacade psiFacade = JavaPsiFacade.getInstance(myProject);
             PsiClass c = ReadAction.compute(() -> psiFacade.findClass(getMarkerClassFQName(), scope));
+            LOG.info("Checking for Weave Runtime installation, found PsiClass " + c);
             return c != null;
         } catch (IndexNotReadyException e) {
             //If index is not yes available just try it out
@@ -385,6 +398,7 @@ public class WeaveAgentRuntimeManager extends AbstractProjectComponent implement
     }
 
     public synchronized void tearDown() {
+        LOG.info("Tearing down WeaveAgent");
         //Kill the process
         if (processHandler != null) {
             processHandler.destroyProcess();
