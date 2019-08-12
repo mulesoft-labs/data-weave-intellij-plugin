@@ -450,43 +450,14 @@ public class WeaveRuntimeContextManager extends AbstractProjectComponent impleme
         if (maybeFolder != null) {
             return maybeFolder;
         }
-
-        ModuleRootManager rootManager = ModuleRootManager.getInstance(module);
-
-        VirtualFile[] sourceRoots = rootManager.getSourceRoots(true);
+        final ModuleRootManager rootManager = ModuleRootManager.getInstance(module);
+        final VirtualFile[] sourceRoots = rootManager.getSourceRoots(true);
         for (VirtualFile sourceRoot : sourceRoots) {
             if (sourceRoot.isDirectory() && sourceRoot.getName().endsWith(WeaveConstants.INTEGRATION_TEST_FOLDER_NAME)) {
                 dwitFolders.put(moduleName, sourceRoot);
                 return sourceRoot;
             }
         }
-
-        if (dwitFolders.get(moduleName) == null) { //Need to create one
-            try {
-                //See if "src/test/dwit exists, if not, create it
-                VirtualFile moduleRoot = rootManager.getContentRoots()[0];
-                VirtualFile testDwit = LocalFileSystem.getInstance().findFileByIoFile(new File(moduleRoot.getCanonicalPath(), WeaveConstants.INTEGRATION_TEST_FOLDER_PATH));
-                if (testDwit == null) {
-                    //Create it here
-                    testDwit = moduleRoot.createChildDirectory(this, "test").createChildDirectory(this,WeaveConstants.INTEGRATION_TEST_FOLDER_NAME);
-                }
-
-//                ModifiableRootModel model = ModuleRootManager.getInstance(module).getModifiableModel();
-//                ContentEntry[] entries = model.getContentEntries();
-//                for (ContentEntry entry : entries) {
-//                    if (Objects.equals(entry.getFile(), moduleRoot))
-//                        entry.addSourceFolder(testDwit, true);
-//                }
-//                model.commit();
-
-                dwitFolders.put(moduleName, testDwit);
-                return testDwit;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-
         return null;
     }
 
