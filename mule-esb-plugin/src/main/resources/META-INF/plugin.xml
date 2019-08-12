@@ -27,6 +27,15 @@
           </ul>
         </li>
       </ul>
+      <h1>v2.0.21</h1>
+      <ul>
+       <li>
+          <p>Mule Runtime 4</p>
+          <ul>
+            <li>Several fixes provided by javaduke</li>
+          </ul>
+        </li>
+      </ul>
     ]]>
     </change-notes>
 
