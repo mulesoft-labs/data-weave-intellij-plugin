@@ -27,7 +27,7 @@ public class WeaveInlayParameterHintsProvider implements InlayParameterHintsProv
     @NotNull
     @Override
     public List<InlayInfo> getParameterHints(PsiElement element) {
-        if (!DataWeaveSettingsState.getInstance().getShowTypeInference()) {
+        if (!DataWeaveSettingsState.getInstance().getShowTypeInference() || DataWeaveSettingsState.getInstance().isBigFileForSemanticAnalysis(element.getContainingFile())) {
             return Collections.emptyList();
         } else {
             PsiElement parent = element.getParent();
@@ -51,9 +51,9 @@ public class WeaveInlayParameterHintsProvider implements InlayParameterHintsProv
                                 }
                             }
                             int shift;
-                            if(parent.getChildren().length > (functionTypeParameters.size() - optionalParams)){
+                            if (parent.getChildren().length > (functionTypeParameters.size() - optionalParams)) {
                                 shift = functionTypeParameters.size() - parent.getChildren().length;
-                            }else{
+                            } else {
                                 shift = optionalParams;
                             }
                             name = functionTypeParameters.get(currentParameterIndex + shift).name();
