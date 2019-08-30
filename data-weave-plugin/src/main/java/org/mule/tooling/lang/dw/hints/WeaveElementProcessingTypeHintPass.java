@@ -17,9 +17,9 @@ import org.mule.tooling.lang.dw.parser.psi.WeaveFunctionDefinition;
 import org.mule.tooling.lang.dw.parser.psi.WeaveTypes;
 import org.mule.tooling.lang.dw.parser.psi.WeaveVariableDefinition;
 import org.mule.tooling.lang.dw.service.WeaveEditorToolingAPI;
-import org.mule.weave.v2.ts.ArrayType;
-import org.mule.weave.v2.ts.TypeHelper;
-import org.mule.weave.v2.ts.WeaveType;
+import org.mule.weave.v2.ts.*;
+import scala.collection.Iterator;
+import scala.collection.Seq;
 
 public class WeaveElementProcessingTypeHintPass extends ElementProcessingHintPass {
 
@@ -57,11 +57,30 @@ public class WeaveElementProcessingTypeHintPass extends ElementProcessingHintPas
         }
     }
 
+    //Determines if a type is simple enough to be shown
+    //Primitive types, named types simple arrays, union with less than 3 simple types
     private boolean isSimpleType(WeaveType weaveType) {
         if (weaveType.label().isDefined()) {
             return true;
         } else if (weaveType instanceof ArrayType) {
             return isSimpleType(((ArrayType) weaveType).of());
+        } else if (weaveType instanceof UnionType) {
+            final Seq<WeaveType> of = ((UnionType) weaveType).of();
+            if (of.size() <= 3) {
+                final Iterator<WeaveType> iterator = of.iterator();
+                while (iterator.hasNext()) {
+                    final WeaveType next = iterator.next();
+                    if (!isSimpleType(next)) {
+                        return false;
+                    }
+                }
+                return true;
+            } else {
+                return false;
+            }
+        } else if (weaveType instanceof ObjectType) {
+            final ObjectType objectType = (ObjectType) weaveType;
+            return objectType.properties().isEmpty();
         } else {
             return TypeHelper.isPrimitiveType(weaveType);
         }
