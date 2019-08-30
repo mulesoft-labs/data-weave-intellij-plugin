@@ -68,7 +68,7 @@ allprojects {
 
     intellij {
         version = ideaVersion
-        updateSinceUntilBuild = false
+        updateSinceUntilBuild = true
         downloadSources = true
     }
 
