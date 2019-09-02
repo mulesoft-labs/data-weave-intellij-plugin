@@ -1,25 +1,23 @@
 language: java
 jdk:
-  - openjdk8
-
+- openjdk8
 before_install:
-    - "git clone -b travis `git config --get remote.origin.url` build/travis"
-    - cp build/travis/settings.xml ~/.m2/settings.xml
-
+- git clone -b travis `git config --get remote.origin.url` build/travis
+- cp build/travis/settings.xml ~/.m2/settings.xml
 script:
-  - ./gradlew build
-
+- "./gradlew build"
 deploy:
-  - provider: script
-    skip_cleanup: true
-    script: ./gradlew data-weave-plugin:publishPlugin --stacktrace --info
-    on:
-      branch: master
-  - provider: script
-    skip_cleanup: true
-    script: ./gradlew mule-esb-plugin:publishPlugin --stacktrace --info
-    on:
-      branch: master
-
+- provider: script
+  skip_cleanup: true
+  script: "./gradlew data-weave-plugin:publishPlugin --stacktrace --info"
+  on:
+    branch: master
+- provider: script
+  skip_cleanup: true
+  script: "./gradlew mule-esb-plugin:publishPlugin --stacktrace --info"
+  on:
+    branch: master
 notifications:
-  slack: mulesoft:IqbP7oSC8usH82K9o2p5TOjT
+  slack:
+    rooms:
+      secure: TG8/EimICjfjbxuHrgVY03JjLCnSIy3aIq9pxv29HBzSpxIusYm91utSVFRJicphhExRgF5Pt7/VEeO7qWkQjtx+l5OQvaRxVAKS8uWR05qkS/6MHSoc3WNOcNoLpuXc4CB1K1rSxxDyfpV4Z/V0UIQ/GpttiwHQlWObmBhKJhcWcOtvI88OJY4/wbdmXs9JK+f4ntpsWQVWyV1wWBSsRveuUu4lycp3sgftcXZKSncFmb76rkSDs+pB/klv5iOEyo8F6sFSVvqUANS3qlrw16KAw54D1XNrvw1mbZ+WWWgEAdSUDsArDIGGGD3lcKBJVT2CpJSyf24mwxf9rvtsJfDKP02Fn6HknED1lJ22p9b5S3H/va01Smkwcxnnd7mF3XXb1n5ToLgaWXV4sZO16nPHtxSIKbDI5Vpfb3Iz6kSDg2I7PkNjla5PTMxrn/ZiPLmbw40ra7DXz7aBLnbYz8tONAw7EphaiURgZzUC0+crtNVNOn0YGvXjFPqy55X1hUoX5F+srJ5om8qqJXW5zXiMrcVH6fwFjXITdwLVLtGT2rs4iAE649vgUpR9Qlc/7ujsqou7kDRzL8y/jullj/YoOTveWQDlpD+lY+qoAp7b/m7+5IddADddxY95mx9EakMmr0/yW5w9NmHYVFvVVpB2OQtaa0jvlG6wV3kf+o8=
