@@ -17,6 +17,7 @@ deploy:
   script: "./gradlew mule-esb-plugin:publishPlugin --stacktrace --info"
   on:
     branch: master
+#Token is encrypted
 notifications:
   slack:
     rooms:
