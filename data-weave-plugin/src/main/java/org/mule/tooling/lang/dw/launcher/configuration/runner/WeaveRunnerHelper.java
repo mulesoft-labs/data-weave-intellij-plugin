@@ -34,7 +34,7 @@ public class WeaveRunnerHelper {
     public static void setupDefaultVMParams(JavaParameters javaParams) {
         //Add default vm parameters
         javaParams.getVMParametersList().add("-Xms64m");
-        javaParams.getVMParametersList().add("-Xmx1024m");
+        javaParams.getVMParametersList().add("-Xmx2G");
         javaParams.getVMParametersList().add("-XX:+HeapDumpOnOutOfMemoryError");
         javaParams.getVMParametersList().add("-XX:+AlwaysPreTouch");
     }

@@ -1,11 +1,9 @@
 package org.mule.tooling.lang.dw.service;
 
 import com.intellij.openapi.Disposable;
-import com.intellij.openapi.application.Application;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.ModalityState;
-import com.intellij.openapi.application.WriteAction;
+import com.intellij.openapi.application.*;
 import com.intellij.openapi.components.AbstractProjectComponent;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.progress.ProcessCanceledException;
@@ -21,6 +19,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiTreeChangeAdapter;
 import com.intellij.psi.PsiTreeChangeEvent;
+import com.intellij.util.concurrency.AppExecutorUtil;
 import com.intellij.util.concurrency.FutureResult;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -33,10 +32,15 @@ import org.mule.weave.v2.debugger.event.WeaveTypeEntry;
 import org.mule.weave.v2.editor.ImplicitInput;
 import org.mule.weave.v2.ts.AnyType;
 import org.mule.weave.v2.ts.WeaveType;
+import scala.Predef;
+import scala.Tuple2;
+import scala.collection.JavaConverters;
+
 
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -46,8 +50,10 @@ import static org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils.getWeaveDocument
 
 public class WeaveRuntimeContextManager extends AbstractProjectComponent implements Disposable {
 
+    private static final Logger LOG = Logger.getInstance(WeaveRuntimeContextManager.class);
+
     private Map<String, Scenario> selectedScenariosByMapping = new HashMap<>();
-    private Map<Scenario, ImplicitInput> implicitInputTypes = new HashMap<>();
+    private Map<Scenario, ImplicitInput> implicitInputTypes = new ConcurrentHashMap<>();
     private Map<Scenario, WeaveType> expectedOutputType = new HashMap<>();
     private Map<String, VirtualFile> dwitFolders = new HashMap<>();
     private WeaveDataFormatDescriptor[] dataFormat = new WeaveDataFormatDescriptor[0];
@@ -149,19 +155,23 @@ public class WeaveRuntimeContextManager extends AbstractProjectComponent impleme
             return;
         }
         final Application app = ApplicationManager.getApplication();
-        if (!app.isDispatchThread()) {
-            return;
+        Runnable r = () -> {
+            final Module moduleForFile = ModuleUtil.findModuleForFile(modifiedFile, myProject);
+
+            app.runWriteAction(() -> {
+                final VirtualFile dwitFolder = getScenariosRootFolder(moduleForFile);
+                if (dwitFolder != null && VfsUtil.isAncestor(dwitFolder, modifiedFile, true)) {
+                    VirtualFile scenario = findScenario(modifiedFile, dwitFolder);
+                    onModified(new Scenario(scenario));
+                }
+            });
+        };
+        if (app.isDispatchThread()) {
+            r.run();
+        } else {
+            app.invokeLater(r);
         }
 
-        final Module moduleForFile = ModuleUtil.findModuleForFile(modifiedFile, myProject);
-
-        app.runWriteAction(() -> {
-            final VirtualFile dwitFolder = getScenariosRootFolder(moduleForFile);
-            if (dwitFolder != null && VfsUtil.isAncestor(dwitFolder, modifiedFile, true)) {
-                VirtualFile scenario = findScenario(modifiedFile, dwitFolder);
-                onModified(new Scenario(scenario));
-            }
-        });
 
 //        Runnable action = new Runnable() {
 //            @Override
@@ -266,40 +276,67 @@ public class WeaveRuntimeContextManager extends AbstractProjectComponent impleme
     @Nullable
     public ImplicitInput getImplicitInputTypes(WeaveDocument weaveDocument) {
         final Scenario currentScenario = getCurrentScenarioFor(weaveDocument);
-        if (weaveDocument == null) {
+        if (weaveDocument == null || currentScenario == null) {
             return null;
         }
         if (implicitInputTypes.containsKey(currentScenario)) {
             return implicitInputTypes.get(currentScenario);
         } else {
             final FutureResult<ImplicitInput> futureResult = new FutureResult<>();
-            if (currentScenario != null && WeaveAgentRuntimeManager.getInstance(myProject).isWeaveRuntimeInstalled()) {
+            if (WeaveAgentRuntimeManager.getInstance(myProject).isWeaveRuntimeInstalled()) {
                 VirtualFile inputs = currentScenario.getInputs();
                 if (inputs != null) {
-                    WeaveAgentRuntimeManager.getInstance(myProject).calculateImplicitInputTypes(inputs.getPath(), event -> {
-                        final ImplicitInput implicitInput = new ImplicitInput();
-                        final WeaveTypeEntry[] weaveTypeEntries = event.types();
-                        final WeaveEditorToolingAPI dataWeaveServiceManager = getWeaveServiceManager();
-                        for (WeaveTypeEntry weaveTypeEntry : weaveTypeEntries) {
-                            WeaveType weaveType = dataWeaveServiceManager.parseType(weaveTypeEntry.wtypeString());
-                            if (weaveType == null) {
-                                //If no type was infer the use any
-                                weaveType = AnyType.apply();
+                    AppExecutorUtil.getAppExecutorService().submit(() -> {
+                                WeaveAgentRuntimeManager.getInstance(myProject)
+                                        .calculateImplicitInputTypes(inputs.getPath(), event -> {
+                                            final ImplicitInput implicitInput = new ImplicitInput();
+                                            final WeaveTypeEntry[] weaveTypeEntries = event.types();
+                                            final WeaveEditorToolingAPI dataWeaveServiceManager = getWeaveServiceManager();
+                                            for (WeaveTypeEntry weaveTypeEntry : weaveTypeEntries) {
+                                                WeaveType weaveType = dataWeaveServiceManager.parseType(weaveTypeEntry.wtypeString());
+                                                if (weaveType == null) {
+                                                    //If no type was infer the use any
+                                                    weaveType = AnyType.apply();
+                                                }
+                                                implicitInput.addInput(weaveTypeEntry.name(), weaveType);
+                                            }
+                                            implicitInputTypes.put(currentScenario, implicitInput);
+                                            futureResult.set(implicitInput);
+                                        });
                             }
-                            implicitInput.addInput(weaveTypeEntry.name(), weaveType);
-                        }
-                        implicitInputTypes.put(currentScenario, implicitInput);
-                        futureResult.set(implicitInput);
-                    });
+                    );
                     try {
                         return futureResult.get(WeaveConstants.SERVER_TIMEOUT, TimeUnit.MILLISECONDS);
                     } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                        return null;
+                        LOG.warn("Unable Infer Input Types. Reason: \n" + e.getMessage(), e);
+                        final VirtualFile scenarioInputs = currentScenario.getInputs();
+                        if (scenarioInputs != null) {
+                            final VirtualFile[] children = scenarioInputs.getChildren();
+                            final HashMap<String, WeaveType> inputTypes = new HashMap<>();
+                            for (VirtualFile child : children) {
+                                inputTypes.put(child.getNameWithoutExtension(), AnyType.apply());
+                            }
+                            implicitInputTypes.put(currentScenario, ImplicitInput.apply(toScalaImmutableMap(inputTypes)));
+
+                        } else {
+                            implicitInputTypes.put(currentScenario, ImplicitInput.apply());
+                        }
+                        return implicitInputTypes.get(currentScenario);
                     }
                 }
             }
             return null;
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <K, V> scala.collection.immutable.Map<K, V> toScalaImmutableMap(java.util.Map<K, V> javaMap) {
+        final java.util.List<scala.Tuple2<K, V>> list = new java.util.ArrayList<>(javaMap.size());
+        for (final java.util.Map.Entry<K, V> entry : javaMap.entrySet()) {
+            list.add(scala.Tuple2.apply(entry.getKey(), entry.getValue()));
+        }
+        final scala.collection.Seq<Tuple2<K, V>> seq = scala.collection.JavaConverters.asScalaBufferConverter(list).asScala().toSeq();
+        return (scala.collection.immutable.Map<K, V>) scala.collection.immutable.Map$.MODULE$.apply(seq);
     }
 
     public WeaveEditorToolingAPI getWeaveServiceManager() {
@@ -311,11 +348,11 @@ public class WeaveRuntimeContextManager extends AbstractProjectComponent impleme
         if (weaveDocument == null) {
             return null;
         }
-        String qName = weaveDocument.getQualifiedName();
+        String qName = ReadAction.compute(() -> weaveDocument.getQualifiedName());
         Scenario scenario = selectedScenariosByMapping.get(qName);
         if (scenario == null || !scenario.isValid()) {
             selectedScenariosByMapping.remove(qName);
-            List<Scenario> scenarios = getScenariosFor(weaveDocument);
+            List<Scenario> scenarios = ReadAction.compute(() -> getScenariosFor(weaveDocument));
             if (!scenarios.isEmpty()) {
                 scenario = scenarios.get(0);
             }
@@ -372,7 +409,7 @@ public class WeaveRuntimeContextManager extends AbstractProjectComponent impleme
     public VirtualFile findMappingTestFolder(PsiFile psiFile) {
         WeaveDocument document = getWeaveDocument(psiFile);
         if (document != null) {
-            String qualifiedName = document.getQualifiedName();
+            String qualifiedName = ReadAction.compute(() -> document.getQualifiedName());
             VirtualFile scenariosRootFolder = getScenariosRootFolder(psiFile);
             if (scenariosRootFolder != null && scenariosRootFolder.isValid()) {
                 return scenariosRootFolder.findChild(qualifiedName);

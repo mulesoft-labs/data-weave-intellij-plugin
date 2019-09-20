@@ -203,6 +203,10 @@ public class WeavePsiUtils {
         return null;
     }
 
+    public static Collection<WeaveInputDirective> getInputTypes(WeaveDocument weaveDocument) {
+        return PsiTreeUtil.findChildrenOfAnyType(weaveDocument.getHeader(), WeaveInputDirective.class);
+    }
+
     @Nullable
     public static WeaveDocument getWeaveDocument(PsiFile psiFile) {
         if (psiFile == null) {

@@ -33,11 +33,13 @@ public class WeaveConfiguration extends ModuleBasedConfiguration implements Modu
   public static final String PREFIX = "DataWeaveConfig-";
   public static final String WEAVE_NAME_IDENTIFIER = PREFIX + "WeaveNameIdentifier";
   public static final String WEAVE_SCENARIO = PREFIX + "WeaveScenario";
+  public static final String WEAVE_OUTPUT = PREFIX + "WeaveOutput";
 
 
   private Project project;
   private String nameIdentifier;
   private String scenario;
+  private String outputPath;
 
 
   protected WeaveConfiguration(String name, @NotNull ConfigurationFactory factory, Project project) {
@@ -63,6 +65,7 @@ public class WeaveConfiguration extends ModuleBasedConfiguration implements Modu
     super.readExternal(element);
     this.nameIdentifier = JDOMExternalizerUtil.readField(element, WEAVE_NAME_IDENTIFIER);
     this.scenario = JDOMExternalizerUtil.readField(element, WEAVE_SCENARIO);
+    this.outputPath = JDOMExternalizerUtil.readField(element, WEAVE_OUTPUT);
     getConfigurationModule().readExternal(element);
   }
 
@@ -73,6 +76,7 @@ public class WeaveConfiguration extends ModuleBasedConfiguration implements Modu
     // Stores the values of this class into the parent
     JDOMExternalizerUtil.writeField(element, WEAVE_NAME_IDENTIFIER, this.getNameIdentifier());
     JDOMExternalizerUtil.writeField(element, WEAVE_SCENARIO, this.getScenario());
+    JDOMExternalizerUtil.writeField(element, WEAVE_OUTPUT, this.getOutputPath());
     getConfigurationModule().writeExternal(element);
   }
 
@@ -105,6 +109,14 @@ public class WeaveConfiguration extends ModuleBasedConfiguration implements Modu
 
   public String getScenario() {
     return scenario;
+  }
+
+  public String getOutputPath() {
+    return outputPath;
+  }
+
+  public void setOutputPath(String outputPath) {
+    this.outputPath = outputPath;
   }
 
   public void setScenario(String scenario) {

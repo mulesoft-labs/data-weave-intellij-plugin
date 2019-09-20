@@ -52,7 +52,9 @@ public class WeaveValidatorAnnotator extends ExternalAnnotator<PsiFile, Validati
     final WeaveRuntimeContextManager scenariosManager = WeaveRuntimeContextManager.getInstance(project);
     final WeaveEditorToolingAPI toolingAPI = WeaveEditorToolingAPI.getInstance(project);
     final ImplicitInput currentImplicitTypes = ReadAction.compute(() -> scenariosManager.getImplicitInputTypes(weaveDocument));
-    if (weaveDocument.isModuleDocument() || currentImplicitTypes != null) {
+    final Boolean compute = ReadAction.compute(() -> WeavePsiUtils.getInputTypes(weaveDocument).isEmpty());
+    //Also type check if
+    if (weaveDocument.isModuleDocument() || currentImplicitTypes != null || !compute) {
       return toolingAPI.typeCheck(file);
     } else {
       if (cache == null) {

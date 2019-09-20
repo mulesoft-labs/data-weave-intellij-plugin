@@ -12,6 +12,7 @@ public class WeaveRunnerConfPanel {
   private ModulesComboBox moduleCombo;
   private WeaveNameIdentifierSelector nameIdentifier;
   private WeaveScenarioComboBox scenario;
+  private JTextField outputPath;
 
   public WeaveRunnerConfPanel() {
     moduleCombo.addItemListener(e -> {
@@ -35,6 +36,10 @@ public class WeaveRunnerConfPanel {
 
   public WeaveNameIdentifierSelector getNameIdentifier() {
     return nameIdentifier;
+  }
+
+  public JTextField getOutputPath() {
+    return outputPath;
   }
 }
 

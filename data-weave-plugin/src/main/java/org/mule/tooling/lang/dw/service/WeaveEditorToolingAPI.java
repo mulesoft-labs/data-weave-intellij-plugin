@@ -169,6 +169,9 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
     }
 
     private WeaveDocumentToolingService didOpen(PsiFile psiFile, boolean useExpectedOutput) {
+        final WeaveRuntimeContextManager instance = WeaveRuntimeContextManager.getInstance(myProject);
+        final WeaveDocument weaveDocument = ReadAction.compute(() -> WeavePsiUtils.getWeaveDocument(psiFile));
+        final ImplicitInput currentImplicitTypes = instance.getImplicitInputTypes(weaveDocument);
         return ReadAction.compute(() -> {
             com.intellij.openapi.vfs.VirtualFile virtualFile = psiFile.getVirtualFile();
             final VirtualFile file;
@@ -181,9 +184,6 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
                 final String url = virtualFile.getUrl();
                 file = projectVirtualFileSystem.file(url);
             }
-            final WeaveRuntimeContextManager instance = WeaveRuntimeContextManager.getInstance(myProject);
-            final WeaveDocument weaveDocument = WeavePsiUtils.getWeaveDocument(psiFile);
-            final ImplicitInput currentImplicitTypes = instance.getImplicitInputTypes(weaveDocument);
             final WeaveType expectedOutput = useExpectedOutput ? instance.getExpectedOutput(weaveDocument) : null;
             final Option<WeaveType> apply = Option.<WeaveType>apply(expectedOutput);
             if (virtualFile != null && virtualFile.isInLocalFileSystem()) {

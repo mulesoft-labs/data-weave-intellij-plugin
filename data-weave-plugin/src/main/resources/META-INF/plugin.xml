@@ -218,13 +218,16 @@
         <toolWindow id="Weave Internals" anchor="bottom"
                     factoryClass="org.mule.tooling.lang.dw.develop_view.DevelopToolingWindowFactory"
                     icon="AllIcons.Actions.Dump"/>
+
+        <toolWindow id="Weave Cheat Sheet" anchor="right"
+                    factoryClass="org.mule.tooling.lang.dw.cheatsheetview.CheatSheetToolingWindowFactory"
+                    icon="AllIcons.Actions.Help"/>
         <applicationConfigurable instance="org.mule.tooling.lang.dw.settings.DataWeaveSettings" id="Anypoint DataWeave"
                                  displayName="Anypoint DataWeave"
                                  groupId="root"
         />
 
         <applicationService id="DataWeave State"
-                            serviceInterface="org.mule.tooling.lang.dw.settings.DataWeaveSettingsState"
                             serviceImplementation="org.mule.tooling.lang.dw.settings.DataWeaveSettingsState"/>
         <codeInsight.parameterNameHints language="Weave"
                                         implementationClass="org.mule.tooling.lang.dw.hints.WeaveInlayParameterHintsProvider"/>

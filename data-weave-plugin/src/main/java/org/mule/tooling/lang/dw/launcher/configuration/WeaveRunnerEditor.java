@@ -36,6 +36,7 @@ public class WeaveRunnerEditor extends SettingsEditor<WeaveConfiguration> {
     }
     this.configurationPanel.getModuleCombo().setSelectedModule(selectedModule);
     this.configurationPanel.getNameIdentifier().setNameIdentifier(runnerConfiguration.getNameIdentifier());
+    this.configurationPanel.getOutputPath().setText(runnerConfiguration.getOutputPath());
     this.configurationPanel.getScenario().setModule(selectedModule);
     this.configurationPanel.getScenario().setNameIdentifier(runnerConfiguration.getNameIdentifier());
     this.configurationPanel.getScenario().setScenario(runnerConfiguration.getScenario());
@@ -53,6 +54,7 @@ public class WeaveRunnerEditor extends SettingsEditor<WeaveConfiguration> {
       runnerConfiguration.setScenario(scenario.getName());
     }
     runnerConfiguration.setNameIdentifier(this.configurationPanel.getNameIdentifier().getNameIdentifier());
+    runnerConfiguration.setOutputPath(this.configurationPanel.getOutputPath().getText());
     final Module selectedModule = this.configurationPanel.getModuleCombo().getSelectedModule();
     if (selectedModule != null) {
       runnerConfiguration.setModule(selectedModule);

@@ -19,7 +19,7 @@ import com.intellij.notification.Notifications;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ReadAction;
-import com.intellij.openapi.components.AbstractProjectComponent;
+import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
@@ -42,6 +42,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.WeaveConstants;
 import org.mule.tooling.lang.dw.launcher.configuration.runner.WeaveRunnerHelper;
+import org.mule.tooling.lang.dw.settings.DataWeaveSettingsState;
 import org.mule.weave.v2.debugger.client.ConnectionRetriesListener;
 import org.mule.weave.v2.debugger.client.DefaultWeaveAgentClientListener;
 import org.mule.weave.v2.debugger.client.WeaveAgentClient;
@@ -52,7 +53,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WeaveAgentRuntimeManager extends AbstractProjectComponent implements Disposable {
+public class WeaveAgentRuntimeManager  implements Disposable,ProjectComponent {
 
     public static final int MAX_RETRIES = 10;
     public static final long ONE_SECOND_DELAY = 1000L;
@@ -66,9 +67,10 @@ public class WeaveAgentRuntimeManager extends AbstractProjectComponent implement
     private Alarm idleAgentAlarm = new Alarm(Alarm.ThreadToUse.POOLED_THREAD, this);
 
     private static final Logger LOG = Logger.getInstance(WeaveAgentRuntimeManager.class);
+    private Project myProject;
 
     protected WeaveAgentRuntimeManager(Project project) {
-        super(project);
+        this.myProject = project;
         this.listeners = new ArrayList<>();
     }
 
@@ -81,10 +83,10 @@ public class WeaveAgentRuntimeManager extends AbstractProjectComponent implement
 
     @Override
     public void projectOpened() {
-        super.projectOpened();
+
         myProject.getMessageBus().connect(myProject).subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootListener() {
             @Override
-            public void rootsChanged(ModuleRootEvent event) {
+            public void rootsChanged(@NotNull ModuleRootEvent event) {
                 //We stop the server as classpath has changed
                 tearDown();
             }
@@ -103,7 +105,6 @@ public class WeaveAgentRuntimeManager extends AbstractProjectComponent implement
 
     @Override
     public void projectClosed() {
-        super.projectClosed();
         tearDown();
     }
 
@@ -158,7 +159,7 @@ public class WeaveAgentRuntimeManager extends AbstractProjectComponent implement
                 processHandler.waitFor(ONE_SECOND_DELAY);
             } catch (Throwable e) {
                 Notifications.Bus.notify(new Notification("Data Weave", "Unable to start agent", "Unable to start agent. Reason: \n" + e.getMessage(), NotificationType.ERROR));
-                LOG.error("\"Unable to start agent. Reason: \\n\" + e.getMessage()", e);
+                LOG.warn("\"Unable to start agent. Reason: \\n\" + e.getMessage()", e);
                 e.printStackTrace();
                 disable();
                 return;
@@ -199,7 +200,7 @@ public class WeaveAgentRuntimeManager extends AbstractProjectComponent implement
                     listener.agentStarted();
                 }
             } else {
-                LOG.error("WeaveAgentRuntimeManager cannot be started, disabling...");
+                LOG.warn("WeaveAgentRuntimeManager cannot be started, disabling...");
                 //disable the service as for some weird reason it can not be started
                 disable();
             }
@@ -219,7 +220,7 @@ public class WeaveAgentRuntimeManager extends AbstractProjectComponent implement
                 return;
             }
             tearDown();
-        }, WeaveConstants.LONG_TIMEOUT);
+        }, DataWeaveSettingsState.getInstance().getMaxTimePreview() * 100);
         //If after 5 minute the agent is not used it is going to be teardown to avoid too many running servers
     }
 
@@ -288,7 +289,7 @@ public class WeaveAgentRuntimeManager extends AbstractProjectComponent implement
                 onConnected.run();
             } else {
                 Notifications.Bus.notify(new Notification("Data Weave", "Unable to connect", "Client is not able to connect to runtime", NotificationType.WARNING));
-                LOG.error("Unable to connect; Client is " + client);
+                LOG.warn("Unable to connect; Client is " + client);
             }
         }
     }

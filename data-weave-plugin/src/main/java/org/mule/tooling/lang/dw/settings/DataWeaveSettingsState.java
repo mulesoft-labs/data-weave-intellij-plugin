@@ -14,12 +14,14 @@ public class DataWeaveSettingsState implements PersistentStateComponent<DataWeav
 
     public static final String DOT_PATH = "/usr/local/bin/dot";
     public static final int MAX_AMOUNT_OF_CHARACTERS = 40000;
+    public static final int MAX_TIME_PREVIEW = 40000;
 
     private String cmdPath = DOT_PATH;
 
     private Boolean showParametersName = true;
     private Boolean showTypeInference = true;
     private int maxAmountOfCharsForSemanticAnalysis = MAX_AMOUNT_OF_CHARACTERS;
+    private int maxTimePreview = MAX_TIME_PREVIEW;
 
     public DataWeaveSettingsState() {
     }
@@ -54,6 +56,14 @@ public class DataWeaveSettingsState implements PersistentStateComponent<DataWeav
 
     public void setMaxAmountOfCharsForSemanticAnalysis(int maxAmountOfCharsForSemanticAnalysis) {
         this.maxAmountOfCharsForSemanticAnalysis = maxAmountOfCharsForSemanticAnalysis;
+    }
+
+    public int getMaxTimePreview() {
+        return maxTimePreview;
+    }
+
+    public void setMaxTimePreview(int maxTimePreview) {
+        this.maxTimePreview = maxTimePreview;
     }
 
     public boolean isBigFileForSemanticAnalysis(PsiFile file){

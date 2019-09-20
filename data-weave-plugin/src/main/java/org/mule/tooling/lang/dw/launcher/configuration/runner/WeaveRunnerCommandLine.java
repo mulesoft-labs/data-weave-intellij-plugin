@@ -16,46 +16,50 @@ import scala.Option;
 
 public class WeaveRunnerCommandLine extends WeaveCommandLineState {
 
-  //Mule Main Class
+    //Mule Main Class
 
-  private final boolean isDebug;
-  private WeaveConfiguration model;
+    private final boolean isDebug;
+    private WeaveConfiguration model;
 
-  public WeaveRunnerCommandLine(@NotNull ExecutionEnvironment environment, WeaveConfiguration model) {
-    super(environment);
-    this.isDebug = DefaultDebugExecutor.EXECUTOR_ID.equals(environment.getExecutor().getId());
-    this.model = model;
-  }
-
-  @Override
-  protected JavaParameters createJavaParameters() {
-    // Use the same JDK as the project
-    final Project project = this.model.getProject();
-
-    final JavaParameters javaParams = WeaveRunnerHelper.createJavaParameters(project);
-    if (isDebug) {
-      javaParams.getProgramParametersList().add("-debug");
+    public WeaveRunnerCommandLine(@NotNull ExecutionEnvironment environment, WeaveConfiguration model) {
+        super(environment);
+        this.isDebug = DefaultDebugExecutor.EXECUTOR_ID.equals(environment.getExecutor().getId());
+        this.model = model;
     }
-    final String scenario = model.getScenario();
-    if (!StringUtils.isBlank(scenario)) {
-      VirtualFile resolve = VirtualFileSystemUtils.resolve(model.getModule(), NameIdentifier.apply(model.getNameIdentifier(), Option.empty()));
-      if (resolve != null) {
-        final WeaveRuntimeContextManager instance = WeaveRuntimeContextManager.getInstance(project);
-        Scenario scenarioWithName = instance.getScenarioWithName(resolve, scenario);
-        if (scenarioWithName != null && scenarioWithName.getInputs() != null) {
-          javaParams.getProgramParametersList().add("-scenario", scenarioWithName.getInputs().getPath());
+
+    @Override
+    protected JavaParameters createJavaParameters() {
+        // Use the same JDK as the project
+        final Project project = this.model.getProject();
+
+        final JavaParameters javaParams = WeaveRunnerHelper.createJavaParameters(project);
+        if (isDebug) {
+            javaParams.getProgramParametersList().add("-debug");
         }
-      }
+        final String scenario = model.getScenario();
+        if (!StringUtils.isBlank(scenario)) {
+            VirtualFile resolve = VirtualFileSystemUtils.resolve(model.getModule(), NameIdentifier.apply(model.getNameIdentifier(), Option.empty()));
+            if (resolve != null) {
+                final WeaveRuntimeContextManager instance = WeaveRuntimeContextManager.getInstance(project);
+                Scenario scenarioWithName = instance.getScenarioWithName(resolve, scenario);
+                if (scenarioWithName != null && scenarioWithName.getInputs() != null) {
+                    javaParams.getProgramParametersList().add("-scenario", scenarioWithName.getInputs().getPath());
+                }
+            }
+        }
+
+        if (StringUtils.isNotBlank(model.getOutputPath())) {
+            javaParams.getProgramParametersList().add("-output", model.getOutputPath());
+        }
+
+        javaParams.getProgramParametersList().add(model.getNameIdentifier());
+
+        // All done, run it
+        return javaParams;
     }
 
-    javaParams.getProgramParametersList().add(model.getNameIdentifier());
-
-    // All done, run it
-    return javaParams;
-  }
-
-  public WeaveConfiguration getModel() {
-    return model;
-  }
+    public WeaveConfiguration getModel() {
+        return model;
+    }
 
 }
