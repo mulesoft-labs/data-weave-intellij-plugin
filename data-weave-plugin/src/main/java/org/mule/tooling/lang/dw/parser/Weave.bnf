@@ -392,11 +392,11 @@ DeconstructVariableDeclaration::=Identifier {
 
 LiteralPattern ::= (LiteralExpression | FqnIdentifier ) '->' Expression {pin=2}
 
-ExpressionPattern ::= Identifier IF SimpleExpression '->' Expression {
+ExpressionPattern ::= Identifier IF (EnclosedExpression | SimpleExpression) '->' Expression {
      methods = [getName setName getNameIdentifier]
      implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
      mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
-     pin=2
+     pin=4
 }
 
 NamedLiteralPattern ::= Identifier ':' LiteralExpression '->' Expression {
