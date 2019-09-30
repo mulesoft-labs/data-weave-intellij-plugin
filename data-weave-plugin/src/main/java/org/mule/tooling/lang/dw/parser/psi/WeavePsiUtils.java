@@ -33,6 +33,8 @@ public class WeavePsiUtils {
             WeaveTypes.DEFAULT,
             WeaveTypes.MATCHES_KEYWORD,
             WeaveTypes.MATCH_KEYWORD,
+            WeaveTypes.UPDATE_KEYWORD,
+            WeaveTypes.AT_KEYWORD,
             WeaveTypes.DO_KEYWORD
     );
 

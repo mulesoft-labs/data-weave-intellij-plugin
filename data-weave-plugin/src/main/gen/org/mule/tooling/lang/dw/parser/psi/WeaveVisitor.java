@@ -489,6 +489,18 @@ public class WeaveVisitor extends PsiElementVisitor {
     visitType(o);
   }
 
+  public void visitUpdateCase(@NotNull WeaveUpdateCase o) {
+    visitPsiElement(o);
+  }
+
+  public void visitUpdateCases(@NotNull WeaveUpdateCases o) {
+    visitPsiElement(o);
+  }
+
+  public void visitUpdateExpression(@NotNull WeaveUpdateExpression o) {
+    visitExpression(o);
+  }
+
   public void visitUsingExpression(@NotNull WeaveUsingExpression o) {
     visitExpression(o);
   }

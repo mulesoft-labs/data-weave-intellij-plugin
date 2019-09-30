@@ -81,6 +81,8 @@
         TYPE_DIRECTIVE_KEYWORD="type"
         MATCHES_KEYWORD="matches"
         MATCH_KEYWORD="match"
+        UPDATE_KEYWORD="update"
+        AT_KEYWORD="at"
         OUTPUT_DIRECTIVE_KEYWORD="output"
         NOT_KEYWORD="not"
         CASE_KEYWORD="case"
@@ -242,6 +244,7 @@ DynamicAttribute ::= '(' Expression ')' ((':' Expression) | (IF Expression))?
 SimpleAttribute::= QualifiedName ':' Expression
 
 Expression::= MatchExpression
+            | UpdateExpression
             | CustomInterpolatorExpression
             | DefaultValueExpression
             | BinaryExpression
@@ -360,6 +363,17 @@ DotSelectorExpression ::=Expression ( '..' | '.' ) Selector? ('!'| '?')? {pin=2}
 BracketSelectorExpression::=Expression '[' (('?' |'@' | '&' | '^' |'*')?  (Expression ))  ']' ('!'| '?')?
 
 MatchExpression ::= Expression 'match' (PatternMatcherExpression )
+
+UpdateExpression ::= Expression 'update' (UpdateCases)
+
+UpdateCases ::= '{' ('case' UpdateCase)+ '}' {pin = 2}
+
+UpdateCase ::= ((Identifier | '(' Identifier ',' Identifier ')') 'at')? UpdateSelector (IF EnclosedExpression)? '->' Expression  {
+    pin = 4
+}
+
+private UpdateSelector ::= (('.' (ValueSelector | MultiValueSelector | AttributeSelector)) | '[' NumberLiteral ']') (UpdateSelector)*
+
 
 PatternMatcherExpression ::= '{' ('case' Pattern)+ (DefaultPattern)? '}' {pin = 2}
 
@@ -590,4 +604,4 @@ ContainerModuleIdentifier ::= (Identifier '::')*
 
 CustomLoader ::= Identifier"!"
 
-Identifier ::= (DOLLAR_VARIABLE | ID | 'match' |'matches' | 'from' | 'not')  {methods = [getName] name="Identifier" }
+Identifier ::= (DOLLAR_VARIABLE | ID | MATCH_KEYWORD | MATCHES_KEYWORD | FROM_KEYWORD | NOT_KEYWORD | UPDATE_KEYWORD | AT_KEYWORD)  {methods = [getName] name="Identifier" }

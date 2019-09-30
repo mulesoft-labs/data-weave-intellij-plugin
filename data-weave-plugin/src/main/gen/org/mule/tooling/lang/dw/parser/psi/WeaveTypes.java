@@ -128,6 +128,9 @@ public interface WeaveTypes {
   IElementType UNARY_MINUS_EXPRESSION = new WeaveElementType("UNARY_MINUS_EXPRESSION");
   IElementType UNDEFINED_LITERAL = new WeaveElementType("UNDEFINED_LITERAL");
   IElementType UNION_TYPE = new WeaveElementType("UNION_TYPE");
+  IElementType UPDATE_CASE = new WeaveElementType("UPDATE_CASE");
+  IElementType UPDATE_CASES = new WeaveElementType("UPDATE_CASES");
+  IElementType UPDATE_EXPRESSION = new WeaveElementType("UPDATE_EXPRESSION");
   IElementType USING_EXPRESSION = new WeaveElementType("USING_EXPRESSION");
   IElementType VALUE_SELECTOR = new WeaveElementType("VALUE_SELECTOR");
   IElementType VARIABLE_DEFINITION = new WeaveElementType("VARIABLE_DEFINITION");
@@ -141,6 +144,7 @@ public interface WeaveTypes {
   IElementType ARROW_TOKEN = new WeaveTokenType("->");
   IElementType AS = new WeaveTokenType("as");
   IElementType AT = new WeaveTokenType("@");
+  IElementType AT_KEYWORD = new WeaveTokenType("at");
   IElementType AT_SPACE = new WeaveTokenType("@ ");
   IElementType BACKTIKED_QUOTED_STRING = new WeaveTokenType("BACKTIKED_QUOTED_STRING");
   IElementType CARET_SPACE = new WeaveTokenType("^ ");
@@ -214,6 +218,7 @@ public interface WeaveTypes {
   IElementType TYPE_DIRECTIVE_KEYWORD = new WeaveTokenType("type");
   IElementType UNDERSCORE = new WeaveTokenType("_");
   IElementType UNLESS = new WeaveTokenType("UNLESS");
+  IElementType UPDATE_KEYWORD = new WeaveTokenType("update");
   IElementType USING = new WeaveTokenType("USING");
   IElementType VAR_DIRECTIVE_KEYWORD = new WeaveTokenType("var");
   IElementType VERSION_DIRECTIVE_KEYWORD = new WeaveTokenType("%dw");
@@ -560,6 +565,15 @@ public interface WeaveTypes {
       }
       else if (type == UNION_TYPE) {
         return new WeaveUnionTypeImpl(node);
+      }
+      else if (type == UPDATE_CASE) {
+        return new WeaveUpdateCaseImpl(node);
+      }
+      else if (type == UPDATE_CASES) {
+        return new WeaveUpdateCasesImpl(node);
+      }
+      else if (type == UPDATE_EXPRESSION) {
+        return new WeaveUpdateExpressionImpl(node);
       }
       else if (type == USING_EXPRESSION) {
         return new WeaveUsingExpressionImpl(node);

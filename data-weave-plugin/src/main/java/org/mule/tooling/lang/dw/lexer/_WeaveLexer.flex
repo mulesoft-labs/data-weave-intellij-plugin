@@ -117,6 +117,8 @@ CARET_SPACE="^"[\ \t\f\n]
   "false"                     { return FALSE_LITERAL;}
   "null"                      { return NULL_LITERAL_KEYWORD;}
   "match"                     { return MATCH_KEYWORD;}
+  "update"                     { return UPDATE_KEYWORD;}
+  "at"                     { return AT_KEYWORD;}
   "matches"                     { return MATCHES_KEYWORD;}
   "->"                        { return ARROW_TOKEN;}
   "=>"                        { return FAT_ARROW;}
