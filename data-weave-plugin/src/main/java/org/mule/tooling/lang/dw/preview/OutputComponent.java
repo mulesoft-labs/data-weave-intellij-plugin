@@ -22,8 +22,8 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
+import com.intellij.ui.content.Content;
 import org.jetbrains.annotations.NotNull;
-import org.mule.tooling.lang.dw.WeaveConstants;
 import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.service.Scenario;
@@ -34,6 +34,8 @@ import org.mule.weave.v2.debugger.event.PreviewExecutedSuccessfulEvent;
 import javax.swing.*;
 import java.awt.*;
 import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import static org.mule.tooling.lang.dw.WeaveConstants.DEFAULT_SCENARIO_NAME;
 
@@ -57,6 +59,7 @@ public class OutputComponent implements Disposable {
     private JPanel messagePanel;
     private DiffRequestPanel diffPanel;
     private ShowDiffAction showDiffAction;
+    private Content content;
 
     public OutputComponent() {
         outputDocument = EditorFactory.getInstance().createDocument("");
@@ -109,7 +112,19 @@ public class OutputComponent implements Disposable {
         cardLayout.show(mainPanel, name);
     }
 
-    public void onPreviewResult(PreviewExecutedSuccessfulEvent result, VirtualFile expectedOutput) {
+    public String getCurrentTime() {
+        SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss");
+        Date date = new Date(System.currentTimeMillis());
+        return formatter.format(date);
+    }
+
+    public void setEditorContainer(Content content) {
+
+        this.content = content;
+    }
+
+    public void onPreviewResult(PreviewExecutedSuccessfulEvent result, VirtualFile expectedOutput, long duration) {
+        this.content.setDisplayName("Output \u2713 - Took: " + duration + " ms - At:" + getCurrentTime() + "");
         final String extension = (result.extension().startsWith(".")) ? result.extension().substring(1) : result.extension();
         final String content = getContent(result);
         if (expectedOutput != null) {
@@ -166,19 +181,23 @@ public class OutputComponent implements Disposable {
         }
     }
 
+    public void onPreviewResultFailed() {
+        this.content.setDisplayName("Output \u274C - At: " + getCurrentTime() + "");
+    }
+
     private class SaveOutputAction extends AnAction {
         public SaveOutputAction() {
             super(null, "Save expected output", AllIcons.Actions.Menu_saveall);
         }
 
         @Override
-        public void update(AnActionEvent e) {
+        public void update(@NotNull AnActionEvent e) {
             super.update(e);
             e.getPresentation().setEnabled(outputEditor != null);
         }
 
         @Override
-        public void actionPerformed(AnActionEvent e) {
+        public void actionPerformed(@NotNull AnActionEvent e) {
             Scenario scenario = getOrCreateScenario();
             String ext = outputType.getDefaultExtension();
             scenario.addOutput("out." + ext, outputDocument.getText(), myProject);
@@ -203,7 +222,7 @@ public class OutputComponent implements Disposable {
         private boolean isSelected;
 
         public ShowDiffAction() {
-            super(null, "Show diff", AllIcons.Actions.DiffPreview);
+            super(null, "Show diff", AllIcons.Actions.Diff);
         }
 
         @Override
@@ -213,12 +232,12 @@ public class OutputComponent implements Disposable {
         }
 
         @Override
-        public boolean isSelected(AnActionEvent e) {
+        public boolean isSelected(@NotNull AnActionEvent e) {
             return isSelected;
         }
 
         @Override
-        public void setSelected(AnActionEvent e, boolean state) {
+        public void setSelected(@NotNull AnActionEvent e, boolean state) {
             isSelected = state;
             if (isSelected) {
                 show(DIFF_PANEL);

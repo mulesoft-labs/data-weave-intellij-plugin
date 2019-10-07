@@ -40,7 +40,6 @@ import com.intellij.util.PathsList;
 import com.intellij.util.net.NetUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.mule.tooling.lang.dw.WeaveConstants;
 import org.mule.tooling.lang.dw.launcher.configuration.runner.WeaveRunnerHelper;
 import org.mule.tooling.lang.dw.settings.DataWeaveSettingsState;
 import org.mule.weave.v2.debugger.client.ConnectionRetriesListener;
@@ -233,13 +232,15 @@ public class WeaveAgentRuntimeManager  implements Disposable,ProjectComponent {
                 ApplicationManager.getApplication().executeOnPooledThread(() -> {
                     final String[] paths = getClasspath(module);
                     if (client != null) {
+                        long startTime = System.currentTimeMillis();
                         client.runPreview(inputsPath, script, identifier, url, maxTime, paths, new DefaultWeaveAgentClientListener() {
                             @Override
                             public void onPreviewExecuted(PreviewExecutedEvent result) {
+                                long duration = System.currentTimeMillis() - startTime;
                                 ApplicationManager.getApplication().invokeLater(() -> {
                                     if (result instanceof PreviewExecutedSuccessfulEvent) {
                                         PreviewExecutedSuccessfulEvent successfulEvent = (PreviewExecutedSuccessfulEvent) result;
-                                        callback.onPreviewSuccessful(successfulEvent);
+                                        callback.onPreviewSuccessful(successfulEvent, duration);
                                     } else if (result instanceof PreviewExecutedFailedEvent) {
                                         callback.onPreviewFailed((PreviewExecutedFailedEvent) result);
                                     }

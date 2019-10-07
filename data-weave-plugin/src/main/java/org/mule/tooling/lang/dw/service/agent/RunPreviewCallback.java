@@ -5,7 +5,7 @@ import org.mule.weave.v2.debugger.event.PreviewExecutedSuccessfulEvent;
 
 public interface RunPreviewCallback {
 
-    void onPreviewSuccessful(PreviewExecutedSuccessfulEvent result);
+    void onPreviewSuccessful(PreviewExecutedSuccessfulEvent result, long duration);
 
     void onPreviewFailed(PreviewExecutedFailedEvent message);
 }

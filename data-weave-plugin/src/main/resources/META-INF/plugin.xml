@@ -9,8 +9,6 @@
      DataWeave 2.0 Intellij Plugin. This plugin allows to edit, run debug data weave files.
     ]]></description>
 
-    <idea-version since-build="181"/>
-
     <change-notes><![CDATA[
     <h1>v2.0-BETA</h1>
       <ul>

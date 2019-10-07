@@ -1,8 +1,11 @@
 package org.mule.tooling.lang.dw.service;
 
 import com.intellij.openapi.Disposable;
-import com.intellij.openapi.application.*;
-import com.intellij.openapi.components.AbstractProjectComponent;
+import com.intellij.openapi.application.Application;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ReadAction;
+import com.intellij.openapi.application.WriteAction;
+import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtil;
@@ -11,8 +14,6 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.util.ProgressIndicatorUtils;
 import com.intellij.openapi.progress.util.ReadTask;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ContentEntry;
-import com.intellij.openapi.roots.ModifiableRootModel;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.*;
 import com.intellij.psi.PsiFile;
@@ -32,12 +33,8 @@ import org.mule.weave.v2.debugger.event.WeaveTypeEntry;
 import org.mule.weave.v2.editor.ImplicitInput;
 import org.mule.weave.v2.ts.AnyType;
 import org.mule.weave.v2.ts.WeaveType;
-import scala.Predef;
 import scala.Tuple2;
-import scala.collection.JavaConverters;
 
-
-import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -48,7 +45,7 @@ import java.util.stream.Collectors;
 
 import static org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils.getWeaveDocument;
 
-public class WeaveRuntimeContextManager extends AbstractProjectComponent implements Disposable {
+public class WeaveRuntimeContextManager implements ProjectComponent, Disposable {
 
     private static final Logger LOG = Logger.getInstance(WeaveRuntimeContextManager.class);
 
@@ -60,10 +57,11 @@ public class WeaveRuntimeContextManager extends AbstractProjectComponent impleme
     private String[] modules = new String[0];
 
     private List<StatusChangeListener> listeners = new ArrayList<>();
+    private Project myProject;
 
 
     protected WeaveRuntimeContextManager(Project project) {
-        super(project);
+        myProject = project;
     }
 
     public static WeaveRuntimeContextManager getInstance(Project myProject) {
@@ -83,8 +81,6 @@ public class WeaveRuntimeContextManager extends AbstractProjectComponent impleme
 
     @Override
     public void initComponent() {
-        super.initComponent();
-
         WeaveAgentRuntimeManager.getInstance(myProject).addStatusListener(() -> {
             WeaveAgentRuntimeManager.getInstance(myProject).dataFormats((dataFormatEvent) -> {
                 dataFormat = dataFormatEvent.formats();
@@ -100,7 +96,6 @@ public class WeaveRuntimeContextManager extends AbstractProjectComponent impleme
             });
         });
 
-        //TODO = are we mixing read and write actions?
         PsiManager.getInstance(myProject).addPsiTreeChangeListener(new PsiTreeChangeAdapter() {
             @Override
             public void childReplaced(@NotNull PsiTreeChangeEvent event) {
@@ -360,7 +355,10 @@ public class WeaveRuntimeContextManager extends AbstractProjectComponent impleme
         return scenario;
     }
 
-    public List<Scenario> getScenariosFor(VirtualFile file) {
+    public List<Scenario> getScenariosFor(@Nullable VirtualFile file) {
+        if (file == null) {
+            return Collections.emptyList();
+        }
         PsiFile psiFile = PsiManager.getInstance(myProject).findFile(file);
         if (psiFile != null) {
             final WeaveDocument weaveDocument = WeavePsiUtils.getWeaveDocument(psiFile);
@@ -450,16 +448,15 @@ public class WeaveRuntimeContextManager extends AbstractProjectComponent impleme
     public VirtualFile createMappingTestFolder(PsiFile weaveFile) {
         return WriteAction.compute(() -> {
             try {
-                //TODO: handle creation of dwit folder
-                VirtualFile dwitFolder = getScenariosRootFolder(weaveFile);
-
-                WeaveDocument document = WeavePsiUtils.getWeaveDocument(weaveFile);
+                final VirtualFile dwitFolder = getScenariosRootFolder(weaveFile);
+                if (dwitFolder == null) {
+                    return null;
+                }
+                final WeaveDocument document = WeavePsiUtils.getWeaveDocument(weaveFile);
                 if (document != null) {
                     String qName = document.getQualifiedName();
                     return dwitFolder.createChildDirectory(this, qName);
-
                 } else {
-
                     return null;
                 }
             } catch (IOException e) {
@@ -506,12 +503,9 @@ public class WeaveRuntimeContextManager extends AbstractProjectComponent impleme
 
     public interface StatusChangeListener {
         default void onDataFormatLoaded(WeaveDataFormatDescriptor[] dataFormatDescriptor) {
-
         }
 
         default void onModulesLoaded(String[] modules) {
-
         }
-
     }
 }

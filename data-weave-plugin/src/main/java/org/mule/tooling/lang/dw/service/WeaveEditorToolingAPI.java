@@ -119,11 +119,15 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
     }
 
     public ValidationMessages typeCheck(PsiFile file) {
-        return didOpen(file, false).typeCheck();
+        return ReadAction.compute(() -> {
+            return didOpen(file, false).typeCheck();
+        });
     }
 
     public ValidationMessages parseCheck(PsiFile file) {
-        return didOpen(file, false).parseCheck();
+        return ReadAction.compute(() -> {
+            return didOpen(file, false).parseCheck();
+        });
     }
 
     private WeaveDocumentToolingService didOpen(Document document, boolean useExpectedOutput) {
@@ -346,13 +350,15 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
 
     @Nullable
     public VariableScope scopeOf(PsiElement element) {
-        WeaveDocumentToolingService weaveDocumentToolingService = didOpen(element.getContainingFile(), false);
-        Option<VariableScope> scopeOf = weaveDocumentToolingService.scopeOf(element.getTextRange().getStartOffset(), element.getTextRange().getEndOffset());
-        if (scopeOf.isDefined()) {
-            return scopeOf.get();
-        } else {
-            return null;
-        }
+        return ReadAction.compute(() -> {
+            WeaveDocumentToolingService weaveDocumentToolingService = didOpen(element.getContainingFile(), false);
+            Option<VariableScope> scopeOf = weaveDocumentToolingService.scopeOf(element.getTextRange().getStartOffset(), element.getTextRange().getEndOffset());
+            if (scopeOf.isDefined()) {
+                return scopeOf.get();
+            } else {
+                return null;
+            }
+        });
     }
 
     public VariableDependency[] externalScopeDependencies(PsiElement element, @Nullable VariableScope parent) {
