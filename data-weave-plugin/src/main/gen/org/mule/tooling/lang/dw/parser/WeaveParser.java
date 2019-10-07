@@ -3111,7 +3111,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // ((Identifier | '(' Identifier ',' Identifier ')') 'at')? UpdateSelector (IF EnclosedExpression)? '->' Expression
+  // ((Identifier | '(' Identifier ',' Identifier ')') 'at')? UpdateSelector ('!')? (IF EnclosedExpression)? '->' Expression
   public static boolean UpdateCase(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "UpdateCase")) return false;
     boolean r, p;
@@ -3119,9 +3119,10 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     r = UpdateCase_0(b, l + 1);
     r = r && UpdateSelector(b, l + 1);
     r = r && UpdateCase_2(b, l + 1);
-    r = r && consumeToken(b, ARROW_TOKEN);
+    r = r && UpdateCase_3(b, l + 1);
     p = r; // pin = 4
-    r = r && Expression(b, l + 1, -1);
+    r = r && report_error_(b, consumeToken(b, ARROW_TOKEN));
+    r = p && Expression(b, l + 1, -1) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
   }
@@ -3169,16 +3170,23 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // (IF EnclosedExpression)?
+  // ('!')?
   private static boolean UpdateCase_2(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "UpdateCase_2")) return false;
-    UpdateCase_2_0(b, l + 1);
+    consumeToken(b, ESCLAMATION);
+    return true;
+  }
+
+  // (IF EnclosedExpression)?
+  private static boolean UpdateCase_3(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "UpdateCase_3")) return false;
+    UpdateCase_3_0(b, l + 1);
     return true;
   }
 
   // IF EnclosedExpression
-  private static boolean UpdateCase_2_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "UpdateCase_2_0")) return false;
+  private static boolean UpdateCase_3_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "UpdateCase_3_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, IF);
