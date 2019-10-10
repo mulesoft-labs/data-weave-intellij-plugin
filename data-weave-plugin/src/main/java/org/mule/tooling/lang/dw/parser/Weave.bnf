@@ -372,7 +372,7 @@ UpdateCase ::= ((Identifier | '(' Identifier ',' Identifier ')') 'at')? UpdateSe
     pin = 4
 }
 
-private UpdateSelector ::= (('.' (ValueSelector | MultiValueSelector | AttributeSelector)) | '[' NumberLiteral ']') (UpdateSelector)*
+private UpdateSelector ::= (('.' (ValueSelector | MultiValueSelector | AttributeSelector)) | '[' Expression ']') (UpdateSelector)*
 
 
 PatternMatcherExpression ::= '{' ('case' Pattern)+ (DefaultPattern)? '}' {pin = 2}

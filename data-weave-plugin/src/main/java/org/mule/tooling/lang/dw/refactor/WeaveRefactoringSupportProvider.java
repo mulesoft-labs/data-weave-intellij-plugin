@@ -47,7 +47,7 @@ public class WeaveRefactoringSupportProvider extends RefactoringSupportProvider 
     }
 
     @Override
-    public boolean isMemberInplaceRenameAvailable(PsiElement element, PsiElement context) {
+    public boolean isMemberInplaceRenameAvailable(@NotNull PsiElement element, PsiElement context) {
         return element instanceof WeaveNamedElement;
     }
 

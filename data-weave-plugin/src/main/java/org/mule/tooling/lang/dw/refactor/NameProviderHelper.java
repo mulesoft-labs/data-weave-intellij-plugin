@@ -4,17 +4,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.util.ArrayUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.mule.tooling.lang.dw.parser.psi.WeaveAnyDateLiteral;
-import org.mule.tooling.lang.dw.parser.psi.WeaveArrayExpression;
-import org.mule.tooling.lang.dw.parser.psi.WeaveBooleanLiteral;
-import org.mule.tooling.lang.dw.parser.psi.WeaveDoExpression;
-import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
-import org.mule.tooling.lang.dw.parser.psi.WeaveNumberLiteral;
-import org.mule.tooling.lang.dw.parser.psi.WeaveObjectExpression;
-import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
-import org.mule.tooling.lang.dw.parser.psi.WeaveRegexLiteral;
-import org.mule.tooling.lang.dw.parser.psi.WeaveStringLiteral;
-import org.mule.tooling.lang.dw.parser.psi.WeaveType;
+import org.mule.tooling.lang.dw.parser.psi.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -67,7 +57,7 @@ public class NameProviderHelper {
             result.add(defaultName);
         }
         //We should get a non repated name
-        return result.stream().map((name) -> makeNameUnike(name, alreadyUsedNames)).collect(Collectors.toList());
+        return result.stream().map((name) -> makeNameUnique(name, alreadyUsedNames)).collect(Collectors.toList());
     }
 
     @NotNull
@@ -108,8 +98,7 @@ public class NameProviderHelper {
     }
 
 
-    private static String makeNameUnike(String baseName, List<String> allGlobalNames) {
-
+    private static String makeNameUnique(String baseName, List<String> allGlobalNames) {
         String name = baseName;
         int i = 0;
         while (allGlobalNames.contains(name)) {
@@ -122,6 +111,9 @@ public class NameProviderHelper {
     @NotNull
     public static List<String> possibleFunctionNames(PsiElement valueToReplace) {
         final WeaveDocument document = WeavePsiUtils.getDocument(valueToReplace);
+        if (document == null) {
+            return Collections.emptyList();
+        }
         final List<String> allGlobalNames = WeavePsiUtils.getAllGlobalNames(document);
         return possibleNamesFor(valueToReplace, allGlobalNames, "get", "myFunction");
     }

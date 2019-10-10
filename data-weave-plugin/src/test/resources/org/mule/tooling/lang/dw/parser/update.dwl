@@ -16,5 +16,9 @@ ns foo http://test.com
         case test at .@foo#"c"."a-b" -> test
         case (test,index) at .@foo#"c"."a-b" -> test
         case (test,index) at .*foo if(index == 1) -> test
+        case .c."a-b"! -> 123
+        case .c."a-b".c! -> 123
+        case (test,index) at .*foo! if(index == 1) -> test
+        case .a[random()] -> 123
     }
 }

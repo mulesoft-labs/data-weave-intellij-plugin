@@ -52,6 +52,8 @@ public class IntroduceFunctionHandler extends AbstractIntroduceDirectiveHandler 
     public void invoke(@NotNull Project project, Editor editor, PsiFile psiFile, DataContext dataContext, PsiElement valueToReplace) {
         final WeaveEditorToolingAPI instance = WeaveEditorToolingAPI.getInstance(project);
         final VariableScope variableScope = instance.scopeOf(valueToReplace);
+        if (variableScope == null)
+            return;
         final List<VariableScope> variableScopes = variablesScopesHierarchy(variableScope)
                 .stream()
                 .filter((varScope) -> !(varScope.astNode() instanceof FunctionNode))
@@ -93,7 +95,7 @@ public class IntroduceFunctionHandler extends AbstractIntroduceDirectiveHandler 
         });
 
         JBPopupFactory.getInstance().createListPopupBuilder(list)
-                .setTitle("Select the target scope")
+                .setTitle("Select the Target Scope")
                 .setMovable(false)
                 .setResizable(false)
                 .setRequestFocus(true)
@@ -105,12 +107,12 @@ public class IntroduceFunctionHandler extends AbstractIntroduceDirectiveHandler 
                 })
                 .addListener(new JBPopupListener() {
                     @Override
-                    public void beforeShown(LightweightWindowEvent lightweightWindowEvent) {
+                    public void beforeShown(@NotNull LightweightWindowEvent lightweightWindowEvent) {
 
                     }
 
                     @Override
-                    public void onClosed(LightweightWindowEvent lightweightWindowEvent) {
+                    public void onClosed(@NotNull LightweightWindowEvent lightweightWindowEvent) {
                         highlighter.dropHighlight();
                     }
                 })
@@ -118,7 +120,8 @@ public class IntroduceFunctionHandler extends AbstractIntroduceDirectiveHandler 
                 .showInBestPositionFor(editor);
     }
 
-    private String getScopeName(PsiFile file, VariableScope value) {
+    @NotNull
+    private String getScopeName(PsiFile file, @NotNull VariableScope value) {
         PsiElement scopeNode = VariableScopeUtils.getScopeNode(file, value);
         if (scopeNode instanceof WeaveDocument) {
             return "Global Scope";

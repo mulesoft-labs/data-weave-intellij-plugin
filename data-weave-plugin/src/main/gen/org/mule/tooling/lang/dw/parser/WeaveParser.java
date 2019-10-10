@@ -3237,7 +3237,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // (('.' (ValueSelector | MultiValueSelector | AttributeSelector)) | '[' NumberLiteral ']') (UpdateSelector)*
+  // (('.' (ValueSelector | MultiValueSelector | AttributeSelector)) | '[' Expression ']') (UpdateSelector)*
   static boolean UpdateSelector(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "UpdateSelector")) return false;
     boolean r;
@@ -3248,7 +3248,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // ('.' (ValueSelector | MultiValueSelector | AttributeSelector)) | '[' NumberLiteral ']'
+  // ('.' (ValueSelector | MultiValueSelector | AttributeSelector)) | '[' Expression ']'
   private static boolean UpdateSelector_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "UpdateSelector_0")) return false;
     boolean r;
@@ -3280,13 +3280,13 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // '[' NumberLiteral ']'
+  // '[' Expression ']'
   private static boolean UpdateSelector_0_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "UpdateSelector_0_1")) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, L_BRACKET);
-    r = r && NumberLiteral(b, l + 1);
+    r = r && Expression(b, l + 1, -1);
     r = r && consumeToken(b, R_BRACKET);
     exit_section_(b, m, null, r);
     return r;
