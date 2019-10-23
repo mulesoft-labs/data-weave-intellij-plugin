@@ -91,5 +91,9 @@
             <id>mule-releases</id>
             <url>https://repository-master.mulesoft.org/nexus/content/repositories/releases</url>
         </pluginRepository>
+        <pluginRepository>
+            <id>mule-snapshots</id>
+            <url>https://repository-master.mulesoft.org/nexus/content/repositories/snapshots</url>
+        </pluginRepository>
     </pluginRepositories>
 </project>
