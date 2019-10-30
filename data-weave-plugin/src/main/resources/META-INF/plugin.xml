@@ -141,6 +141,16 @@
           </ul>
         </li>
       </ul>
+       <h1>v2.0.27</h1>
+      <ul>
+       <li>
+          <p>DataWeave 2.0 Support</p>
+          <ul>
+            <li>Lots of Autocompletion Improvements</li>
+            <li>Better Parsing Error Handling and Error Messages</li>
+          </ul>
+        </li>
+      </ul>
     ]]>
     </change-notes>
 
