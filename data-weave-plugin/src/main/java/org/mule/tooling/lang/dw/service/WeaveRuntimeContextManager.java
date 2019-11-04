@@ -166,19 +166,6 @@ public class WeaveRuntimeContextManager implements ProjectComponent, Disposable 
         } else {
             app.invokeLater(r);
         }
-
-
-//        Runnable action = new Runnable() {
-//            @Override
-//            public void run() {
-//            }
-//        };
-//
-//        action.run();
-        //else {
-        //    app.invokeAndWait(action, ModalityState.any());
-        //app.invokeAndWait(action, ModalityState.current());
-        //}
     }
 
     @NotNull
@@ -439,7 +426,7 @@ public class WeaveRuntimeContextManager implements ProjectComponent, Disposable 
                 return null;
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            LOG.error(e);
             return null;
         }
     }
@@ -460,6 +447,7 @@ public class WeaveRuntimeContextManager implements ProjectComponent, Disposable 
                     return null;
                 }
             } catch (IOException e) {
+                LOG.error(e);
                 return null;
             }
         });

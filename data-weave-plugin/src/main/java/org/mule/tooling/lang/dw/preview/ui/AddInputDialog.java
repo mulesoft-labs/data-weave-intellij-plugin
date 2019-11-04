@@ -9,8 +9,6 @@ import com.intellij.ui.EnumComboBoxModel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.WeaveConstants;
-import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
-import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.service.Scenario;
 import org.mule.tooling.lang.dw.service.WeaveRuntimeContextManager;
 
@@ -77,28 +75,29 @@ public class AddInputDialog extends DialogWrapper {
 
         WriteAction.run(() -> {
             Scenario scenario = getOrCreateScenario();
-
-            DataFormat format = getFormat();
-            String fileName = getInputFileName();
-            VirtualFile inputFile = scenario.addInput(fileName);
-            switch (format) {
-                case JSON:
-                    setFileContent(inputFile, "{\n  \"a\": 1\n}");
-                    break;
-                case XML:
-                    setFileContent(inputFile, "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<element></element>");
-                    break;
-                case CSV:
-                    setFileContent(inputFile, "name,lastName\nJohn,Doe");
-                    break;
-                default:
-                    break;
+            if(scenario != null) {
+                DataFormat format = getFormat();
+                String fileName = getInputFileName();
+                VirtualFile inputFile = scenario.addInput(fileName);
+                switch (format) {
+                    case JSON:
+                        setFileContent(inputFile, "{\n  \"a\": 1\n}");
+                        break;
+                    case XML:
+                        setFileContent(inputFile, "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<element></element>");
+                        break;
+                    case CSV:
+                        setFileContent(inputFile, "name,lastName\nJohn,Doe");
+                        break;
+                    default:
+                        break;
+                }
             }
         });
         close(OK_EXIT_CODE);
     }
 
-    @NotNull
+    @Nullable
     private Scenario getOrCreateScenario() {
         Scenario currentScenario = currentScenarioMaybe;
         if (currentScenario == null || !currentScenario.isValid()) {
