@@ -829,17 +829,36 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // ELSE '->' Expression
+  // ELSE (Identifier)? '->' Expression
   public static boolean DefaultPattern(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "DefaultPattern")) return false;
     if (!nextTokenIs(b, ELSE)) return false;
     boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, DEFAULT_PATTERN, null);
-    r = consumeTokens(b, 1, ELSE, ARROW_TOKEN);
+    r = consumeToken(b, ELSE);
     p = r; // pin = 1
-    r = r && Expression(b, l + 1, -1);
+    r = r && report_error_(b, DefaultPattern_1(b, l + 1));
+    r = p && report_error_(b, consumeToken(b, ARROW_TOKEN)) && r;
+    r = p && Expression(b, l + 1, -1) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
+  }
+
+  // (Identifier)?
+  private static boolean DefaultPattern_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "DefaultPattern_1")) return false;
+    DefaultPattern_1_0(b, l + 1);
+    return true;
+  }
+
+  // (Identifier)
+  private static boolean DefaultPattern_1_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "DefaultPattern_1_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = Identifier(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
   }
 
   /* ********************************************************** */

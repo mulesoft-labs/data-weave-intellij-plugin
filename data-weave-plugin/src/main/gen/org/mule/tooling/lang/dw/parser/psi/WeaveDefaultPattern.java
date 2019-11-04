@@ -10,4 +10,7 @@ public interface WeaveDefaultPattern extends WeavePattern {
   @Nullable
   WeaveExpression getExpression();
 
+  @Nullable
+  WeaveIdentifier getIdentifier();
+
 }

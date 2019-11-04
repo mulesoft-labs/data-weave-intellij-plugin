@@ -41,5 +41,10 @@
     case [] -> "empty case"
     case [head ~ tail] -> [head ~ tail]
     case {key : value ~ tail} -> {key: value}
+  },
+  g: in0.value match {
+      case "Emiliano" -> "string"
+      case 3.14 -> number
+      else x -> "1234"
   }
 }

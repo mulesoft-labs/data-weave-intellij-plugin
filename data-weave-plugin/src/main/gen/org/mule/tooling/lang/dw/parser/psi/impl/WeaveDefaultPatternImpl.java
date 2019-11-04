@@ -31,4 +31,10 @@ public class WeaveDefaultPatternImpl extends WeavePatternImpl implements WeaveDe
     return findChildByClass(WeaveExpression.class);
   }
 
+  @Override
+  @Nullable
+  public WeaveIdentifier getIdentifier() {
+    return findChildByClass(WeaveIdentifier.class);
+  }
+
 }

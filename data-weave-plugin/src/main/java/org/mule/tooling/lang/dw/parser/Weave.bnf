@@ -440,7 +440,7 @@ NamedRegexPattern ::= Identifier 'matches' RegexLiteral '->' Expression {
     pin = 4
 }
 
-DefaultPattern ::= ELSE '->' Expression {pin=1}
+DefaultPattern ::= ELSE (Identifier)? '->' Expression {pin=1}
 
 Selector ::= (ValueSelector |
          AllAttributeSelector |
