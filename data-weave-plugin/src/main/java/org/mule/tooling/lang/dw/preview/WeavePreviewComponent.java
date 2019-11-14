@@ -14,6 +14,7 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.actionSystem.ToggleAction;
 import com.intellij.openapi.actionSystem.impl.ActionManagerImpl;
 import com.intellij.openapi.actionSystem.impl.MenuItemPresentationFactory;
+import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.editor.Document;
@@ -302,7 +303,7 @@ public class WeavePreviewComponent implements Disposable {
     }
 
     private void runPreviewWithInputs(String inputsPath, PsiFile currentFile) {
-        final Document document = PsiDocumentManager.getInstance(myProject).getDocument(currentFile);
+        final Document document = ReadAction.compute(() -> PsiDocumentManager.getInstance(myProject).getDocument(currentFile));
         if (document == null) return;
         //IMPORTANT NOTE: sometimes our current WeaveDocument is not updated correctly, so always get text from Document
         final String text = ReadAction.compute(document::getText);
