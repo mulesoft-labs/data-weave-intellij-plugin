@@ -40,13 +40,15 @@ public class AddScenarioDialog extends DialogWrapper {
     private void validateInputName() {
         String inputName = getInputName();
         VirtualFile dwitFolder = manager.findOrCreateMappingTestFolder(currentFile);
-        VirtualFile child = dwitFolder.findChild(inputName);
-        if (child != null) {
-            setErrorText("'" + inputName + "' already exists");
-            setOKActionEnabled(false);
-        } else {
-            setErrorText(null);
-            setOKActionEnabled(true);
+        if (dwitFolder != null) {
+            VirtualFile child = dwitFolder.findChild(inputName);
+            if (child != null) {
+                setErrorText("'" + inputName + "' already exists");
+                setOKActionEnabled(false);
+            } else {
+                setErrorText(null);
+                setOKActionEnabled(true);
+            }
         }
     }
 

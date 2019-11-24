@@ -14,6 +14,8 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.util.ProgressIndicatorUtils;
 import com.intellij.openapi.progress.util.ReadTask;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ContentEntry;
+import com.intellij.openapi.roots.ModifiableRootModel;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.*;
 import com.intellij.psi.PsiFile;
@@ -35,6 +37,7 @@ import org.mule.weave.v2.ts.AnyType;
 import org.mule.weave.v2.ts.WeaveType;
 import scala.Tuple2;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -403,6 +406,7 @@ public class WeaveRuntimeContextManager implements ProjectComponent, Disposable 
         return null;
     }
 
+    @Nullable
     public VirtualFile findOrCreateMappingTestFolder(PsiFile psiFile) {
         VirtualFile testFolder = findMappingTestFolder(psiFile);
         if (testFolder == null) {
@@ -415,6 +419,9 @@ public class WeaveRuntimeContextManager implements ProjectComponent, Disposable 
     @Nullable
     public Scenario createScenario(PsiFile psiFile, String scenarioName) {
         VirtualFile testFolder = findOrCreateMappingTestFolder(psiFile);
+        if (testFolder == null) {
+            return null;
+        }
         try {
             VirtualFile scenarioFolder = WriteAction.compute(() -> testFolder.createChildDirectory(this, scenarioName));
             Scenario scenario = new Scenario(scenarioFolder);
@@ -435,9 +442,24 @@ public class WeaveRuntimeContextManager implements ProjectComponent, Disposable 
     public VirtualFile createMappingTestFolder(PsiFile weaveFile) {
         return WriteAction.compute(() -> {
             try {
-                final VirtualFile dwitFolder = getScenariosRootFolder(weaveFile);
+                VirtualFile dwitFolder = getScenariosRootFolder(weaveFile);
                 if (dwitFolder == null) {
-                    return null;
+                    //See if "src/test/dwit exists, if not, create it
+                    final Module module = ModuleUtil.findModuleForFile(weaveFile.getVirtualFile(), weaveFile.getProject());
+                    if (module == null) {
+                        return null;
+                    }
+                    final ModuleRootManager rootManager = ModuleRootManager.getInstance(module);
+                    VirtualFile moduleRoot = rootManager.getContentRoots()[0];
+                    //Create it here
+                    dwitFolder = moduleRoot.createChildDirectory(this, "test").createChildDirectory(this, WeaveConstants.INTEGRATION_TEST_FOLDER_NAME);
+                    ModifiableRootModel model = ModuleRootManager.getInstance(module).getModifiableModel();
+                    ContentEntry[] entries = model.getContentEntries();
+                    for (ContentEntry entry : entries) {
+                        if (Objects.equals(entry.getFile(), moduleRoot))
+                            entry.addSourceFolder(dwitFolder, true);
+                    }
+                    model.commit();
                 }
                 final WeaveDocument document = WeavePsiUtils.getWeaveDocument(weaveFile);
                 if (document != null) {
