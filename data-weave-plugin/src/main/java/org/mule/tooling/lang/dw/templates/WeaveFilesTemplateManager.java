@@ -3,7 +3,7 @@ package org.mule.tooling.lang.dw.templates;
 import com.intellij.ide.fileTemplates.FileTemplateDescriptor;
 import com.intellij.ide.fileTemplates.FileTemplateGroupDescriptor;
 import com.intellij.ide.fileTemplates.FileTemplateGroupDescriptorFactory;
-import icons.MavenIcons;
+import icons.OpenapiIcons;
 import org.mule.tooling.lang.dw.WeaveIcons;
 
 public class WeaveFilesTemplateManager implements FileTemplateGroupDescriptorFactory {
@@ -20,7 +20,7 @@ public class WeaveFilesTemplateManager implements FileTemplateGroupDescriptorFac
         group.addTemplate(new FileTemplateDescriptor(DATA_WEAVE_MODULE_FILE, WeaveIcons.DataWeaveIcon));
         group.addTemplate(new FileTemplateDescriptor(DATA_WEAVE_UNIT_FILE, WeaveIcons.DataWeaveIcon));
         group.addTemplate(new FileTemplateDescriptor(BAT_FILE, WeaveIcons.DataWeaveIcon));
-        group.addTemplate(new FileTemplateDescriptor(WEAVE_MAVEN_MODULE, MavenIcons.MavenLogo));
+        group.addTemplate(new FileTemplateDescriptor(WEAVE_MAVEN_MODULE, OpenapiIcons.RepositoryLibraryLogo));
         return group;
     }
 }
