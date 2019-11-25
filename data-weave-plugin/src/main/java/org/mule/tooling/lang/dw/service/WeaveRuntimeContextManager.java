@@ -450,9 +450,18 @@ public class WeaveRuntimeContextManager implements ProjectComponent, Disposable 
                         return null;
                     }
                     final ModuleRootManager rootManager = ModuleRootManager.getInstance(module);
-                    VirtualFile moduleRoot = rootManager.getContentRoots()[0];
+                    VirtualFile moduleRoot = rootManager.getContentRoots()[0].findChild("src");
+                    if (moduleRoot == null) {
+                        return null;
+                    }
                     //Create it here
-                    dwitFolder = moduleRoot.createChildDirectory(this, "test").createChildDirectory(this, WeaveConstants.INTEGRATION_TEST_FOLDER_NAME);
+                    VirtualFile testFolder = moduleRoot.findChild(WeaveConstants.TEST_BASE_FOLDER_NAME);
+                    if (testFolder == null) {
+                        testFolder = moduleRoot.createChildDirectory(this, WeaveConstants.TEST_BASE_FOLDER_NAME);
+                    } else if (!testFolder.isDirectory()) {
+                        return null;
+                    }
+                    dwitFolder = testFolder.createChildDirectory(this, WeaveConstants.INTEGRATION_TEST_FOLDER_NAME);
                     ModifiableRootModel model = ModuleRootManager.getInstance(module).getModifiableModel();
                     ContentEntry[] entries = model.getContentEntries();
                     for (ContentEntry entry : entries) {

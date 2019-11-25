@@ -82,7 +82,7 @@ public class MuleLanguageInjector implements LanguageInjector {
         }
         final XmlFile psiFile1 = (XmlFile) psiFile;
         final XmlTag rootTag = psiFile1.getRootTag();
-        return isMuleTag(rootTag);
+        return rootTag != null && isMuleTag(rootTag);
     }
 
     public static boolean isMuleTag(XmlTag rootTag) {

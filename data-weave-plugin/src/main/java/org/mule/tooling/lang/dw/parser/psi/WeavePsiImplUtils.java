@@ -1,6 +1,5 @@
 package org.mule.tooling.lang.dw.parser.psi;
 
-
 import com.intellij.icons.AllIcons;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.psi.PsiFile;
@@ -25,19 +24,16 @@ public class WeavePsiImplUtils {
     public static ItemPresentation getPresentation(WeaveDocument document) {
         return new ItemPresentation() {
 
-            @Nullable
             @Override
             public String getPresentableText() {
                 return document.getName();
             }
 
-            @Nullable
             @Override
             public String getLocationString() {
                 return document.getQualifiedName();
             }
 
-            @Nullable
             @Override
             public Icon getIcon(boolean b) {
                 return WeaveIcons.WeaveFileType;
@@ -48,12 +44,16 @@ public class WeavePsiImplUtils {
     @NotNull
     public static String getName(WeaveDocument document) {
         final NameIdentifier nameIdentifier = getNameIdentifier(document);
-        return nameIdentifier.localName().name();
+        final NameIdentifier localName = nameIdentifier == null ? null : nameIdentifier.localName();
+        return localName == null ? "" : localName.name();
     }
 
-    @NotNull
+    @Nullable
     private static NameIdentifier getNameIdentifier(WeaveDocument document) {
         final PsiFile containingFile = document.getContainingFile();
+        if (containingFile == null) {
+            return null;
+        }
         return getNameIdentifier(containingFile);
     }
 
@@ -64,7 +64,7 @@ public class WeavePsiImplUtils {
     @NotNull
     public static String getQualifiedName(WeaveDocument document) {
         final NameIdentifier nameIdentifier = getNameIdentifier(document);
-        return nameIdentifier.name();
+        return nameIdentifier == null ? "" : nameIdentifier.name();
     }
 
     public static WeaveDocument setName(WeaveDocument document, String name) {
@@ -75,7 +75,7 @@ public class WeavePsiImplUtils {
     public static ItemPresentation getPresentation(WeaveObjectExpression document) {
         return new ItemPresentation() {
 
-            @Nullable
+            @NotNull
             @Override
             public String getPresentableText() {
                 return "";
@@ -98,7 +98,7 @@ public class WeavePsiImplUtils {
     public static ItemPresentation getPresentation(WeaveArrayExpression document) {
         return new ItemPresentation() {
 
-            @Nullable
+            @NotNull
             @Override
             public String getPresentableText() {
                 return "";
@@ -110,7 +110,6 @@ public class WeavePsiImplUtils {
                 return null;
             }
 
-            @Nullable
             @Override
             public Icon getIcon(boolean b) {
                 return AllIcons.Json.Array;
@@ -136,7 +135,7 @@ public class WeavePsiImplUtils {
             @Nullable
             @Override
             public Icon getIcon(boolean b) {
-                return AllIcons.Json.Property_braces;
+                return AllIcons.Json.Object;
             }
         };
     }
@@ -216,7 +215,6 @@ public class WeavePsiImplUtils {
         result.add(new WeaveIdentifierPsiReference(identifier));
         return result.toArray(new PsiReference[result.size()]);
     }
-
 
 
     public static String getContainerModuleFQN(WeaveFqnIdentifier identifier) {

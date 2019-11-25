@@ -40,6 +40,12 @@ public class WeaveSelectorImpl extends ASTWrapperPsiElement implements WeaveSele
 
   @Override
   @Nullable
+  public WeaveAttributeMultiValueSelector getAttributeMultiValueSelector() {
+    return findChildByClass(WeaveAttributeMultiValueSelector.class);
+  }
+
+  @Override
+  @Nullable
   public WeaveAttributeSelector getAttributeSelector() {
     return findChildByClass(WeaveAttributeSelector.class);
   }

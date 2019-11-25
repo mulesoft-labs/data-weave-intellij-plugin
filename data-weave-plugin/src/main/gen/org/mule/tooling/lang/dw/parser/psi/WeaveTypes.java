@@ -27,6 +27,7 @@ public interface WeaveTypes {
   IElementType ATTRIBUTE = new WeaveElementType("ATTRIBUTE");
   IElementType ATTRIBUTES = new WeaveElementType("ATTRIBUTES");
   IElementType ATTRIBUTES_TYPE = new WeaveElementType("ATTRIBUTES_TYPE");
+  IElementType ATTRIBUTE_MULTI_VALUE_SELECTOR = new WeaveElementType("ATTRIBUTE_MULTI_VALUE_SELECTOR");
   IElementType ATTRIBUTE_SELECTOR = new WeaveElementType("ATTRIBUTE_SELECTOR");
   IElementType BINARY_EXPRESSION = new WeaveElementType("BINARY_EXPRESSION");
   IElementType BINARY_FUNCTION_IDENTIFIER = new WeaveElementType("BINARY_FUNCTION_IDENTIFIER");
@@ -274,6 +275,9 @@ public interface WeaveTypes {
       }
       else if (type == ATTRIBUTES_TYPE) {
         return new WeaveAttributesTypeImpl(node);
+      }
+      else if (type == ATTRIBUTE_MULTI_VALUE_SELECTOR) {
+        return new WeaveAttributeMultiValueSelectorImpl(node);
       }
       else if (type == ATTRIBUTE_SELECTOR) {
         return new WeaveAttributeSelectorImpl(node);

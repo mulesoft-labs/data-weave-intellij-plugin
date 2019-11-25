@@ -14,6 +14,9 @@ public interface WeaveSelector extends PsiElement {
   WeaveAllSchemaSelector getAllSchemaSelector();
 
   @Nullable
+  WeaveAttributeMultiValueSelector getAttributeMultiValueSelector();
+
+  @Nullable
   WeaveAttributeSelector getAttributeSelector();
 
   @Nullable

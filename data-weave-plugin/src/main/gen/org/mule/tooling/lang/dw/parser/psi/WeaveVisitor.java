@@ -70,6 +70,10 @@ public class WeaveVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitAttributeMultiValueSelector(@NotNull WeaveAttributeMultiValueSelector o) {
+    visitPsiElement(o);
+  }
+
   public void visitAttributeSelector(@NotNull WeaveAttributeSelector o) {
     visitPsiElement(o);
   }

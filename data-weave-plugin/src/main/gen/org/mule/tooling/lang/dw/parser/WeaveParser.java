@@ -347,7 +347,20 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // '@'(DeclaredNamespace? (StringLiteral|Identifier))?
+  // multiAttributeSelector | multiAttributeSelectorOld
+  public static boolean AttributeMultiValueSelector(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "AttributeMultiValueSelector")) return false;
+    if (!nextTokenIs(b, "<attribute multi value selector>", AT, MULTIPLY)) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NONE_, ATTRIBUTE_MULTI_VALUE_SELECTOR, "<attribute multi value selector>");
+    r = multiAttributeSelector(b, l + 1);
+    if (!r) r = multiAttributeSelectorOld(b, l + 1);
+    exit_section_(b, l, m, r, false, null);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // '@'fieldSelector?
   public static boolean AttributeSelector(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "AttributeSelector")) return false;
     if (!nextTokenIs(b, AT)) return false;
@@ -360,38 +373,11 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     return r || p;
   }
 
-  // (DeclaredNamespace? (StringLiteral|Identifier))?
+  // fieldSelector?
   private static boolean AttributeSelector_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "AttributeSelector_1")) return false;
-    AttributeSelector_1_0(b, l + 1);
+    fieldSelector(b, l + 1);
     return true;
-  }
-
-  // DeclaredNamespace? (StringLiteral|Identifier)
-  private static boolean AttributeSelector_1_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "AttributeSelector_1_0")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
-    r = AttributeSelector_1_0_0(b, l + 1);
-    r = r && AttributeSelector_1_0_1(b, l + 1);
-    exit_section_(b, m, null, r);
-    return r;
-  }
-
-  // DeclaredNamespace?
-  private static boolean AttributeSelector_1_0_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "AttributeSelector_1_0_0")) return false;
-    DeclaredNamespace(b, l + 1);
-    return true;
-  }
-
-  // StringLiteral|Identifier
-  private static boolean AttributeSelector_1_0_1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "AttributeSelector_1_0_1")) return false;
-    boolean r;
-    r = StringLiteral(b, l + 1);
-    if (!r) r = Identifier(b, l + 1);
-    return r;
   }
 
   /* ********************************************************** */
@@ -1874,7 +1860,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // '*'(DeclaredNamespace? (StringLiteral|Identifier))
+  // '*'fieldSelector
   public static boolean MultiValueSelector(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "MultiValueSelector")) return false;
     if (!nextTokenIs(b, MULTIPLY)) return false;
@@ -1882,36 +1868,9 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     Marker m = enter_section_(b, l, _NONE_, MULTI_VALUE_SELECTOR, null);
     r = consumeToken(b, MULTIPLY);
     p = r; // pin = 1
-    r = r && MultiValueSelector_1(b, l + 1);
+    r = r && fieldSelector(b, l + 1);
     exit_section_(b, l, m, r, p, null);
     return r || p;
-  }
-
-  // DeclaredNamespace? (StringLiteral|Identifier)
-  private static boolean MultiValueSelector_1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "MultiValueSelector_1")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
-    r = MultiValueSelector_1_0(b, l + 1);
-    r = r && MultiValueSelector_1_1(b, l + 1);
-    exit_section_(b, m, null, r);
-    return r;
-  }
-
-  // DeclaredNamespace?
-  private static boolean MultiValueSelector_1_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "MultiValueSelector_1_0")) return false;
-    DeclaredNamespace(b, l + 1);
-    return true;
-  }
-
-  // StringLiteral|Identifier
-  private static boolean MultiValueSelector_1_1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "MultiValueSelector_1_1")) return false;
-    boolean r;
-    r = StringLiteral(b, l + 1);
-    if (!r) r = Identifier(b, l + 1);
-    return r;
   }
 
   /* ********************************************************** */
@@ -2211,7 +2170,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // '&'(DeclaredNamespace? (StringLiteral|Identifier))?
+  // '&'fieldSelector?
   public static boolean ObjectSelector(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ObjectSelector")) return false;
     if (!nextTokenIs(b, AND)) return false;
@@ -2224,38 +2183,11 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     return r || p;
   }
 
-  // (DeclaredNamespace? (StringLiteral|Identifier))?
+  // fieldSelector?
   private static boolean ObjectSelector_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ObjectSelector_1")) return false;
-    ObjectSelector_1_0(b, l + 1);
+    fieldSelector(b, l + 1);
     return true;
-  }
-
-  // DeclaredNamespace? (StringLiteral|Identifier)
-  private static boolean ObjectSelector_1_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "ObjectSelector_1_0")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
-    r = ObjectSelector_1_0_0(b, l + 1);
-    r = r && ObjectSelector_1_0_1(b, l + 1);
-    exit_section_(b, m, null, r);
-    return r;
-  }
-
-  // DeclaredNamespace?
-  private static boolean ObjectSelector_1_0_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "ObjectSelector_1_0_0")) return false;
-    DeclaredNamespace(b, l + 1);
-    return true;
-  }
-
-  // StringLiteral|Identifier
-  private static boolean ObjectSelector_1_0_1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "ObjectSelector_1_0_1")) return false;
-    boolean r;
-    r = StringLiteral(b, l + 1);
-    if (!r) r = Identifier(b, l + 1);
-    return r;
   }
 
   /* ********************************************************** */
@@ -2825,7 +2757,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // '^'(DeclaredNamespace? (StringLiteral|Identifier))?
+  // '^'fieldSelector?
   public static boolean SchemaSelector(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "SchemaSelector")) return false;
     if (!nextTokenIs(b, XOR)) return false;
@@ -2838,38 +2770,11 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     return r || p;
   }
 
-  // (DeclaredNamespace? (StringLiteral|Identifier))?
+  // fieldSelector?
   private static boolean SchemaSelector_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "SchemaSelector_1")) return false;
-    SchemaSelector_1_0(b, l + 1);
+    fieldSelector(b, l + 1);
     return true;
-  }
-
-  // DeclaredNamespace? (StringLiteral|Identifier)
-  private static boolean SchemaSelector_1_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "SchemaSelector_1_0")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
-    r = SchemaSelector_1_0_0(b, l + 1);
-    r = r && SchemaSelector_1_0_1(b, l + 1);
-    exit_section_(b, m, null, r);
-    return r;
-  }
-
-  // DeclaredNamespace?
-  private static boolean SchemaSelector_1_0_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "SchemaSelector_1_0_0")) return false;
-    DeclaredNamespace(b, l + 1);
-    return true;
-  }
-
-  // StringLiteral|Identifier
-  private static boolean SchemaSelector_1_0_1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "SchemaSelector_1_0_1")) return false;
-    boolean r;
-    r = StringLiteral(b, l + 1);
-    if (!r) r = Identifier(b, l + 1);
-    return r;
   }
 
   /* ********************************************************** */
@@ -2880,6 +2785,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   //          AllSchemaSelector |
   //          SchemaSelector |
   //          ObjectSelector |
+  //          AttributeMultiValueSelector|
   //          MultiValueSelector
   public static boolean Selector(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "Selector")) return false;
@@ -2892,6 +2798,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     if (!r) r = AllSchemaSelector(b, l + 1);
     if (!r) r = SchemaSelector(b, l + 1);
     if (!r) r = ObjectSelector(b, l + 1);
+    if (!r) r = AttributeMultiValueSelector(b, l + 1);
     if (!r) r = MultiValueSelector(b, l + 1);
     exit_section_(b, l, m, r, false, null);
     return r;
@@ -3333,30 +3240,13 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // DeclaredNamespace? (StringLiteral|Identifier)
+  // fieldSelector
   public static boolean ValueSelector(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ValueSelector")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, VALUE_SELECTOR, "<value selector>");
-    r = ValueSelector_0(b, l + 1);
-    r = r && ValueSelector_1(b, l + 1);
+    r = fieldSelector(b, l + 1);
     exit_section_(b, l, m, r, false, null);
-    return r;
-  }
-
-  // DeclaredNamespace?
-  private static boolean ValueSelector_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "ValueSelector_0")) return false;
-    DeclaredNamespace(b, l + 1);
-    return true;
-  }
-
-  // StringLiteral|Identifier
-  private static boolean ValueSelector_1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "ValueSelector_1")) return false;
-    boolean r;
-    r = StringLiteral(b, l + 1);
-    if (!r) r = Identifier(b, l + 1);
     return r;
   }
 
@@ -3486,6 +3376,62 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     r = Attributes(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
+  }
+
+  /* ********************************************************** */
+  // DeclaredNamespace? (StringLiteral|Identifier)
+  static boolean fieldSelector(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "fieldSelector")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = fieldSelector_0(b, l + 1);
+    r = r && fieldSelector_1(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // DeclaredNamespace?
+  private static boolean fieldSelector_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "fieldSelector_0")) return false;
+    DeclaredNamespace(b, l + 1);
+    return true;
+  }
+
+  // StringLiteral|Identifier
+  private static boolean fieldSelector_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "fieldSelector_1")) return false;
+    boolean r;
+    r = StringLiteral(b, l + 1);
+    if (!r) r = Identifier(b, l + 1);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // '*''@'fieldSelector
+  static boolean multiAttributeSelector(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "multiAttributeSelector")) return false;
+    if (!nextTokenIs(b, MULTIPLY)) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_);
+    r = consumeTokens(b, 2, MULTIPLY, AT);
+    p = r; // pin = 2
+    r = r && fieldSelector(b, l + 1);
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
+  }
+
+  /* ********************************************************** */
+  // '@' '*' fieldSelector
+  static boolean multiAttributeSelectorOld(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "multiAttributeSelectorOld")) return false;
+    if (!nextTokenIs(b, AT)) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_);
+    r = consumeTokens(b, 2, AT, MULTIPLY);
+    p = r; // pin = 2
+    r = r && fieldSelector(b, l + 1);
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   /* ********************************************************** */
@@ -3837,7 +3783,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // '[' (('?' |'@' | '&' | '^' |'*')?  (Expression )) ']' ('!'| '?')?
+  // '[' (('?' |'@' | '&' | '^' |'*')? ('*' | '@')?  (Expression )) ']' ('!'| '?')?
   private static boolean BracketSelectorExpression_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "BracketSelectorExpression_0")) return false;
     boolean r;
@@ -3850,13 +3796,14 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // ('?' |'@' | '&' | '^' |'*')?  (Expression )
+  // ('?' |'@' | '&' | '^' |'*')? ('*' | '@')?  (Expression )
   private static boolean BracketSelectorExpression_0_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "BracketSelectorExpression_0_1")) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = BracketSelectorExpression_0_1_0(b, l + 1);
     r = r && BracketSelectorExpression_0_1_1(b, l + 1);
+    r = r && BracketSelectorExpression_0_1_2(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
   }
@@ -3882,9 +3829,27 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // (Expression )
+  // ('*' | '@')?
   private static boolean BracketSelectorExpression_0_1_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "BracketSelectorExpression_0_1_1")) return false;
+    BracketSelectorExpression_0_1_1_0(b, l + 1);
+    return true;
+  }
+
+  // '*' | '@'
+  private static boolean BracketSelectorExpression_0_1_1_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "BracketSelectorExpression_0_1_1_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeTokenSmart(b, MULTIPLY);
+    if (!r) r = consumeTokenSmart(b, AT);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // (Expression )
+  private static boolean BracketSelectorExpression_0_1_2(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "BracketSelectorExpression_0_1_2")) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = Expression(b, l + 1, -1);

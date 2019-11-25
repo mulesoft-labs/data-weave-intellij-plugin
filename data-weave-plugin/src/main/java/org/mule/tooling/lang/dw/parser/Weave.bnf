@@ -360,7 +360,7 @@ DynamicSingleKeyValuePair ::= (Attributes)? ':' Expression
 //Selectors
 DotSelectorExpression ::=Expression ( '..' | '.' ) Selector? ('!'| '?')? {pin=2}
 
-BracketSelectorExpression::=Expression '[' (('?' |'@' | '&' | '^' |'*')?  (Expression ))  ']' ('!'| '?')?
+BracketSelectorExpression::=Expression '[' (('?' |'@' | '&' | '^' |'*')? ('*' | '@')?  (Expression ))  ']' ('!'| '?')?
 
 MatchExpression ::= Expression 'match' (PatternMatcherExpression )
 
@@ -449,23 +449,35 @@ Selector ::= (ValueSelector |
          AllSchemaSelector |
          SchemaSelector |
          ObjectSelector |
+         AttributeMultiValueSelector|
          MultiValueSelector)
 
-ValueSelector ::= (DeclaredNamespace? (StringLiteral|Identifier))
+ValueSelector ::= fieldSelector
 
 AllAttributeSelector ::=AT_SPACE  {pin=1}
 
 AllSchemaSelector ::=CARET_SPACE  {pin=1}
 
-AttributeSelector ::='@'(DeclaredNamespace? (StringLiteral|Identifier))? {pin=1}
+AttributeSelector ::='@'fieldSelector? {pin=1}
 
-ObjectSelector ::='&'(DeclaredNamespace? (StringLiteral|Identifier))?  {pin=1}
+ObjectSelector ::='&'fieldSelector?  {pin=1}
 
-SchemaSelector ::='^'(DeclaredNamespace? (StringLiteral|Identifier))?  {pin=1}
+SchemaSelector ::='^'fieldSelector?  {pin=1}
 
 NamespaceSelector ::='#'
 
-MultiValueSelector ::= '*'(DeclaredNamespace? (StringLiteral|Identifier))  {pin=1}
+AttributeMultiValueSelector ::= multiAttributeSelector | multiAttributeSelectorOld
+
+private multiAttributeSelectorOld ::= '@' '*' fieldSelector {pin=2}
+
+private multiAttributeSelector ::= '*''@'fieldSelector {pin=2}
+
+
+private fieldSelector ::= DeclaredNamespace? (StringLiteral|Identifier)
+
+
+
+MultiValueSelector ::= '*'fieldSelector  {pin=1}
 
 VariableReferenceExpression ::= FqnIdentifier
 

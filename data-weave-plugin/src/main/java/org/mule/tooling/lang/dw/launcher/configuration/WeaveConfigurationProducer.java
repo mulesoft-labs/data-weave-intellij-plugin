@@ -8,6 +8,7 @@ import com.intellij.openapi.util.Ref;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import org.apache.commons.lang.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.service.Scenario;
@@ -18,11 +19,11 @@ import org.mule.weave.v2.parser.ast.variables.NameIdentifier;
 
 public class WeaveConfigurationProducer extends JavaRunConfigurationProducerBase<WeaveConfiguration> {
     protected WeaveConfigurationProducer() {
-        super(WeaveConfigurationType.getInstance());
+        super(WeaveConfigurationType.getInstance().getConfigurationFactories()[0]);
     }
 
     @Override
-    protected boolean setupConfigurationFromContext(WeaveConfiguration weaveConfiguration, ConfigurationContext configurationContext, Ref<PsiElement> ref) {
+    protected boolean setupConfigurationFromContext(@NotNull WeaveConfiguration weaveConfiguration, ConfigurationContext configurationContext, Ref<PsiElement> ref) {
         final Location location = configurationContext.getLocation();
         if (location != null) {
             final PsiFile containingFile = location.getPsiElement().getContainingFile();
@@ -49,7 +50,7 @@ public class WeaveConfigurationProducer extends JavaRunConfigurationProducerBase
     }
 
     @Override
-    public boolean isConfigurationFromContext(WeaveConfiguration muleConfiguration, ConfigurationContext configurationContext) {
+    public boolean isConfigurationFromContext(WeaveConfiguration muleConfiguration, @NotNull ConfigurationContext configurationContext) {
         final String configurationNameIdentifier = muleConfiguration.getNameIdentifier();
         if (configurationNameIdentifier == null) {
             return false;
@@ -68,7 +69,7 @@ public class WeaveConfigurationProducer extends JavaRunConfigurationProducerBase
         }
         final NameIdentifier nameIdentifier = VirtualFileSystemUtils.calculateNameIdentifier(containingFile.getProject(), containingFile.getVirtualFile());
         final String currentNameIdentifier = nameIdentifier.name();
-        WeaveDocument document = WeavePsiUtils.getDocument(containingFile);
-        return module != null && module.equals(muleConfiguration.getModule()) && configurationNameIdentifier.equals(currentNameIdentifier) && !WeaveUtils.isTestFile(document);
+        final WeaveDocument document = WeavePsiUtils.getDocument(containingFile);
+        return module.equals(muleConfiguration.getModule()) && configurationNameIdentifier.equals(currentNameIdentifier) && !WeaveUtils.isTestFile(document);
     }
 }
