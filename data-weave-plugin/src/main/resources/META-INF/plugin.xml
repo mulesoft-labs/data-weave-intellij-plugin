@@ -151,6 +151,16 @@
           </ul>
         </li>
       </ul>
+      <h1>v2.0.29</h1>
+      <ul>
+       <li>
+          <p>DataWeave 2.0 Support</p>
+          <ul>
+            <li>Fix New Scenario When DWIT is not present</li>
+            <li>Fix Grammar for multiAttribute selector </li>
+          </ul>
+        </li>
+      </ul>
     ]]>
     </change-notes>
 
