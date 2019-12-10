@@ -180,6 +180,11 @@
 
     <extensions defaultExtensionNs="com.intellij">
 
+        <intentionAction>
+            <className>org.mule.tooling.lang.dw.intention.InsertTypeIntentionAction</className>
+            <category>DataWeave</category>
+        </intentionAction>
+
         <!--Data Weave-->
         <testFramework implementation="org.mule.tooling.lang.dw.testintegration.WeaveTestFramework" order="first"/>
 

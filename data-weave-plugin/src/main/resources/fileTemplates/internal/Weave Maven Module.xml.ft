@@ -11,26 +11,30 @@
 
     <name>DataWeave ${ARTIFACT_ID} Module</name>
 
+        <properties>
+            <weave.version>${WEAVE_VERSION}</weave.version>
+        </properties>
+
     <dependencies>
 
         <dependency>
             <groupId>org.mule.weave</groupId>
             <artifactId>runtime</artifactId>
-            <version>${WEAVE_VERSION}</version>
+             <version>${weave.version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.mule.weave</groupId>
             <artifactId>core-modules</artifactId>
-            <version>${WEAVE_VERSION}</version>
+            <version>${weave.version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.mule.weave</groupId>
             <artifactId>java-module</artifactId>
-            <version>${WEAVE_VERSION}</version>
+             <version>${weave.version}</version>
             <scope>provided</scope>
         </dependency>
 
