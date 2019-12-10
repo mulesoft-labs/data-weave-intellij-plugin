@@ -253,6 +253,7 @@
         <codeInsight.typeInfo language="Weave"
                               implementationClass="org.mule.tooling.lang.dw.hints.WeaveExpressionTypeProvider"/>
         <copyPastePostProcessor implementation="org.mule.tooling.lang.dw.migrator.V1ToV2PostProcessor"/>
+        <copyPastePreProcessor implementation="org.mule.tooling.lang.dw.paste.StringLiteralPaste"/>
 
         <!--BAT-->
 
