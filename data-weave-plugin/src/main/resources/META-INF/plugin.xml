@@ -171,6 +171,16 @@
           </ul>
         </li>
       </ul>
+      <h1>v2.0.35</h1>
+      <ul>
+       <li>
+          <p>DataWeave 2.0 Support</p>
+          <ul>
+            <li>Autoescape string on pasting multiline.</li>
+            <li>Add intention for persisting types.</li>
+          </ul>
+        </li>
+      </ul>
     ]]>
     </change-notes>
 
