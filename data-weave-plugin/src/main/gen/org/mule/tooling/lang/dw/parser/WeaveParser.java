@@ -2419,7 +2419,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // OUTPUT_DIRECTIVE_KEYWORD (":" Type)? DataFormat Options?
+  // OUTPUT_DIRECTIVE_KEYWORD (":" Type)? ((DataFormat ('with' Identifier)?) | Identifier) Options?
   public static boolean OutputDirective(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "OutputDirective")) return false;
     if (!nextTokenIs(b, OUTPUT_DIRECTIVE_KEYWORD)) return false;
@@ -2428,7 +2428,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     r = consumeToken(b, OUTPUT_DIRECTIVE_KEYWORD);
     p = r; // pin = 1
     r = r && report_error_(b, OutputDirective_1(b, l + 1));
-    r = p && report_error_(b, DataFormat(b, l + 1)) && r;
+    r = p && report_error_(b, OutputDirective_2(b, l + 1)) && r;
     r = p && OutputDirective_3(b, l + 1) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
@@ -2448,6 +2448,46 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     Marker m = enter_section_(b);
     r = consumeToken(b, COLON);
     r = r && Type(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // (DataFormat ('with' Identifier)?) | Identifier
+  private static boolean OutputDirective_2(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "OutputDirective_2")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = OutputDirective_2_0(b, l + 1);
+    if (!r) r = Identifier(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // DataFormat ('with' Identifier)?
+  private static boolean OutputDirective_2_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "OutputDirective_2_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = DataFormat(b, l + 1);
+    r = r && OutputDirective_2_0_1(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // ('with' Identifier)?
+  private static boolean OutputDirective_2_0_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "OutputDirective_2_0_1")) return false;
+    OutputDirective_2_0_1_0(b, l + 1);
+    return true;
+  }
+
+  // 'with' Identifier
+  private static boolean OutputDirective_2_0_1_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "OutputDirective_2_0_1_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, "with");
+    r = r && Identifier(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
   }

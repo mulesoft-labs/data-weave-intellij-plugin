@@ -166,7 +166,7 @@ NamespaceDefinition::=Identifier NAMESPACE_URI
 
 VariableDirective::= 'var' VariableDefinition {pin=1}
 
-OutputDirective::= OUTPUT_DIRECTIVE_KEYWORD (":" Type)? DataFormat Options? {pin=1}
+OutputDirective::= OUTPUT_DIRECTIVE_KEYWORD (":" Type)? ((DataFormat ('with' Identifier)?) | Identifier) Options? {pin=1}
 
 TypeDirective::= 'type' TypeDefinition {pin=1}
 

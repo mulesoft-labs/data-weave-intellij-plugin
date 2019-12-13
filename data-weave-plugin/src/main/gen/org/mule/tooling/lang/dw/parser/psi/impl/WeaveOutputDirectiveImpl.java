@@ -33,6 +33,12 @@ public class WeaveOutputDirectiveImpl extends WeaveDirectiveImpl implements Weav
 
   @Override
   @Nullable
+  public WeaveIdentifier getIdentifier() {
+    return findChildByClass(WeaveIdentifier.class);
+  }
+
+  @Override
+  @Nullable
   public WeaveOptions getOptions() {
     return findChildByClass(WeaveOptions.class);
   }

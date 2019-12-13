@@ -11,6 +11,9 @@ public interface WeaveOutputDirective extends WeaveDirective {
   WeaveDataFormat getDataFormat();
 
   @Nullable
+  WeaveIdentifier getIdentifier();
+
+  @Nullable
   WeaveOptions getOptions();
 
   @Nullable
