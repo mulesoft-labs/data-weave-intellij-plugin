@@ -194,7 +194,7 @@ Schema::= '{' ( SchemaElement ( ',' SchemaElement )* )? '}' {pin = 1}
 
 SchemaElement::= (Identifier | StringLiteral) ':' Expression {pin = 2}
 
-InputDirective::= 'input' VariableNameTypeDefinition DataFormat Options? {pin=1}
+InputDirective::= 'input' VariableNameTypeDefinition (DataFormat | Identifier) Options? {pin=1}
 
 Options::= OptionElement ( ',' OptionElement )*
 
