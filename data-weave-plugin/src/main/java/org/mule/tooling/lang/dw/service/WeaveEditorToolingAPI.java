@@ -84,7 +84,7 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
                 final List<DataFormatDescriptor> descriptors = new ArrayList<>();
                 for (WeaveDataFormatDescriptor weaveDataFormatDescriptor : dataFormatDescriptor) {
                     final String mimeType = weaveDataFormatDescriptor.mimeType();
-                    final DataFormatDescriptor descriptor = DataFormatDescriptor.apply(mimeType, toDataFormatProp(weaveDataFormatDescriptor.writerProperties()), toDataFormatProp(weaveDataFormatDescriptor.readerProperties()));
+                    final DataFormatDescriptor descriptor = DataFormatDescriptor.apply(mimeType, weaveDataFormatDescriptor.id(), toDataFormatProp(weaveDataFormatDescriptor.writerProperties()), toDataFormatProp(weaveDataFormatDescriptor.readerProperties()));
                     descriptors.add(descriptor);
                 }
                 final DataFormatDescriptorProvider descriptorProvider = DataFormatDescriptorProvider$.MODULE$.apply(descriptors.toArray(new DataFormatDescriptor[0]));
