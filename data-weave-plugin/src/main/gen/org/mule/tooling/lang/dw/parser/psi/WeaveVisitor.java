@@ -309,6 +309,10 @@ public class WeaveVisitor extends PsiElementVisitor {
     visitPattern(o);
   }
 
+  public void visitLiteralType(@NotNull WeaveLiteralType o) {
+    visitType(o);
+  }
+
   public void visitMatchExpression(@NotNull WeaveMatchExpression o) {
     visitExpression(o);
   }

@@ -1,245 +1,16 @@
 // This is a generated file. Not intended for manual editing.
 package org.mule.tooling.lang.dw.parser;
 
-import com.intellij.lang.ASTNode;
-import com.intellij.lang.LightPsiParser;
 import com.intellij.lang.PsiBuilder;
 import com.intellij.lang.PsiBuilder.Marker;
-import com.intellij.lang.PsiParser;
+import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.*;
+import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.*;
 import com.intellij.psi.tree.IElementType;
+import com.intellij.psi.tree.IFileElementType;
+import com.intellij.lang.ASTNode;
 import com.intellij.psi.tree.TokenSet;
-
-import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.Parser;
-import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.TRUE_CONDITION;
-import static org.mule.tooling.lang.dw.parser.WeaveParserUtil._COLLAPSE_;
-import static org.mule.tooling.lang.dw.parser.WeaveParserUtil._LEFT_;
-import static org.mule.tooling.lang.dw.parser.WeaveParserUtil._NONE_;
-import static org.mule.tooling.lang.dw.parser.WeaveParserUtil._NOT_;
-import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.adapt_builder_;
-import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.addVariant;
-import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.consumeToken;
-import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.consumeTokenSmart;
-import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.consumeTokens;
-import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.consumeTokensSmart;
-import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.create_token_set_;
-import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.current_position_;
-import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.empty_element_parsed_guard_;
-import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.enter_section_;
-import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.exit_section_;
-import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.nextTokenIs;
-import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.nextTokenIsSmart;
-import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.parseTokensSmart;
-import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.recursion_guard_;
-import static org.mule.tooling.lang.dw.parser.WeaveParserUtil.report_error_;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ADDITION_SUBTRACTION_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ALL_ATTRIBUTE_SELECTOR;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ALL_SCHEMA_SELECTOR;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.AND;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.AND_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.AND_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ANNOTATION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ANNOTATION_ARGUMENT;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ANNOTATION_ARGUMENTS;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ANNOTATION_DEFINITION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ANNOTATION_DIRECTIVE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ANNOTATION_DIRECTIVE_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ANNOTATION_PARAMETER;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ANY_DATE_LITERAL;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ARRAY_DECONSTRUCT_PATTERN;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ARRAY_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ARROW_TOKEN;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.AS;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.AS_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.AT;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ATTRIBUTE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ATTRIBUTES;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ATTRIBUTES_TYPE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ATTRIBUTE_MULTI_VALUE_SELECTOR;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ATTRIBUTE_SELECTOR;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.AT_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.AT_SPACE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.BACKTIKED_QUOTED_STRING;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.BINARY_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.BINARY_FUNCTION_IDENTIFIER;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.BODY;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.BOOLEAN_LITERAL;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.BRACKET_SELECTOR_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.CARET_SPACE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.CASE_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.CLOSE_CLOSE_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.CLOSE_CLOSE_ORDERED_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.CLOSE_OBJECT_TYPE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.CLOSE_ORDERED_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.CLOSE_ORDERED_OBJECT_TYPE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.COLON;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.COMMA;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.CONDITIONAL_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.CONTAINER_MODULE_IDENTIFIER;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.CUSTOM_INTERPOLATION_STRING;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.CUSTOM_INTERPOLATOR_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.CUSTOM_LOADER;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DATA_FORMAT;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DECLARED_NAMESPACE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DECONSTRUCT_VARIABLE_DECLARATION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DEFAULT;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DEFAULT_PATTERN;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DEFAULT_VALUE_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DIRECTIVE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DIVISION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DOCUMENT;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DOCUMENT_SEPARATOR;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DOLLAR_VARIABLE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DOT_SELECTOR_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DOUBLE_LITERAL;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DOUBLE_QUOTED_STRING;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DO_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DO_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DYNAMIC_ATTRIBUTE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DYNAMIC_KEY_VALUE_PAIR;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DYNAMIC_RETURN;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.DYNAMIC_SINGLE_KEY_VALUE_PAIR;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ELSE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.EMPTY_ARRAY_PATTERN;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.EMPTY_OBJECT_PATTERN;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ENCLOSED_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.EQ;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.EQUAL;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.EQUALITY_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ESCLAMATION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.EXPRESSION_PATTERN;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.FALSE_LITERAL;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.FQN_IDENTIFIER;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.FROM_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.FUNCTION_CALL_ARGUMENTS;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.FUNCTION_CALL_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.FUNCTION_DEFINITION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.FUNCTION_DIRECTIVE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.FUNCTION_DIRECTIVE_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.FUNCTION_PARAMETER;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.GREATER;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.GREATER_EQUAL;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.GREATER_THAN_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.HASH;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.HEADER;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ID;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.IDENTIFIER;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.IF;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.IMPORTED_ELEMENT;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.IMPORT_DIRECTIVE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.IMPORT_DIRECTIVE_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.INPUT_DIRECTIVE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.INPUT_DIRECTIVE_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.INTEGER_LITERAL;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.INTERSECTION_TYPE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.IS;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.IS_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.KEY;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.KEY_TYPE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.KEY_VALUE_PAIR;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.KEY_VALUE_PAIR_TYPE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.LAMBDA_LITERAL;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.LAMBDA_TYPE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.LAMBDA_TYPE_PARAMETER;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.LEFT_SHIFT_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.LESS;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.LESS_EQUAL;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.LITERAL_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.LITERAL_PATTERN;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.L_BRACKET;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.L_CURLY;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.L_PARREN;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.MATCHES_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.MATCH_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.MATCH_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.MIME_TYPE_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.MINUS;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.MODULE_REFERENCE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.MULTIPLICATION_DIVISION_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.MULTIPLY;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.MULTI_VALUE_SELECTOR;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.NAMED_LITERAL_PATTERN;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.NAMED_REGEX_PATTERN;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.NAMED_TYPE_PATTERN;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.NAMESPACE_DEFINITION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.NAMESPACE_DIRECTIVE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.NAMESPACE_DIRECTIVE_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.NAMESPACE_SELECTOR;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.NAMESPACE_URI;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.NAME_TYPE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.NOT_EQUAL;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.NOT_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.NOT_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.NULL_LITERAL;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.NULL_LITERAL_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.NUMBER_LITERAL;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.OBJECT_DECONSTRUCT_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.OBJECT_DECONSTRUCT_PATTERN;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.OBJECT_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.OBJECT_SELECTOR;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.OBJECT_TYPE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.OPEN_CLOSE_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.OPEN_CLOSE_ORDERED_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.OPEN_ORDERED_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.OPTIONS;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.OPTION_ELEMENT;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.OR;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.ORDERED_OBJECT_TYPE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.OR_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.OR_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.OUTPUT_DIRECTIVE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.OUTPUT_DIRECTIVE_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.PACKAGE_SEPARATOR;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.PATTERN;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.PATTERN_MATCHER_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.PLUS;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.QUALIFIED_NAME;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.QUESTION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.REFERENCE_TYPE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.REGEX_LITERAL;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.REGEX_PATTERN;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.RIGHT_SHIFT_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.RULE_ANY_DATE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.RULE_ANY_REGEX;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.R_BRACKET;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.R_CURLY;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.R_PARREN;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.SCHEMA;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.SCHEMA_ELEMENT;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.SCHEMA_SELECTOR;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.SELECTOR;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.SIMILAR;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.SIMPLE_ATTRIBUTE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.SINGLE_QUOTED_STRING;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.STRING_LITERAL;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.SUB_TYPE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.TILDE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.TRUE_LITERAL;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.TYPE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.TYPE_DEFINITION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.TYPE_DIRECTIVE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.TYPE_DIRECTIVE_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.TYPE_PARAMETER;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.TYPE_PATTERN;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.UNARY_MINUS_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.UNDEFINED_LITERAL;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.UNDERSCORE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.UNION_TYPE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.UNLESS;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.UPDATE_CASE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.UPDATE_CASES;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.UPDATE_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.UPDATE_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.USING;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.USING_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.VALUE_SELECTOR;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.VARIABLE_DEFINITION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.VARIABLE_DIRECTIVE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.VARIABLE_REFERENCE_EXPRESSION;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.VAR_DIRECTIVE_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.VERSION_DIRECTIVE;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.VERSION_DIRECTIVE_KEYWORD;
-import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.XOR;
+import com.intellij.lang.PsiParser;
+import com.intellij.lang.LightPsiParser;
 
 @SuppressWarnings({"SimplifiableIfStatement", "UnusedAssignment"})
 public class WeaveParser implements PsiParser, LightPsiParser {
@@ -253,15 +24,16 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     boolean r;
     b = adapt_builder_(t, b, this, EXTENDS_SETS_);
     Marker m = enter_section_(b, 0, _COLLAPSE_, null);
-    r = parse_root_(t, b);
+    if (t instanceof IFileElementType) {
+      r = parse_root_(t, b, 0);
+    }
+    else {
+      r = false;
+    }
     exit_section_(b, 0, m, t, r, true, TRUE_CONDITION);
   }
 
-  protected boolean parse_root_(IElementType t, PsiBuilder b) {
-    return parse_root_(t, b, 0);
-  }
-
-  static boolean parse_root_(IElementType t, PsiBuilder b, int l) {
+  protected boolean parse_root_(IElementType t, PsiBuilder b, int l) {
     return root(b, l + 1);
   }
 
@@ -275,9 +47,9 @@ public class WeaveParser implements PsiParser, LightPsiParser {
       NAMED_TYPE_PATTERN, OBJECT_DECONSTRUCT_PATTERN, PATTERN, REGEX_PATTERN,
       TYPE_PATTERN),
     create_token_set_(ATTRIBUTES_TYPE, CLOSE_OBJECT_TYPE, CLOSE_ORDERED_OBJECT_TYPE, INTERSECTION_TYPE,
-      KEY_TYPE, KEY_VALUE_PAIR_TYPE, LAMBDA_TYPE, NAME_TYPE,
-      OBJECT_TYPE, ORDERED_OBJECT_TYPE, REFERENCE_TYPE, TYPE,
-      UNION_TYPE),
+      KEY_TYPE, KEY_VALUE_PAIR_TYPE, LAMBDA_TYPE, LITERAL_TYPE,
+      NAME_TYPE, OBJECT_TYPE, ORDERED_OBJECT_TYPE, REFERENCE_TYPE,
+      TYPE, UNION_TYPE),
     create_token_set_(ADDITION_SUBTRACTION_EXPRESSION, AND_EXPRESSION, ANY_DATE_LITERAL, ARRAY_EXPRESSION,
       AS_EXPRESSION, BINARY_EXPRESSION, BOOLEAN_LITERAL, BRACKET_SELECTOR_EXPRESSION,
       CONDITIONAL_EXPRESSION, CUSTOM_INTERPOLATOR_EXPRESSION, DEFAULT_VALUE_EXPRESSION, DOT_SELECTOR_EXPRESSION,
@@ -707,7 +479,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // LambdaType | CloseOrderedObjectType | OrderedObjectType | CloseObjectType | ObjectType  | ReferenceType | ('(' Type ')')
+  // LambdaType | CloseOrderedObjectType | OrderedObjectType | CloseObjectType | ObjectType  | ReferenceType | LiteralType | ('(' Type ')')
   static boolean BasicTypeExpression(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "BasicTypeExpression")) return false;
     boolean r;
@@ -718,14 +490,15 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     if (!r) r = CloseObjectType(b, l + 1);
     if (!r) r = ObjectType(b, l + 1);
     if (!r) r = ReferenceType(b, l + 1);
-    if (!r) r = BasicTypeExpression_6(b, l + 1);
+    if (!r) r = LiteralType(b, l + 1);
+    if (!r) r = BasicTypeExpression_7(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
   }
 
   // '(' Type ')'
-  private static boolean BasicTypeExpression_6(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "BasicTypeExpression_6")) return false;
+  private static boolean BasicTypeExpression_7(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "BasicTypeExpression_7")) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, L_PARREN);
@@ -2075,6 +1848,19 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     boolean r;
     r = LiteralExpression(b, l + 1);
     if (!r) r = FqnIdentifier(b, l + 1);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // NumberLiteral | StringLiteral | BooleanLiteral
+  public static boolean LiteralType(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "LiteralType")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NONE_, LITERAL_TYPE, "<literal type>");
+    r = NumberLiteral(b, l + 1);
+    if (!r) r = StringLiteral(b, l + 1);
+    if (!r) r = BooleanLiteral(b, l + 1);
+    exit_section_(b, l, m, r, false, null);
     return r;
   }
 

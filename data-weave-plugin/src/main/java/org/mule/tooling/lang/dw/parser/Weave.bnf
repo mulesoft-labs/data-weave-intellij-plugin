@@ -556,7 +556,7 @@ private TypeLiteral ::= Type
 
 Type ::= UnionType
 
-private BasicTypeExpression ::= LambdaType | CloseOrderedObjectType | OrderedObjectType | CloseObjectType | ObjectType  | ReferenceType | ('(' Type ')')
+private BasicTypeExpression ::= LambdaType | CloseOrderedObjectType | OrderedObjectType | CloseObjectType | ObjectType  | ReferenceType | LiteralType | ('(' Type ')')
 
 TypeParameter ::= Identifier ( '<:' Type)? {
        methods = [getName setName getNameIdentifier]
@@ -617,3 +617,5 @@ ContainerModuleIdentifier ::= (Identifier '::')*
 CustomLoader ::= Identifier"!"
 
 Identifier ::= (DOLLAR_VARIABLE | ID | MATCH_KEYWORD | MATCHES_KEYWORD | FROM_KEYWORD | NOT_KEYWORD | UPDATE_KEYWORD | AT_KEYWORD)  {methods = [getName] name="Identifier" }
+
+LiteralType ::= NumberLiteral | StringLiteral | BooleanLiteral

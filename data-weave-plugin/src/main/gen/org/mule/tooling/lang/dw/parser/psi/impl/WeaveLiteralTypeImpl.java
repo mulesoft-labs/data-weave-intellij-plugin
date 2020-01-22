@@ -10,14 +10,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.*;
 import org.mule.tooling.lang.dw.parser.psi.*;
 
-public class WeaveInputDirectiveImpl extends WeaveDirectiveImpl implements WeaveInputDirective {
+public class WeaveLiteralTypeImpl extends WeaveTypeImpl implements WeaveLiteralType {
 
-  public WeaveInputDirectiveImpl(@NotNull ASTNode node) {
+  public WeaveLiteralTypeImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull WeaveVisitor visitor) {
-    visitor.visitInputDirective(this);
+    visitor.visitLiteralType(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -26,27 +26,9 @@ public class WeaveInputDirectiveImpl extends WeaveDirectiveImpl implements Weave
   }
 
   @Override
-  @Nullable
-  public WeaveDataFormat getDataFormat() {
-    return findChildByClass(WeaveDataFormat.class);
-  }
-
-  @Override
   @NotNull
-  public List<WeaveIdentifier> getIdentifierList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, WeaveIdentifier.class);
-  }
-
-  @Override
-  @Nullable
-  public WeaveOptions getOptions() {
-    return findChildByClass(WeaveOptions.class);
-  }
-
-  @Override
-  @Nullable
-  public WeaveType getType() {
-    return findChildByClass(WeaveType.class);
+  public WeaveLiteralExpression getLiteralExpression() {
+    return findNotNullChildByClass(WeaveLiteralExpression.class);
   }
 
 }
