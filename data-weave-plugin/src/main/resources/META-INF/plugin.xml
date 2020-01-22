@@ -206,7 +206,7 @@
         <runConfigurationProducer
                 implementation="org.mule.tooling.lang.dw.launcher.configuration.WeaveTestConfigurationProducer"/>
 
-        <fileTypeFactory implementation="org.mule.tooling.lang.dw.WeaveFileTypeFactory"/>
+        <fileType name="Weave" language="Weave" implementationClass="org.mule.tooling.lang.dw.WeaveFileType" fieldName="instance" extensions="dwl"/>
         <lang.parserDefinition language="Weave"
                                implementationClass="org.mule.tooling.lang.dw.parser.WeaveParserDefinition"/>
         <lang.syntaxHighlighterFactory language="Weave"
