@@ -27,14 +27,20 @@ public class WeaveObjectDeconstructExpressionImpl extends WeaveExpressionImpl im
 
   @Override
   @Nullable
+  public WeaveDynamicKeyValuePair getDynamicKeyValuePair() {
+    return findChildByClass(WeaveDynamicKeyValuePair.class);
+  }
+
+  @Override
+  @Nullable
   public WeaveExpression getExpression() {
     return findChildByClass(WeaveExpression.class);
   }
 
   @Override
-  @NotNull
+  @Nullable
   public WeaveKeyValuePair getKeyValuePair() {
-    return findNotNullChildByClass(WeaveKeyValuePair.class);
+    return findChildByClass(WeaveKeyValuePair.class);
   }
 
 }

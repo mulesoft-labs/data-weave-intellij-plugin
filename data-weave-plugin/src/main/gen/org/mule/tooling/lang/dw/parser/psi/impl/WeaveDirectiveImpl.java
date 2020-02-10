@@ -26,16 +26,4 @@ public class WeaveDirectiveImpl extends ASTWrapperPsiElement implements WeaveDir
     else super.accept(visitor);
   }
 
-  @Override
-  @NotNull
-  public List<WeaveAnnotation> getAnnotationList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, WeaveAnnotation.class);
-  }
-
-  @Override
-  @NotNull
-  public WeaveDirective getDirective() {
-    return findNotNullChildByClass(WeaveDirective.class);
-  }
-
 }

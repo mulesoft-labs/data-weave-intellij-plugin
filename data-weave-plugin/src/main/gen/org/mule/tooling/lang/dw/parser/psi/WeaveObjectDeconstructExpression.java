@@ -8,9 +8,12 @@ import com.intellij.psi.PsiElement;
 public interface WeaveObjectDeconstructExpression extends WeaveExpression {
 
   @Nullable
+  WeaveDynamicKeyValuePair getDynamicKeyValuePair();
+
+  @Nullable
   WeaveExpression getExpression();
 
-  @NotNull
+  @Nullable
   WeaveKeyValuePair getKeyValuePair();
 
 }

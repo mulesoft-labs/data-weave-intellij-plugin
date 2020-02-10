@@ -26,6 +26,12 @@ public class WeaveTypeDirectiveImpl extends WeaveDirectiveImpl implements WeaveT
   }
 
   @Override
+  @NotNull
+  public List<WeaveAnnotation> getAnnotationList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, WeaveAnnotation.class);
+  }
+
+  @Override
   @Nullable
   public WeaveTypeDefinition getTypeDefinition() {
     return findChildByClass(WeaveTypeDefinition.class);

@@ -7,6 +7,9 @@ import com.intellij.psi.PsiElement;
 
 public interface WeaveImportDirective extends WeaveDirective {
 
+  @NotNull
+  List<WeaveAnnotation> getAnnotationList();
+
   @Nullable
   WeaveIdentifier getIdentifier();
 

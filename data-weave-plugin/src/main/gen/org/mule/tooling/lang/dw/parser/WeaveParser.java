@@ -239,17 +239,29 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // 'annotation' AnnotationDefinition
+  // Annotation* 'annotation' AnnotationDefinition
   public static boolean AnnotationDirective(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "AnnotationDirective")) return false;
-    if (!nextTokenIs(b, ANNOTATION_DIRECTIVE_KEYWORD)) return false;
+    if (!nextTokenIs(b, "<annotation directive>", ANNOTATION_DIRECTIVE_KEYWORD, AT)) return false;
     boolean r, p;
-    Marker m = enter_section_(b, l, _NONE_, ANNOTATION_DIRECTIVE, null);
-    r = consumeToken(b, ANNOTATION_DIRECTIVE_KEYWORD);
-    p = r; // pin = 1
+    Marker m = enter_section_(b, l, _NONE_, ANNOTATION_DIRECTIVE, "<annotation directive>");
+    r = AnnotationDirective_0(b, l + 1);
+    r = r && consumeToken(b, ANNOTATION_DIRECTIVE_KEYWORD);
+    p = r; // pin = 2
     r = r && AnnotationDefinition(b, l + 1);
     exit_section_(b, l, m, r, p, null);
     return r || p;
+  }
+
+  // Annotation*
+  private static boolean AnnotationDirective_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "AnnotationDirective_0")) return false;
+    while (true) {
+      int c = current_position_(b);
+      if (!Annotation(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "AnnotationDirective_0", c)) break;
+    }
+    return true;
   }
 
   /* ********************************************************** */
@@ -851,37 +863,6 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // Annotation*
-  //          (VersionDirective
-  //            | NamespaceDirective
-  //            | VariableDirective
-  //            | AnnotationDirective
-  //            | OutputDirective
-  //            | InputDirective
-  //            | TypeDirective
-  //            | ImportDirective
-  //            | FunctionDirective)
-  public static boolean Directive(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "Directive")) return false;
-    boolean r;
-    Marker m = enter_section_(b, l, _COLLAPSE_, DIRECTIVE, "<directive>");
-    r = Directive_0(b, l + 1);
-    r = r && Directive_1(b, l + 1);
-    exit_section_(b, l, m, r, false, HeaderRecover_parser_);
-    return r;
-  }
-
-  // Annotation*
-  private static boolean Directive_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "Directive_0")) return false;
-    while (true) {
-      int c = current_position_(b);
-      if (!Annotation(b, l + 1)) break;
-      if (!empty_element_parsed_guard_(b, "Directive_0", c)) break;
-    }
-    return true;
-  }
-
   // VersionDirective
   //            | NamespaceDirective
   //            | VariableDirective
@@ -891,9 +872,10 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   //            | TypeDirective
   //            | ImportDirective
   //            | FunctionDirective
-  private static boolean Directive_1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "Directive_1")) return false;
+  public static boolean Directive(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "Directive")) return false;
     boolean r;
+    Marker m = enter_section_(b, l, _COLLAPSE_, DIRECTIVE, "<directive>");
     r = VersionDirective(b, l + 1);
     if (!r) r = NamespaceDirective(b, l + 1);
     if (!r) r = VariableDirective(b, l + 1);
@@ -903,6 +885,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     if (!r) r = TypeDirective(b, l + 1);
     if (!r) r = ImportDirective(b, l + 1);
     if (!r) r = FunctionDirective(b, l + 1);
+    exit_section_(b, l, m, r, false, HeaderRecover_parser_);
     return r;
   }
 
@@ -1357,17 +1340,29 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // 'fun' FunctionDefinition
+  // Annotation*  'fun' FunctionDefinition
   public static boolean FunctionDirective(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "FunctionDirective")) return false;
-    if (!nextTokenIs(b, FUNCTION_DIRECTIVE_KEYWORD)) return false;
+    if (!nextTokenIs(b, "<function directive>", AT, FUNCTION_DIRECTIVE_KEYWORD)) return false;
     boolean r, p;
-    Marker m = enter_section_(b, l, _NONE_, FUNCTION_DIRECTIVE, null);
-    r = consumeToken(b, FUNCTION_DIRECTIVE_KEYWORD);
-    p = r; // pin = 1
+    Marker m = enter_section_(b, l, _NONE_, FUNCTION_DIRECTIVE, "<function directive>");
+    r = FunctionDirective_0(b, l + 1);
+    r = r && consumeToken(b, FUNCTION_DIRECTIVE_KEYWORD);
+    p = r; // pin = 2
     r = r && FunctionDefinition(b, l + 1);
     exit_section_(b, l, m, r, p, null);
     return r || p;
+  }
+
+  // Annotation*
+  private static boolean FunctionDirective_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "FunctionDirective_0")) return false;
+    while (true) {
+      int c = current_position_(b);
+      if (!Annotation(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "FunctionDirective_0", c)) break;
+    }
+    return true;
   }
 
   /* ********************************************************** */
@@ -1476,75 +1471,87 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // IMPORT_DIRECTIVE_KEYWORD (((ImportedElement (',' ImportedElement)*) | '*') 'from')? ModuleReference ('as' Identifier)?
+  // Annotation* IMPORT_DIRECTIVE_KEYWORD (((ImportedElement (',' ImportedElement)*) | '*') 'from')? ModuleReference ('as' Identifier)?
   public static boolean ImportDirective(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ImportDirective")) return false;
-    if (!nextTokenIs(b, IMPORT_DIRECTIVE_KEYWORD)) return false;
+    if (!nextTokenIs(b, "<import directive>", AT, IMPORT_DIRECTIVE_KEYWORD)) return false;
     boolean r, p;
-    Marker m = enter_section_(b, l, _NONE_, IMPORT_DIRECTIVE, null);
-    r = consumeToken(b, IMPORT_DIRECTIVE_KEYWORD);
-    p = r; // pin = 1
-    r = r && report_error_(b, ImportDirective_1(b, l + 1));
+    Marker m = enter_section_(b, l, _NONE_, IMPORT_DIRECTIVE, "<import directive>");
+    r = ImportDirective_0(b, l + 1);
+    r = r && consumeToken(b, IMPORT_DIRECTIVE_KEYWORD);
+    p = r; // pin = 2
+    r = r && report_error_(b, ImportDirective_2(b, l + 1));
     r = p && report_error_(b, ModuleReference(b, l + 1)) && r;
-    r = p && ImportDirective_3(b, l + 1) && r;
+    r = p && ImportDirective_4(b, l + 1) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
   }
 
+  // Annotation*
+  private static boolean ImportDirective_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ImportDirective_0")) return false;
+    while (true) {
+      int c = current_position_(b);
+      if (!Annotation(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "ImportDirective_0", c)) break;
+    }
+    return true;
+  }
+
   // (((ImportedElement (',' ImportedElement)*) | '*') 'from')?
-  private static boolean ImportDirective_1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "ImportDirective_1")) return false;
-    ImportDirective_1_0(b, l + 1);
+  private static boolean ImportDirective_2(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ImportDirective_2")) return false;
+    ImportDirective_2_0(b, l + 1);
     return true;
   }
 
   // ((ImportedElement (',' ImportedElement)*) | '*') 'from'
-  private static boolean ImportDirective_1_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "ImportDirective_1_0")) return false;
+  private static boolean ImportDirective_2_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ImportDirective_2_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
-    r = ImportDirective_1_0_0(b, l + 1);
+    r = ImportDirective_2_0_0(b, l + 1);
     r = r && consumeToken(b, FROM_KEYWORD);
     exit_section_(b, m, null, r);
     return r;
   }
 
   // (ImportedElement (',' ImportedElement)*) | '*'
-  private static boolean ImportDirective_1_0_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "ImportDirective_1_0_0")) return false;
+  private static boolean ImportDirective_2_0_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ImportDirective_2_0_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
-    r = ImportDirective_1_0_0_0(b, l + 1);
+    r = ImportDirective_2_0_0_0(b, l + 1);
     if (!r) r = consumeToken(b, MULTIPLY);
     exit_section_(b, m, null, r);
     return r;
   }
 
   // ImportedElement (',' ImportedElement)*
-  private static boolean ImportDirective_1_0_0_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "ImportDirective_1_0_0_0")) return false;
+  private static boolean ImportDirective_2_0_0_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ImportDirective_2_0_0_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = ImportedElement(b, l + 1);
-    r = r && ImportDirective_1_0_0_0_1(b, l + 1);
+    r = r && ImportDirective_2_0_0_0_1(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
   }
 
   // (',' ImportedElement)*
-  private static boolean ImportDirective_1_0_0_0_1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "ImportDirective_1_0_0_0_1")) return false;
+  private static boolean ImportDirective_2_0_0_0_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ImportDirective_2_0_0_0_1")) return false;
     while (true) {
       int c = current_position_(b);
-      if (!ImportDirective_1_0_0_0_1_0(b, l + 1)) break;
-      if (!empty_element_parsed_guard_(b, "ImportDirective_1_0_0_0_1", c)) break;
+      if (!ImportDirective_2_0_0_0_1_0(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "ImportDirective_2_0_0_0_1", c)) break;
     }
     return true;
   }
 
   // ',' ImportedElement
-  private static boolean ImportDirective_1_0_0_0_1_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "ImportDirective_1_0_0_0_1_0")) return false;
+  private static boolean ImportDirective_2_0_0_0_1_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ImportDirective_2_0_0_0_1_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, COMMA);
@@ -1554,15 +1561,15 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   // ('as' Identifier)?
-  private static boolean ImportDirective_3(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "ImportDirective_3")) return false;
-    ImportDirective_3_0(b, l + 1);
+  private static boolean ImportDirective_4(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ImportDirective_4")) return false;
+    ImportDirective_4_0(b, l + 1);
     return true;
   }
 
   // 'as' Identifier
-  private static boolean ImportDirective_3_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "ImportDirective_3_0")) return false;
+  private static boolean ImportDirective_4_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ImportDirective_4_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, AS);
@@ -1602,24 +1609,36 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // 'input' VariableNameTypeDefinition (DataFormat | Identifier) Options?
+  // Annotation* 'input' VariableNameTypeDefinition (DataFormat | Identifier) Options?
   public static boolean InputDirective(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "InputDirective")) return false;
-    if (!nextTokenIs(b, INPUT_DIRECTIVE_KEYWORD)) return false;
+    if (!nextTokenIs(b, "<input directive>", AT, INPUT_DIRECTIVE_KEYWORD)) return false;
     boolean r, p;
-    Marker m = enter_section_(b, l, _NONE_, INPUT_DIRECTIVE, null);
-    r = consumeToken(b, INPUT_DIRECTIVE_KEYWORD);
-    p = r; // pin = 1
+    Marker m = enter_section_(b, l, _NONE_, INPUT_DIRECTIVE, "<input directive>");
+    r = InputDirective_0(b, l + 1);
+    r = r && consumeToken(b, INPUT_DIRECTIVE_KEYWORD);
+    p = r; // pin = 2
     r = r && report_error_(b, VariableNameTypeDefinition(b, l + 1));
-    r = p && report_error_(b, InputDirective_2(b, l + 1)) && r;
-    r = p && InputDirective_3(b, l + 1) && r;
+    r = p && report_error_(b, InputDirective_3(b, l + 1)) && r;
+    r = p && InputDirective_4(b, l + 1) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
   }
 
+  // Annotation*
+  private static boolean InputDirective_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "InputDirective_0")) return false;
+    while (true) {
+      int c = current_position_(b);
+      if (!Annotation(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "InputDirective_0", c)) break;
+    }
+    return true;
+  }
+
   // DataFormat | Identifier
-  private static boolean InputDirective_2(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "InputDirective_2")) return false;
+  private static boolean InputDirective_3(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "InputDirective_3")) return false;
     boolean r;
     r = DataFormat(b, l + 1);
     if (!r) r = Identifier(b, l + 1);
@@ -1627,8 +1646,8 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   // Options?
-  private static boolean InputDirective_3(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "InputDirective_3")) return false;
+  private static boolean InputDirective_4(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "InputDirective_4")) return false;
     Options(b, l + 1);
     return true;
   }
@@ -2098,17 +2117,29 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // 'ns' NamespaceDefinition
+  // Annotation* 'ns' NamespaceDefinition
   public static boolean NamespaceDirective(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "NamespaceDirective")) return false;
-    if (!nextTokenIs(b, NAMESPACE_DIRECTIVE_KEYWORD)) return false;
+    if (!nextTokenIs(b, "<namespace directive>", AT, NAMESPACE_DIRECTIVE_KEYWORD)) return false;
     boolean r, p;
-    Marker m = enter_section_(b, l, _NONE_, NAMESPACE_DIRECTIVE, null);
-    r = consumeToken(b, NAMESPACE_DIRECTIVE_KEYWORD);
-    p = r; // pin = 1
+    Marker m = enter_section_(b, l, _NONE_, NAMESPACE_DIRECTIVE, "<namespace directive>");
+    r = NamespaceDirective_0(b, l + 1);
+    r = r && consumeToken(b, NAMESPACE_DIRECTIVE_KEYWORD);
+    p = r; // pin = 2
     r = r && NamespaceDefinition(b, l + 1);
     exit_section_(b, l, m, r, p, null);
     return r || p;
+  }
+
+  // Annotation*
+  private static boolean NamespaceDirective_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "NamespaceDirective_0")) return false;
+    while (true) {
+      int c = current_position_(b);
+      if (!Annotation(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "NamespaceDirective_0", c)) break;
+    }
+    return true;
   }
 
   /* ********************************************************** */
@@ -2444,31 +2475,43 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // OUTPUT_DIRECTIVE_KEYWORD (":" Type)? ((DataFormat ('with' Identifier)?) | Identifier) Options?
+  // Annotation* OUTPUT_DIRECTIVE_KEYWORD (":" Type)? ((DataFormat ('with' Identifier)?) | Identifier) Options?
   public static boolean OutputDirective(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "OutputDirective")) return false;
-    if (!nextTokenIs(b, OUTPUT_DIRECTIVE_KEYWORD)) return false;
+    if (!nextTokenIs(b, "<output directive>", AT, OUTPUT_DIRECTIVE_KEYWORD)) return false;
     boolean r, p;
-    Marker m = enter_section_(b, l, _NONE_, OUTPUT_DIRECTIVE, null);
-    r = consumeToken(b, OUTPUT_DIRECTIVE_KEYWORD);
-    p = r; // pin = 1
-    r = r && report_error_(b, OutputDirective_1(b, l + 1));
-    r = p && report_error_(b, OutputDirective_2(b, l + 1)) && r;
-    r = p && OutputDirective_3(b, l + 1) && r;
+    Marker m = enter_section_(b, l, _NONE_, OUTPUT_DIRECTIVE, "<output directive>");
+    r = OutputDirective_0(b, l + 1);
+    r = r && consumeToken(b, OUTPUT_DIRECTIVE_KEYWORD);
+    p = r; // pin = 2
+    r = r && report_error_(b, OutputDirective_2(b, l + 1));
+    r = p && report_error_(b, OutputDirective_3(b, l + 1)) && r;
+    r = p && OutputDirective_4(b, l + 1) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
   }
 
+  // Annotation*
+  private static boolean OutputDirective_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "OutputDirective_0")) return false;
+    while (true) {
+      int c = current_position_(b);
+      if (!Annotation(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "OutputDirective_0", c)) break;
+    }
+    return true;
+  }
+
   // (":" Type)?
-  private static boolean OutputDirective_1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "OutputDirective_1")) return false;
-    OutputDirective_1_0(b, l + 1);
+  private static boolean OutputDirective_2(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "OutputDirective_2")) return false;
+    OutputDirective_2_0(b, l + 1);
     return true;
   }
 
   // ":" Type
-  private static boolean OutputDirective_1_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "OutputDirective_1_0")) return false;
+  private static boolean OutputDirective_2_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "OutputDirective_2_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, COLON);
@@ -2478,37 +2521,37 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   // (DataFormat ('with' Identifier)?) | Identifier
-  private static boolean OutputDirective_2(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "OutputDirective_2")) return false;
+  private static boolean OutputDirective_3(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "OutputDirective_3")) return false;
     boolean r;
     Marker m = enter_section_(b);
-    r = OutputDirective_2_0(b, l + 1);
+    r = OutputDirective_3_0(b, l + 1);
     if (!r) r = Identifier(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
   }
 
   // DataFormat ('with' Identifier)?
-  private static boolean OutputDirective_2_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "OutputDirective_2_0")) return false;
+  private static boolean OutputDirective_3_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "OutputDirective_3_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = DataFormat(b, l + 1);
-    r = r && OutputDirective_2_0_1(b, l + 1);
+    r = r && OutputDirective_3_0_1(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
   }
 
   // ('with' Identifier)?
-  private static boolean OutputDirective_2_0_1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "OutputDirective_2_0_1")) return false;
-    OutputDirective_2_0_1_0(b, l + 1);
+  private static boolean OutputDirective_3_0_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "OutputDirective_3_0_1")) return false;
+    OutputDirective_3_0_1_0(b, l + 1);
     return true;
   }
 
   // 'with' Identifier
-  private static boolean OutputDirective_2_0_1_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "OutputDirective_2_0_1_0")) return false;
+  private static boolean OutputDirective_3_0_1_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "OutputDirective_3_0_1_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, "with");
@@ -2518,8 +2561,8 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   // Options?
-  private static boolean OutputDirective_3(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "OutputDirective_3")) return false;
+  private static boolean OutputDirective_4(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "OutputDirective_4")) return false;
     Options(b, l + 1);
     return true;
   }
@@ -2946,17 +2989,29 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // 'type' TypeDefinition
+  // Annotation* 'type' TypeDefinition
   public static boolean TypeDirective(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "TypeDirective")) return false;
-    if (!nextTokenIs(b, TYPE_DIRECTIVE_KEYWORD)) return false;
+    if (!nextTokenIs(b, "<type directive>", AT, TYPE_DIRECTIVE_KEYWORD)) return false;
     boolean r, p;
-    Marker m = enter_section_(b, l, _NONE_, TYPE_DIRECTIVE, null);
-    r = consumeToken(b, TYPE_DIRECTIVE_KEYWORD);
-    p = r; // pin = 1
+    Marker m = enter_section_(b, l, _NONE_, TYPE_DIRECTIVE, "<type directive>");
+    r = TypeDirective_0(b, l + 1);
+    r = r && consumeToken(b, TYPE_DIRECTIVE_KEYWORD);
+    p = r; // pin = 2
     r = r && TypeDefinition(b, l + 1);
     exit_section_(b, l, m, r, p, null);
     return r || p;
+  }
+
+  // Annotation*
+  private static boolean TypeDirective_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "TypeDirective_0")) return false;
+    while (true) {
+      int c = current_position_(b);
+      if (!Annotation(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "TypeDirective_0", c)) break;
+    }
+    return true;
   }
 
   /* ********************************************************** */
@@ -3330,17 +3385,29 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // 'var' VariableDefinition
+  // Annotation* 'var' VariableDefinition
   public static boolean VariableDirective(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "VariableDirective")) return false;
-    if (!nextTokenIs(b, VAR_DIRECTIVE_KEYWORD)) return false;
+    if (!nextTokenIs(b, "<variable directive>", AT, VAR_DIRECTIVE_KEYWORD)) return false;
     boolean r, p;
-    Marker m = enter_section_(b, l, _NONE_, VARIABLE_DIRECTIVE, null);
-    r = consumeToken(b, VAR_DIRECTIVE_KEYWORD);
-    p = r; // pin = 1
+    Marker m = enter_section_(b, l, _NONE_, VARIABLE_DIRECTIVE, "<variable directive>");
+    r = VariableDirective_0(b, l + 1);
+    r = r && consumeToken(b, VAR_DIRECTIVE_KEYWORD);
+    p = r; // pin = 2
     r = r && VariableDefinition(b, l + 1);
     exit_section_(b, l, m, r, p, null);
     return r || p;
+  }
+
+  // Annotation*
+  private static boolean VariableDirective_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "VariableDirective_0")) return false;
+    while (true) {
+      int c = current_position_(b);
+      if (!Annotation(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "VariableDirective_0", c)) break;
+    }
+    return true;
   }
 
   /* ********************************************************** */
@@ -3386,16 +3453,28 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // '%dw'  DOUBLE_LITERAL
+  // Annotation* '%dw'  DOUBLE_LITERAL
   public static boolean VersionDirective(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "VersionDirective")) return false;
-    if (!nextTokenIs(b, VERSION_DIRECTIVE_KEYWORD)) return false;
+    if (!nextTokenIs(b, "<version directive>", AT, VERSION_DIRECTIVE_KEYWORD)) return false;
     boolean r, p;
-    Marker m = enter_section_(b, l, _NONE_, VERSION_DIRECTIVE, null);
-    r = consumeTokens(b, 1, VERSION_DIRECTIVE_KEYWORD, DOUBLE_LITERAL);
-    p = r; // pin = 1
+    Marker m = enter_section_(b, l, _NONE_, VERSION_DIRECTIVE, "<version directive>");
+    r = VersionDirective_0(b, l + 1);
+    r = r && consumeTokens(b, 1, VERSION_DIRECTIVE_KEYWORD, DOUBLE_LITERAL);
+    p = r; // pin = 2
     exit_section_(b, l, m, r, p, null);
     return r || p;
+  }
+
+  // Annotation*
+  private static boolean VersionDirective_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "VersionDirective_0")) return false;
+    while (true) {
+      int c = current_position_(b);
+      if (!Annotation(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "VersionDirective_0", c)) break;
+    }
+    return true;
   }
 
   /* ********************************************************** */
@@ -4184,20 +4263,29 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // '{' KeyValuePair '~' Expression '}'
+  // '{' (KeyValuePair | DynamicKeyValuePair) '~' Expression '}'
   public static boolean ObjectDeconstructExpression(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ObjectDeconstructExpression")) return false;
     if (!nextTokenIsSmart(b, L_CURLY)) return false;
     boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, OBJECT_DECONSTRUCT_EXPRESSION, null);
     r = consumeTokenSmart(b, L_CURLY);
-    r = r && KeyValuePair(b, l + 1);
+    r = r && ObjectDeconstructExpression_1(b, l + 1);
     r = r && consumeToken(b, TILDE);
     p = r; // pin = 3
     r = r && report_error_(b, Expression(b, l + 1, -1));
     r = p && consumeToken(b, R_CURLY) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
+  }
+
+  // KeyValuePair | DynamicKeyValuePair
+  private static boolean ObjectDeconstructExpression_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ObjectDeconstructExpression_1")) return false;
+    boolean r;
+    r = KeyValuePair(b, l + 1);
+    if (!r) r = DynamicKeyValuePair(b, l + 1);
+    return r;
   }
 
   // SingleKeyValuePairObj | MultipleKeyValuePairObj

@@ -26,6 +26,12 @@ public class WeaveNamespaceDirectiveImpl extends WeaveDirectiveImpl implements W
   }
 
   @Override
+  @NotNull
+  public List<WeaveAnnotation> getAnnotationList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, WeaveAnnotation.class);
+  }
+
+  @Override
   @Nullable
   public WeaveNamespaceDefinition getNamespaceDefinition() {
     return findChildByClass(WeaveNamespaceDefinition.class);

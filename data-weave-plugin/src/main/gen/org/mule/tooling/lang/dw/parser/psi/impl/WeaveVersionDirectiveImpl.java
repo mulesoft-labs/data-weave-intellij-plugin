@@ -25,4 +25,10 @@ public class WeaveVersionDirectiveImpl extends WeaveDirectiveImpl implements Wea
     else super.accept(visitor);
   }
 
+  @Override
+  @NotNull
+  public List<WeaveAnnotation> getAnnotationList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, WeaveAnnotation.class);
+  }
+
 }
