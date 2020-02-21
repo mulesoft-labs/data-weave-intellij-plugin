@@ -8,9 +8,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.*;
+import org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl;
 import org.mule.tooling.lang.dw.parser.psi.*;
 
-public class WeaveInputDirectiveImpl extends WeaveDirectiveImpl implements WeaveInputDirective {
+public class WeaveInputDirectiveImpl extends WeaveNamedElementImpl implements WeaveInputDirective {
 
   public WeaveInputDirectiveImpl(@NotNull ASTNode node) {
     super(node);
@@ -33,14 +34,14 @@ public class WeaveInputDirectiveImpl extends WeaveDirectiveImpl implements Weave
 
   @Override
   @Nullable
-  public WeaveDataFormat getDataFormat() {
-    return findChildByClass(WeaveDataFormat.class);
+  public WeaveIdentifier getIdentifier() {
+    return findChildByClass(WeaveIdentifier.class);
   }
 
   @Override
-  @NotNull
-  public List<WeaveIdentifier> getIdentifierList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, WeaveIdentifier.class);
+  @Nullable
+  public WeaveInputDataFormat getInputDataFormat() {
+    return findChildByClass(WeaveInputDataFormat.class);
   }
 
   @Override

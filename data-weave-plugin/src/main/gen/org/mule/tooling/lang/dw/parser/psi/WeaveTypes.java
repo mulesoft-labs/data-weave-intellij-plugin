@@ -71,6 +71,7 @@ public interface WeaveTypes {
   IElementType IDENTIFIER = new WeaveElementType("IDENTIFIER");
   IElementType IMPORTED_ELEMENT = new WeaveElementType("IMPORTED_ELEMENT");
   IElementType IMPORT_DIRECTIVE = new WeaveElementType("IMPORT_DIRECTIVE");
+  IElementType INPUT_DATA_FORMAT = new WeaveElementType("INPUT_DATA_FORMAT");
   IElementType INPUT_DIRECTIVE = new WeaveElementType("INPUT_DIRECTIVE");
   IElementType INTERSECTION_TYPE = new WeaveElementType("INTERSECTION_TYPE");
   IElementType IS_EXPRESSION = new WeaveElementType("IS_EXPRESSION");
@@ -405,6 +406,9 @@ public interface WeaveTypes {
       }
       else if (type == IMPORT_DIRECTIVE) {
         return new WeaveImportDirectiveImpl(node);
+      }
+      else if (type == INPUT_DATA_FORMAT) {
+        return new WeaveInputDataFormatImpl(node);
       }
       else if (type == INPUT_DIRECTIVE) {
         return new WeaveInputDirectiveImpl(node);

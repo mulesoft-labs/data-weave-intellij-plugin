@@ -257,8 +257,13 @@ public class WeaveVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitInputDataFormat(@NotNull WeaveInputDataFormat o) {
+    visitPsiElement(o);
+  }
+
   public void visitInputDirective(@NotNull WeaveInputDirective o) {
     visitDirective(o);
+    // visitNamedElement(o);
   }
 
   public void visitIntersectionType(@NotNull WeaveIntersectionType o) {

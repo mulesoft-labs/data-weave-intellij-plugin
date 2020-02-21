@@ -5,21 +5,27 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface WeaveInputDirective extends WeaveDirective {
+public interface WeaveInputDirective extends WeaveDirective, WeaveNamedElement {
 
   @NotNull
   List<WeaveAnnotation> getAnnotationList();
 
   @Nullable
-  WeaveDataFormat getDataFormat();
+  WeaveIdentifier getIdentifier();
 
-  @NotNull
-  List<WeaveIdentifier> getIdentifierList();
+  @Nullable
+  WeaveInputDataFormat getInputDataFormat();
 
   @Nullable
   WeaveOptions getOptions();
 
   @Nullable
   WeaveType getType();
+
+  String getName();
+
+  PsiElement setName(@NotNull String newName);
+
+  PsiElement getNameIdentifier();
 
 }

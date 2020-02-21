@@ -1607,7 +1607,19 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // Annotation* 'input' VariableNameTypeDefinition (DataFormat | Identifier) Options?
+  // DataFormat | Identifier
+  public static boolean InputDataFormat(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "InputDataFormat")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NONE_, INPUT_DATA_FORMAT, "<input data format>");
+    r = DataFormat(b, l + 1);
+    if (!r) r = Identifier(b, l + 1);
+    exit_section_(b, l, m, r, false, null);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // Annotation* 'input' VariableNameTypeDefinition InputDataFormat Options?
   public static boolean InputDirective(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "InputDirective")) return false;
     if (!nextTokenIs(b, "<input directive>", AT, INPUT_DIRECTIVE_KEYWORD)) return false;
@@ -1617,7 +1629,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     r = r && consumeToken(b, INPUT_DIRECTIVE_KEYWORD);
     p = r; // pin = 2
     r = r && report_error_(b, VariableNameTypeDefinition(b, l + 1));
-    r = p && report_error_(b, InputDirective_3(b, l + 1)) && r;
+    r = p && report_error_(b, InputDataFormat(b, l + 1)) && r;
     r = p && InputDirective_4(b, l + 1) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
@@ -1632,15 +1644,6 @@ public class WeaveParser implements PsiParser, LightPsiParser {
       if (!empty_element_parsed_guard_(b, "InputDirective_0", c)) break;
     }
     return true;
-  }
-
-  // DataFormat | Identifier
-  private static boolean InputDirective_3(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "InputDirective_3")) return false;
-    boolean r;
-    r = DataFormat(b, l + 1);
-    if (!r) r = Identifier(b, l + 1);
-    return r;
   }
 
   // Options?

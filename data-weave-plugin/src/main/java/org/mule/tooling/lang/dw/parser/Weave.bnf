@@ -194,7 +194,14 @@ Schema::= '{' ( SchemaElement ( ',' SchemaElement )* )? '}' {pin = 1}
 
 SchemaElement::= (Identifier | StringLiteral) ':' Expression {pin = 2}
 
-InputDirective::= Annotation* 'input' VariableNameTypeDefinition (DataFormat | Identifier) Options? {pin=2}
+InputDirective::= Annotation* 'input' VariableNameTypeDefinition InputDataFormat Options? {
+    pin=2
+    methods=[getName setName getNameIdentifier]
+    implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
+    mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
+}
+
+InputDataFormat::=(DataFormat | Identifier)
 
 Options::= OptionElement ( ',' OptionElement )*
 
