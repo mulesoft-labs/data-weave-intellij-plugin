@@ -37,12 +37,18 @@ import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.qn.WeaveQualifiedNameProvider;
 import org.mule.tooling.lang.dw.service.agent.WeaveAgentRuntimeManager;
 import org.mule.tooling.lang.dw.util.AsyncCache;
+import org.mule.weave.v1.parser.ast.header.directives.Directive;
+import org.mule.weave.v1.parser.ast.header.directives.FunctionDirective;
 import org.mule.weave.v2.completion.*;
 import org.mule.weave.v2.debugger.event.WeaveDataFormatDescriptor;
 import org.mule.weave.v2.debugger.event.WeaveDataFormatProperty;
 import org.mule.weave.v2.editor.*;
 import org.mule.weave.v2.hover.HoverMessage;
 import org.mule.weave.v2.parser.ast.AstNode;
+import org.mule.weave.v2.parser.ast.functions.FunctionNode;
+import org.mule.weave.v2.parser.ast.functions.OverloadedFunctionNode;
+import org.mule.weave.v2.parser.ast.header.directives.DirectiveNode;
+import org.mule.weave.v2.parser.ast.header.directives.FunctionDirectiveNode;
 import org.mule.weave.v2.parser.ast.variables.NameIdentifier;
 import org.mule.weave.v2.scope.Reference;
 import org.mule.weave.v2.scope.VariableScope;
@@ -51,6 +57,9 @@ import org.mule.weave.v2.sdk.WeaveResource$;
 import org.mule.weave.v2.sdk.WeaveResourceResolver;
 import org.mule.weave.v2.ts.WeaveType;
 import scala.Option;
+import scala.collection.JavaConverters;
+import scala.collection.Seq;
+import scala.concurrent.JavaConversions;
 
 import java.util.*;
 
@@ -224,14 +233,13 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
         final Option<Reference> referenceOption = weaveDocumentService.definition(identifier.getTextOffset());
         if (referenceOption.isDefined()) {
             final Reference reference = referenceOption.get();
-            return new PsiElement[]{resolveReference(reference, containerFile)};
+            return resolveReference(reference, containerFile);
         } else {
             return new PsiElement[0];
         }
     }
 
-    @Nullable
-    private PsiElement resolveReference(Reference reference, PsiFile containerFile) {
+    private PsiElement[] resolveReference(Reference reference, PsiFile containerFile) {
         final Option<NameIdentifier> nameIdentifier = reference.moduleSource();
         final WeaveQualifiedNameProvider nameProvider = new WeaveQualifiedNameProvider();
         PsiFile container;
@@ -241,12 +249,37 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
                 container = psiElement.getContainingFile();
             } else {
                 //Unable to find the module
-                return null;
+                return new PsiElement[0];
             }
         } else {
             container = containerFile;
         }
         final NameIdentifier referencedNode = reference.referencedNode();
+
+        final Option<FunctionDirectiveNode> mayBeDirective = reference.scope().astNavigator().parentWithType(referencedNode, FunctionDirectiveNode.class);
+
+        if (mayBeDirective.isDefined() && mayBeDirective.get().literal() instanceof OverloadedFunctionNode) {
+            final OverloadedFunctionNode overloadedFunctionNode = (OverloadedFunctionNode) mayBeDirective.get().literal();
+            final Seq<FunctionNode> functions = overloadedFunctionNode.functions();
+            final Collection<FunctionNode> functionNodes = JavaConverters.asJavaCollection(functions);
+            return functionNodes.stream()
+                    .map((fn) -> {
+                        return Optional.ofNullable(getWeaveNamedElement(container, fn));
+                    })
+                    .filter((o) -> o.isPresent())
+                    .map(Optional::get)
+                    .toArray(PsiElement[]::new);
+        } else {
+            final WeaveNamedElement parentOfType = getWeaveNamedElement(container, referencedNode);
+            if (parentOfType == null) {
+                return new PsiElement[0];
+            } else {
+                return new PsiElement[]{parentOfType};
+            }
+        }
+    }
+
+    private WeaveNamedElement getWeaveNamedElement(PsiFile container, AstNode referencedNode) {
         final PsiElement elementAtOffset = PsiUtil.getElementAtOffset(container, referencedNode.location().startPosition().index());
         //We should link the NamedElement on the other side.
         return PsiTreeUtil.getParentOfType(elementAtOffset, WeaveNamedElement.class);

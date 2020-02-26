@@ -37,7 +37,6 @@ import org.mule.weave.v2.ts.AnyType;
 import org.mule.weave.v2.ts.WeaveType;
 import scala.Tuple2;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -157,7 +156,7 @@ public class WeaveRuntimeContextManager implements ProjectComponent, Disposable 
             final Module moduleForFile = ModuleUtil.findModuleForFile(modifiedFile, myProject);
 
             app.runWriteAction(() -> {
-                final VirtualFile dwitFolder = getScenariosRootFolder(moduleForFile);
+                final VirtualFile dwitFolder =  getScenariosRootFolder(moduleForFile);
                 if (dwitFolder != null && VfsUtil.isAncestor(dwitFolder, modifiedFile, true)) {
                     VirtualFile scenario = findScenario(modifiedFile, dwitFolder);
                     onModified(new Scenario(scenario));
@@ -227,7 +226,12 @@ public class WeaveRuntimeContextManager implements ProjectComponent, Disposable 
     }
 
     public void setCurrentScenario(WeaveDocument weaveDocument, Scenario scenario) {
-        this.selectedScenariosByMapping.put(weaveDocument.getQualifiedName(), scenario);
+        this.selectedScenariosByMapping.put(getTestFolderName(weaveDocument), scenario);
+    }
+
+    @NotNull
+    private String getTestFolderName(WeaveDocument weaveDocument) {
+        return weaveDocument.getQualifiedName().replaceAll("::", "-");
     }
 
     @Nullable
@@ -333,7 +337,7 @@ public class WeaveRuntimeContextManager implements ProjectComponent, Disposable 
         if (weaveDocument == null) {
             return null;
         }
-        String qName = ReadAction.compute(() -> weaveDocument.getQualifiedName());
+        String qName = ReadAction.compute(() -> getTestFolderName(weaveDocument));
         Scenario scenario = selectedScenariosByMapping.get(qName);
         if (scenario == null || !scenario.isValid()) {
             selectedScenariosByMapping.remove(qName);
@@ -397,7 +401,7 @@ public class WeaveRuntimeContextManager implements ProjectComponent, Disposable 
     public VirtualFile findMappingTestFolder(PsiFile psiFile) {
         WeaveDocument document = getWeaveDocument(psiFile);
         if (document != null) {
-            String qualifiedName = ReadAction.compute(() -> document.getQualifiedName());
+            String qualifiedName = ReadAction.compute(() -> getTestFolderName(document));
             VirtualFile scenariosRootFolder = getScenariosRootFolder(psiFile);
             if (scenariosRootFolder != null && scenariosRootFolder.isValid()) {
                 return scenariosRootFolder.findChild(qualifiedName);
@@ -472,7 +476,7 @@ public class WeaveRuntimeContextManager implements ProjectComponent, Disposable 
                 }
                 final WeaveDocument document = WeavePsiUtils.getWeaveDocument(weaveFile);
                 if (document != null) {
-                    String qName = document.getQualifiedName();
+                    String qName = getTestFolderName(document);
                     return dwitFolder.createChildDirectory(this, qName);
                 } else {
                     return null;
@@ -498,8 +502,8 @@ public class WeaveRuntimeContextManager implements ProjectComponent, Disposable 
         if (module == null) {
             return null;
         }
-        String moduleName = module.getName();
-        VirtualFile maybeFolder = dwitFolders.get(moduleName);
+        final String moduleName = module.getName();
+        final VirtualFile maybeFolder = dwitFolders.get(moduleName);
         if (maybeFolder != null) {
             return maybeFolder;
         }

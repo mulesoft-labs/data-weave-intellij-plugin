@@ -187,7 +187,7 @@ public class OutputComponent implements Disposable {
 
     private class SaveOutputAction extends AnAction {
         public SaveOutputAction() {
-            super(null, "Save expected output", AllIcons.Actions.Menu_saveall);
+            super("Save as Expected Output", "Save as expected output", AllIcons.Actions.Menu_saveall);
         }
 
         @Override
@@ -222,7 +222,7 @@ public class OutputComponent implements Disposable {
         private boolean isSelected;
 
         public ShowDiffAction() {
-            super(null, "Show diff", AllIcons.Actions.Diff);
+            super("Show Diff with Expected", "Show diff", AllIcons.Actions.Diff);
         }
 
         @Override

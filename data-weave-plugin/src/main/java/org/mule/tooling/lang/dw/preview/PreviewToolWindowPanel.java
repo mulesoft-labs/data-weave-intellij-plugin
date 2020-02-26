@@ -37,7 +37,7 @@ public class PreviewToolWindowPanel extends SimpleToolWindowPanel implements Dis
     private JPanel mainPanel;
     private CardLayout cardLayout;
     private JComponent previewComponent;
-    private boolean pinned = false;
+
     private WeaveAgentRuntimeManager agentRuntimeManager;
 
     public PreviewToolWindowPanel(Project project) {
@@ -67,6 +67,16 @@ public class PreviewToolWindowPanel extends SimpleToolWindowPanel implements Dis
         final MessageBusConnection[] connection = {null};
 
         myProject.getMessageBus().connect(this).subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, new FileEditorManagerListener() {
+
+            @Override
+            public void fileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
+                if (!weavePreviewComponent.isPinned()) {
+                    final PsiFile psiFile = file.isValid() ? PsiManager.getInstance(myProject).findFile(file) : null;
+                    // This invokeLater is required. The problem is open does a commit to PSI, but open is
+                    // invoked inside PSI change event. It causes an Exception like "Changes to PSI are not allowed inside event processing"
+                    DumbService.getInstance(myProject).smartInvokeLater(() -> setFile(psiFile));
+                }
+            }
 
             @Override
             public void selectionChanged(@NotNull FileEditorManagerEvent e) {
@@ -103,7 +113,7 @@ public class PreviewToolWindowPanel extends SimpleToolWindowPanel implements Dis
     }
 
     private void showFile(@NotNull FileEditorManagerEvent e) {
-        if (!pinned) {
+        if (!weavePreviewComponent.isPinned()) {
             VirtualFile file = e.getNewFile();
             final PsiFile psiFile = file != null && file.isValid() ? PsiManager.getInstance(myProject).findFile(file) : null;
             // This invokeLater is required. The problem is open does a commit to PSI, but open is

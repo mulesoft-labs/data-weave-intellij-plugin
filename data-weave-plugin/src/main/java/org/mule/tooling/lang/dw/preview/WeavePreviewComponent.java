@@ -136,7 +136,7 @@ public class WeavePreviewComponent implements Disposable {
 
             }
         });
-        group.add(new ToggleAction(null, "Pin to this mapping", AllIcons.General.Pin_tab) {
+        group.add(new ToggleAction("Pin to This Mapping", "Pin to this mapping", AllIcons.General.Pin_tab) {
 
             @Override
             public boolean isSelected(AnActionEvent e) {
@@ -159,7 +159,7 @@ public class WeavePreviewComponent implements Disposable {
                 e.getPresentation().setEnabled(runAvailable());
             }
         });
-        group.add(new ToggleAction(null, "Run on editor changes", AllIcons.Ide.IncomingChangesOn) {
+        group.add(new ToggleAction("Run on Editor Changes", "Run on editor changes", AllIcons.Ide.IncomingChangesOn) {
 
             @Override
             public boolean isSelected(AnActionEvent e) {
@@ -366,6 +366,10 @@ public class WeavePreviewComponent implements Disposable {
         return psiFile.getVirtualFile().getNameWithoutExtension().equals("out");
     }
 
+    public boolean isPinned() {
+        return pinned;
+    }
+
     /**
      * This listener runs the preview each time a change occurred in the PSI tree
      */
@@ -491,7 +495,7 @@ public class WeavePreviewComponent implements Disposable {
 
     private class SelectScenarioAction extends AnAction {
         public SelectScenarioAction() {
-            super(null, "Select scenario", AllIcons.General.Gear);
+            super("Select Scenario", "Select scenario", AllIcons.General.Gear);
         }
 
         @Override

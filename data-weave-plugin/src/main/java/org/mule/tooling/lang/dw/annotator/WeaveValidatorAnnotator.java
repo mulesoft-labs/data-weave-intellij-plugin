@@ -92,11 +92,7 @@ public class WeaveValidatorAnnotator extends ExternalAnnotator<PsiFile, Validati
 
   private int getValidIndex(Position position) {
     int index = position.index();
-    if (index < 0) {
-      return 0;
-    } else {
-      return index;
-    }
+    return Math.max(index, 0);
   }
 
   private static class WeaveIntentionAction implements IntentionAction {
