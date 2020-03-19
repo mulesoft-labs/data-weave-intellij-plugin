@@ -14,6 +14,8 @@ type ONE = 1
 type Result<T> = {success: true, value: T } | {success: false, error: String }
 
 
+type MyFun = (n: String, a?:Boolean) -> String
+
 
 //Type of parameters
 fun getPort(scheme: "http" | "https"): 80 | 443 =

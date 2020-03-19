@@ -2043,17 +2043,25 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // Identifier ':' Type
+  // Identifier ('?')? ':' Type
   static boolean NamedLambdaTypeParameter(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "NamedLambdaTypeParameter")) return false;
     boolean r, p;
     Marker m = enter_section_(b, l, _NONE_);
     r = Identifier(b, l + 1);
+    r = r && NamedLambdaTypeParameter_1(b, l + 1);
     r = r && consumeToken(b, COLON);
-    p = r; // pin = 2
+    p = r; // pin = 3
     r = r && Type(b, l + 1);
     exit_section_(b, l, m, r, p, null);
     return r || p;
+  }
+
+  // ('?')?
+  private static boolean NamedLambdaTypeParameter_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "NamedLambdaTypeParameter_1")) return false;
+    consumeToken(b, QUESTION);
+    return true;
   }
 
   /* ********************************************************** */

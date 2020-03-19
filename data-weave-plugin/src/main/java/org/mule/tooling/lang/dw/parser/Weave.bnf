@@ -599,7 +599,7 @@ LambdaType ::= '(' (LambdaTypeParameter (',' LambdaTypeParameter)*)? ')' '->' Ty
 
 LambdaTypeParameter ::= NamedLambdaTypeParameter | Type
 
-private NamedLambdaTypeParameter ::= Identifier ':' Type {pin=2}
+private NamedLambdaTypeParameter ::= Identifier ('?')? ':' Type {pin=3}
 
 ReferenceType ::= FqnIdentifier ('<' Type (',' Type)* '>')? (Schema)? {pin = 2}
 
