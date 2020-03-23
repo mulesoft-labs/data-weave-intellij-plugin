@@ -4,7 +4,7 @@ import java.time.format.DateTimeFormatter
 
 
 plugins {
-    id "org.jetbrains.intellij" version "0.4.9"
+    id "org.jetbrains.intellij" version "0.4.17"
     id "net.linguica.maven-settings" version "0.5"
 }
 

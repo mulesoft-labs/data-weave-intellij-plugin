@@ -193,6 +193,15 @@
           </ul>
         </li>
       </ul>
+         <h1>v2.0.40</h1>
+      <ul>
+       <li>
+          <p>DataWeave 2.0 Support</p>
+          <ul>
+            <li>Add support for optional field on function types.</li>
+          </ul>
+        </li>
+      </ul>
     ]]>
     </change-notes>
 
