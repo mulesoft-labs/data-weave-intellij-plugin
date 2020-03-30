@@ -54,7 +54,7 @@ public class WeaveDocsAnnotator extends ExternalAnnotator<PsiFile, ValidationMes
     @Override
     public void apply(@NotNull PsiFile file, ValidationMessages annotationResult, @NotNull AnnotationHolder holder) {
         final ValidationMessage[] errorMessage = annotationResult.errorMessage();
-        apply(holder, errorMessage, HighlightSeverity.ERROR);
+        apply(holder, errorMessage, HighlightSeverity.WARNING);
         final ValidationMessage[] validationMessages = annotationResult.warningMessage();
         apply(holder, validationMessages, HighlightSeverity.WARNING);
     }

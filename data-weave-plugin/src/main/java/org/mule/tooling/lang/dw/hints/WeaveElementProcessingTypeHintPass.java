@@ -38,7 +38,7 @@ public class WeaveElementProcessingTypeHintPass extends ElementProcessingHintPas
             if (variableDefinition.getType() == null) {
                 WeaveType weaveType = instance.typeOf(variableDefinition.getExpression());
                 if (weaveType != null && isSimpleType(weaveType) && variableDefinition.getNameIdentifier() != null) {
-                    collector.invoke(variableDefinition.getNameIdentifier().getTextRange().getEndOffset(), ": " + weaveType.toString(false, true));
+                    collector.invoke(variableDefinition.getNameIdentifier().getTextRange().getEndOffset(), ": " + weaveType.baseType().toString(false, true));
                 }
             }
         } else if (psiElement instanceof WeaveFunctionDefinition) {
@@ -49,7 +49,7 @@ public class WeaveElementProcessingTypeHintPass extends ElementProcessingHintPas
                 if (weaveType != null && isSimpleType(weaveType) && functionDefinition.getExpression() != null) {
                     ASTNode[] children = functionDefinition.getNode().getChildren(TokenSet.create(WeaveTypes.R_PARREN));
                     if (children.length > 0) {
-                        collector.invoke(children[0].getTextRange().getEndOffset(), ": " + weaveType.toString(false, true));
+                        collector.invoke(children[0].getTextRange().getEndOffset(), ": " + weaveType.baseType().toString(false, true));
                     }
 
                 }

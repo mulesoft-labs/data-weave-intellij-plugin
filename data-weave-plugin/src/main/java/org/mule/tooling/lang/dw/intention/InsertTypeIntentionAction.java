@@ -54,7 +54,7 @@ public class InsertTypeIntentionAction extends PsiElementBaseIntentionAction imp
             final WeaveType weaveType = WeaveEditorToolingAPI.getInstance(project).typeOf(weaveIdentifier.getExpression());
             if (weaveType != null && weaveIdentifier.getNameIdentifier() != null) {
                 WriteAction.run(() -> {
-                    editor.getDocument().insertString(weaveIdentifier.getNameIdentifier().getTextRange().getEndOffset(), ": " + weaveType.toString(false, true));
+                    editor.getDocument().insertString(weaveIdentifier.getNameIdentifier().getTextRange().getEndOffset(), ": " + weaveType.baseType().toString(false, true));
                 });
             }
         } else {
@@ -67,7 +67,7 @@ public class InsertTypeIntentionAction extends PsiElementBaseIntentionAction imp
                         WriteAction.run(() -> {
                             ASTNode[] children = functionDefinition.getNode().getChildren(TokenSet.create(WeaveTypes.R_PARREN));
                             if (children.length > 0) {
-                                editor.getDocument().insertString(children[0].getTextRange().getEndOffset(), ": " + weaveType.toString(false, true));
+                                editor.getDocument().insertString(children[0].getTextRange().getEndOffset(), ": " + weaveType.baseType().toString(false, true));
                             }
                         });
                     }

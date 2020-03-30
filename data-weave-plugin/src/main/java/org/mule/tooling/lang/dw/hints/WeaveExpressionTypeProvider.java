@@ -11,13 +11,13 @@ import org.mule.weave.v2.ts.WeaveType;
 import java.util.Collections;
 import java.util.List;
 
-public class WeaveExpressionTypeProvider extends ExpressionTypeProvider {
+public class WeaveExpressionTypeProvider extends ExpressionTypeProvider<PsiElement> {
     @NotNull
     @Override
     public String getInformationHint(@NotNull PsiElement element) {
         WeaveType weaveType = WeaveEditorToolingAPI.getInstance(element.getProject()).typeOf(element);
         if (weaveType != null) {
-            return weaveType.toString(false, true);
+            return weaveType.baseType().toString(false, true);
         } else {
             return "Invalid expression selection";
         }
@@ -31,7 +31,7 @@ public class WeaveExpressionTypeProvider extends ExpressionTypeProvider {
 
     @NotNull
     @Override
-    public List getExpressionsAt(@NotNull PsiElement elementAt) {
+    public List<PsiElement> getExpressionsAt(@NotNull PsiElement elementAt) {
         if (elementAt instanceof PsiWhiteSpace) {
             return Collections.emptyList();
         } else {

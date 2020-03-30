@@ -43,6 +43,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils.getWeaveDocument;
@@ -55,11 +56,12 @@ public class WeaveRuntimeContextManager implements ProjectComponent, Disposable 
     private Map<Scenario, ImplicitInput> implicitInputTypes = new ConcurrentHashMap<>();
     private Map<Scenario, WeaveType> expectedOutputType = new HashMap<>();
     private Map<String, VirtualFile> dwitFolders = new HashMap<>();
-    private WeaveDataFormatDescriptor[] dataFormat = new WeaveDataFormatDescriptor[0];
-    private String[] modules = new String[0];
 
-    private List<StatusChangeListener> listeners = new ArrayList<>();
+    private String[] modules = new String[0];
     private Project myProject;
+    private volatile boolean started;
+
+    private List<Runnable> onComponentStarted = new ArrayList<>();
 
 
     protected WeaveRuntimeContextManager(Project project) {
@@ -70,34 +72,18 @@ public class WeaveRuntimeContextManager implements ProjectComponent, Disposable 
         return myProject.getComponent(WeaveRuntimeContextManager.class);
     }
 
-    public void addListener(StatusChangeListener listener) {
-        if (modules.length > 0) {
-            listener.onModulesLoaded(modules);
-        }
-        if (dataFormat.length > 0) {
-            listener.onDataFormatLoaded(dataFormat);
-        }
-
-        this.listeners.add(listener);
+    @Override
+    public void projectOpened() {
+        started = true;
+        ApplicationManager.getApplication().executeOnPooledThread(() -> {
+            for (Runnable runnable : onComponentStarted) {
+                runnable.run();
+            }
+        });
     }
 
     @Override
     public void initComponent() {
-        WeaveAgentRuntimeManager.getInstance(myProject).addStatusListener(() -> {
-            WeaveAgentRuntimeManager.getInstance(myProject).dataFormats((dataFormatEvent) -> {
-                dataFormat = dataFormatEvent.formats();
-                for (StatusChangeListener listener : listeners) {
-                    listener.onDataFormatLoaded(dataFormat);
-                }
-            });
-            WeaveAgentRuntimeManager.getInstance(myProject).availableModules((modulesEvent) -> {
-                modules = modulesEvent.modules();
-                for (StatusChangeListener listener : listeners) {
-                    listener.onModulesLoaded(modules);
-                }
-            });
-        });
-
         PsiManager.getInstance(myProject).addPsiTreeChangeListener(new PsiTreeChangeAdapter() {
             @Override
             public void childReplaced(@NotNull PsiTreeChangeEvent event) {
@@ -115,7 +101,6 @@ public class WeaveRuntimeContextManager implements ProjectComponent, Disposable 
 
             }
         }, this);
-
 
         VirtualFileManager.getInstance().addVirtualFileListener(new VirtualFileListener() {
             @Override
@@ -156,7 +141,7 @@ public class WeaveRuntimeContextManager implements ProjectComponent, Disposable 
             final Module moduleForFile = ModuleUtil.findModuleForFile(modifiedFile, myProject);
 
             app.runWriteAction(() -> {
-                final VirtualFile dwitFolder =  getScenariosRootFolder(moduleForFile);
+                final VirtualFile dwitFolder = getScenariosRootFolder(moduleForFile);
                 if (dwitFolder != null && VfsUtil.isAncestor(dwitFolder, modifiedFile, true)) {
                     VirtualFile scenario = findScenario(modifiedFile, dwitFolder);
                     onModified(new Scenario(scenario));
@@ -170,24 +155,26 @@ public class WeaveRuntimeContextManager implements ProjectComponent, Disposable 
         }
     }
 
-    @NotNull
-    public WeaveDataFormatDescriptor[] getAvailableDataFormat() {
-        if (dataFormat.length > 0) {
-            return dataFormat;
-        } else {
+    public void availableDataFormat(Consumer<WeaveDataFormatDescriptor[]> callback) {
+        runWhenStarted(() -> {
             FutureResult<WeaveDataFormatDescriptor[]> futureResult = new FutureResult<>();
             WeaveAgentRuntimeManager.getInstance(myProject).dataFormats((dataFormatEvent) -> {
                 WeaveDataFormatDescriptor[] formats = dataFormatEvent.formats();
-                this.dataFormat = formats;
-                futureResult.set(formats);
+                callback.accept(formats);
             });
-            try {
-                return futureResult.get(WeaveConstants.SERVER_TIMEOUT, TimeUnit.MILLISECONDS);
-            } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                return dataFormat;
-            }
+        });
+
+
+    }
+
+    private void runWhenStarted(Runnable runnable) {
+        if (started) {
+            runnable.run();
+        } else {
+            onComponentStarted.add(runnable);
         }
     }
+
 
     @NotNull
     public String[] getAvailableModule() {
@@ -524,11 +511,4 @@ public class WeaveRuntimeContextManager implements ProjectComponent, Disposable 
 
     }
 
-    public interface StatusChangeListener {
-        default void onDataFormatLoaded(WeaveDataFormatDescriptor[] dataFormatDescriptor) {
-        }
-
-        default void onModulesLoaded(String[] modules) {
-        }
-    }
 }

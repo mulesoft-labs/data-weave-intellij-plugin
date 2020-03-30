@@ -23,8 +23,10 @@ import java.util.function.Function;
  * @param <V> The type of the value
  */
 public class AsyncCache<K, V> {
+
     private BiConsumer<K, Consumer<V>> resolver;
-  private Map<K, CacheEntry<V>> cache = new HashMap<>();
+    private Map<K, CacheEntry<V>> cache = new HashMap<>();
+    private long serverTimeout = WeaveConstants.SERVER_TIMEOUT;
 
     /**
      * This constructor should be used when the resolver is non-blocking.
@@ -42,10 +44,19 @@ public class AsyncCache<K, V> {
         this.resolver = toBiconsumer(resolverFn);
     }
 
+    public AsyncCache<K, V> withTimeOut(long serverTimeout) {
+        this.serverTimeout = serverTimeout;
+        return this;
+    }
+
     public void invalidate(K key) {
         if (cache.containsKey(key)) {
             cache.get(key).invalidate();
         }
+    }
+
+    public void invalidateAll() {
+        cache.values().forEach((e) -> e.invalidate());
     }
 
     public Optional<V> resolve(K key) {
@@ -54,13 +65,14 @@ public class AsyncCache<K, V> {
             return Optional.of(entry.getValue());
         }
 
-        CompletableFuture<V> futureResult = new CompletableFuture<>();
+        final CompletableFuture<V> futureResult = new CompletableFuture<>();
         resolver.accept(key, (value) -> {
             cache.put(key, new CacheEntry<>(value));
             futureResult.complete(value);
         });
         try {
-            return Optional.of(futureResult.get(WeaveConstants.SERVER_TIMEOUT, TimeUnit.MILLISECONDS));
+
+            return Optional.of(futureResult.get(serverTimeout, TimeUnit.MILLISECONDS));
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             if (entry != null) {
                 return Optional.of(entry.getValue());
