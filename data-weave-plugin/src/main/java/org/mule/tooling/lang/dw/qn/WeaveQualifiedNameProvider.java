@@ -4,6 +4,7 @@ import com.intellij.ide.actions.QualifiedNameProvider;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorModificationUtil;
 import com.intellij.openapi.fileTypes.FileType;
+import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
@@ -13,6 +14,7 @@ import com.intellij.psi.PsiQualifiedNamedElement;
 import com.intellij.psi.search.FileTypeIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.indexing.FileBasedIndex;
+import org.apache.commons.io.FilenameUtils;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.WeaveFileType;
 import org.mule.tooling.lang.dw.parser.psi.*;
@@ -115,7 +117,8 @@ public class WeaveQualifiedNameProvider implements QualifiedNameProvider {
 
     public List<PsiElement> getPsiElements(Project project, String fileRelativePath) {
         String relativePath = fileRelativePath.startsWith("/") ? fileRelativePath : "/" + fileRelativePath;
-        Set<FileType> fileTypes = Collections.singleton(WeaveFileType.getInstance());
+        final FileType stdFileType = FileTypeManager.getInstance().getFileTypeByFileName(FilenameUtils.getName(relativePath));
+        final Set<FileType> fileTypes = Collections.singleton(stdFileType);
         final List<VirtualFile> fileList = new ArrayList<>();
         FileBasedIndex.getInstance().processFilesContainingAllKeys(FileTypeIndex.NAME, fileTypes, GlobalSearchScope.allScope(project), null, virtualFile -> {
             if (virtualFile.getPath().endsWith(relativePath)) {

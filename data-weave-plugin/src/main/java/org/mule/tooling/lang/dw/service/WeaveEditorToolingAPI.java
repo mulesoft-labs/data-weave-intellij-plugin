@@ -250,6 +250,10 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
             PsiElement psiElement = nameProvider.getPsiElement(myProject, nameIdentifier.get());
             if (psiElement != null) {
                 container = psiElement.getContainingFile();
+                if (nameIdentifier.get().loader().isDefined()) {
+                    //When having custom module loader just navegate to the file
+                    return new PsiElement[]{psiElement};
+                }
             } else {
                 //Unable to find the module
                 return new PsiElement[0];
