@@ -48,7 +48,12 @@ public class WeaveBreadcrumbsInfoProvider extends BreadcrumbsInfoProvider {
     public String getElementInfo(@NotNull PsiElement e) {
         String result;
         if (e instanceof WeaveNamedElement) {
-            result = ((WeaveNamedElement) e).getIdentifier().getName();
+            final WeaveIdentifier identifier = ((WeaveNamedElement) e).getIdentifier();
+            if (identifier == null) {
+                result = "";
+            } else {
+                result = identifier.getName();
+            }
         } else if (e instanceof WeaveKeyValuePair) {
             String prefix = ":";
             if (e.getParent() instanceof WeaveDynamicKeyValuePair) {
@@ -73,11 +78,7 @@ public class WeaveBreadcrumbsInfoProvider extends BreadcrumbsInfoProvider {
             }
         } else if (e instanceof WeaveDocument) {
             String name = ((WeaveDocument) e).getQualifiedName();
-            if (name == null) {
-                result = "Document";
-            } else {
-                result = NameIdentifier.apply(name, Option.empty()).localName().name();
-            }
+            result = NameIdentifier.apply(name, Option.empty()).localName().name();
         } else if (e instanceof WeaveLiteralExpression) {
             return StringUtil.first(e.getText(), SCALAR_MAX_LENGTH, true);
         } else {
@@ -100,7 +101,7 @@ public class WeaveBreadcrumbsInfoProvider extends BreadcrumbsInfoProvider {
     @Nullable
     @Override
     public String getElementTooltip(@NotNull PsiElement e) {
-        return null;
+        return "";
     }
 
     @NotNull
