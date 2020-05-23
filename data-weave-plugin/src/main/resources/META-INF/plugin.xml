@@ -202,6 +202,16 @@
           </ul>
         </li>
       </ul>
+          <h1>v2.0.42</h1>
+      <ul>
+       <li>
+          <p>DataWeave 2.0 Support</p>
+          <ul>
+            <li>Fix build for latest IJ.</li>
+            <li>Fix autocompletion of namespace elements.</li>
+          </ul>
+        </li>
+      </ul>
     ]]>
     </change-notes>
 
