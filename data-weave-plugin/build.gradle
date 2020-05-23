@@ -6,9 +6,9 @@ sourceSets {
     }
 }
 
-//repositories {
-//    mavenLocal()
-//}
+repositories {
+    mavenLocal()
+}
 
 
 
