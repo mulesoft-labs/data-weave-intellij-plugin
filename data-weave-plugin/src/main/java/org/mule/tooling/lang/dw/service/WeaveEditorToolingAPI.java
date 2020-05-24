@@ -330,6 +330,7 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
 
         org.mule.weave.v2.completion.Template template = item.template();
         final Template myTemplate = IJAdapterHelper.toIJTemplate(myProject, template);
+
         elementBuilder = elementBuilder.withInsertHandler((context, item1) -> {
             final int length = context.getEditor().getDocument().getText().length();
             final int selectionStart = context.getEditor().getCaretModel().getOffset();
@@ -338,12 +339,14 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
             context.getDocument().deleteString(startOffset, tailOffset);
             context.setAddCompletionChar(false);
             TemplateManager.getInstance(context.getProject()).startTemplate(context.getEditor(), myTemplate);
-            final QuickFixAction[] insertAction = item.insertAction();
-            for (QuickFixAction quickFixAction : insertAction) {
-                quickFixAction.run(new IJWeaveTextDocument(context.getEditor(),context.getProject()));
+            if(item.insertAction().length > 0) {
+                final QuickFixAction[] insertAction = item.insertAction();
+                for (QuickFixAction quickFixAction : insertAction) {
+                    quickFixAction.run(new IJWeaveTextDocument(context.getEditor(), context.getProject()));
+                }
+                final int newLength = context.getEditor().getDocument().getText().length();
+                context.getEditor().getCaretModel().moveToOffset(selectionStart + newLength - length);
             }
-            final int newLength = context.getEditor().getDocument().getText().length();
-            context.getEditor().getCaretModel().moveToOffset(selectionStart + newLength -  length);
 
         });
 

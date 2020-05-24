@@ -16,6 +16,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
+import com.intellij.openapi.editor.impl.EditorFactoryImpl;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
@@ -62,7 +63,7 @@ public class OutputComponent implements Disposable {
     private Content content;
 
     public OutputComponent() {
-        outputDocument = EditorFactory.getInstance().createDocument("");
+        outputDocument = ((EditorFactoryImpl)EditorFactory.getInstance()).createDocument("", true, false);
     }
 
     public JComponent createComponent(Project project, PreviewToolWindowFactory.NameChanger nameChanger) {
@@ -157,7 +158,9 @@ public class OutputComponent implements Disposable {
     }
 
     public void setDocumentContent(String content) {
-        ApplicationManager.getApplication().runWriteAction(() -> outputDocument.setText(content));
+        ApplicationManager.getApplication().runWriteAction(() -> {
+            outputDocument.setText(content);
+        });
     }
 
     public void disposeOutputEditorIfExists() {
