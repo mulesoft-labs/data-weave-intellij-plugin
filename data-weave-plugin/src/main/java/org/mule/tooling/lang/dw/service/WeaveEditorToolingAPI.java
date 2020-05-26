@@ -8,6 +8,7 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.codeInsight.template.Template;
 import com.intellij.codeInsight.template.TemplateEditingAdapter;
 import com.intellij.codeInsight.template.TemplateManager;
+import com.intellij.codeInsight.template.impl.TemplateState;
 import com.intellij.compiler.server.BuildManagerListener;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.Disposable;
@@ -332,21 +333,28 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
         final Template myTemplate = IJAdapterHelper.toIJTemplate(myProject, template);
 
         elementBuilder = elementBuilder.withInsertHandler((context, item1) -> {
-            final int length = context.getEditor().getDocument().getText().length();
+            
             final int selectionStart = context.getEditor().getCaretModel().getOffset();
             final int startOffset = context.getStartOffset();
             final int tailOffset = context.getTailOffset();
             context.getDocument().deleteString(startOffset, tailOffset);
             context.setAddCompletionChar(false);
-            TemplateManager.getInstance(context.getProject()).startTemplate(context.getEditor(), myTemplate);
-            if(item.insertAction().length > 0) {
-                final QuickFixAction[] insertAction = item.insertAction();
-                for (QuickFixAction quickFixAction : insertAction) {
-                    quickFixAction.run(new IJWeaveTextDocument(context.getEditor(), context.getProject()));
+            TemplateManager.getInstance(context.getProject()).startTemplate(context.getEditor(), myTemplate, new TemplateEditingAdapter() {
+
+                @Override
+                public void templateFinished(@NotNull Template template, boolean brokenOff) {
+                    int length = context.getEditor().getDocument().getText().length();
+                    if(item.insertAction().length > 0) {
+                        final QuickFixAction[] insertAction = item.insertAction();
+                        for (QuickFixAction quickFixAction : insertAction) {
+                            quickFixAction.run(new IJWeaveTextDocument(context.getEditor(), context.getProject()));
+                        }
+                        final int newLength = context.getEditor().getDocument().getText().length();
+                        context.getEditor().getCaretModel().moveToOffset(selectionStart + newLength - length);
+                    }
                 }
-                final int newLength = context.getEditor().getDocument().getText().length();
-                context.getEditor().getCaretModel().moveToOffset(selectionStart + newLength - length);
-            }
+            });
+
 
         });
 
