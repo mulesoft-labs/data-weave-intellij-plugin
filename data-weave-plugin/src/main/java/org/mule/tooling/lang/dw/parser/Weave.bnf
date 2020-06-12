@@ -203,7 +203,7 @@ InputDirective::= Annotation* 'input' VariableNameTypeDefinition InputDataFormat
 
 InputDataFormat::=(DataFormat | Identifier)
 
-Options::= OptionElement ( ',' OptionElement )* (",")?
+Options::= OptionElement ( ',' OptionElement )*
 
 OptionElement::= Identifier '=' LiteralExpression {pin=2}
 
@@ -241,7 +241,7 @@ QualifiedName::= DeclaredNamespace? (Identifier | StringLiteral) {
 
 DeclaredNamespace::= Identifier '#'
 
-Attributes::= '@(' ( Attribute ( ',' Attribute )* )? (',')? ')' {pin=1}
+Attributes::= '@(' ( Attribute ( ',' Attribute )* )? ')' {pin=1}
 
 Attribute::= SimpleAttribute
            | DynamicAttribute
@@ -518,7 +518,7 @@ private DoDirectives
 
 UndefinedLiteral ::= '?''?''?'
 
-LambdaLiteral ::= TypeParameterDeclaration? '(' ( FunctionParameter ( ',' FunctionParameter )* )? (",")? ')' (':' Type)?  '->' SimpleExpression {pin = 6}
+LambdaLiteral ::= TypeParameterDeclaration? '(' ( FunctionParameter ( ',' FunctionParameter )* )? (",")? ')' (':' Type?)?  '->' SimpleExpression {pin = 7}
 
 private TypeParameterDeclaration ::= '<' (TypeParameter (',' TypeParameter)*)? '>'
 
@@ -593,7 +593,7 @@ KeyValuePairType ::=  KeyType ('*')? ('?')? ":" Type
 
 KeyType ::= NameType AttributesType?
 
-AttributesType ::= "@""(" NameType ":" Type (',' NameType ":" Type)* (",")? ")" {pin= 1}
+AttributesType ::= "@""(" NameType ":" Type (',' NameType ":" Type)* ")" {pin= 1}
 
 NameType ::= ((Identifier"#")?(Identifier | StringLiteral) ('?')?) | '_' | '('TypeParameter')'
 

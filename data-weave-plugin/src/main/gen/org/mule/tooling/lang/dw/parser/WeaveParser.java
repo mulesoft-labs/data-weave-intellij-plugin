@@ -393,7 +393,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // '@(' ( Attribute ( ',' Attribute )* )? (',')? ')'
+  // '@(' ( Attribute ( ',' Attribute )* )? ')'
   public static boolean Attributes(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "Attributes")) return false;
     boolean r, p;
@@ -401,7 +401,6 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     r = consumeToken(b, "@(");
     p = r; // pin = 1
     r = r && report_error_(b, Attributes_1(b, l + 1));
-    r = p && report_error_(b, Attributes_2(b, l + 1)) && r;
     r = p && consumeToken(b, R_PARREN) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
@@ -447,15 +446,8 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // (',')?
-  private static boolean Attributes_2(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "Attributes_2")) return false;
-    consumeToken(b, COMMA);
-    return true;
-  }
-
   /* ********************************************************** */
-  // "@""(" NameType ":" Type (',' NameType ":" Type)* (",")? ")"
+  // "@""(" NameType ":" Type (',' NameType ":" Type)* ")"
   public static boolean AttributesType(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "AttributesType")) return false;
     if (!nextTokenIs(b, AT)) return false;
@@ -467,7 +459,6 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     r = p && report_error_(b, consumeToken(b, COLON)) && r;
     r = p && report_error_(b, Type(b, l + 1)) && r;
     r = p && report_error_(b, AttributesType_5(b, l + 1)) && r;
-    r = p && report_error_(b, AttributesType_6(b, l + 1)) && r;
     r = p && consumeToken(b, R_PARREN) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
@@ -495,13 +486,6 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     r = r && Type(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
-  }
-
-  // (",")?
-  private static boolean AttributesType_6(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "AttributesType_6")) return false;
-    consumeToken(b, COMMA);
-    return true;
   }
 
   /* ********************************************************** */
@@ -2349,14 +2333,13 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // OptionElement ( ',' OptionElement )* (",")?
+  // OptionElement ( ',' OptionElement )*
   public static boolean Options(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "Options")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, OPTIONS, "<options>");
     r = OptionElement(b, l + 1);
     r = r && Options_1(b, l + 1);
-    r = r && Options_2(b, l + 1);
     exit_section_(b, l, m, r, false, null);
     return r;
   }
@@ -2381,13 +2364,6 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     r = r && OptionElement(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
-  }
-
-  // (",")?
-  private static boolean Options_2(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "Options_2")) return false;
-    consumeToken(b, COMMA);
-    return true;
   }
 
   /* ********************************************************** */
@@ -4191,7 +4167,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // TypeParameterDeclaration? '(' ( FunctionParameter ( ',' FunctionParameter )* )? (",")? ')' (':' Type)?  '->' SimpleExpression
+  // TypeParameterDeclaration? '(' ( FunctionParameter ( ',' FunctionParameter )* )? (",")? ')' (':' Type?)?  '->' SimpleExpression
   public static boolean LambdaLiteral(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "LambdaLiteral")) return false;
     if (!nextTokenIsSmart(b, LESS, L_PARREN)) return false;
@@ -4203,9 +4179,9 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     r = r && LambdaLiteral_3(b, l + 1);
     r = r && consumeToken(b, R_PARREN);
     r = r && LambdaLiteral_5(b, l + 1);
-    p = r; // pin = 6
-    r = r && report_error_(b, consumeToken(b, ARROW_TOKEN));
-    r = p && Expression(b, l + 1, 4) && r;
+    r = r && consumeToken(b, ARROW_TOKEN);
+    p = r; // pin = 7
+    r = r && Expression(b, l + 1, 4);
     exit_section_(b, l, m, r, p, null);
     return r || p;
   }
@@ -4264,22 +4240,29 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     return true;
   }
 
-  // (':' Type)?
+  // (':' Type?)?
   private static boolean LambdaLiteral_5(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "LambdaLiteral_5")) return false;
     LambdaLiteral_5_0(b, l + 1);
     return true;
   }
 
-  // ':' Type
+  // ':' Type?
   private static boolean LambdaLiteral_5_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "LambdaLiteral_5_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = consumeTokenSmart(b, COLON);
-    r = r && Type(b, l + 1);
+    r = r && LambdaLiteral_5_0_1(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
+  }
+
+  // Type?
+  private static boolean LambdaLiteral_5_0_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "LambdaLiteral_5_0_1")) return false;
+    Type(b, l + 1);
+    return true;
   }
 
   // '{' (KeyValuePair | DynamicKeyValuePair) '~' Expression '}'
