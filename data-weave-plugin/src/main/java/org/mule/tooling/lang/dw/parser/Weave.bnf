@@ -180,7 +180,7 @@ TypeDefinition::=Identifier TypeParameterDeclaration? '=' (TypeLiteral | Undefin
 
 FunctionDirective::= Annotation*  'fun' FunctionDefinition {pin=2}
 
-FunctionDefinition::=Identifier TypeParameterDeclaration? L_PARREN ( FunctionParameter ( ',' FunctionParameter )* )? R_PARREN ( ":" (Type | DynamicReturn) "=" | "=")? Expression
+FunctionDefinition::=Identifier TypeParameterDeclaration? L_PARREN ( FunctionParameter ( ',' FunctionParameter )* )? (",")? R_PARREN ( ":" (Type | DynamicReturn)? "=" | "=")? Expression
 {
      methods = [getName setName getNameIdentifier]
      implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
@@ -190,7 +190,7 @@ FunctionDefinition::=Identifier TypeParameterDeclaration? L_PARREN ( FunctionPar
 
 DynamicReturn ::= '?'
 
-Schema::= '{' ( SchemaElement ( ',' SchemaElement )* )? '}' {pin = 1}
+Schema::= '{' ( SchemaElement ( ',' SchemaElement )* )? (",")? '}' {pin = 1}
 
 SchemaElement::= (Identifier | StringLiteral) ':' Expression {pin = 2}
 
@@ -203,7 +203,7 @@ InputDirective::= Annotation* 'input' VariableNameTypeDefinition InputDataFormat
 
 InputDataFormat::=(DataFormat | Identifier)
 
-Options::= OptionElement ( ',' OptionElement )*
+Options::= OptionElement ( ',' OptionElement )* (",")?
 
 OptionElement::= Identifier '=' LiteralExpression {pin=2}
 
@@ -216,7 +216,7 @@ ObjectExpression ::= SingleKeyValuePairObj | MultipleKeyValuePairObj {
 
 private SingleKeyValuePairObj ::= KeyValuePair
 
-private MultipleKeyValuePairObj::= '{' objectEntryRule? (',' objectEntryRule)* ','? '}' {pin= 1}
+private MultipleKeyValuePairObj::= '{' objectEntryRule? (',' objectEntryRule)* (',')? '}' {pin= 1}
 
 private objectEntryRule ::= KeyValuePair | DynamicKeyValuePair
 
@@ -241,7 +241,7 @@ QualifiedName::= DeclaredNamespace? (Identifier | StringLiteral) {
 
 DeclaredNamespace::= Identifier '#'
 
-Attributes::= '@(' ( Attribute ( ',' Attribute )* )? ')' {pin=1}
+Attributes::= '@(' ( Attribute ( ',' Attribute )* )? (',')? ')' {pin=1}
 
 Attribute::= SimpleAttribute
            | DynamicAttribute
@@ -355,7 +355,7 @@ FunctionCallExpression ::= Expression FunctionCallArguments
 
 FunctionCallArguments ::= '(' ( Expression ( ',' Expression )* )? (',')? ')' {pin=1}
 
-UsingExpression ::=USING '(' VariableDefinition ( ',' VariableDefinition )* ')' Expression {pin=1}
+UsingExpression ::=USING '(' VariableDefinition ( ',' VariableDefinition )*  (",")? ')' Expression {pin=1}
 
 
 ConditionalExpression ::= ( IF | UNLESS ) '(' Expression ')' Expression ELSE Expression {pin=1}
@@ -495,7 +495,7 @@ VariableDefinition ::= VariableNameTypeDefinition '='  Expression  {
             pin=2
         }
 
-private VariableNameTypeDefinition ::= Annotation* Identifier (":" Type)?
+private VariableNameTypeDefinition ::= Annotation* Identifier (":" Type?)?
 
 //Literal Values
 LiteralExpression
@@ -518,7 +518,7 @@ private DoDirectives
 
 UndefinedLiteral ::= '?''?''?'
 
-LambdaLiteral ::= TypeParameterDeclaration? '(' ( FunctionParameter ( ',' FunctionParameter )* )? ')' (':' Type)?  '->' SimpleExpression {pin = 6}
+LambdaLiteral ::= TypeParameterDeclaration? '(' ( FunctionParameter ( ',' FunctionParameter )* )? (",")? ')' (':' Type)?  '->' SimpleExpression {pin = 6}
 
 private TypeParameterDeclaration ::= '<' (TypeParameter (',' TypeParameter)*)? '>'
 
@@ -579,9 +579,11 @@ IntersectionType ::= BasicTypeExpression (IntersectionTypeExpression)* {pin= 2}
 
 private IntersectionTypeExpression ::=  ('&' BasicTypeExpression) {pin= 2}
 
-ObjectType ::=   '{' ((KeyValuePairType)? (',' KeyValuePairType)*)?  '}' (Schema)? {pin = 1}
+ObjectType ::=   '{' KeyValuePairsType '}' (Schema)? {pin = 1}
 
-CloseObjectType ::=  '{|' ((KeyValuePairType)? (',' KeyValuePairType)*)? '|}' (Schema)? {pin = 1}
+private KeyValuePairsType ::= ((KeyValuePairType)? (',' KeyValuePairType)*)? (',')?
+
+CloseObjectType ::=  '{|' KeyValuePairsType '|}' (Schema)? {pin = 1}
 
 OrderedObjectType ::=   '{-' ((KeyValuePairType)? (',' KeyValuePairType)*)?  '-}' (Schema)? {pin = 1}
 
@@ -591,7 +593,7 @@ KeyValuePairType ::=  KeyType ('*')? ('?')? ":" Type
 
 KeyType ::= NameType AttributesType?
 
-AttributesType ::= "@""(" NameType ":" Type (',' NameType ":" Type)* ")" {pin= 1}
+AttributesType ::= "@""(" NameType ":" Type (',' NameType ":" Type)* (",")? ")" {pin= 1}
 
 NameType ::= ((Identifier"#")?(Identifier | StringLiteral) ('?')?) | '_' | '('TypeParameter')'
 
