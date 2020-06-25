@@ -138,8 +138,10 @@ public class WeaveRuntimeContextManager implements ProjectComponent, Disposable 
         }
         final Application app = ApplicationManager.getApplication();
         Runnable r = () -> {
+            if(myProject.isDisposed()){
+                return; //sometime
+            }
             final Module moduleForFile = ModuleUtil.findModuleForFile(modifiedFile, myProject);
-
             app.runWriteAction(() -> {
                 final VirtualFile dwitFolder = getScenariosRootFolder(moduleForFile);
                 if (dwitFolder != null && VfsUtil.isAncestor(dwitFolder, modifiedFile, true)) {
