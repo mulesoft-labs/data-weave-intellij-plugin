@@ -306,8 +306,10 @@ public class WeavePreviewComponent implements Disposable {
         if (documentQName != null) {
             final String url = ReadAction.compute(() -> currentFile.getVirtualFile().getUrl());
             final Module module = ModuleUtil.findModuleForFile(currentFile.getVirtualFile(), myProject);
-            final WeaveAgentRuntimeManager agentComponent = WeaveAgentRuntimeManager.getInstance(myProject);
-            agentComponent.runPreview(inputsPath, text, documentQName, url, (long) DataWeaveSettingsState.getInstance().getMaxTimePreview(), module, new MyRunPreviewCallback());
+            if(module != null) {
+                final WeaveAgentRuntimeManager agentComponent = WeaveAgentRuntimeManager.getInstance(myProject);
+                agentComponent.runPreview(inputsPath, text, documentQName, url, (long) DataWeaveSettingsState.getInstance().getMaxTimePreview(), module, new MyRunPreviewCallback());
+            }
         }
     }
 
