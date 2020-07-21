@@ -6,12 +6,6 @@ sourceSets {
     }
 }
 
-repositories {
-    mavenLocal()
-}
-
-
-
 dependencies {
     compile group: 'com.atlassian.commonmark', name: 'commonmark', version: '0.14.0'
     compile group: 'com.atlassian.commonmark', name: 'commonmark-ext-gfm-tables', version: '0.14.0'
