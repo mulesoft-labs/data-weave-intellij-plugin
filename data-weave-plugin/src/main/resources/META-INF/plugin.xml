@@ -1,5 +1,5 @@
 <idea-plugin>
-    <idea-version since-build="182"/>
+    <idea-version since-build="182.2371.4"/>
     <id>org.mule.tooling.intellij.dataweave.v2</id>
     <name>DataWeave 2.0.</name>
     <version>2.0.6</version>
@@ -209,6 +209,18 @@
           <ul>
             <li>Fix build for latest IJ.</li>
             <li>Fix autocompletion of namespace elements.</li>
+          </ul>
+        </li>
+      </ul>
+       </ul>
+          <h1>v2.0.44</h1>
+      <ul>
+       <li>
+          <p>DataWeave 2.0 Support</p>
+          <ul>
+            <li>Update to latest Weave Tooling.</li>
+            <li>Improve support for RAML modules.</li>
+            <li>Add dependency graph view.</li>
           </ul>
         </li>
       </ul>

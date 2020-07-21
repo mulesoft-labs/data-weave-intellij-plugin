@@ -48,11 +48,13 @@ import org.mule.weave.v2.debugger.event.WeaveDataFormatDescriptor;
 import org.mule.weave.v2.debugger.event.WeaveDataFormatProperty;
 import org.mule.weave.v2.editor.*;
 import org.mule.weave.v2.hover.HoverMessage;
+import org.mule.weave.v2.module.raml.RamlModuleLoader;
 import org.mule.weave.v2.parser.ast.AstNode;
 import org.mule.weave.v2.parser.ast.functions.FunctionNode;
 import org.mule.weave.v2.parser.ast.functions.OverloadedFunctionNode;
 import org.mule.weave.v2.parser.ast.header.directives.FunctionDirectiveNode;
 import org.mule.weave.v2.parser.ast.variables.NameIdentifier;
+import org.mule.weave.v2.parser.phase.ModuleLoader;
 import org.mule.weave.v2.scope.Reference;
 import org.mule.weave.v2.scope.VariableScope;
 import org.mule.weave.v2.sdk.WeaveResource;
@@ -86,15 +88,23 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
         projectVirtualFileSystem = new IJVirtualFileSystemAdaptor(myProject);
         final RemoteResourceResolver javaRemoteResolver = new RemoteResourceResolver(myProject);
         final RemoteResourceResolver ramlRemoteResolver = new RemoteResourceResolver(myProject);
-        final SpecificModuleResourceResolver[] moduleResourceResolvers = {
+        final ModuleLoaderFactory[] moduleResourceResolvers = {
                 SpecificModuleResourceResolver.apply(JAVA, javaRemoteResolver),
-                SpecificModuleResourceResolver.apply(RAML, ramlRemoteResolver)
+                new ModuleLoaderFactory() {
+
+                    @Override
+                    public ModuleLoader createModuleLoader() {
+                        final RamlModuleLoader ramlModuleLoader = new RamlModuleLoader();
+                        ramlModuleLoader.resolver(projectVirtualFileSystem.asResourceResolver());
+                        return ramlModuleLoader;
+                    }
+                }
         };
 
         final WeaveRuntimeContextManager weaveRuntime = WeaveRuntimeContextManager.getInstance(myProject);
 
         final AsyDataFormatProvider dataFormatProvider = new AsyDataFormatProvider(weaveRuntime);
-        dwTextDocumentService = WeaveToolingService.apply(projectVirtualFileSystem, dataFormatProvider, moduleResourceResolvers);
+        dwTextDocumentService =  new WeaveToolingService(projectVirtualFileSystem, dataFormatProvider, moduleResourceResolvers);
         projectVirtualFileSystem.changeListener(file -> {
             javaRemoteResolver.invalidateCache(file.getNameIdentifier());
             ramlRemoteResolver.invalidateCache(file.getNameIdentifier());
@@ -503,6 +513,10 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
         } else {
             return null;
         }
+    }
+
+    public String dependencyGraph() {
+        return dwTextDocumentService.dependencyGraphString();
     }
 
     public static class CompletionData {

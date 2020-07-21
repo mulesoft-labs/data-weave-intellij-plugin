@@ -12,6 +12,7 @@ public class DevelopToolingWindowFactory implements ToolWindowFactory {
     toolWindow.getContentManager().addContent(ContentFactory.SERVICE.getInstance().createContent(new AstGraphToolingWindowPanel(project), "AST", false));
     toolWindow.getContentManager().addContent(ContentFactory.SERVICE.getInstance().createContent(new VariableGraphToolingWindowPanel(project), "Scope Graph", false));
     toolWindow.getContentManager().addContent(ContentFactory.SERVICE.getInstance().createContent(new TypeGraphToolingWindowPanel(project), "Type Graph", false));
+    toolWindow.getContentManager().addContent(ContentFactory.SERVICE.getInstance().createContent(new DependencyGraphToolingWindowPanel(project), "Dependency Graph", false));
   }
 
   @Override
