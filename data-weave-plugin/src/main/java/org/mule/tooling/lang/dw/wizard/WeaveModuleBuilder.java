@@ -25,13 +25,13 @@ import java.util.Objects;
 
 public class WeaveModuleBuilder extends AbstractMavenModuleBuilder implements SourcePathsBuilder {
 
-    private String weaveVersion = "2.2.2";
-    private String wtfVersion = "1.0.2";
+    private String weaveVersion = "2.3.1-SNAPSHOT";
+    private String weaveMavenVersion = "2.3.2-SNAPSHOT";
+    private String wtfVersion = "1.0.3-SNAPSHOT";
 
     public WeaveModuleBuilder() {
         setProjectId(new MavenId("org.mule.weave.module", "my-weave-module", "1.0.0-SNAPSHOT"));
     }
-
 
     public ModuleWizardStep[] createWizardSteps(@NotNull WizardContext wizardContext, @NotNull ModulesProvider modulesProvider) {
         return new ModuleWizardStep[]{
@@ -51,7 +51,7 @@ public class WeaveModuleBuilder extends AbstractMavenModuleBuilder implements So
         final MavenId parentId = (this.getParentProject() != null ? this.getParentProject().getMavenId() : null);
 
         MavenUtil.runWhenInitialized(project, (DumbAwareRunnable) () -> {
-            WeaveModuleInitializer.configure(project, getProjectId(), weaveVersion, root, parentId, wtfVersion);
+            WeaveModuleInitializer.configure(project, getProjectId(), weaveVersion, weaveMavenVersion, root, parentId, wtfVersion);
         });
     }
 

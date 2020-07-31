@@ -49,6 +49,9 @@
     <build>
         <testResources>
             <testResource>
+               <directory>src/test/dwmit</directory>
+            </testResource>
+            <testResource>
                 <directory>src/test/dwit</directory>
             </testResource>
             <testResource>
@@ -62,7 +65,7 @@
             <plugin>
                 <groupId>org.mule.weave</groupId>
                 <artifactId>weave-maven-plugin</artifactId>
-                <version>2.2.2-rc1</version>
+                <version>${WEAVE_MAVEN_VERSION}</version>
                 <configuration>
                     <logForkedProcessCommand>true</logForkedProcessCommand>
                 </configuration>
