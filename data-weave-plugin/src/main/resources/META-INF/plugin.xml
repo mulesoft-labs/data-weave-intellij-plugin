@@ -1,5 +1,5 @@
 <idea-plugin>
-    <idea-version since-build="182.2371.4"/>
+    <idea-version since-build="193.7288.26"/>
     <id>org.mule.tooling.intellij.dataweave.v2</id>
     <name>DataWeave 2.0.</name>
     <version>2.0.6</version>
@@ -221,6 +221,7 @@
             <li>Update to latest Weave Tooling.</li>
             <li>Improve support for RAML modules.</li>
             <li>Add dependency graph view.</li>
+            <li>Fix show parameters info.</li>
           </ul>
         </li>
       </ul>
@@ -245,9 +246,10 @@
         <runConfigurationProducer
                 implementation="org.mule.tooling.lang.dw.launcher.configuration.WeaveConfigurationProducer"/>
 
-        <configurationType implementation="org.mule.tooling.lang.dw.launcher.configuration.WeaveTestConfigurationType"/>
+        <configurationType implementation="org.mule.tooling.lang.dw.launcher.configuration.ui.test.WeaveTestConfigurationType"/>
+        <configurationType implementation="org.mule.tooling.lang.dw.launcher.configuration.ui.test.WeaveIntegrationTestConfigurationType"/>
         <runConfigurationProducer
-                implementation="org.mule.tooling.lang.dw.launcher.configuration.WeaveTestConfigurationProducer"/>
+                implementation="org.mule.tooling.lang.dw.launcher.configuration.ui.test.WeaveTestConfigurationProducer"/>
 
         <fileType name="Weave" language="Weave" implementationClass="org.mule.tooling.lang.dw.WeaveFileType" fieldName="instance" extensions="dwl"/>
         <lang.parserDefinition language="Weave"
@@ -332,6 +334,8 @@
                                     implementationClass="org.mule.tooling.lang.dw.documentation.WeaveCodeDocumentationProvider"/>
         <externalAnnotator language="Weave"
                            implementationClass="org.mule.tooling.lang.dw.annotator.WeaveDocsAnnotator"/>
+
+        <highlightingPassFactory implementation="org.mule.tooling.lang.dw.hints.WeaveTypeHintPassFactory"/>
     </extensions>
 
     <project-components>
@@ -344,9 +348,7 @@
         <component>
             <implementation-class>org.mule.tooling.lang.dw.service.WeaveRuntimeContextManager</implementation-class>
         </component>
-        <component>
-            <implementation-class>org.mule.tooling.lang.dw.hints.WeaveTypeHintPassFactory</implementation-class>
-        </component>
+
     </project-components>
     <application-components>
         <!-- Add your application components here -->

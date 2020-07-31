@@ -254,6 +254,10 @@ public class WeaveVisitor extends PsiElementVisitor {
   }
 
   public void visitImportedElement(@NotNull WeaveImportedElement o) {
+    visitNamedElement(o);
+  }
+
+  public void visitImportedElementAlias(@NotNull WeaveImportedElementAlias o) {
     visitPsiElement(o);
   }
 
@@ -320,10 +324,6 @@ public class WeaveVisitor extends PsiElementVisitor {
 
   public void visitMatchExpression(@NotNull WeaveMatchExpression o) {
     visitExpression(o);
-  }
-
-  public void visitModuleReference(@NotNull WeaveModuleReference o) {
-    visitPsiElement(o);
   }
 
   public void visitMultiValueSelector(@NotNull WeaveMultiValueSelector o) {

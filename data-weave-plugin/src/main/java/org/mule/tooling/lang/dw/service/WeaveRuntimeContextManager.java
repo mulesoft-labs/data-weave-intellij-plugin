@@ -30,6 +30,7 @@ import org.mule.tooling.lang.dw.WeaveConstants;
 import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.service.agent.WeaveAgentRuntimeManager;
+import org.mule.tooling.lang.dw.util.WeaveUtils;
 import org.mule.weave.v2.debugger.event.WeaveDataFormatDescriptor;
 import org.mule.weave.v2.debugger.event.WeaveTypeEntry;
 import org.mule.weave.v2.editor.ImplicitInput;
@@ -368,6 +369,9 @@ public class WeaveRuntimeContextManager implements ProjectComponent, Disposable 
 
     @NotNull
     public List<Scenario> getScenariosFor(WeaveDocument weaveDocument) {
+        if(weaveDocument == null){
+            return Collections.emptyList();
+        }
         final List<Scenario> result = new ArrayList<>();
         final PsiFile weaveFile = weaveDocument.getContainingFile();
         final Module moduleForFile = ModuleUtil.findModuleForFile(weaveFile.getVirtualFile(), weaveFile.getProject());
@@ -488,23 +492,7 @@ public class WeaveRuntimeContextManager implements ProjectComponent, Disposable 
 
     @Nullable
     private VirtualFile getScenariosRootFolder(@Nullable Module module) {
-        if (module == null) {
-            return null;
-        }
-        final String moduleName = module.getName();
-        final VirtualFile maybeFolder = dwitFolders.get(moduleName);
-        if (maybeFolder != null) {
-            return maybeFolder;
-        }
-        final ModuleRootManager rootManager = ModuleRootManager.getInstance(module);
-        final VirtualFile[] sourceRoots = rootManager.getSourceRoots(true);
-        for (VirtualFile sourceRoot : sourceRoots) {
-            if (sourceRoot.isDirectory() && sourceRoot.getName().endsWith(WeaveConstants.INTEGRATION_TEST_FOLDER_NAME)) {
-                dwitFolders.put(moduleName, sourceRoot);
-                return sourceRoot;
-            }
-        }
-        return null;
+        return WeaveUtils.getDWITFolder(module);
     }
 
 

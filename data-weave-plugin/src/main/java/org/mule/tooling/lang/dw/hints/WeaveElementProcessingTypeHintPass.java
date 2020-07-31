@@ -37,8 +37,11 @@ public class WeaveElementProcessingTypeHintPass extends ElementProcessingHintPas
             WeaveVariableDefinition variableDefinition = (WeaveVariableDefinition) psiElement;
             if (variableDefinition.getType() == null) {
                 WeaveType weaveType = instance.typeOf(variableDefinition.getExpression());
-                if (weaveType != null && isSimpleType(weaveType) && variableDefinition.getNameIdentifier() != null) {
-                    collector.invoke(variableDefinition.getNameIdentifier().getTextRange().getEndOffset(), ": " + weaveType.baseType().toString(false, true));
+                if (weaveType != null ) {
+                    final WeaveType baseWeaveType = weaveType.baseType();
+                    if(isSimpleType(baseWeaveType) && variableDefinition.getNameIdentifier() != null) {
+                        collector.invoke(variableDefinition.getNameIdentifier().getTextRange().getEndOffset(), ": " + baseWeaveType.baseType().toString(false, true));
+                    }
                 }
             }
         } else if (psiElement instanceof WeaveFunctionDefinition) {
@@ -46,10 +49,13 @@ public class WeaveElementProcessingTypeHintPass extends ElementProcessingHintPas
             WeaveFunctionDefinition functionDefinition = (WeaveFunctionDefinition) psiElement;
             if (functionDefinition.getType() == null) {
                 WeaveType weaveType = instance.typeOf(functionDefinition.getExpression());
-                if (weaveType != null && isSimpleType(weaveType) && functionDefinition.getExpression() != null) {
-                    ASTNode[] children = functionDefinition.getNode().getChildren(TokenSet.create(WeaveTypes.R_PARREN));
-                    if (children.length > 0) {
-                        collector.invoke(children[0].getTextRange().getEndOffset(), ": " + weaveType.baseType().toString(false, true));
+                if (weaveType != null) {
+                    final WeaveType baseWeaveType = weaveType.baseType();
+                    if(isSimpleType(baseWeaveType) && functionDefinition.getExpression() != null) {
+                        ASTNode[] children = functionDefinition.getNode().getChildren(TokenSet.create(WeaveTypes.R_PARREN));
+                        if (children.length > 0) {
+                            collector.invoke(children[0].getTextRange().getEndOffset(), ": " + baseWeaveType.toString(false, true));
+                        }
                     }
 
                 }

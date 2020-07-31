@@ -17,7 +17,6 @@ import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComponentWithActions;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.wm.impl.content.ToolWindowContentUi;
 import com.intellij.psi.*;
 import com.intellij.ui.content.Content;
 import com.intellij.util.Alarm;
@@ -79,7 +78,7 @@ public class WeavePreviewComponent implements Disposable {
 
 
     private JComponent createPreviewPanel() {
-        RunnerLayoutUi layoutUi = RunnerLayoutUi.Factory.getInstance(myProject).create("DW-Preview", "DW Preview", myProject.getName(), myProject);
+        RunnerLayoutUi layoutUi = RunnerLayoutUi.Factory.getInstance(myProject).create("DW-Preview", "DW Preview", myProject.getName(), this);
         Content inputsContent = layoutUi.createContent("inputs", createInputComponent(), "Inputs", null, null);
         inputsContent.setCloseable(false);
         inputsContent.setShouldDisposeContent(true);
@@ -353,7 +352,7 @@ public class WeavePreviewComponent implements Disposable {
 //    }
 
     private boolean isOutputFile(PsiFile psiFile) {
-        return psiFile.getVirtualFile().getNameWithoutExtension().equals("out");
+        return "out".equals(psiFile.getVirtualFile().getNameWithoutExtension());
     }
 
     public boolean isPinned() {
@@ -498,7 +497,7 @@ public class WeavePreviewComponent implements Disposable {
             final InputEvent inputEvent = e.getInputEvent();
             final ActionPopupMenu popupMenu =
                     ((ActionManagerImpl) ActionManager.getInstance())
-                            .createActionPopupMenu(ToolWindowContentUi.POPUP_PLACE, group, new MenuItemPresentationFactory(true));
+                            .createActionPopupMenu(ActionPlaces.TOOLWINDOW_POPUP, group, new MenuItemPresentationFactory(true));
 
             int x = 0;
             int y = 0;

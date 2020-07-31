@@ -1,8 +1,6 @@
 package org.mule.tooling.lang.dw.hints;
 
-import com.intellij.codeHighlighting.TextEditorHighlightingPass;
-import com.intellij.codeHighlighting.TextEditorHighlightingPassFactory;
-import com.intellij.codeHighlighting.TextEditorHighlightingPassRegistrar;
+import com.intellij.codeHighlighting.*;
 import com.intellij.codeInsight.hints.ModificationStampHolder;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.editor.Editor;
@@ -14,14 +12,13 @@ import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.WeaveFileType;
 import org.mule.tooling.lang.dw.settings.DataWeaveSettingsState;
 
-public class WeaveTypeHintPassFactory  implements TextEditorHighlightingPassFactory, ProjectComponent {
+public class WeaveTypeHintPassFactory  implements TextEditorHighlightingPassFactory, TextEditorHighlightingPassFactoryRegistrar {
 
     public static ModificationStampHolder stampHolder = new ModificationStampHolder(Key.create("LAST_TYPE_PASS_MODIFICATION_TIMESTAMP"));
 
-    protected WeaveTypeHintPassFactory(Project project, TextEditorHighlightingPassRegistrar registrar) {
+    public void registerHighlightingPassFactory(TextEditorHighlightingPassRegistrar registrar, @NotNull Project project)  {
         registrar.registerTextEditorHighlightingPass(this, null, null, false, -1);
     }
-
 
     @Nullable
     @Override

@@ -1425,7 +1425,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // Annotation* IMPORT_DIRECTIVE_KEYWORD (((ImportedElement (',' ImportedElement)*) | '*') 'from')? ModuleReference ('as' Identifier)?
+  // Annotation* IMPORT_DIRECTIVE_KEYWORD (((ImportedElement (',' ImportedElement)*) | '*') 'from')? FqnIdentifier ('as' Identifier)?
   public static boolean ImportDirective(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ImportDirective")) return false;
     if (!nextTokenIs(b, "<import directive>", AT, IMPORT_DIRECTIVE_KEYWORD)) return false;
@@ -1435,7 +1435,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     r = r && consumeToken(b, IMPORT_DIRECTIVE_KEYWORD);
     p = r; // pin = 2
     r = r && report_error_(b, ImportDirective_2(b, l + 1));
-    r = p && report_error_(b, ModuleReference(b, l + 1)) && r;
+    r = p && report_error_(b, FqnIdentifier(b, l + 1)) && r;
     r = p && ImportDirective_4(b, l + 1) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
@@ -1533,7 +1533,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // Identifier ('as' Identifier)?
+  // Identifier ('as' ImportedElementAlias)?
   public static boolean ImportedElement(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ImportedElement")) return false;
     boolean r;
@@ -1544,21 +1544,32 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // ('as' Identifier)?
+  // ('as' ImportedElementAlias)?
   private static boolean ImportedElement_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ImportedElement_1")) return false;
     ImportedElement_1_0(b, l + 1);
     return true;
   }
 
-  // 'as' Identifier
+  // 'as' ImportedElementAlias
   private static boolean ImportedElement_1_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ImportedElement_1_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, AS);
-    r = r && Identifier(b, l + 1);
+    r = r && ImportedElementAlias(b, l + 1);
     exit_section_(b, m, null, r);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // Identifier
+  public static boolean ImportedElementAlias(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ImportedElementAlias")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NONE_, IMPORTED_ELEMENT_ALIAS, "<imported element alias>");
+    r = Identifier(b, l + 1);
+    exit_section_(b, l, m, r, false, null);
     return r;
   }
 
@@ -1914,26 +1925,6 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     if (!r) r = BooleanLiteral(b, l + 1);
     exit_section_(b, l, m, r, false, null);
     return r;
-  }
-
-  /* ********************************************************** */
-  // CustomLoader? ContainerModuleIdentifier Identifier
-  public static boolean ModuleReference(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "ModuleReference")) return false;
-    boolean r;
-    Marker m = enter_section_(b, l, _NONE_, MODULE_REFERENCE, "<module reference>");
-    r = ModuleReference_0(b, l + 1);
-    r = r && ContainerModuleIdentifier(b, l + 1);
-    r = r && Identifier(b, l + 1);
-    exit_section_(b, l, m, r, false, null);
-    return r;
-  }
-
-  // CustomLoader?
-  private static boolean ModuleReference_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "ModuleReference_0")) return false;
-    CustomLoader(b, l + 1);
-    return true;
   }
 
   /* ********************************************************** */

@@ -12,9 +12,8 @@ import org.mule.weave.v2.completion.IntellijTemplateVariable;
 public class IJAdapterHelper {
     public static Template toIJTemplate(Project project, org.mule.weave.v2.completion.Template template) {
         final IntellijTemplate intellijTemplate = template.toIntellijTemplate();
-        final String templatText = intellijTemplate.text();
-        System.out.println("templatText = " + templatText);
-        final Template myTemplate = TemplateManager.getInstance(project).createTemplate("template", "dw_suggest", templatText);
+        final String templateText = intellijTemplate.text();
+        final Template myTemplate = TemplateManager.getInstance(project).createTemplate("template", "dw_suggest", templateText);
         final IntellijTemplateVariable[] variables = intellijTemplate.variables();
         for (IntellijTemplateVariable variable : variables) {
             Expression defaultExpression = variable.defaultValue().isDefined() ? MacroParser.parse("\"" + variable.defaultValue().get() + "\"") : null;

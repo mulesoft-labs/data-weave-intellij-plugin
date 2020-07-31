@@ -1,9 +1,9 @@
 package org.mule.tooling.bat.utils;
 
 import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
+import org.mule.tooling.lang.dw.parser.psi.WeaveFqnIdentifier;
 import org.mule.tooling.lang.dw.parser.psi.WeaveHeader;
 import org.mule.tooling.lang.dw.parser.psi.WeaveImportDirective;
-import org.mule.tooling.lang.dw.parser.psi.WeaveModuleReference;
 
 public class BatUtils {
 
@@ -14,7 +14,7 @@ public class BatUtils {
     if (header != null) {
       return header.getDirectiveList().stream().anyMatch((directive) -> {
         if (directive instanceof WeaveImportDirective) {
-          WeaveModuleReference moduleReference = ((WeaveImportDirective) directive).getModuleReference();
+          WeaveFqnIdentifier moduleReference = ((WeaveImportDirective) directive).getFqnIdentifier();
           if (moduleReference != null) {
             String moduleFQN = moduleReference.getModuleFQN();
             return moduleFQN.equals("bat::BDD") || moduleFQN.equals("bat::Core");

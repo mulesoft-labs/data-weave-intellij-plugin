@@ -11,12 +11,12 @@ public interface WeaveImportDirective extends WeaveDirective {
   List<WeaveAnnotation> getAnnotationList();
 
   @Nullable
+  WeaveFqnIdentifier getFqnIdentifier();
+
+  @Nullable
   WeaveIdentifier getIdentifier();
 
   @NotNull
   List<WeaveImportedElement> getImportedElementList();
-
-  @Nullable
-  WeaveModuleReference getModuleReference();
 
 }

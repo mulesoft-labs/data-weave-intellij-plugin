@@ -29,7 +29,7 @@ public class WeaveTestFramework implements TestFramework {
     @NotNull
     @Override
     public Icon getIcon() {
-        return WeaveIcons.DataWeaveIcon;
+        return WeaveIcons.DataWeaveTestingFrameworkIcon;
     }
 
     @Override

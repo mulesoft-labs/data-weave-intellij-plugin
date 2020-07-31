@@ -150,9 +150,16 @@ private HeaderRecover::= !('---'|OUTPUT_DIRECTIVE_KEYWORD|'type'|'fun'|'ns'|'var
 
 VersionDirective::= Annotation* '%dw'  DOUBLE_LITERAL {pin=2}
 
-ImportDirective::= Annotation* IMPORT_DIRECTIVE_KEYWORD (((ImportedElement (',' ImportedElement)*) | '*') 'from')? ModuleReference ('as' Identifier)? {pin=2}
+ImportDirective::= Annotation* IMPORT_DIRECTIVE_KEYWORD (((ImportedElement (',' ImportedElement)*) | '*') 'from')? FqnIdentifier ('as' Identifier)? {pin=2}
 
-ImportedElement::= Identifier ('as' Identifier)? {pin=2}
+ImportedElement::= Identifier ('as' ImportedElementAlias)? {
+    methods = [getName setName getNameIdentifier]
+    implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
+    mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
+    pin=2
+}
+
+ImportedElementAlias::=Identifier
 
 NamespaceDirective::= Annotation* 'ns' NamespaceDefinition {pin=2}
 
@@ -611,15 +618,12 @@ NumberLiteral ::= ('+' | '-')? (DOUBLE_LITERAL | INTEGER_LITERAL)
 
 FqnIdentifier ::= CustomLoader? ContainerModuleIdentifier Identifier
 {
-     methods = [getName setName getNameIdentifier getReferences]
+     methods = [getName setName getNameIdentifier getReferences getModuleFQN getPath]
      implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
      mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
      name="Identifier"
 }
 
-ModuleReference ::= CustomLoader? ContainerModuleIdentifier Identifier  {
- methods = [getPath getModuleFQN getReferences]
-}
 
 ContainerModuleIdentifier ::= (Identifier '::')*
 

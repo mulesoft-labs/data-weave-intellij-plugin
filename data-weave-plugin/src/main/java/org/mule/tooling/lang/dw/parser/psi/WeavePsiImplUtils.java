@@ -36,7 +36,7 @@ public class WeavePsiImplUtils {
 
             @Override
             public Icon getIcon(boolean b) {
-                return WeaveIcons.WeaveFileType;
+                return WeaveIcons.DataWeaveModuleIcon;
             }
         };
     }
@@ -170,23 +170,18 @@ public class WeavePsiImplUtils {
     }
 
 
-    public static String getPath(WeaveModuleReference moduleReference) {
+    public static String getPath(WeaveFqnIdentifier moduleReference) {
         WeaveContainerModuleIdentifier identifierPackage = moduleReference.getContainerModuleIdentifier();
         return identifierPackage.getIdentifierList().stream().map(WeaveIdentifier::getName).collect(Collectors.joining("/")) + "/" + moduleReference.getIdentifier().getName() + "." + WeaveFileType.WeaveFileExtension;
     }
 
-    public static String getModuleFQN(WeaveModuleReference moduleReference) {
+    public static String getModuleFQN(WeaveFqnIdentifier moduleReference) {
         WeaveContainerModuleIdentifier identifierPackage = moduleReference.getContainerModuleIdentifier();
         if (identifierPackage.getText().trim().isEmpty()) {
             return moduleReference.getIdentifier().getName();
         } else {
             return identifierPackage.getText() + moduleReference.getIdentifier().getName();
         }
-    }
-
-    @NotNull
-    public static PsiReference[] getReferences(WeaveModuleReference importDirective) {
-        return new WeaveModuleReferenceSet(importDirective, importDirective.getModuleFQN()).getAllReferences();
     }
 
     public static PsiReference[] getReferences(WeaveBinaryFunctionIdentifier identifier) {

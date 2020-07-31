@@ -1,9 +1,10 @@
-package org.mule.tooling.lang.dw.launcher.configuration;
+package org.mule.tooling.lang.dw.launcher.configuration.ui.test;
 
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.options.SettingsEditor;
 import org.jetbrains.annotations.NotNull;
-import org.mule.tooling.lang.dw.launcher.configuration.ui.WeaveTestRunnerConfPanel;
+import org.mule.tooling.lang.dw.launcher.configuration.ui.test.ui.WeaveTestRunnerConfPanel;
+
 
 import javax.swing.*;
 import java.util.Collection;
@@ -35,7 +36,7 @@ public class WeaveTestRunnerEditor extends SettingsEditor<WeaveTestConfiguration
     }
     this.configurationPanel.getModuleCombo().setSelectedModule(selectedModule);
     this.configurationPanel.getTestField().setModule(selectedModule);
-    this.configurationPanel.getTestField().setNameIdentifier(runnerConfiguration.getWeaveFile());
+    this.configurationPanel.getTestField().setNameIdentifier(runnerConfiguration.getTests().get(0));
   }
 
   /**

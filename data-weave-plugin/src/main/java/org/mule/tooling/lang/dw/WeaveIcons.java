@@ -11,6 +11,8 @@ public class WeaveIcons {
 
   public static final Icon Bat = IconLoader.findIcon("/icons/bat.png");
   public static final Icon DataWeaveIcon = IconLoader.findIcon("/icons/dataweave.png");
+  public static final Icon DataWeaveModuleIcon = IconLoader.findIcon("/icons/dw-module-icon.png");
+  public static final Icon DataWeaveTestingFrameworkIcon = IconLoader.findIcon("/icons/dw-testing-framework.png");
 
   private WeaveIcons() {
     super();

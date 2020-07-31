@@ -8,10 +8,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.*;
-import com.intellij.extapi.psi.ASTWrapperPsiElement;
+import org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl;
 import org.mule.tooling.lang.dw.parser.psi.*;
 
-public class WeaveImportedElementImpl extends ASTWrapperPsiElement implements WeaveImportedElement {
+public class WeaveImportedElementImpl extends WeaveNamedElementImpl implements WeaveImportedElement {
 
   public WeaveImportedElementImpl(@NotNull ASTNode node) {
     super(node);
@@ -28,8 +28,14 @@ public class WeaveImportedElementImpl extends ASTWrapperPsiElement implements We
 
   @Override
   @NotNull
-  public List<WeaveIdentifier> getIdentifierList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, WeaveIdentifier.class);
+  public WeaveIdentifier getIdentifier() {
+    return findNotNullChildByClass(WeaveIdentifier.class);
+  }
+
+  @Override
+  @Nullable
+  public WeaveImportedElementAlias getImportedElementAlias() {
+    return findChildByClass(WeaveImportedElementAlias.class);
   }
 
 }

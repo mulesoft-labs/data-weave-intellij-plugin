@@ -4,7 +4,7 @@ import java.time.format.DateTimeFormatter
 
 
 plugins {
-    id "org.jetbrains.intellij" version "0.4.9"
+    id "org.jetbrains.intellij" version "0.4.21"
     id "net.linguica.maven-settings" version "0.5"
 }
 
@@ -29,7 +29,7 @@ allprojects {
     }
 
     repositories {
-//        mavenLocal()
+        mavenLocal()
         mavenCentral()
         maven {
             url "http://central.maven.org/maven2/"

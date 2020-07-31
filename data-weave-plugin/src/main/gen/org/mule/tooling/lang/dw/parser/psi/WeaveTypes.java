@@ -70,6 +70,7 @@ public interface WeaveTypes {
   IElementType HEADER = new WeaveElementType("HEADER");
   IElementType IDENTIFIER = new WeaveElementType("IDENTIFIER");
   IElementType IMPORTED_ELEMENT = new WeaveElementType("IMPORTED_ELEMENT");
+  IElementType IMPORTED_ELEMENT_ALIAS = new WeaveElementType("IMPORTED_ELEMENT_ALIAS");
   IElementType IMPORT_DIRECTIVE = new WeaveElementType("IMPORT_DIRECTIVE");
   IElementType INPUT_DATA_FORMAT = new WeaveElementType("INPUT_DATA_FORMAT");
   IElementType INPUT_DIRECTIVE = new WeaveElementType("INPUT_DIRECTIVE");
@@ -87,7 +88,6 @@ public interface WeaveTypes {
   IElementType LITERAL_PATTERN = new WeaveElementType("LITERAL_PATTERN");
   IElementType LITERAL_TYPE = new WeaveElementType("LITERAL_TYPE");
   IElementType MATCH_EXPRESSION = new WeaveElementType("MATCH_EXPRESSION");
-  IElementType MODULE_REFERENCE = new WeaveElementType("MODULE_REFERENCE");
   IElementType MULTIPLICATION_DIVISION_EXPRESSION = new WeaveElementType("MULTIPLICATION_DIVISION_EXPRESSION");
   IElementType MULTI_VALUE_SELECTOR = new WeaveElementType("MULTI_VALUE_SELECTOR");
   IElementType NAMED_LITERAL_PATTERN = new WeaveElementType("NAMED_LITERAL_PATTERN");
@@ -404,6 +404,9 @@ public interface WeaveTypes {
       else if (type == IMPORTED_ELEMENT) {
         return new WeaveImportedElementImpl(node);
       }
+      else if (type == IMPORTED_ELEMENT_ALIAS) {
+        return new WeaveImportedElementAliasImpl(node);
+      }
       else if (type == IMPORT_DIRECTIVE) {
         return new WeaveImportDirectiveImpl(node);
       }
@@ -451,9 +454,6 @@ public interface WeaveTypes {
       }
       else if (type == MATCH_EXPRESSION) {
         return new WeaveMatchExpressionImpl(node);
-      }
-      else if (type == MODULE_REFERENCE) {
-        return new WeaveModuleReferenceImpl(node);
       }
       else if (type == MULTIPLICATION_DIVISION_EXPRESSION) {
         return new WeaveMultiplicationDivisionExpressionImpl(node);

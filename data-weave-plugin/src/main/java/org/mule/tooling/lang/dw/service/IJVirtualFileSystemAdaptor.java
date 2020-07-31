@@ -114,9 +114,9 @@ public class IJVirtualFileSystemAdaptor implements VirtualFileSystem, Disposable
         final List<org.mule.weave.v2.editor.VirtualFile> fileList = new ArrayList<>();
         FileTypeIndex.processFiles(WeaveFileType.getInstance(), virtualFile -> {
             NameIdentifier nameIdentifier = VirtualFileSystemUtils.calculateNameIdentifier(project, virtualFile);
-            if (nameIdentifier.toString().startsWith(filter)) {
+            if (nameIdentifier.toString().contains(filter)) {
                 fileList.add(new IJVirtualFileAdaptor(this, virtualFile, project, null));
-                return false;
+                return true;
             } else {
                 return true;
             }

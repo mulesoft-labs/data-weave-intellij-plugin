@@ -25,4 +25,8 @@ public interface WeaveFqnIdentifier extends WeaveNamedElement {
 
   PsiReference[] getReferences();
 
+  String getModuleFQN();
+
+  String getPath();
+
 }

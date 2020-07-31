@@ -8,7 +8,6 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.codeInsight.template.Template;
 import com.intellij.codeInsight.template.TemplateEditingAdapter;
 import com.intellij.codeInsight.template.TemplateManager;
-import com.intellij.codeInsight.template.impl.TemplateState;
 import com.intellij.compiler.server.BuildManagerListener;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.Disposable;
@@ -36,6 +35,7 @@ import org.commonmark.renderer.html.HtmlRenderer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.WeaveConstants;
+import org.mule.tooling.lang.dw.WeaveIcons;
 import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
 import org.mule.tooling.lang.dw.parser.psi.WeaveIdentifier;
 import org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement;
@@ -104,7 +104,7 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
         final WeaveRuntimeContextManager weaveRuntime = WeaveRuntimeContextManager.getInstance(myProject);
 
         final AsyDataFormatProvider dataFormatProvider = new AsyDataFormatProvider(weaveRuntime);
-        dwTextDocumentService =  new WeaveToolingService(projectVirtualFileSystem, dataFormatProvider, moduleResourceResolvers);
+        dwTextDocumentService = new WeaveToolingService(projectVirtualFileSystem, dataFormatProvider, moduleResourceResolvers);
         projectVirtualFileSystem.changeListener(file -> {
             javaRemoteResolver.invalidateCache(file.getNameIdentifier());
             ramlRemoteResolver.invalidateCache(file.getNameIdentifier());
@@ -334,6 +334,8 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
             elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.Field);
         } else if (itemType == SuggestionType.Function()) {
             elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.Function);
+        } else if (itemType == SuggestionType.Module()) {
+            elementBuilder = elementBuilder.withIcon(WeaveIcons.WeaveFileType);
         } else if (itemType == SuggestionType.Keyword()) {
             elementBuilder = elementBuilder.bold();
         }
@@ -343,7 +345,7 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
         final Template myTemplate = IJAdapterHelper.toIJTemplate(myProject, template);
 
         elementBuilder = elementBuilder.withInsertHandler((context, item1) -> {
-            
+
             final int selectionStart = context.getEditor().getCaretModel().getOffset();
             final int startOffset = context.getStartOffset();
             final int tailOffset = context.getTailOffset();
@@ -354,7 +356,7 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
                 @Override
                 public void templateFinished(@NotNull Template template, boolean brokenOff) {
                     int length = context.getEditor().getDocument().getText().length();
-                    if(item.insertAction().length > 0) {
+                    if (item.insertAction().length > 0) {
                         final QuickFixAction[] insertAction = item.insertAction();
                         for (QuickFixAction quickFixAction : insertAction) {
                             quickFixAction.run(new IJWeaveTextDocument(context.getEditor(), context.getProject()));
@@ -371,7 +373,7 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
         if (item.wtype().isDefined()) {
             elementBuilder = elementBuilder.withTypeText(item.wtype().get().toString(false, true));
         }
-        return elementBuilder.withAutoCompletionPolicy(AutoCompletionPolicy.SETTINGS_DEPENDENT);
+        return elementBuilder;
     }
 
     public static WeaveEditorToolingAPI getInstance(@NotNull Project project) {

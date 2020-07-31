@@ -50,4 +50,14 @@ public class WeaveFqnIdentifierImpl extends WeaveNamedElementImpl implements Wea
     return WeavePsiImplUtils.getReferences(this);
   }
 
+  @Override
+  public String getModuleFQN() {
+    return WeavePsiImplUtils.getModuleFQN(this);
+  }
+
+  @Override
+  public String getPath() {
+    return WeavePsiImplUtils.getPath(this);
+  }
+
 }

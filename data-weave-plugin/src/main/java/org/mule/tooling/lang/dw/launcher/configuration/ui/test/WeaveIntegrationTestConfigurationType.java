@@ -1,4 +1,4 @@
-package org.mule.tooling.lang.dw.launcher.configuration;
+package org.mule.tooling.lang.dw.launcher.configuration.ui.test;
 
 import com.intellij.execution.configurations.ConfigurationFactory;
 import com.intellij.execution.configurations.ConfigurationType;
@@ -8,33 +8,33 @@ import org.mule.tooling.lang.dw.WeaveIcons;
 
 import javax.swing.*;
 
-public class WeaveTestConfigurationType implements ConfigurationType {
+public class WeaveIntegrationTestConfigurationType implements ConfigurationType {
 
   private ConfigurationFactory weaveFactory;
 
-  public WeaveTestConfigurationType() {
-    weaveFactory = new WeaveTestConfigurationFactory(this);
+  public WeaveIntegrationTestConfigurationType() {
+    weaveFactory = new WeaveIntegrationTestConfigurationFactory(this);
   }
 
   @Override
   public String getDisplayName() {
-    return "Weave Test";
+    return "Weave Integration Test";
   }
 
   @Override
   public String getConfigurationTypeDescription() {
-    return "Runs a weave test";
+    return "Run weave integration tests.";
   }
 
   @Override
   public Icon getIcon() {
-    return WeaveIcons.DataWeaveIcon;
+    return WeaveIcons.DataWeaveTestingFrameworkIcon;
   }
 
   @NotNull
   @Override
   public String getId() {
-    return "org.mule.lang.weavetest.configuration";
+    return "org.mule.lang.weaveintegrationtest.configuration";
   }
 
   @Override
@@ -43,8 +43,8 @@ public class WeaveTestConfigurationType implements ConfigurationType {
   }
 
   @NotNull
-  public static WeaveTestConfigurationType getInstance() {
-    return ConfigurationTypeUtil.findConfigurationType(WeaveTestConfigurationType.class);
+  public static WeaveIntegrationTestConfigurationType getInstance() {
+    return ConfigurationTypeUtil.findConfigurationType(WeaveIntegrationTestConfigurationType.class);
   }
 
 }

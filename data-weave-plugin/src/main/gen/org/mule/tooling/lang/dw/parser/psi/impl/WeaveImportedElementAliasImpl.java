@@ -10,16 +10,15 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import org.mule.tooling.lang.dw.parser.psi.*;
-import com.intellij.psi.PsiReference;
 
-public class WeaveModuleReferenceImpl extends ASTWrapperPsiElement implements WeaveModuleReference {
+public class WeaveImportedElementAliasImpl extends ASTWrapperPsiElement implements WeaveImportedElementAlias {
 
-  public WeaveModuleReferenceImpl(@NotNull ASTNode node) {
+  public WeaveImportedElementAliasImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull WeaveVisitor visitor) {
-    visitor.visitModuleReference(this);
+    visitor.visitImportedElementAlias(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -29,36 +28,8 @@ public class WeaveModuleReferenceImpl extends ASTWrapperPsiElement implements We
 
   @Override
   @NotNull
-  public WeaveContainerModuleIdentifier getContainerModuleIdentifier() {
-    return findNotNullChildByClass(WeaveContainerModuleIdentifier.class);
-  }
-
-  @Override
-  @Nullable
-  public WeaveCustomLoader getCustomLoader() {
-    return findChildByClass(WeaveCustomLoader.class);
-  }
-
-  @Override
-  @NotNull
   public WeaveIdentifier getIdentifier() {
     return findNotNullChildByClass(WeaveIdentifier.class);
-  }
-
-  @Override
-  public String getPath() {
-    return WeavePsiImplUtils.getPath(this);
-  }
-
-  @Override
-  public String getModuleFQN() {
-    return WeavePsiImplUtils.getModuleFQN(this);
-  }
-
-  @Override
-  @NotNull
-  public PsiReference[] getReferences() {
-    return WeavePsiImplUtils.getReferences(this);
   }
 
 }

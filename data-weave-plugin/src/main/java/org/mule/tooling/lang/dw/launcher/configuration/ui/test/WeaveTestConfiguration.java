@@ -1,15 +1,8 @@
-package org.mule.tooling.lang.dw.launcher.configuration;
+package org.mule.tooling.lang.dw.launcher.configuration.ui.test;
 
 
 import com.intellij.execution.Executor;
-import com.intellij.execution.configurations.ConfigurationFactory;
-import com.intellij.execution.configurations.JavaRunConfigurationModule;
-import com.intellij.execution.configurations.ModuleBasedConfiguration;
-import com.intellij.execution.configurations.ModuleRunProfile;
-import com.intellij.execution.configurations.RunConfiguration;
-import com.intellij.execution.configurations.RunConfigurationWithSuppressedDefaultDebugAction;
-import com.intellij.execution.configurations.RunProfileState;
-import com.intellij.execution.configurations.RuntimeConfigurationException;
+import com.intellij.execution.configurations.*;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
@@ -26,14 +19,18 @@ import org.mule.tooling.lang.dw.launcher.configuration.runner.WeaveTestRunnerCom
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
-public class WeaveTestConfiguration extends ModuleBasedConfiguration implements ModuleRunProfile, RunConfigurationWithSuppressedDefaultDebugAction, WeaveBasedConfiguration {
+public class WeaveTestConfiguration extends ModuleBasedConfiguration<JavaRunConfigurationModule, RunProfileState> implements ModuleRunProfile, RunConfigurationWithSuppressedDefaultDebugAction, WeaveTestBaseRunnerConfig {
 
-    public static final String PREFIX = "DataWeaveConfig-";
+    public static final String PREFIX = "DataWeaveTestConfig-";
     public static final String WEAVE_FILE = PREFIX + "WeaveFile";
+    public static final String TEST_TO_RUN = PREFIX + "TestToRun";
 
     private Project project;
     private String weaveFile;
+    private String testToRun;
 
     protected WeaveTestConfiguration(String name, @NotNull ConfigurationFactory factory, Project project) {
         super(name, new JavaRunConfigurationModule(project, true), factory);
@@ -56,6 +53,7 @@ public class WeaveTestConfiguration extends ModuleBasedConfiguration implements 
     public void readExternal(Element element) throws InvalidDataException {
         super.readExternal(element);
         this.weaveFile = JDOMExternalizerUtil.readField(element, WEAVE_FILE);
+        this.testToRun = JDOMExternalizerUtil.readField(element, TEST_TO_RUN, "");
         getConfigurationModule().readExternal(element);
     }
 
@@ -64,7 +62,8 @@ public class WeaveTestConfiguration extends ModuleBasedConfiguration implements 
     public void writeExternal(Element element) throws WriteExternalException {
         super.writeExternal(element);
         // Stores the values of this class into the parent
-        JDOMExternalizerUtil.writeField(element, WEAVE_FILE, this.getWeaveFile());
+        JDOMExternalizerUtil.writeField(element, WEAVE_FILE, weaveFile);
+        JDOMExternalizerUtil.writeField(element, TEST_TO_RUN, testToRun);
         getConfigurationModule().writeExternal(element);
     }
 
@@ -74,11 +73,10 @@ public class WeaveTestConfiguration extends ModuleBasedConfiguration implements 
         return Arrays.asList(moduleManager.getModules());
     }
 
-
     @Override
     public void checkConfiguration() throws RuntimeConfigurationException {
-        if (StringUtils.isBlank(getWeaveFile())) {
-            throw new RuntimeConfigurationException(getWeaveFile() + " weave file can not be empty.");
+        if (StringUtils.isBlank(weaveFile)) {
+            throw new RuntimeConfigurationException(getTests() + " weave file can not be empty.");
         }
         if (getModule() == null) {
             throw new RuntimeConfigurationException("Module can not be empty.");
@@ -87,14 +85,25 @@ public class WeaveTestConfiguration extends ModuleBasedConfiguration implements 
     }
 
 
-    public String getWeaveFile() {
-        return weaveFile;
+    @Override
+    public List<String> getTests() {
+        return Collections.singletonList(weaveFile);
+    }
+
+    @Override
+    public String getTestToRun() {
+        return testToRun;
+    }
+
+    public void setTestToRun(String testToRun) {
+        this.testToRun = testToRun;
     }
 
     public void setWeaveFile(String weaveFile) {
         this.weaveFile = weaveFile;
     }
 
+    @Override
     public Module getModule() {
         return getConfigurationModule().getModule();
     }
