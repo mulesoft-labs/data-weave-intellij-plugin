@@ -31,6 +31,11 @@ public class WeaveFunctionDirectiveView extends PsiTreeElementBase<WeaveFunction
   @Override
   public String getPresentableText() {
     WeaveFunctionDefinition functionDefinition = getElement().getFunctionDefinition();
+    return getFunctionLabel(functionDefinition);
+  }
+
+  @NotNull
+  public static String getFunctionLabel(WeaveFunctionDefinition functionDefinition) {
     List<WeaveFunctionParameter> functionParameterList = functionDefinition.getFunctionParameterList();
     StringBuilder params = new StringBuilder();
     for (WeaveFunctionParameter weaveFunctionParameter : functionParameterList) {

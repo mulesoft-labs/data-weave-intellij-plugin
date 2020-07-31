@@ -7,6 +7,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.NavigatablePsiElement;
 import com.intellij.psi.PsiQualifiedNamedElement;
 import com.intellij.navigation.ItemPresentation;
+import javax.swing.Icon;
 
 public interface WeaveDocument extends NavigatablePsiElement, PsiQualifiedNamedElement {
 
@@ -29,5 +30,7 @@ public interface WeaveDocument extends NavigatablePsiElement, PsiQualifiedNamedE
   boolean isMappingDocument();
 
   boolean isModuleDocument();
+
+  Icon getElementIcon(int flags);
 
 }

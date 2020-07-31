@@ -114,7 +114,7 @@ root ::= Document
 
 Document ::= Header ('---'  Body) ? | Body {
     implements=["com.intellij.psi.NavigatablePsiElement" "com.intellij.psi.PsiQualifiedNamedElement"]
-    methods=[getPresentation getQualifiedName getName setName isMappingDocument isModuleDocument]
+    methods=[getPresentation getQualifiedName getName setName isMappingDocument isModuleDocument getElementIcon]
 }
 
 Header::= (Directive)+
@@ -189,7 +189,7 @@ FunctionDirective::= Annotation*  'fun' FunctionDefinition {pin=2}
 
 FunctionDefinition::=Identifier TypeParameterDeclaration? L_PARREN ( FunctionParameter ( ',' FunctionParameter )* )? (",")? R_PARREN ( ":" (Type | DynamicReturn)? "=" | "=")? Expression
 {
-     methods = [getName setName getNameIdentifier]
+     methods = [getName setName getNameIdentifier getPresentation getElementIcon]
      implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
      mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
      pin=3

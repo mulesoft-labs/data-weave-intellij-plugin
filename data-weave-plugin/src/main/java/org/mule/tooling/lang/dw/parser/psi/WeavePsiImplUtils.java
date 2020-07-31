@@ -4,12 +4,18 @@ import com.intellij.icons.AllIcons;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
+import com.intellij.psi.impl.ElementPresentationUtil;
+import com.intellij.ui.IconManager;
+import com.intellij.ui.icons.RowIcon;
+import com.intellij.util.PlatformIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.WeaveFileType;
 import org.mule.tooling.lang.dw.WeaveIcons;
+import org.mule.tooling.lang.dw.qn.WeaveQualifiedNameProvider;
 import org.mule.tooling.lang.dw.reference.WeaveIdentifierPsiReference;
 import org.mule.tooling.lang.dw.reference.WeaveModuleReferenceSet;
+import org.mule.tooling.lang.dw.structure.WeaveFunctionDirectiveView;
 import org.mule.tooling.lang.dw.util.VirtualFileSystemUtils;
 import org.mule.weave.v2.parser.ast.variables.NameIdentifier;
 
@@ -37,6 +43,34 @@ public class WeavePsiImplUtils {
             @Override
             public Icon getIcon(boolean b) {
                 return WeaveIcons.DataWeaveModuleIcon;
+            }
+        };
+    }
+
+    public static Icon getElementIcon(WeaveDocument functionDefinition, final int flags) {
+        return WeaveIcons.DataWeaveModuleIcon;
+    }
+
+    public static Icon getElementIcon(WeaveFunctionDefinition functionDefinition, final int flags) {
+        return PlatformIcons.FUNCTION_ICON;
+    }
+
+    public static ItemPresentation getPresentation(WeaveFunctionDefinition functionDefinition) {
+        return new ItemPresentation() {
+
+            @Override
+            public String getPresentableText() {
+                return WeaveFunctionDirectiveView.getFunctionLabel(functionDefinition);
+            }
+
+            @Override
+            public String getLocationString() {
+                return new WeaveQualifiedNameProvider().getQualifiedName(functionDefinition.getParent());
+            }
+
+            @Override
+            public Icon getIcon(boolean b) {
+                return PlatformIcons.FUNCTION_ICON;
             }
         };
     }

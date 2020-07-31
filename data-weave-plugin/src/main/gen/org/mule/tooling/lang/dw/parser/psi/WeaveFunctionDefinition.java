@@ -4,6 +4,8 @@ package org.mule.tooling.lang.dw.parser.psi;
 import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
+import com.intellij.navigation.ItemPresentation;
+import javax.swing.Icon;
 
 public interface WeaveFunctionDefinition extends WeaveNamedElement {
 
@@ -30,5 +32,9 @@ public interface WeaveFunctionDefinition extends WeaveNamedElement {
   PsiElement setName(@NotNull String newName);
 
   PsiElement getNameIdentifier();
+
+  ItemPresentation getPresentation();
+
+  Icon getElementIcon(int flags);
 
 }
