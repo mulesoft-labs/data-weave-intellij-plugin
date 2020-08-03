@@ -138,7 +138,7 @@ AnnotationDirective ::= Annotation* 'annotation' AnnotationDefinition
 
 AnnotationDefinition ::= Identifier '('( AnnotationParameter ( ',' AnnotationParameter )*  )?')'
 {
-     methods = [getName setName getNameIdentifier]
+     methods = [getName setName getNameIdentifier getElementIcon]
      implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
      mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
      pin=1
@@ -179,7 +179,7 @@ TypeDirective::= Annotation* 'type' TypeDefinition {pin=2}
 
 TypeDefinition::=Identifier TypeParameterDeclaration? '=' (TypeLiteral | UndefinedLiteral)
                  {
-                      methods = [getName setName getNameIdentifier]
+                      methods = [getName setName getNameIdentifier getElementIcon]
                       implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
                       mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
                       pin=1
@@ -496,7 +496,7 @@ MultiValueSelector ::= '*'fieldSelector  {pin=1}
 VariableReferenceExpression ::= FqnIdentifier
 
 VariableDefinition ::= VariableNameTypeDefinition '='  Expression  {
-            methods=[getName setName getNameIdentifier]
+            methods=[getName setName getNameIdentifier getElementIcon]
             implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
             mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
             pin=2

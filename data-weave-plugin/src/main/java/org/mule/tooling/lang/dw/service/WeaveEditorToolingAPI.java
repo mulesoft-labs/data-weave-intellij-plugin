@@ -2,7 +2,6 @@ package org.mule.tooling.lang.dw.service;
 
 import com.intellij.ProjectTopics;
 import com.intellij.codeInsight.completion.CompletionParameters;
-import com.intellij.codeInsight.lookup.AutoCompletionPolicy;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.codeInsight.template.Template;
@@ -50,8 +49,6 @@ import org.mule.weave.v2.editor.*;
 import org.mule.weave.v2.hover.HoverMessage;
 import org.mule.weave.v2.module.raml.RamlModuleLoader;
 import org.mule.weave.v2.parser.ast.AstNode;
-import org.mule.weave.v2.parser.ast.functions.FunctionNode;
-import org.mule.weave.v2.parser.ast.functions.OverloadedFunctionNode;
 import org.mule.weave.v2.parser.ast.header.directives.FunctionDirectiveNode;
 import org.mule.weave.v2.parser.ast.variables.NameIdentifier;
 import org.mule.weave.v2.parser.phase.ModuleLoader;
@@ -62,8 +59,6 @@ import org.mule.weave.v2.sdk.WeaveResource$;
 import org.mule.weave.v2.sdk.WeaveResourceResolver;
 import org.mule.weave.v2.ts.WeaveType;
 import scala.Option;
-import scala.collection.JavaConverters;
-import scala.collection.Seq;
 
 import java.util.*;
 
@@ -245,16 +240,19 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
     public PsiElement[] resolveReference(WeaveIdentifier identifier) {
         final PsiFile containerFile = identifier.getContainingFile();
         final WeaveDocumentToolingService weaveDocumentService = didOpen(containerFile, false);
-        final Option<Reference> referenceOption = weaveDocumentService.definition(identifier.getTextOffset());
-        if (referenceOption.isDefined()) {
-            final Reference reference = referenceOption.get();
-            return resolveReference(reference, containerFile);
-        } else {
-            return new PsiElement[0];
-        }
+        final Link[] referenceOption = weaveDocumentService.definitions(identifier.getTextOffset());
+        return Arrays.stream(referenceOption)
+                .map((reference) -> {
+                    return resolveReference(reference.reference(), containerFile);
+                })
+                .filter((mr) -> mr.isPresent())
+                .map((mr) -> mr.get())
+                .toArray(PsiElement[]::new);
+
     }
 
-    private PsiElement[] resolveReference(Reference reference, PsiFile containerFile) {
+    private Optional<PsiElement> resolveReference(Reference reference, PsiFile containerFile) {
+        PsiElement result = null;
         final Option<NameIdentifier> nameIdentifier = reference.moduleSource();
         final WeaveQualifiedNameProvider nameProvider = new WeaveQualifiedNameProvider();
         PsiFile container;
@@ -264,38 +262,27 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
                 container = psiElement.getContainingFile();
                 if (nameIdentifier.get().loader().isDefined()) {
                     //When having custom module loader just navegate to the file
-                    return new PsiElement[]{psiElement};
+                    result = psiElement;
                 }
             } else {
                 //Unable to find the module
-                return new PsiElement[0];
+                return Optional.empty();
             }
         } else {
             container = containerFile;
         }
-        final NameIdentifier referencedNode = reference.referencedNode();
 
-        final Option<FunctionDirectiveNode> mayBeDirective = reference.scope().astNavigator().parentWithType(referencedNode, FunctionDirectiveNode.class);
-
-        if (mayBeDirective.isDefined() && mayBeDirective.get().literal() instanceof OverloadedFunctionNode) {
-            final OverloadedFunctionNode overloadedFunctionNode = (OverloadedFunctionNode) mayBeDirective.get().literal();
-            final Seq<FunctionNode> functions = overloadedFunctionNode.functions();
-            final Collection<FunctionNode> functionNodes = JavaConverters.asJavaCollection(functions);
-            return functionNodes.stream()
-                    .map((fn) -> {
-                        return Optional.ofNullable(getWeaveNamedElement(container, fn));
-                    })
-                    .filter((o) -> o.isPresent())
-                    .map(Optional::get)
-                    .toArray(PsiElement[]::new);
-        } else {
+        if (result == null) {
+            final NameIdentifier referencedNode = reference.referencedNode();
+            final Option<FunctionDirectiveNode> mayBeDirective = reference.scope().astNavigator().parentWithType(referencedNode, FunctionDirectiveNode.class);
             final WeaveNamedElement parentOfType = getWeaveNamedElement(container, referencedNode);
-            if (parentOfType == null) {
-                return new PsiElement[0];
-            } else {
-                return new PsiElement[]{parentOfType};
+            if (parentOfType != null) {
+                result = parentOfType;
             }
         }
+
+        return Optional.ofNullable(result);
+
     }
 
     private WeaveNamedElement getWeaveNamedElement(PsiFile container, AstNode referencedNode) {
@@ -335,7 +322,7 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
         } else if (itemType == SuggestionType.Function()) {
             elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.Function);
         } else if (itemType == SuggestionType.Module()) {
-            elementBuilder = elementBuilder.withIcon(WeaveIcons.WeaveFileType);
+            elementBuilder = elementBuilder.withIcon(WeaveIcons.DataWeaveModuleIcon);
         } else if (itemType == SuggestionType.Keyword()) {
             elementBuilder = elementBuilder.bold();
         }

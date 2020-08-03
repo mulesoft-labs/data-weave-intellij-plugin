@@ -4,9 +4,6 @@ import com.intellij.icons.AllIcons;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
-import com.intellij.psi.impl.ElementPresentationUtil;
-import com.intellij.ui.IconManager;
-import com.intellij.ui.icons.RowIcon;
 import com.intellij.util.PlatformIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -47,12 +44,24 @@ public class WeavePsiImplUtils {
         };
     }
 
-    public static Icon getElementIcon(WeaveDocument functionDefinition, final int flags) {
-        return WeaveIcons.DataWeaveModuleIcon;
+    public static Icon getElementIcon(WeaveDocument document, final int flags) {
+        return document.isMappingDocument() ? WeaveIcons.DataWeaveMappingIcon : WeaveIcons.DataWeaveModuleIcon;
     }
 
     public static Icon getElementIcon(WeaveFunctionDefinition functionDefinition, final int flags) {
         return PlatformIcons.FUNCTION_ICON;
+    }
+
+    public static Icon getElementIcon(WeaveVariableDefinition functionDefinition, final int flags) {
+        return PlatformIcons.VARIABLE_ICON;
+    }
+
+    public static Icon getElementIcon(WeaveTypeDefinition functionDefinition, final int flags) {
+        return PlatformIcons.CLASS_ICON;
+    }
+
+    public static Icon getElementIcon(WeaveAnnotationDefinition functionDefinition, final int flags) {
+        return PlatformIcons.ANNOTATION_TYPE_ICON;
     }
 
     public static ItemPresentation getPresentation(WeaveFunctionDefinition functionDefinition) {
