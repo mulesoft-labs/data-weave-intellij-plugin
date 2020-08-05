@@ -222,6 +222,9 @@
             <li>Improve support for RAML modules.</li>
             <li>Add dependency graph view.</li>
             <li>Fix show parameters info.</li>
+            <li>Add new icons.</li>
+            <li>Add support for latest WaveTestingFramework.</li>
+            <li>Use latest tooling api for better go to declaration.</li>
           </ul>
         </li>
       </ul>
