@@ -212,7 +212,6 @@
           </ul>
         </li>
       </ul>
-       </ul>
           <h1>v2.0.44</h1>
       <ul>
        <li>
@@ -225,6 +224,15 @@
             <li>Add new icons.</li>
             <li>Add support for latest WaveTestingFramework.</li>
             <li>Use latest tooling api for better go to declaration.</li>
+          </ul>
+        </li>
+      </ul>
+      <h1>v2.0.46</h1>
+      <ul>
+       <li>
+          <p>DataWeave 2.0 Support</p>
+          <ul>
+            <li>Add support for multilinestring.</li>
           </ul>
         </li>
       </ul>
