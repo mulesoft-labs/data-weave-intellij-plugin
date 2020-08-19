@@ -9,9 +9,10 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileEvent;
-import com.intellij.openapi.vfs.VirtualFileListener;
 import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.openapi.vfs.newvfs.BulkFileListener;
+import com.intellij.openapi.vfs.newvfs.events.VFileContentChangeEvent;
+import com.intellij.openapi.vfs.newvfs.events.VFileEvent;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiTreeAnyChangeAbstractAdapter;
@@ -49,19 +50,30 @@ public class IJVirtualFileSystemAdaptor implements VirtualFileSystem, Disposable
         PsiManager.getInstance(this.project).addPsiTreeChangeListener(new PsiTreeAnyChangeAbstractAdapter() {
             @Override
             protected void onChange(@Nullable PsiFile file) {
-                if (file != null) {
-                    VirtualFile virtualFile = file.getVirtualFile();
-                    onFileChanged(virtualFile);
-                }
+                ReadAction.nonBlocking(() -> {
+                    if (file != null) {
+                        VirtualFile virtualFile = file.getVirtualFile();
+                        onFileChanged(virtualFile);
+                    }
+                });
             }
-        });
+        }, this);
 
-        VirtualFileManager.getInstance().addVirtualFileListener(new VirtualFileListener() {
-            @Override
-            public void contentsChanged(@NotNull VirtualFileEvent event) {
-                ReadAction.nonBlocking(() -> onFileChanged(event.getFile()));
-            }
-        });
+        ApplicationManager.getApplication().getMessageBus().connect(this).subscribe(
+                VirtualFileManager.VFS_CHANGES, new BulkFileListener() {
+
+                    @Override
+                    public void after(@NotNull List<? extends VFileEvent> events) {
+                        ReadAction.nonBlocking(() -> {
+                            for (VFileEvent event : events) {
+                                if (event instanceof VFileContentChangeEvent) {
+                                    onFileChanged(event.getFile());
+                                }
+                            }
+                        });
+                    }
+                }
+        );
     }
 
     @Override
@@ -96,17 +108,16 @@ public class IJVirtualFileSystemAdaptor implements VirtualFileSystem, Disposable
     }
 
     private void onFileChanged(VirtualFile virtualFile) {
-        ApplicationManager.getApplication().runReadAction(() -> {
-            if (project.isDisposed()) {
-                return;
-            }
-            final VirtualFile contentRootForFile = ProjectFileIndex.SERVICE.getInstance(project).getSourceRootForFile(virtualFile);
-            if (contentRootForFile != null) {
-                //If it is a file from the project
-                final IJVirtualFileAdaptor intellijVirtualFile = new IJVirtualFileAdaptor(IJVirtualFileSystemAdaptor.this, virtualFile, project, null);
-                onChanged(intellijVirtualFile);
-            }
-        });
+        if (project.isDisposed()) {
+            return;
+        }
+        final VirtualFile contentRootForFile = ProjectFileIndex.SERVICE.getInstance(project).getSourceRootForFile(virtualFile);
+        if (contentRootForFile != null) {
+            //If it is a file from the project
+            final IJVirtualFileAdaptor intellijVirtualFile = new IJVirtualFileAdaptor(IJVirtualFileSystemAdaptor.this, virtualFile, project, null);
+            onChanged(intellijVirtualFile);
+        }
+
     }
 
     @Override
