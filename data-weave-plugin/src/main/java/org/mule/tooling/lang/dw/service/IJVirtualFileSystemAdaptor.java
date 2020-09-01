@@ -59,7 +59,7 @@ public class IJVirtualFileSystemAdaptor implements VirtualFileSystem, Disposable
         VirtualFileManager.getInstance().addVirtualFileListener(new VirtualFileListener() {
             @Override
             public void contentsChanged(@NotNull VirtualFileEvent event) {
-                ReadAction.nonBlocking(() -> onFileChanged(event.getFile()));
+                onFileChanged(event.getFile());
             }
         });
     }
@@ -96,7 +96,7 @@ public class IJVirtualFileSystemAdaptor implements VirtualFileSystem, Disposable
     }
 
     private void onFileChanged(VirtualFile virtualFile) {
-        ApplicationManager.getApplication().runReadAction(() -> {
+        ReadAction.nonBlocking(() -> {
             if (project.isDisposed()) {
                 return;
             }
