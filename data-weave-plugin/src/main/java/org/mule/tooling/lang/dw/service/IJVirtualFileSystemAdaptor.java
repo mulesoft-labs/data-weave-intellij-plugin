@@ -1,7 +1,6 @@
 package org.mule.tooling.lang.dw.service;
 
 import com.intellij.openapi.Disposable;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.editor.Document;
@@ -59,7 +58,9 @@ public class IJVirtualFileSystemAdaptor implements VirtualFileSystem, Disposable
         VirtualFileManager.getInstance().addVirtualFileListener(new VirtualFileListener() {
             @Override
             public void contentsChanged(@NotNull VirtualFileEvent event) {
-                onFileChanged(event.getFile());
+                ReadAction.nonBlocking(() -> {
+                    onFileChanged(event.getFile());
+                });
             }
         });
     }
@@ -96,7 +97,7 @@ public class IJVirtualFileSystemAdaptor implements VirtualFileSystem, Disposable
     }
 
     private void onFileChanged(VirtualFile virtualFile) {
-        ReadAction.nonBlocking(() -> {
+        ReadAction.run(() -> {
             if (project.isDisposed()) {
                 return;
             }

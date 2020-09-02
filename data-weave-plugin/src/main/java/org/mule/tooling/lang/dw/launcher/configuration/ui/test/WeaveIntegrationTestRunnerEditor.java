@@ -36,6 +36,8 @@ public class WeaveIntegrationTestRunnerEditor extends SettingsEditor<WeaveIntegr
         this.configurationPanel.getModuleCombo().setSelectedModule(selectedModule);
         this.configurationPanel.getUpdateResult().setSelected(runnerConfiguration.isUpdateResult());
         this.configurationPanel.getTestToRun().setText(runnerConfiguration.getTestToRun());
+        this.configurationPanel.getTestKind().setSelectedItem(runnerConfiguration.getTestKind());
+        this.configurationPanel.getVmOptions().setText(runnerConfiguration.getVmOptions());
     }
 
     /**
@@ -51,6 +53,8 @@ public class WeaveIntegrationTestRunnerEditor extends SettingsEditor<WeaveIntegr
         }
         runnerConfiguration.setTestToRun(this.configurationPanel.getTestToRun().getText());
         runnerConfiguration.setUpdateResult(this.configurationPanel.getUpdateResult().isSelected());
+        runnerConfiguration.setTestKind((IntegrationTestKind) this.configurationPanel.getTestKind().getSelectedItem());
+        runnerConfiguration.setVmOptions(this.configurationPanel.getVmOptions().getText());
     }
 
     @NotNull

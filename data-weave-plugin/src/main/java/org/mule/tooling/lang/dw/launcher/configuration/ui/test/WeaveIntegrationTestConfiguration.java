@@ -28,10 +28,14 @@ public class WeaveIntegrationTestConfiguration extends ModuleBasedConfiguration<
     public static final String PREFIX = "DataWeaveIntegrationTestConfig-";
     public static final String UPDATE_RESULT = PREFIX + "UpdateResult";
     public static final String TEST_TO_RUN = PREFIX + "TestToRun";
+    public static final String TEST_KIND = PREFIX + "TestKind";
+    public static final String JVM_OPTIONS = PREFIX + "VmOptions";
 
     private final Project project;
     private boolean updateResult;
     private String testToRun = "";
+    private String vmOptions = "";
+    private IntegrationTestKind kind = IntegrationTestKind.ALL;
 
 
     protected WeaveIntegrationTestConfiguration(String name, @NotNull ConfigurationFactory factory, Project project) {
@@ -56,7 +60,9 @@ public class WeaveIntegrationTestConfiguration extends ModuleBasedConfiguration<
         super.readExternal(element);
         getConfigurationModule().readExternal(element);
         updateResult = Boolean.parseBoolean(JDOMExternalizerUtil.readField(element, UPDATE_RESULT));
+        vmOptions = JDOMExternalizerUtil.readField(element, JVM_OPTIONS);
         testToRun = JDOMExternalizerUtil.readField(element, TEST_TO_RUN, "");
+        kind = IntegrationTestKind.valueOf(JDOMExternalizerUtil.readField(element, TEST_KIND, IntegrationTestKind.MAPPING.name()));
     }
 
 
@@ -67,6 +73,8 @@ public class WeaveIntegrationTestConfiguration extends ModuleBasedConfiguration<
         getConfigurationModule().writeExternal(element);
         JDOMExternalizerUtil.writeField(element, UPDATE_RESULT, String.valueOf(updateResult));
         JDOMExternalizerUtil.writeField(element, TEST_TO_RUN, String.valueOf(testToRun));
+        JDOMExternalizerUtil.writeField(element, TEST_KIND, getTestKind().name());
+        JDOMExternalizerUtil.writeField(element, JVM_OPTIONS, vmOptions);
     }
 
     @Override
@@ -88,11 +96,11 @@ public class WeaveIntegrationTestConfiguration extends ModuleBasedConfiguration<
     @Override
     public List<String> getTests() {
         final ArrayList<String> tests = new ArrayList<>();
-        if (WeaveUtils.getDWITFolder(getModule()) != null) {
+        if (WeaveUtils.getDWITFolder(getModule()) != null && kind.shouldRunDWIT()) {
             tests.add("dw::test::DWITTestRunner");
         }
 
-        if (WeaveUtils.getDWMITFolder(getModule()) != null) {
+        if (WeaveUtils.getDWMITFolder(getModule()) != null && kind.shouldRunDWMIT()) {
             tests.add("dw::test::DWMITTestRunner");
         }
 
@@ -115,6 +123,10 @@ public class WeaveIntegrationTestConfiguration extends ModuleBasedConfiguration<
         if (dwmitFolder != null && dwmitFolder.getCanonicalPath() != null) {
             javaParams.getVMParametersList().addProperty("dwmitDir", dwmitFolder.getCanonicalPath());
         }
+
+        javaParams.getVMParametersList().add(vmOptions);
+
+
     }
 
     public void setUpdateResult(boolean updateResult) {
@@ -133,5 +145,21 @@ public class WeaveIntegrationTestConfiguration extends ModuleBasedConfiguration<
     @Override
     public String getTestToRun() {
         return testToRun;
+    }
+
+    public IntegrationTestKind getTestKind() {
+        return kind;
+    }
+
+    public void setTestKind(IntegrationTestKind selectedItem) {
+        this.kind = selectedItem;
+    }
+
+    public void setVmOptions(String vmOptions) {
+        this.vmOptions = vmOptions;
+    }
+
+    public String getVmOptions() {
+        return vmOptions;
     }
 }

@@ -110,8 +110,10 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
                 .subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootListener() {
                     @Override
                     public void rootsChanged(@NotNull ModuleRootEvent event) {
-                        dwTextDocumentService.invalidateAll();
-                        dataFormatProvider.loadDataFormats();
+                        ReadAction.nonBlocking(() -> {
+                            dwTextDocumentService.invalidateAll();
+                            dataFormatProvider.loadDataFormats();
+                        });
                     }
                 });
 
@@ -121,7 +123,9 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
             @Override
             public void buildFinished(@NotNull Project project, @NotNull UUID sessionId, boolean isAutomake) {
                 if (project == myProject) {
-                    dataFormatProvider.loadDataFormats();
+                    ReadAction.nonBlocking(() -> {
+                        dataFormatProvider.loadDataFormats();
+                    });
                 }
             }
         });
