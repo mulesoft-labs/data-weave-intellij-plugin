@@ -54,7 +54,7 @@ public class WeaveTestRunnerCommandLine extends WeaveCommandLineState {
         }
 
         if (StringUtils.isNotBlank(configuration.getTestToRun())) {
-            javaParams.getVMParametersList().addProperty("testToRun", "true");
+            javaParams.getVMParametersList().addProperty("testToRun", configuration.getTestToRun());
         }
 
         configuration.addAdditionalVMParameters(javaParams);

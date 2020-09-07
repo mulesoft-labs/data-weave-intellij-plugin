@@ -5,18 +5,18 @@ before_install:
 - git clone -b travis `git config --get remote.origin.url` build/travis
 - cp build/travis/settings.xml ~/.m2/settings.xml
 script:
-- "./gradlew build"
+- "./gradlew data-weave-plugin:build"
 deploy:
 - provider: script
   skip_cleanup: true
   script: "./gradlew data-weave-plugin:publishPlugin --stacktrace --info"
   on:
     branch: master
-- provider: script
-  skip_cleanup: true
-  script: "./gradlew mule-esb-plugin:publishPlugin --stacktrace --info"
-  on:
-    branch: master
+#- provider: script
+#  skip_cleanup: true
+#  script: "./gradlew mule-esb-plugin:publishPlugin --stacktrace --info"
+#  on:
+#    branch: master
 #Token is encrypted
 notifications:
   slack:
