@@ -170,7 +170,7 @@ public class WeaveParameterInfoHandler implements ParameterInfoHandler<WeaveExpr
         static FunctionCallInformation fromWeaveExpression(WeaveExpression expression) {
             if (expression instanceof WeaveFunctionCallExpression) {
                 return new WeaveFunctionCallInfo((WeaveFunctionCallExpression) expression);
-            } else if (expression instanceof BinaryFunctionCallInfo) {
+            } else if (expression instanceof WeaveBinaryExpression) {
                 return new BinaryFunctionCallInfo((WeaveBinaryExpression) expression);
             } else {
                 throw new RuntimeException("Expecting function call expression but got  : '" + expression.getClass() + "'");
