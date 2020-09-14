@@ -127,4 +127,8 @@ public class WeaveConfiguration extends ModuleBasedConfiguration implements Modu
     return getConfigurationModule().getModule();
   }
 
+  @Override
+  public String getWorkingDirectory() {
+    return project.getBasePath();
+  }
 }

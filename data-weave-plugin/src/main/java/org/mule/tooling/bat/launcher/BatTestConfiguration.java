@@ -104,4 +104,8 @@ public class BatTestConfiguration extends ModuleBasedConfiguration implements Mo
     return getConfigurationModule().getModule();
   }
 
+  @Override
+  public String getWorkingDirectory() {
+    return project.getBasePath();
+  }
 }

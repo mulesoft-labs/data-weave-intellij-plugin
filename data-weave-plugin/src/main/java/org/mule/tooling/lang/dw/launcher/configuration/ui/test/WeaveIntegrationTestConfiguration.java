@@ -12,16 +12,16 @@ import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.util.JDOMExternalizerUtil;
 import com.intellij.openapi.util.WriteExternalException;
 import com.intellij.openapi.vfs.VirtualFile;
+import org.apache.commons.lang.StringUtils;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.launcher.configuration.runner.WeaveTestRunnerCommandLine;
 import org.mule.tooling.lang.dw.util.WeaveUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
+
+import static java.util.Optional.ofNullable;
 
 public class WeaveIntegrationTestConfiguration extends ModuleBasedConfiguration<JavaRunConfigurationModule, RunProfileState> implements ModuleRunProfile, RunConfigurationWithSuppressedDefaultDebugAction, WeaveTestBaseRunnerConfig {
 
@@ -30,11 +30,13 @@ public class WeaveIntegrationTestConfiguration extends ModuleBasedConfiguration<
     public static final String TEST_TO_RUN = PREFIX + "TestToRun";
     public static final String TEST_KIND = PREFIX + "TestKind";
     public static final String JVM_OPTIONS = PREFIX + "VmOptions";
+    public static final String WORKING_DIR = PREFIX + "WorkingDirectory";
 
     private final Project project;
     private boolean updateResult;
     private String testToRun = "";
     private String vmOptions = "";
+    private String workingDirectory = "";
     private IntegrationTestKind kind = IntegrationTestKind.ALL;
 
 
@@ -62,6 +64,7 @@ public class WeaveIntegrationTestConfiguration extends ModuleBasedConfiguration<
         updateResult = Boolean.parseBoolean(JDOMExternalizerUtil.readField(element, UPDATE_RESULT));
         vmOptions = JDOMExternalizerUtil.readField(element, JVM_OPTIONS);
         testToRun = JDOMExternalizerUtil.readField(element, TEST_TO_RUN, "");
+        workingDirectory = JDOMExternalizerUtil.readField(element, WORKING_DIR, ofNullable(project.getBasePath()).orElse(""));
         kind = IntegrationTestKind.valueOf(JDOMExternalizerUtil.readField(element, TEST_KIND, IntegrationTestKind.MAPPING.name()));
     }
 
@@ -75,6 +78,7 @@ public class WeaveIntegrationTestConfiguration extends ModuleBasedConfiguration<
         JDOMExternalizerUtil.writeField(element, TEST_TO_RUN, String.valueOf(testToRun));
         JDOMExternalizerUtil.writeField(element, TEST_KIND, getTestKind().name());
         JDOMExternalizerUtil.writeField(element, JVM_OPTIONS, vmOptions);
+        JDOMExternalizerUtil.writeField(element, WORKING_DIR, workingDirectory);
     }
 
     @Override
@@ -107,6 +111,10 @@ public class WeaveIntegrationTestConfiguration extends ModuleBasedConfiguration<
         return tests;
     }
 
+    public void setWorkingDirectory(String workingDirectory) {
+        this.workingDirectory = workingDirectory;
+    }
+
     @Override
     public boolean isUpdateResult() {
         return updateResult;
@@ -124,9 +132,20 @@ public class WeaveIntegrationTestConfiguration extends ModuleBasedConfiguration<
             javaParams.getVMParametersList().addProperty("dwmitDir", dwmitFolder.getCanonicalPath());
         }
 
-        javaParams.getVMParametersList().add(vmOptions);
+        if (StringUtils.isNotBlank(vmOptions)) {
+            javaParams.getVMParametersList().add(vmOptions);
+        }
 
 
+    }
+
+    @Override
+    public String getWorkingDirectory() {
+        if(StringUtils.isBlank(workingDirectory)){
+            return ofNullable(project.getBasePath()).orElse("");
+        }else {
+            return workingDirectory;
+        }
     }
 
     public void setUpdateResult(boolean updateResult) {

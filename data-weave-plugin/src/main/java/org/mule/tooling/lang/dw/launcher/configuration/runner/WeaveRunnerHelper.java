@@ -36,6 +36,5 @@ public class WeaveRunnerHelper {
         javaParams.getVMParametersList().add("-Xms64m");
         javaParams.getVMParametersList().add("-Xmx2G");
         javaParams.getVMParametersList().add("-XX:+HeapDumpOnOutOfMemoryError");
-        javaParams.getVMParametersList().add("-XX:+AlwaysPreTouch");
     }
 }

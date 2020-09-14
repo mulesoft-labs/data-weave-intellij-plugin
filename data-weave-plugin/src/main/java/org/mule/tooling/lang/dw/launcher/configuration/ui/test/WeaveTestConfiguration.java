@@ -17,22 +17,26 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.launcher.configuration.runner.WeaveTestRunnerCommandLine;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+
+import static java.util.Optional.ofNullable;
 
 public class WeaveTestConfiguration extends ModuleBasedConfiguration<JavaRunConfigurationModule, RunProfileState> implements ModuleRunProfile, RunConfigurationWithSuppressedDefaultDebugAction, WeaveTestBaseRunnerConfig {
 
     public static final String PREFIX = "DataWeaveTestConfig-";
     public static final String WEAVE_FILE = PREFIX + "WeaveFile";
     public static final String TEST_TO_RUN = PREFIX + "TestToRun";
+    public static final String WORKING_DIRECTORY = PREFIX + "WorkingDirectory";
+    public static final String VM_OPTIONS = PREFIX + "VMOptions";
+
 
     private Project project;
-    private String weaveFile;
-    private String testToRun;
+    private String weaveFile = "";
+    private String testToRun = "";
+    private String vmOptions = "";
+    private String workingDirectory = "";
 
-    protected WeaveTestConfiguration(String name, @NotNull ConfigurationFactory factory, Project project) {
+    protected WeaveTestConfiguration(String name, @NotNull ConfigurationFactory factory, @NotNull Project project) {
         super(name, new JavaRunConfigurationModule(project, true), factory);
         this.project = project;
     }
@@ -54,6 +58,8 @@ public class WeaveTestConfiguration extends ModuleBasedConfiguration<JavaRunConf
         super.readExternal(element);
         this.weaveFile = JDOMExternalizerUtil.readField(element, WEAVE_FILE);
         this.testToRun = JDOMExternalizerUtil.readField(element, TEST_TO_RUN, "");
+        this.vmOptions = JDOMExternalizerUtil.readField(element, VM_OPTIONS, "");
+        this.workingDirectory = JDOMExternalizerUtil.readField(element, WORKING_DIRECTORY, Optional.ofNullable(project.getBasePath()).orElse(""));
         getConfigurationModule().readExternal(element);
     }
 
@@ -64,7 +70,21 @@ public class WeaveTestConfiguration extends ModuleBasedConfiguration<JavaRunConf
         // Stores the values of this class into the parent
         JDOMExternalizerUtil.writeField(element, WEAVE_FILE, weaveFile);
         JDOMExternalizerUtil.writeField(element, TEST_TO_RUN, testToRun);
+        JDOMExternalizerUtil.writeField(element, VM_OPTIONS, vmOptions);
+        JDOMExternalizerUtil.writeField(element, WORKING_DIRECTORY, workingDirectory);
         getConfigurationModule().writeExternal(element);
+    }
+
+    public String getWorkingDirectory() {
+        if(StringUtils.isBlank(workingDirectory)){
+            return ofNullable(project.getBasePath()).orElse("");
+        }else {
+            return workingDirectory;
+        }
+    }
+
+    public void setWorkingDirectory(String workingDirectory) {
+        this.workingDirectory = workingDirectory;
     }
 
     @Override
@@ -108,4 +128,11 @@ public class WeaveTestConfiguration extends ModuleBasedConfiguration<JavaRunConf
         return getConfigurationModule().getModule();
     }
 
+    public String getVmOptions() {
+        return vmOptions;
+    }
+
+    public void setVmOptions(String vmOptions) {
+        this.vmOptions = vmOptions;
+    }
 }

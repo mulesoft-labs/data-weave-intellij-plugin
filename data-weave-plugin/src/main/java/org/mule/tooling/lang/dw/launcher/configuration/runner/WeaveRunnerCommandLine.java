@@ -38,7 +38,7 @@ public class WeaveRunnerCommandLine extends WeaveCommandLineState {
         }
         final String scenario = model.getScenario();
         if (!StringUtils.isBlank(scenario)) {
-            VirtualFile resolve = VirtualFileSystemUtils.resolve(model.getModule(), NameIdentifier.apply(model.getNameIdentifier(), Option.empty()));
+            VirtualFile resolve = VirtualFileSystemUtils.resolve(model.getModule(), NameIdentifier.apply(model.getNameIdentifier(), Option.<String>empty()));
             if (resolve != null) {
                 final WeaveRuntimeContextManager instance = WeaveRuntimeContextManager.getInstance(project);
                 Scenario scenarioWithName = instance.getScenarioWithName(resolve, scenario);
@@ -46,6 +46,12 @@ public class WeaveRunnerCommandLine extends WeaveCommandLineState {
                     javaParams.getProgramParametersList().add("-scenario", scenarioWithName.getInputs().getPath());
                 }
             }
+        }
+
+        //Set user.dir to module home
+        final String workingDirectory = model.getWorkingDirectory();
+        if (StringUtils.isNotBlank(workingDirectory)) {
+            javaParams.getVMParametersList().addProperty("user.dir", workingDirectory);
         }
 
         if (StringUtils.isNotBlank(model.getOutputPath())) {

@@ -22,6 +22,9 @@ import org.jetbrains.annotations.NotNull;
 import org.mule.tooling.lang.dw.launcher.configuration.ui.test.WeaveTestBaseRunnerConfig;
 
 import java.util.List;
+import java.util.Objects;
+
+import static java.util.Objects.requireNonNull;
 
 public class WeaveTestRunnerCommandLine extends WeaveCommandLineState {
 
@@ -57,7 +60,14 @@ public class WeaveTestRunnerCommandLine extends WeaveCommandLineState {
             javaParams.getVMParametersList().addProperty("testToRun", configuration.getTestToRun());
         }
 
+
         configuration.addAdditionalVMParameters(javaParams);
+        //Set user.dir to module home
+
+        final String workingDirectory = configuration.getWorkingDirectory();
+        if (StringUtils.isNotBlank(workingDirectory)) {
+            javaParams.getVMParametersList().addProperty("user.dir", workingDirectory);
+        }
 
         ParametersList params = javaParams.getProgramParametersList();
         params.add("--wtest");

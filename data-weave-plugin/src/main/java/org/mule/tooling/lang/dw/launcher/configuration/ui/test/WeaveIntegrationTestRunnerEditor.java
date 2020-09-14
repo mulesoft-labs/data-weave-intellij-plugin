@@ -14,7 +14,7 @@ public class WeaveIntegrationTestRunnerEditor extends SettingsEditor<WeaveIntegr
     private WeaveIntegrationTestRunnerConfPanel configurationPanel;
 
     public WeaveIntegrationTestRunnerEditor(WeaveIntegrationTestConfiguration runnerConfiguration) {
-        this.configurationPanel = new WeaveIntegrationTestRunnerConfPanel();
+        this.configurationPanel = new WeaveIntegrationTestRunnerConfPanel(runnerConfiguration.getProject());
         super.resetFrom(runnerConfiguration);
     }
 
@@ -38,6 +38,7 @@ public class WeaveIntegrationTestRunnerEditor extends SettingsEditor<WeaveIntegr
         this.configurationPanel.getTestToRun().setText(runnerConfiguration.getTestToRun());
         this.configurationPanel.getTestKind().setSelectedItem(runnerConfiguration.getTestKind());
         this.configurationPanel.getVmOptions().setText(runnerConfiguration.getVmOptions());
+        this.configurationPanel.getWorkingDirectory().setText(runnerConfiguration.getWorkingDirectory());
     }
 
     /**
@@ -55,6 +56,7 @@ public class WeaveIntegrationTestRunnerEditor extends SettingsEditor<WeaveIntegr
         runnerConfiguration.setUpdateResult(this.configurationPanel.getUpdateResult().isSelected());
         runnerConfiguration.setTestKind((IntegrationTestKind) this.configurationPanel.getTestKind().getSelectedItem());
         runnerConfiguration.setVmOptions(this.configurationPanel.getVmOptions().getText());
+        runnerConfiguration.setWorkingDirectory(this.configurationPanel.getWorkingDirectory().getText());
     }
 
     @NotNull
