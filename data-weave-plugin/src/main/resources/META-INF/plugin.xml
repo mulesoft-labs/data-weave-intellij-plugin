@@ -227,12 +227,15 @@
           </ul>
         </li>
       </ul>
-      <h1>v2.0.46</h1>
+      <h1>v2.0.48</h1>
       <ul>
        <li>
           <p>DataWeave 2.0 Support</p>
           <ul>
             <li>Add support for multilinestring.</li>
+            <li>Improve support for Weave Testing Framework.</li>
+            <li>Add support for Weave Integration Test.</li>
+            <li>Fix classcast.</li>
           </ul>
         </li>
       </ul>
