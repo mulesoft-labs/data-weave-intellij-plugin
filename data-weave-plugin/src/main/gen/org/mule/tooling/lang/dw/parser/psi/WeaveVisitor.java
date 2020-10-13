@@ -118,6 +118,10 @@ public class WeaveVisitor extends PsiElementVisitor {
     visitExpression(o);
   }
 
+  public void visitConditionalSchemaKV(@NotNull WeaveConditionalSchemaKV o) {
+    visitPsiElement(o);
+  }
+
   public void visitContainerModuleIdentifier(@NotNull WeaveContainerModuleIdentifier o) {
     visitPsiElement(o);
   }
@@ -451,6 +455,10 @@ public class WeaveVisitor extends PsiElementVisitor {
   }
 
   public void visitSchemaElement(@NotNull WeaveSchemaElement o) {
+    visitPsiElement(o);
+  }
+
+  public void visitSchemaKV(@NotNull WeaveSchemaKV o) {
     visitPsiElement(o);
   }
 

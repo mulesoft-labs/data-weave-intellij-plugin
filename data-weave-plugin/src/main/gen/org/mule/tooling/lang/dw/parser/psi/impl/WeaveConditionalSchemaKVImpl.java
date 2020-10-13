@@ -11,14 +11,14 @@ import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import org.mule.tooling.lang.dw.parser.psi.*;
 
-public class WeaveSchemaElementImpl extends ASTWrapperPsiElement implements WeaveSchemaElement {
+public class WeaveConditionalSchemaKVImpl extends ASTWrapperPsiElement implements WeaveConditionalSchemaKV {
 
-  public WeaveSchemaElementImpl(@NotNull ASTNode node) {
+  public WeaveConditionalSchemaKVImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull WeaveVisitor visitor) {
-    visitor.visitSchemaElement(this);
+    visitor.visitConditionalSchemaKV(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -27,15 +27,15 @@ public class WeaveSchemaElementImpl extends ASTWrapperPsiElement implements Weav
   }
 
   @Override
-  @Nullable
-  public WeaveConditionalSchemaKV getConditionalSchemaKV() {
-    return findChildByClass(WeaveConditionalSchemaKV.class);
+  @NotNull
+  public List<WeaveExpression> getExpressionList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, WeaveExpression.class);
   }
 
   @Override
   @Nullable
-  public WeaveSchemaKV getSchemaKV() {
-    return findChildByClass(WeaveSchemaKV.class);
+  public WeaveIdentifier getIdentifier() {
+    return findChildByClass(WeaveIdentifier.class);
   }
 
 }

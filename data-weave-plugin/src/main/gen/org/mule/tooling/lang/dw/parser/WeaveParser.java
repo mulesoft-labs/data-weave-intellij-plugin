@@ -687,6 +687,34 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
+  // "(" (Identifier | StringLiteral) ':' Expression ")" IF "(" Expression ")"
+  public static boolean ConditionalSchemaKV(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ConditionalSchemaKV")) return false;
+    if (!nextTokenIs(b, L_PARREN)) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, CONDITIONAL_SCHEMA_KV, null);
+    r = consumeToken(b, L_PARREN);
+    r = r && ConditionalSchemaKV_1(b, l + 1);
+    r = r && consumeToken(b, COLON);
+    p = r; // pin = 3
+    r = r && report_error_(b, Expression(b, l + 1, -1));
+    r = p && report_error_(b, consumeTokens(b, -1, R_PARREN, IF, L_PARREN)) && r;
+    r = p && report_error_(b, Expression(b, l + 1, -1)) && r;
+    r = p && consumeToken(b, R_PARREN) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
+  }
+
+  // Identifier | StringLiteral
+  private static boolean ConditionalSchemaKV_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ConditionalSchemaKV_1")) return false;
+    boolean r;
+    r = Identifier(b, l + 1);
+    if (!r) r = StringLiteral(b, l + 1);
+    return r;
+  }
+
+  /* ********************************************************** */
   // (Identifier '::')*
   public static boolean ContainerModuleIdentifier(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ContainerModuleIdentifier")) return false;
@@ -2823,12 +2851,24 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // (Identifier | StringLiteral) ':' Expression
+  // SchemaKV | ConditionalSchemaKV
   public static boolean SchemaElement(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "SchemaElement")) return false;
-    boolean r, p;
+    boolean r;
     Marker m = enter_section_(b, l, _NONE_, SCHEMA_ELEMENT, "<schema element>");
-    r = SchemaElement_0(b, l + 1);
+    r = SchemaKV(b, l + 1);
+    if (!r) r = ConditionalSchemaKV(b, l + 1);
+    exit_section_(b, l, m, r, false, null);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // (Identifier | StringLiteral) ':' Expression
+  public static boolean SchemaKV(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "SchemaKV")) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, SCHEMA_KV, "<schema kv>");
+    r = SchemaKV_0(b, l + 1);
     r = r && consumeToken(b, COLON);
     p = r; // pin = 2
     r = r && Expression(b, l + 1, -1);
@@ -2837,8 +2877,8 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   // Identifier | StringLiteral
-  private static boolean SchemaElement_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "SchemaElement_0")) return false;
+  private static boolean SchemaKV_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "SchemaKV_0")) return false;
     boolean r;
     r = Identifier(b, l + 1);
     if (!r) r = StringLiteral(b, l + 1);

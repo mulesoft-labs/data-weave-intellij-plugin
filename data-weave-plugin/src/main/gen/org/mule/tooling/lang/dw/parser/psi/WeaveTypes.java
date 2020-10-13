@@ -37,6 +37,7 @@ public interface WeaveTypes {
   IElementType CLOSE_OBJECT_TYPE = new WeaveElementType("CLOSE_OBJECT_TYPE");
   IElementType CLOSE_ORDERED_OBJECT_TYPE = new WeaveElementType("CLOSE_ORDERED_OBJECT_TYPE");
   IElementType CONDITIONAL_EXPRESSION = new WeaveElementType("CONDITIONAL_EXPRESSION");
+  IElementType CONDITIONAL_SCHEMA_KV = new WeaveElementType("CONDITIONAL_SCHEMA_KV");
   IElementType CONTAINER_MODULE_IDENTIFIER = new WeaveElementType("CONTAINER_MODULE_IDENTIFIER");
   IElementType CUSTOM_INTERPOLATION_STRING = new WeaveElementType("CUSTOM_INTERPOLATION_STRING");
   IElementType CUSTOM_INTERPOLATOR_EXPRESSION = new WeaveElementType("CUSTOM_INTERPOLATOR_EXPRESSION");
@@ -119,6 +120,7 @@ public interface WeaveTypes {
   IElementType RIGHT_SHIFT_EXPRESSION = new WeaveElementType("RIGHT_SHIFT_EXPRESSION");
   IElementType SCHEMA = new WeaveElementType("SCHEMA");
   IElementType SCHEMA_ELEMENT = new WeaveElementType("SCHEMA_ELEMENT");
+  IElementType SCHEMA_KV = new WeaveElementType("SCHEMA_KV");
   IElementType SCHEMA_SELECTOR = new WeaveElementType("SCHEMA_SELECTOR");
   IElementType SELECTOR = new WeaveElementType("SELECTOR");
   IElementType SIMPLE_ATTRIBUTE = new WeaveElementType("SIMPLE_ATTRIBUTE");
@@ -307,6 +309,9 @@ public interface WeaveTypes {
       }
       else if (type == CONDITIONAL_EXPRESSION) {
         return new WeaveConditionalExpressionImpl(node);
+      }
+      else if (type == CONDITIONAL_SCHEMA_KV) {
+        return new WeaveConditionalSchemaKVImpl(node);
       }
       else if (type == CONTAINER_MODULE_IDENTIFIER) {
         return new WeaveContainerModuleIdentifierImpl(node);
@@ -544,6 +549,9 @@ public interface WeaveTypes {
       }
       else if (type == SCHEMA_ELEMENT) {
         return new WeaveSchemaElementImpl(node);
+      }
+      else if (type == SCHEMA_KV) {
+        return new WeaveSchemaKVImpl(node);
       }
       else if (type == SCHEMA_SELECTOR) {
         return new WeaveSchemaSelectorImpl(node);

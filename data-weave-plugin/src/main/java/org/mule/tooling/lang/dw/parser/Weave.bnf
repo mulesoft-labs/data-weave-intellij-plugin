@@ -199,7 +199,11 @@ DynamicReturn ::= '?'
 
 Schema::= '{' ( SchemaElement ( ',' SchemaElement )* )? (",")? '}' {pin = 1}
 
-SchemaElement::= (Identifier | StringLiteral) ':' Expression {pin = 2}
+SchemaElement::=SchemaKV | ConditionalSchemaKV
+
+SchemaKV::= (Identifier | StringLiteral) ':' Expression {pin = 2}
+
+ConditionalSchemaKV::= "(" (Identifier | StringLiteral) ':' Expression ")" IF "(" Expression ")" {pin = 3}
 
 InputDirective::= Annotation* 'input' VariableNameTypeDefinition InputDataFormat Options? {
     pin=2
