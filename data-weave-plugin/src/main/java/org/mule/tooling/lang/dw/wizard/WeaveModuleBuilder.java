@@ -25,18 +25,18 @@ import java.util.Objects;
 
 public class WeaveModuleBuilder extends AbstractMavenModuleBuilder implements SourcePathsBuilder {
 
-    private String weaveVersion = "2.3.1-SNAPSHOT";
-    private String weaveMavenVersion = "2.3.2-SNAPSHOT";
-    private String wtfVersion = "1.0.3-SNAPSHOT";
+    private DataWeaveConfigurationModel dwModel;
 
     public WeaveModuleBuilder() {
+        dwModel = new DataWeaveConfigurationModel("2.4.0-SNAPSHOT", "2.4.0-SNAPSHOT" , "1.0.3-SNAPSHOT");
         setProjectId(new MavenId("org.mule.weave.module", "my-weave-module", "1.0.0-SNAPSHOT"));
     }
 
     public ModuleWizardStep[] createWizardSteps(@NotNull WizardContext wizardContext, @NotNull ModulesProvider modulesProvider) {
         return new ModuleWizardStep[]{
-                new MavenModuleWizardStep(this, wizardContext, !wizardContext.isNewWizard()),
-                new SelectPropertiesStep(wizardContext.getProject(), this)
+                new MavenModuleWizardStep(this, wizardContext, false),
+                new DataWeaveConfigurationStep(dwModel),
+                new SelectPropertiesStep(wizardContext.getProject(), this),
         };
     }
 
@@ -51,7 +51,7 @@ public class WeaveModuleBuilder extends AbstractMavenModuleBuilder implements So
         final MavenId parentId = (this.getParentProject() != null ? this.getParentProject().getMavenId() : null);
 
         MavenUtil.runWhenInitialized(project, (DumbAwareRunnable) () -> {
-            WeaveModuleInitializer.configure(project, getProjectId(), weaveVersion, weaveMavenVersion, root, parentId, wtfVersion);
+            WeaveModuleInitializer.configure(project, getProjectId(), dwModel, root, parentId);
         });
     }
 

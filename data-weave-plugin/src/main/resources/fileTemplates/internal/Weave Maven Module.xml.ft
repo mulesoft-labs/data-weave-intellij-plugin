@@ -11,9 +11,10 @@
 
     <name>DataWeave ${ARTIFACT_ID} Module</name>
 
-        <properties>
-            <weave.version>${WEAVE_VERSION}</weave.version>
-        </properties>
+    <properties>
+        <weave.version>${WEAVE_VERSION}</weave.version>
+        <wtf.version>${WTF_VERSION}</wtf.version>
+    </properties>
 
     <dependencies>
 
@@ -41,7 +42,7 @@
         <dependency>
             <groupId>org.mule.weave</groupId>
             <artifactId>wtf</artifactId>
-            <version>${WTF_VERSION}</version>
+            <version>${wtf.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -92,7 +93,15 @@
             <url>https://repository-master.mulesoft.org/nexus/content/repositories/snapshots</url>
          </repository>
     </repositories>
-
+    #if (${ORG_ID} != "")
+      <distributionManagement>
+          <repository>
+              <id>exchange</id>
+              <name>Exchange</name>
+              <url>https://maven.anypoint.mulesoft.com/api/v2/organizations/${ORG_ID}/maven</url>
+          </repository>
+      </distributionManagement>
+    #end
     <pluginRepositories>
         <pluginRepository>
             <id>mule-releases</id>

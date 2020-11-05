@@ -17,21 +17,21 @@ import java.util.Properties;
 
 public class WeaveModuleInitializer {
 
-    public static void configure(final Project project, final MavenId projectId, final String weaveVersion,  final String weaveMavenVersion, final VirtualFile root, @Nullable MavenId parentId, String wtfVersion) {
+    public static void configure(final Project project, final MavenId projectId, final DataWeaveConfigurationModel model, final VirtualFile root, @Nullable MavenId parentId) {
         try {
             VfsUtil.createDirectories(root.getPath() + "/src/main/resources");
             VfsUtil.createDirectories(root.getPath() + "/src/test/dwit");
             VfsUtil.createDirectories(root.getPath() + "/src/test/dwmit");
             VfsUtil.createDirectories(root.getPath() + "/src/test/dwtest");
             VfsUtil.createDirectories(root.getPath() + "/src/test/resources");
-            createPomFile(project, projectId, wtfVersion, weaveVersion, weaveMavenVersion, root);
+            createPomFile(project, projectId, model, root);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
 
-    private static void createPomFile(final Project project, final MavenId projectId, final String wtfVersion, final String weaveVersion,  final String weaveMavenVersion, final VirtualFile root) {
+    private static void createPomFile(final Project project, final MavenId projectId,final DataWeaveConfigurationModel model, final VirtualFile root) {
         try {
             WriteCommandAction.writeCommandAction(project).withName("Create Weave Module").run(new ThrowableRunnable<Throwable>() {
                 @Override
@@ -41,9 +41,10 @@ public class WeaveModuleInitializer {
                     templateProps.setProperty("GROUP_ID", projectId.getGroupId());
                     templateProps.setProperty("ARTIFACT_ID", projectId.getArtifactId());
                     templateProps.setProperty("VERSION", projectId.getVersion());
-                    templateProps.setProperty("WEAVE_VERSION", weaveVersion);
-                    templateProps.setProperty("WTF_VERSION", wtfVersion);
-                    templateProps.setProperty("WEAVE_MAVEN_VERSION", weaveMavenVersion);
+                    templateProps.setProperty("WEAVE_VERSION", model.getWeaveVersion());
+                    templateProps.setProperty("WTF_VERSION", model.getWtfVersion());
+                    templateProps.setProperty("WEAVE_MAVEN_VERSION", model.getWeaveMavenVersion());
+                    templateProps.setProperty("ORG_ID", model.getOrgId());
                     final FileTemplateManager manager = FileTemplateManager.getInstance(project);
                     final FileTemplate template = manager.getInternalTemplate(WeaveFilesTemplateManager.WEAVE_MAVEN_MODULE);
                     final Properties defaultProperties = manager.getDefaultProperties();
