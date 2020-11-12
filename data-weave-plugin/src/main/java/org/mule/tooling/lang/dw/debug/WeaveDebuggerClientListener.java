@@ -30,25 +30,4 @@ public class WeaveDebuggerClientListener implements DebuggerClientListener {
     final VirtualFile file = VirtualFileSystemUtils.resolve(session.getProject(), NameIdentifier.apply(resourceName, Option.empty()));
     session.positionReached(new WeaveSuspendContext(client, frame, session, file));
   }
-
-
-  @Override
-  public void onBreakpointAdded(BreakpointAddedEvent bae) {
-
-  }
-
-  @Override
-  public void onBreakpointCleaned() {
-
-  }
-
-  @Override
-  public void onBreakpointRemoved(BreakpointRemovedEvent bre) {
-
-  }
-
-  @Override
-  public void onScriptEvaluated(DebuggerClient client, ScriptResultEvent sr) {
-
-  }
 }

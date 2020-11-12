@@ -20,37 +20,37 @@ import java.util.List;
 
 public class WeaveExecutionStack extends XExecutionStack {
 
-  private List<XStackFrame> frames;
+    private final List<XStackFrame> frames;
 
-  protected WeaveExecutionStack(DebuggerClient client, OnFrameEvent onFrameEvent, String displayName, XDebugSession session, VirtualFile file) {
-    super(displayName, AllIcons.Debugger.ThreadSuspended);
-    final DebuggerFrame[] frames = onFrameEvent.frames();
-    this.frames = new ArrayList<>();
-    for (int i = 0; i < frames.length; i++) {
-      final DebuggerFrame debuggerFrame = frames[i];
-      String resourceName = debuggerFrame.startPosition().resourceName();
-      VirtualFile frameFile = VirtualFileSystemUtils.resolve(session.getProject(), NameIdentifier.apply(resourceName, Option.empty()));
-      if (i == frames.length - 1) {
-        this.frames.add(0, new WeaveStackFrame(client, onFrameEvent.startPosition(), debuggerFrame, frameFile));
-      } else {
-        this.frames.add(0, new WeaveStackFrame(client, debuggerFrame.startPosition(), debuggerFrame, frameFile));
-      }
+    protected WeaveExecutionStack(DebuggerClient client, OnFrameEvent onFrameEvent, String displayName, XDebugSession session, VirtualFile file) {
+        super(displayName, AllIcons.Debugger.ThreadSuspended);
+        final DebuggerFrame[] frames = onFrameEvent.frames();
+        this.frames = new ArrayList<>();
+        for (int i = 0; i < frames.length; i++) {
+            final DebuggerFrame debuggerFrame = frames[i];
+            String resourceName = debuggerFrame.startPosition().resourceName();
+            VirtualFile frameFile = VirtualFileSystemUtils.resolve(session.getProject(), NameIdentifier.apply(resourceName, Option.empty()));
+            if (i == frames.length - 1) {
+                this.frames.add(0, new WeaveStackFrame(client, onFrameEvent.startPosition(), debuggerFrame, frameFile, session.getProject()));
+            } else {
+                this.frames.add(0, new WeaveStackFrame(client, debuggerFrame.startPosition(), debuggerFrame, frameFile, session.getProject()));
+            }
+        }
     }
-  }
 
 
-  @Nullable
-  @Override
-  public XStackFrame getTopFrame() {
-    return frames.get(0);
-  }
-
-  @Override
-  public void computeStackFrames(int firstFrameIndex, XStackFrameContainer container) {
-    if (firstFrameIndex <= frames.size()) {
-      container.addStackFrames(frames.subList(firstFrameIndex, frames.size()), true);
-    } else {
-      container.addStackFrames(Collections.<XStackFrame>emptyList(), true);
+    @Nullable
+    @Override
+    public XStackFrame getTopFrame() {
+        return frames.get(0);
     }
-  }
+
+    @Override
+    public void computeStackFrames(int firstFrameIndex, XStackFrameContainer container) {
+        if (firstFrameIndex <= frames.size()) {
+            container.addStackFrames(frames.subList(firstFrameIndex, frames.size()), true);
+        } else {
+            container.addStackFrames(Collections.<XStackFrame>emptyList(), true);
+        }
+    }
 }

@@ -1,5 +1,6 @@
 package org.mule.tooling.lang.dw.debug.value;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.util.PlatformIcons;
 import com.intellij.xdebugger.frame.XCompositeNode;
 import com.intellij.xdebugger.frame.XNamedValue;
@@ -13,9 +14,11 @@ import org.mule.weave.v2.debugger.DebuggerFunction;
 public class FunctionWeaveValue extends XValue {
 
   private DebuggerFunction debuggerValue;
+  private Project project;
 
-  public FunctionWeaveValue(DebuggerFunction debuggerValue) {
+  public FunctionWeaveValue(Project project, DebuggerFunction debuggerValue) {
     this.debuggerValue = debuggerValue;
+    this.project = project;
   }
 
   @Override
