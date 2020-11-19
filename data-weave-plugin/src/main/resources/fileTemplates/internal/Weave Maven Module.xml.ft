@@ -8,6 +8,7 @@
     <groupId>${GROUP_ID}</groupId>
     <artifactId>${ARTIFACT_ID}</artifactId>
     <version>${VERSION}</version>
+    <packaging>dw-library</packaging>
 
     <name>DataWeave ${ARTIFACT_ID} Module</name>
 
@@ -47,40 +48,32 @@
         </dependency>
     </dependencies>
 
-    <build>
-        <testResources>
-            <testResource>
-               <directory>src/test/dwmit</directory>
-            </testResource>
-            <testResource>
-                <directory>src/test/dwit</directory>
-            </testResource>
-            <testResource>
-                <directory>src/test/resources</directory>
-            </testResource>
-            <testResource>
-                <directory>src/test/dwtest</directory>
-            </testResource>
-        </testResources>
-        <plugins>
-            <plugin>
-                <groupId>org.mule.weave</groupId>
-                <artifactId>weave-maven-plugin</artifactId>
-                <version>${WEAVE_MAVEN_VERSION}</version>
-                <configuration>
-                    <logForkedProcessCommand>true</logForkedProcessCommand>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>test</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+     <build>
+         <resources>
+             <resource>
+                 <directory>src/main/dw</directory>
+             </resource>
+         </resources>
+         <testResources>
+             <testResource>
+                 <directory>src/test/dwit</directory>
+             </testResource>
+             <testResource>
+                 <directory>src/test/dwmit</directory>
+             </testResource>
+             <testResource>
+                 <directory>src/test/dwit</directory>
+             </testResource>
+         </testResources>
+         <plugins>
+             <plugin>
+                 <groupId>org.mule.weave</groupId>
+                 <artifactId>weave-maven-plugin</artifactId>
+                 <version>${WEAVE_MAVEN_VERSION}</version>
+                 <extensions>true</extensions>
+             </plugin>
+         </plugins>
+     </build>
 
     <repositories>
         <repository>
