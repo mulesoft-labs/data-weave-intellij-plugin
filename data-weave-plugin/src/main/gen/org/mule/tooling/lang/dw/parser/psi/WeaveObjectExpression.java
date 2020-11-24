@@ -12,6 +12,9 @@ public interface WeaveObjectExpression extends WeaveExpression, NavigatablePsiEl
   @NotNull
   List<WeaveDynamicKeyValuePair> getDynamicKeyValuePairList();
 
+  @Nullable
+  WeaveExpression getExpression();
+
   @NotNull
   List<WeaveKeyValuePair> getKeyValuePairList();
 

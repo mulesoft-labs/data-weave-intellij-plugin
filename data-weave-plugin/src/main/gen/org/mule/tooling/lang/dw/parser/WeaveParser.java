@@ -2947,9 +2947,38 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // KeyValuePair
+  // KeyValuePair | '(' KeyValuePair ')' (conditionalKV)
   static boolean SingleKeyValuePairObj(PsiBuilder b, int l) {
-    return KeyValuePair(b, l + 1);
+    if (!recursion_guard_(b, l, "SingleKeyValuePairObj")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = KeyValuePair(b, l + 1);
+    if (!r) r = SingleKeyValuePairObj_1(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // '(' KeyValuePair ')' (conditionalKV)
+  private static boolean SingleKeyValuePairObj_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "SingleKeyValuePairObj_1")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, L_PARREN);
+    r = r && KeyValuePair(b, l + 1);
+    r = r && consumeToken(b, R_PARREN);
+    r = r && SingleKeyValuePairObj_1_3(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // (conditionalKV)
+  private static boolean SingleKeyValuePairObj_1_3(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "SingleKeyValuePairObj_1_3")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = conditionalKV(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
   }
 
   /* ********************************************************** */

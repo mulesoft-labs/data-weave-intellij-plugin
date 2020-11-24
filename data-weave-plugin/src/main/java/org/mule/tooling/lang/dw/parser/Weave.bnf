@@ -225,7 +225,7 @@ ObjectExpression ::= SingleKeyValuePairObj | MultipleKeyValuePairObj {
     methods=[getPresentation]
 }
 
-private SingleKeyValuePairObj ::= KeyValuePair
+private SingleKeyValuePairObj ::= KeyValuePair | '(' KeyValuePair ')' (conditionalKV)
 
 private MultipleKeyValuePairObj::= '{' objectEntryRule? (',' objectEntryRule)* (',')? '}' {pin= 1}
 

@@ -33,6 +33,12 @@ public class WeaveObjectExpressionImpl extends WeaveExpressionImpl implements We
   }
 
   @Override
+  @Nullable
+  public WeaveExpression getExpression() {
+    return findChildByClass(WeaveExpression.class);
+  }
+
+  @Override
   @NotNull
   public List<WeaveKeyValuePair> getKeyValuePairList() {
     return PsiTreeUtil.getChildrenOfTypeAsList(this, WeaveKeyValuePair.class);
