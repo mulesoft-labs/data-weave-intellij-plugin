@@ -20,6 +20,7 @@ public class WeaveModuleInitializer {
     public static void configure(final Project project, final MavenId projectId, final DataWeaveConfigurationModel model, final VirtualFile root, @Nullable MavenId parentId) {
         try {
             VfsUtil.createDirectories(root.getPath() + "/src/main/resources");
+            VfsUtil.createDirectories(root.getPath() + "/src/main/dw");
             VfsUtil.createDirectories(root.getPath() + "/src/test/dwit");
             VfsUtil.createDirectories(root.getPath() + "/src/test/dwmit");
             VfsUtil.createDirectories(root.getPath() + "/src/test/dwtest");

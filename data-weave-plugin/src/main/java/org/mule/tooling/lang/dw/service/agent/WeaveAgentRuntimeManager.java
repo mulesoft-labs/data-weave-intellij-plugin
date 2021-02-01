@@ -206,7 +206,7 @@ public class WeaveAgentRuntimeManager implements Disposable, ProjectComponent {
                 //Wait for it to init
                 processHandler.waitFor(ONE_SECOND_DELAY);
             } catch (Throwable e) {
-                Notifications.Bus.notify(new Notification("Data Weave", "Unable to start agent", "Unable to start agent. Reason: \n" + e.getMessage(), NotificationType.ERROR));
+                Notifications.Bus.notify(new Notification(Notifications.SYSTEM_MESSAGES_GROUP_ID, "Unable to start agent", "Unable to start agent. Reason: \n" + e.getMessage(), NotificationType.ERROR));
                 LOG.warn("\"Unable to start agent. Reason: \\n\" + e.getMessage()", e);
                 e.printStackTrace();
                 disable();
@@ -227,7 +227,7 @@ public class WeaveAgentRuntimeManager implements Disposable, ProjectComponent {
                 @Override
                 public void connectedSuccessfully() {
                     indicator.setText2("Agent connected successfully");
-                    Notifications.Bus.notify(new Notification("Data Weave", "Server started", "Weave Server started and is reachable at port " + finalFreePort, NotificationType.INFORMATION));
+                    Notifications.Bus.notify(new Notification(Notifications.SYSTEM_MESSAGES_GROUP_ID, "Server started", "Weave Server started and is reachable at port " + finalFreePort, NotificationType.INFORMATION));
                     LOG.info("Weave Server started and is reachable at port " + finalFreePort);
                 }
 
@@ -338,7 +338,7 @@ public class WeaveAgentRuntimeManager implements Disposable, ProjectComponent {
             if (client != null && client.isConnected()) {
                 onConnected.run();
             } else {
-                Notifications.Bus.notify(new Notification("Data Weave", "Unable to connect", "Client is not able to connect to runtime", NotificationType.WARNING));
+                Notifications.Bus.notify(new Notification(Notifications.SYSTEM_MESSAGES_GROUP_ID, "Unable to connect", "Client is not able to connect to runtime", NotificationType.WARNING));
                 LOG.warn("Unable to connect; Client is " + client);
             }
         }
