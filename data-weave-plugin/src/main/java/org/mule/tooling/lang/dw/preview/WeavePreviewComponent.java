@@ -326,7 +326,7 @@ public class WeavePreviewComponent implements Disposable {
     }
 
     public boolean runAvailable() {
-        return currentFile != null && getCurrentScenario() != null;
+        return currentFile != null;
     }
 
     public boolean runOnChange() {
