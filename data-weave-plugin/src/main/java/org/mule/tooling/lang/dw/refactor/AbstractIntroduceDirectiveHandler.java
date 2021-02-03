@@ -83,9 +83,11 @@ public abstract class AbstractIntroduceDirectiveHandler implements RefactoringAc
                 } else if (scope instanceof WeaveDocument) {
                     WeaveDocument document = (WeaveDocument) scope;
                     scopeElement = getOrCreateHeader(project, document);
-                } else {
+                } else if(scope != null){
                     WeaveDoExpression newDoBlock = WeaveElementFactory.createDoBlock(project, scope);
                     scopeElement = scope.replace(newDoBlock);
+                } else {
+                    return null;
                 }
             }
 

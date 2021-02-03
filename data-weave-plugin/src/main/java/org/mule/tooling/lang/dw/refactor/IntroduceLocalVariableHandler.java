@@ -25,19 +25,23 @@ public class IntroduceLocalVariableHandler extends AbstractIntroduceDirectiveHan
     @Override
     public void invoke(@NotNull Project project, Editor editor, PsiFile psiFile, DataContext dataContext, PsiElement valueToReplace) {
         final PsiElement scopeElement = getTargetScope(psiFile, valueToReplace);
-        doRefactor(project, editor, valueToReplace, scopeElement);
+        if(scopeElement != null) {
+            doRefactor(project, editor, valueToReplace, scopeElement);
+        }
     }
 
     public void doRefactor(@NotNull Project project, Editor editor, PsiElement valueToReplace, PsiElement scopeElement) {
         final WeaveDoExpression doExpression = scopeElement instanceof WeaveDoExpression ? (WeaveDoExpression) scopeElement : null;
         final List<String> possibleNames = NameProviderHelper.possibleNamesForLocalVariable(valueToReplace, doExpression);
         final RefactorResult variableIntro = getWeaveInplaceVariableIntroducer(project, valueToReplace, scopeElement, possibleNames);
-        int startOffset = variableIntro.getVariableDefinition().getTextRange().getStartOffset();
-        //If we don't move the  cursor then the Introducer doesn't work :(
-        editor.getCaretModel().moveToOffset(startOffset);
-        PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(editor.getDocument());
-        WeaveInplaceVariableIntroducer variableIntroducer = new WeaveInplaceVariableIntroducer(variableIntro.getVariableDefinition(), editor, project, "choose a variable", variableIntro.getOccurrences());
-        variableIntroducer.performInplaceRefactoring(new LinkedHashSet<>(possibleNames));
+        if(variableIntro != null) {
+            int startOffset = variableIntro.getVariableDefinition().getTextRange().getStartOffset();
+            //If we don't move the  cursor then the Introducer doesn't work :(
+            editor.getCaretModel().moveToOffset(startOffset);
+            PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(editor.getDocument());
+            WeaveInplaceVariableIntroducer variableIntroducer = new WeaveInplaceVariableIntroducer(variableIntro.getVariableDefinition(), editor, project, "choose a variable", variableIntro.getOccurrences());
+            variableIntroducer.performInplaceRefactoring(new LinkedHashSet<>(possibleNames));
+        }
     }
 
     public PsiElement getTargetScope(PsiFile psiFile, PsiElement valueToReplace) {
