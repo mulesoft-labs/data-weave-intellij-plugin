@@ -2,6 +2,7 @@ package org.mule.tooling.lang.dw.launcher.configuration.runner;
 
 import com.intellij.execution.CantRunException;
 import com.intellij.execution.configurations.JavaParameters;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
@@ -20,10 +21,12 @@ public class WeaveRunnerHelper {
         final Module[] modules = ModuleManager.getInstance(project).getModules();
         if (modules.length > 0) {
             for (Module module : modules) {
-                try {
-                    javaParams.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS);
-                } catch (CantRunException e) {
-                }
+                ApplicationManager.getApplication().runReadAction(() -> {
+                    try {
+                        javaParams.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS);
+                    } catch (CantRunException e) {
+                    }
+                });
             }
         }
         javaParams.setMainClass(WEAVE_RUNNER_MAIN_CLASS);
