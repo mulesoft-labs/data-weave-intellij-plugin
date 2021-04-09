@@ -23,6 +23,7 @@ public class WeaveDocumentImpl extends ASTWrapperPsiElement implements WeaveDocu
     visitor.visitDocument(this);
   }
 
+  @Override
   public void accept(@NotNull PsiElementVisitor visitor) {
     if (visitor instanceof WeaveVisitor) accept((WeaveVisitor)visitor);
     else super.accept(visitor);
@@ -46,14 +47,12 @@ public class WeaveDocumentImpl extends ASTWrapperPsiElement implements WeaveDocu
   }
 
   @Override
-  @NotNull
-  public String getQualifiedName() {
+  public @NotNull String getQualifiedName() {
     return WeavePsiImplUtils.getQualifiedName(this);
   }
 
   @Override
-  @NotNull
-  public String getName() {
+  public @NotNull String getName() {
     return WeavePsiImplUtils.getName(this);
   }
 

@@ -16,7 +16,6 @@ public interface WeaveStringLiteral extends WeaveLiteralExpression {
   @Nullable
   PsiElement getSingleQuotedString();
 
-  @NotNull
-  String getValue();
+  @NotNull String getValue();
 
 }

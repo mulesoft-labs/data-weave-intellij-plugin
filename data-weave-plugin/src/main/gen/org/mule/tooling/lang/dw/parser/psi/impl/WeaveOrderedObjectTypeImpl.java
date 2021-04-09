@@ -16,10 +16,12 @@ public class WeaveOrderedObjectTypeImpl extends WeaveTypeImpl implements WeaveOr
     super(node);
   }
 
+  @Override
   public void accept(@NotNull WeaveVisitor visitor) {
     visitor.visitOrderedObjectType(this);
   }
 
+  @Override
   public void accept(@NotNull PsiElementVisitor visitor) {
     if (visitor instanceof WeaveVisitor) accept((WeaveVisitor)visitor);
     else super.accept(visitor);

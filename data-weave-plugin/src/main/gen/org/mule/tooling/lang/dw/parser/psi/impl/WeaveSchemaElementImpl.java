@@ -21,6 +21,7 @@ public class WeaveSchemaElementImpl extends ASTWrapperPsiElement implements Weav
     visitor.visitSchemaElement(this);
   }
 
+  @Override
   public void accept(@NotNull PsiElementVisitor visitor) {
     if (visitor instanceof WeaveVisitor) accept((WeaveVisitor)visitor);
     else super.accept(visitor);

@@ -7,6 +7,9 @@ import com.intellij.psi.PsiElement;
 
 public interface WeaveBracketSelectorExpression extends WeaveExpression {
 
+  @Nullable
+  WeaveDeclaredNamespace getDeclaredNamespace();
+
   @NotNull
   List<WeaveExpression> getExpressionList();
 

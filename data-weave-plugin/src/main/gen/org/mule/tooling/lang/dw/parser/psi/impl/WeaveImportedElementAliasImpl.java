@@ -21,6 +21,7 @@ public class WeaveImportedElementAliasImpl extends ASTWrapperPsiElement implemen
     visitor.visitImportedElementAlias(this);
   }
 
+  @Override
   public void accept(@NotNull PsiElementVisitor visitor) {
     if (visitor instanceof WeaveVisitor) accept((WeaveVisitor)visitor);
     else super.accept(visitor);

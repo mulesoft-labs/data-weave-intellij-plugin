@@ -378,7 +378,7 @@ DynamicSingleKeyValuePair ::= (Attributes)? ':' Expression
 //Selectors
 DotSelectorExpression ::=Expression ( '..' | '.' ) Selector? ('!'| '?')? {pin=2}
 
-BracketSelectorExpression::=Expression '[' (('?' |'@' | '&' | '^' |'*')? ('*' | '@')?  (Expression ))  ']' ('!'| '?')?
+BracketSelectorExpression::=Expression '[' (('?' |'@' | '&' | '^' |'*')? ( '?' | '*' | '@')? DeclaredNamespace?  (Expression))  ']' ('!'| '?')?
 
 MatchExpression ::= Expression 'match' (PatternMatcherExpression )
 

@@ -19,11 +19,9 @@ public interface WeaveDocument extends NavigatablePsiElement, PsiQualifiedNamedE
 
   ItemPresentation getPresentation();
 
-  @NotNull
-  String getQualifiedName();
+  @NotNull String getQualifiedName();
 
-  @NotNull
-  String getName();
+  @NotNull String getName();
 
   WeaveDocument setName(String name);
 

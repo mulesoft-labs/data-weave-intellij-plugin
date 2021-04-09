@@ -97,3 +97,8 @@ TODO Implement
 
 Do we need a Mule Module Type? It will contain settings for artifact json and persist it there.
 Runtime version handling - we have min version in json, version in pom and version in run config settings - are they related?
+
+Create custom IDE
+
+https://youtrack.jetbrains.com/issue/MP-2788
+https://youtrack.jetbrains.com/issue/IJSDK-105

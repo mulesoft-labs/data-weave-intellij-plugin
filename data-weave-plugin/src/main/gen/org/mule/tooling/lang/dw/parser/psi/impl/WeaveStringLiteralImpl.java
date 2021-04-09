@@ -21,6 +21,7 @@ public class WeaveStringLiteralImpl extends WeaveStringLiteralMixin implements W
     visitor.visitStringLiteral(this);
   }
 
+  @Override
   public void accept(@NotNull PsiElementVisitor visitor) {
     if (visitor instanceof WeaveVisitor) accept((WeaveVisitor)visitor);
     else super.accept(visitor);
@@ -45,8 +46,7 @@ public class WeaveStringLiteralImpl extends WeaveStringLiteralMixin implements W
   }
 
   @Override
-  @NotNull
-  public String getValue() {
+  public @NotNull String getValue() {
     return WeavePsiImplUtils.getValue(this);
   }
 

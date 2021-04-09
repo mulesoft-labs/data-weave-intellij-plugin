@@ -16,10 +16,12 @@ public class WeaveLambdaTypeImpl extends WeaveTypeImpl implements WeaveLambdaTyp
     super(node);
   }
 
+  @Override
   public void accept(@NotNull WeaveVisitor visitor) {
     visitor.visitLambdaType(this);
   }
 
+  @Override
   public void accept(@NotNull PsiElementVisitor visitor) {
     if (visitor instanceof WeaveVisitor) accept((WeaveVisitor)visitor);
     else super.accept(visitor);

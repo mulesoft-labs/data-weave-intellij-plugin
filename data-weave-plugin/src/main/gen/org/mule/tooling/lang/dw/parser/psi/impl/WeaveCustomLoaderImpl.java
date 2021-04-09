@@ -21,6 +21,7 @@ public class WeaveCustomLoaderImpl extends ASTWrapperPsiElement implements Weave
     visitor.visitCustomLoader(this);
   }
 
+  @Override
   public void accept(@NotNull PsiElementVisitor visitor) {
     if (visitor instanceof WeaveVisitor) accept((WeaveVisitor)visitor);
     else super.accept(visitor);

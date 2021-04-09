@@ -21,6 +21,7 @@ public abstract class WeaveExpressionImpl extends ASTWrapperPsiElement implement
     visitor.visitExpression(this);
   }
 
+  @Override
   public void accept(@NotNull PsiElementVisitor visitor) {
     if (visitor instanceof WeaveVisitor) accept((WeaveVisitor)visitor);
     else super.accept(visitor);

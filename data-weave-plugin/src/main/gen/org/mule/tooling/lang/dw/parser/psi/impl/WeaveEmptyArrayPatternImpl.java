@@ -16,10 +16,12 @@ public class WeaveEmptyArrayPatternImpl extends WeavePatternImpl implements Weav
     super(node);
   }
 
+  @Override
   public void accept(@NotNull WeaveVisitor visitor) {
     visitor.visitEmptyArrayPattern(this);
   }
 
+  @Override
   public void accept(@NotNull PsiElementVisitor visitor) {
     if (visitor instanceof WeaveVisitor) accept((WeaveVisitor)visitor);
     else super.accept(visitor);

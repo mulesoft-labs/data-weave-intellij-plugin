@@ -854,7 +854,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     if (!r) r = TypeDirective(b, l + 1);
     if (!r) r = ImportDirective(b, l + 1);
     if (!r) r = FunctionDirective(b, l + 1);
-    exit_section_(b, l, m, r, false, HeaderRecover_parser_);
+    exit_section_(b, l, m, r, false, WeaveParser::HeaderRecover);
     return r;
   }
 
@@ -870,7 +870,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     Marker m = enter_section_(b, l, _NONE_);
     r = DoDirectives_0(b, l + 1);
     r = r && DoDirectives_1(b, l + 1);
-    exit_section_(b, l, m, r, false, HeaderRecover_parser_);
+    exit_section_(b, l, m, r, false, WeaveParser::HeaderRecover);
     return r;
   }
 
@@ -3974,7 +3974,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // '[' (('?' |'@' | '&' | '^' |'*')? ('*' | '@')?  (Expression )) ']' ('!'| '?')?
+  // '[' (('?' |'@' | '&' | '^' |'*')? ( '?' | '*' | '@')? DeclaredNamespace?  (Expression)) ']' ('!'| '?')?
   private static boolean BracketSelectorExpression_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "BracketSelectorExpression_0")) return false;
     boolean r;
@@ -3987,7 +3987,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // ('?' |'@' | '&' | '^' |'*')? ('*' | '@')?  (Expression )
+  // ('?' |'@' | '&' | '^' |'*')? ( '?' | '*' | '@')? DeclaredNamespace?  (Expression)
   private static boolean BracketSelectorExpression_0_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "BracketSelectorExpression_0_1")) return false;
     boolean r;
@@ -3995,6 +3995,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     r = BracketSelectorExpression_0_1_0(b, l + 1);
     r = r && BracketSelectorExpression_0_1_1(b, l + 1);
     r = r && BracketSelectorExpression_0_1_2(b, l + 1);
+    r = r && BracketSelectorExpression_0_1_3(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
   }
@@ -4018,25 +4019,33 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // ('*' | '@')?
+  // ( '?' | '*' | '@')?
   private static boolean BracketSelectorExpression_0_1_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "BracketSelectorExpression_0_1_1")) return false;
     BracketSelectorExpression_0_1_1_0(b, l + 1);
     return true;
   }
 
-  // '*' | '@'
+  // '?' | '*' | '@'
   private static boolean BracketSelectorExpression_0_1_1_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "BracketSelectorExpression_0_1_1_0")) return false;
     boolean r;
-    r = consumeTokenSmart(b, MULTIPLY);
+    r = consumeTokenSmart(b, QUESTION);
+    if (!r) r = consumeTokenSmart(b, MULTIPLY);
     if (!r) r = consumeTokenSmart(b, AT);
     return r;
   }
 
-  // (Expression )
+  // DeclaredNamespace?
   private static boolean BracketSelectorExpression_0_1_2(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "BracketSelectorExpression_0_1_2")) return false;
+    DeclaredNamespace(b, l + 1);
+    return true;
+  }
+
+  // (Expression)
+  private static boolean BracketSelectorExpression_0_1_3(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "BracketSelectorExpression_0_1_3")) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = Expression(b, l + 1, -1);
@@ -4533,9 +4542,4 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  static final Parser HeaderRecover_parser_ = new Parser() {
-    public boolean parse(PsiBuilder b, int l) {
-      return HeaderRecover(b, l + 1);
-    }
-  };
 }

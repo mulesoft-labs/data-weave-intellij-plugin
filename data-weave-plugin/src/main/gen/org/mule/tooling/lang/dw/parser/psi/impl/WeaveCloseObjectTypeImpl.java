@@ -16,10 +16,12 @@ public class WeaveCloseObjectTypeImpl extends WeaveTypeImpl implements WeaveClos
     super(node);
   }
 
+  @Override
   public void accept(@NotNull WeaveVisitor visitor) {
     visitor.visitCloseObjectType(this);
   }
 
+  @Override
   public void accept(@NotNull PsiElementVisitor visitor) {
     if (visitor instanceof WeaveVisitor) accept((WeaveVisitor)visitor);
     else super.accept(visitor);

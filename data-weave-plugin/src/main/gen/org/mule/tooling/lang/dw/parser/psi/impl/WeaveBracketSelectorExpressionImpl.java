@@ -16,13 +16,21 @@ public class WeaveBracketSelectorExpressionImpl extends WeaveExpressionImpl impl
     super(node);
   }
 
+  @Override
   public void accept(@NotNull WeaveVisitor visitor) {
     visitor.visitBracketSelectorExpression(this);
   }
 
+  @Override
   public void accept(@NotNull PsiElementVisitor visitor) {
     if (visitor instanceof WeaveVisitor) accept((WeaveVisitor)visitor);
     else super.accept(visitor);
+  }
+
+  @Override
+  @Nullable
+  public WeaveDeclaredNamespace getDeclaredNamespace() {
+    return findChildByClass(WeaveDeclaredNamespace.class);
   }
 
   @Override

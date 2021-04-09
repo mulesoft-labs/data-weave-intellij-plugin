@@ -21,6 +21,7 @@ public class WeaveTypeParameterImpl extends WeaveNamedElementImpl implements Wea
     visitor.visitTypeParameter(this);
   }
 
+  @Override
   public void accept(@NotNull PsiElementVisitor visitor) {
     if (visitor instanceof WeaveVisitor) accept((WeaveVisitor)visitor);
     else super.accept(visitor);

@@ -16,10 +16,12 @@ public class WeaveLiteralTypeImpl extends WeaveTypeImpl implements WeaveLiteralT
     super(node);
   }
 
+  @Override
   public void accept(@NotNull WeaveVisitor visitor) {
     visitor.visitLiteralType(this);
   }
 
+  @Override
   public void accept(@NotNull PsiElementVisitor visitor) {
     if (visitor instanceof WeaveVisitor) accept((WeaveVisitor)visitor);
     else super.accept(visitor);
