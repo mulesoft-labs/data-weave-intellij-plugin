@@ -16,6 +16,7 @@ import com.intellij.psi.PsiTreeAnyChangeAbstractAdapter;
 import com.intellij.psi.search.FileTypeIndex;
 import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.util.concurrency.AppExecutorUtil;
 import com.intellij.util.concurrency.SequentialTaskExecutor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -43,6 +44,7 @@ public class IJVirtualFileSystemAdaptor implements VirtualFileSystem, Disposable
     private final List<ChangeListener> listeners;
 
     private static final ExecutorService ourExecutor = SequentialTaskExecutor.createSequentialApplicationPoolExecutor("Console Filters");
+    private @NotNull ExecutorService fs_updater = AppExecutorUtil.createBoundedApplicationPoolExecutor("FS updater", 15);
 
     public IJVirtualFileSystemAdaptor(Project project) {
         this.project = project;
@@ -62,19 +64,30 @@ public class IJVirtualFileSystemAdaptor implements VirtualFileSystem, Disposable
 
             @Override
             public void fileDeleted(@NotNull VirtualFileEvent event) {
-                onFileDeleted(event.getFile());
+                if (isInterestingFile(event.getFile())) {
+                    onFileDeleted(event.getFile());
+                }
             }
 
             @Override
             public void fileCreated(@NotNull VirtualFileEvent event) {
-                onFileCreated(event.getFile());
+                if (isInterestingFile(event.getFile())) {
+                    onFileCreated(event.getFile());
+                }
             }
 
             @Override
             public void contentsChanged(@NotNull VirtualFileEvent event) {
-                onFileChanged(event.getFile());
+                if (isInterestingFile(event.getFile())) {
+                    onFileChanged(event.getFile());
+                }
             }
         }, this);
+    }
+
+    private boolean isInterestingFile(VirtualFile file) {
+        //TODO we should ask the list of intereseting extensions to the runtime
+        return "dwl".equals(file.getExtension()) || "raml".equals(file.getExtension()) || "java".equals(file.getExtension());
     }
 
     @Override
@@ -109,18 +122,19 @@ public class IJVirtualFileSystemAdaptor implements VirtualFileSystem, Disposable
     }
 
     private void onFileChanged(VirtualFile virtualFile) {
-        ReadAction.run(() -> {
+        ReadAction.nonBlocking(() -> {
             if (project.isDisposed()) {
                 return;
             }
             //If it is a file from the project
             final IJVirtualFileAdaptor intellijVirtualFile = new IJVirtualFileAdaptor(IJVirtualFileSystemAdaptor.this, virtualFile, project, null);
             onChanged(intellijVirtualFile);
-        });
+        }).expireWith(project)
+                .submit(fs_updater);
     }
 
     private void onFileDeleted(VirtualFile virtualFile) {
-        ReadAction.run(() -> {
+        ReadAction.nonBlocking(() -> {
             if (project.isDisposed()) {
                 return;
             }
@@ -132,15 +146,16 @@ public class IJVirtualFileSystemAdaptor implements VirtualFileSystem, Disposable
                     listener.onDeleted(intellijVirtualFile);
                 }
             }
-        });
+        })
+                .expireWith(project)
+                .submit(fs_updater);
     }
 
     private void onFileCreated(VirtualFile virtualFile) {
-        ReadAction.run(() -> {
+        ReadAction.nonBlocking(() -> {
             if (project.isDisposed()) {
                 return;
             }
-
             //If it is a file from the project
             final IJVirtualFileAdaptor intellijVirtualFile = new IJVirtualFileAdaptor(IJVirtualFileSystemAdaptor.this, virtualFile, project, null);
             for (ChangeListener listener : listeners) {
@@ -148,7 +163,9 @@ public class IJVirtualFileSystemAdaptor implements VirtualFileSystem, Disposable
                     listener.onCreated(intellijVirtualFile);
                 }
             }
-        });
+        }).expireWith(project)
+                .submit(fs_updater);
+        ;
     }
 
 

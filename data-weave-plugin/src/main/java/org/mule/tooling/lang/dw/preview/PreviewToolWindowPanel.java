@@ -14,6 +14,7 @@ import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
+import com.intellij.util.concurrency.AppExecutorUtil;
 import com.intellij.util.messages.MessageBusConnection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -25,12 +26,15 @@ import org.mule.tooling.lang.dw.ui.MessagePanel;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.concurrent.ExecutorService;
 
 public class PreviewToolWindowPanel extends SimpleToolWindowPanel implements Disposable {
     public static final String NOTHING_TO_SHOW = "NOTHING_TO_SHOW";
     public static final String PREVIEW_EDITOR = "PREVIEW_EDITOR";
     public static final String NO_RUNTIME_AVAILABLE = "NO_RUNTIME_AVAILABLE";
     //TODO we should put this in a settings file
+
+    private @NotNull ExecutorService dependenciesChanges = AppExecutorUtil.createBoundedApplicationPoolExecutor("RootChanges", 15);
 
     private Project myProject;
     private WeavePreviewComponent weavePreviewComponent;
@@ -100,11 +104,14 @@ public class PreviewToolWindowPanel extends SimpleToolWindowPanel implements Dis
                     connection[0].subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootListener() {
                         @Override
                         public void rootsChanged(ModuleRootEvent event) {
-                            if (agentRuntimeManager.isWeaveRuntimeInstalled()) {
-                                showFile(e);
-                                connection[0].disconnect();
-                                connection[0] = null;
-                            }
+                            dependenciesChanges.submit(() -> {
+                                if (agentRuntimeManager.isWeaveRuntimeInstalled()) {
+                                    showFile(e);
+                                    connection[0].disconnect();
+                                    connection[0] = null;
+                                }
+                            });
+
                         }
                     });
                 }
