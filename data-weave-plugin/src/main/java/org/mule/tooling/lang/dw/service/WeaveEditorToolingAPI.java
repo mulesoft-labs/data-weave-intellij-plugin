@@ -42,10 +42,25 @@ import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.qn.WeaveQualifiedNameProvider;
 import org.mule.tooling.lang.dw.service.agent.WeaveAgentRuntimeManager;
 import org.mule.tooling.lang.dw.util.AsyncCache;
-import org.mule.weave.v2.completion.*;
+import org.mule.weave.v2.completion.DataFormatDescriptor;
+import org.mule.weave.v2.completion.DataFormatDescriptorProvider;
+import org.mule.weave.v2.completion.DataFormatProperty;
+import org.mule.weave.v2.completion.Suggestion;
+import org.mule.weave.v2.completion.SuggestionType;
 import org.mule.weave.v2.debugger.event.WeaveDataFormatDescriptor;
 import org.mule.weave.v2.debugger.event.WeaveDataFormatProperty;
-import org.mule.weave.v2.editor.*;
+import org.mule.weave.v2.editor.ChangeListener;
+import org.mule.weave.v2.editor.ImplicitInput;
+import org.mule.weave.v2.editor.Link;
+import org.mule.weave.v2.editor.ModuleLoaderFactory;
+import org.mule.weave.v2.editor.QuickFixAction;
+import org.mule.weave.v2.editor.ReformatResult;
+import org.mule.weave.v2.editor.SpecificModuleResourceResolver;
+import org.mule.weave.v2.editor.ValidationMessages;
+import org.mule.weave.v2.editor.VariableDependency;
+import org.mule.weave.v2.editor.VirtualFile;
+import org.mule.weave.v2.editor.WeaveDocumentToolingService;
+import org.mule.weave.v2.editor.WeaveToolingService;
 import org.mule.weave.v2.hover.HoverMessage;
 import org.mule.weave.v2.module.raml.RamlModuleLoader;
 import org.mule.weave.v2.parser.ast.AstNode;
@@ -60,7 +75,12 @@ import org.mule.weave.v2.sdk.WeaveResourceResolver;
 import org.mule.weave.v2.ts.WeaveType;
 import scala.Option;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 
 public class WeaveEditorToolingAPI extends AbstractProjectComponent implements Disposable {
 
@@ -100,9 +120,27 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
 
         final AsyDataFormatProvider dataFormatProvider = new AsyDataFormatProvider(weaveRuntime);
         dwTextDocumentService = new WeaveToolingService(projectVirtualFileSystem, dataFormatProvider, moduleResourceResolvers);
-        projectVirtualFileSystem.changeListener(file -> {
-            javaRemoteResolver.invalidateCache(file.getNameIdentifier());
-            ramlRemoteResolver.invalidateCache(file.getNameIdentifier());
+        projectVirtualFileSystem.changeListener(new ChangeListener() {
+
+            private void invalidate(VirtualFile file) {
+                javaRemoteResolver.invalidateCache(file.getNameIdentifier());
+                ramlRemoteResolver.invalidateCache(file.getNameIdentifier());
+            }
+
+            @Override
+            public void onDeleted(VirtualFile file) {
+                invalidate(file);
+            }
+
+            @Override
+            public void onCreated(VirtualFile file) {
+                invalidate(file);
+            }
+
+            @Override
+            public void onChanged(VirtualFile file) {
+                invalidate(file);
+            }
         });
 
         myProject.getMessageBus()

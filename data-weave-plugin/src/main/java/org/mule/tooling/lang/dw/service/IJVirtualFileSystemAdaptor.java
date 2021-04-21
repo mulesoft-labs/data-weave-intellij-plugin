@@ -6,7 +6,6 @@ import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileEvent;
 import com.intellij.openapi.vfs.VirtualFileListener;
@@ -17,6 +16,7 @@ import com.intellij.psi.PsiTreeAnyChangeAbstractAdapter;
 import com.intellij.psi.search.FileTypeIndex;
 import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.util.concurrency.SequentialTaskExecutor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.WeaveFileType;
@@ -34,12 +34,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
 
 public class IJVirtualFileSystemAdaptor implements VirtualFileSystem, Disposable {
 
-    private Project project;
+    private final Project project;
 
-    private List<ChangeListener> listeners;
+    private final List<ChangeListener> listeners;
+
+    private static final ExecutorService ourExecutor = SequentialTaskExecutor.createSequentialApplicationPoolExecutor("Console Filters");
 
     public IJVirtualFileSystemAdaptor(Project project) {
         this.project = project;
@@ -53,16 +56,25 @@ public class IJVirtualFileSystemAdaptor implements VirtualFileSystem, Disposable
                     onFileChanged(virtualFile);
                 }
             }
-        });
+        }, this);
 
         VirtualFileManager.getInstance().addVirtualFileListener(new VirtualFileListener() {
+
+            @Override
+            public void fileDeleted(@NotNull VirtualFileEvent event) {
+                onFileDeleted(event.getFile());
+            }
+
+            @Override
+            public void fileCreated(@NotNull VirtualFileEvent event) {
+                onFileCreated(event.getFile());
+            }
+
             @Override
             public void contentsChanged(@NotNull VirtualFileEvent event) {
-                ReadAction.nonBlocking(() -> {
-                    onFileChanged(event.getFile());
-                });
+                onFileChanged(event.getFile());
             }
-        });
+        }, this);
     }
 
     @Override
@@ -101,14 +113,44 @@ public class IJVirtualFileSystemAdaptor implements VirtualFileSystem, Disposable
             if (project.isDisposed()) {
                 return;
             }
-            final VirtualFile contentRootForFile = ProjectFileIndex.SERVICE.getInstance(project).getSourceRootForFile(virtualFile);
-            if (contentRootForFile != null) {
-                //If it is a file from the project
-                final IJVirtualFileAdaptor intellijVirtualFile = new IJVirtualFileAdaptor(IJVirtualFileSystemAdaptor.this, virtualFile, project, null);
-                onChanged(intellijVirtualFile);
+            //If it is a file from the project
+            final IJVirtualFileAdaptor intellijVirtualFile = new IJVirtualFileAdaptor(IJVirtualFileSystemAdaptor.this, virtualFile, project, null);
+            onChanged(intellijVirtualFile);
+        });
+    }
+
+    private void onFileDeleted(VirtualFile virtualFile) {
+        ReadAction.run(() -> {
+            if (project.isDisposed()) {
+                return;
+            }
+
+            //If it is a file from the project
+            final IJVirtualFileAdaptor intellijVirtualFile = new IJVirtualFileAdaptor(IJVirtualFileSystemAdaptor.this, virtualFile, project, null);
+            for (ChangeListener listener : listeners) {
+                if (listener != null) {
+                    listener.onDeleted(intellijVirtualFile);
+                }
             }
         });
     }
+
+    private void onFileCreated(VirtualFile virtualFile) {
+        ReadAction.run(() -> {
+            if (project.isDisposed()) {
+                return;
+            }
+
+            //If it is a file from the project
+            final IJVirtualFileAdaptor intellijVirtualFile = new IJVirtualFileAdaptor(IJVirtualFileSystemAdaptor.this, virtualFile, project, null);
+            for (ChangeListener listener : listeners) {
+                if (listener != null) {
+                    listener.onCreated(intellijVirtualFile);
+                }
+            }
+        });
+    }
+
 
     @Override
     public org.mule.weave.v2.editor.VirtualFile[] listFilesByNameIdentifier(String filter) {
@@ -165,10 +207,10 @@ public class IJVirtualFileSystemAdaptor implements VirtualFileSystem, Disposable
         public Option<WeaveResource> resolve(NameIdentifier name) {
             VirtualFile resolve = VirtualFileSystemUtils.resolve(project, name);
             if (resolve == null) {
-                return Option.<WeaveResource>empty();
+                return Option.empty();
             } else {
                 IJVirtualFileAdaptor intellijVirtualFileAdaptor = new IJVirtualFileAdaptor(this.fs, resolve, project, name);
-                return Option.<WeaveResource>apply(intellijVirtualFileAdaptor.asResource());
+                return Option.apply(intellijVirtualFileAdaptor.asResource());
             }
         }
     }
@@ -182,7 +224,7 @@ public class IJVirtualFileSystemAdaptor implements VirtualFileSystem, Disposable
         public IJInMemoryFileAdaptor(String content, VirtualFileSystem fs) {
             this.content = content;
             this.fs = fs;
-            this.name = "Memory_" + UUID.randomUUID().toString() + ".dwl";
+            this.name = "Memory_" + UUID.randomUUID() + ".dwl";
         }
 
         @Override
@@ -196,8 +238,9 @@ public class IJVirtualFileSystemAdaptor implements VirtualFileSystem, Disposable
         }
 
         @Override
-        public void write(String content) {
+        public boolean write(String content) {
             this.content = content;
+            return true;
         }
 
         @Override
@@ -206,11 +249,24 @@ public class IJVirtualFileSystemAdaptor implements VirtualFileSystem, Disposable
         }
 
         @Override
-        public String path() {
+        public String url() {
             return "mock://" + name;
         }
 
+        @Override
+        public String path() {
+            return name;
+        }
 
+        @Override
+        public WeaveResource asResource() {
+            return org.mule.weave.v2.editor.VirtualFile.super.asResource();
+        }
+
+        @Override
+        public NameIdentifier getNameIdentifier() {
+            return NameIdentifierHelper.fromWeaveFilePath(name);
+        }
     }
 
     public static class IJVirtualFileAdaptor implements org.mule.weave.v2.editor.VirtualFile {
@@ -247,10 +303,16 @@ public class IJVirtualFileSystemAdaptor implements VirtualFileSystem, Disposable
         }
 
         @Override
-        public void write(String content) {
+        public boolean write(String content) {
             if (document != null) {
-                WriteAction.run(() -> document.setText(content));
+                WriteAction.run(() -> {
+                    document.setText(content);
+                });
+                return true;
+            } else {
+                return false;
             }
+
         }
 
         @Override
@@ -259,8 +321,18 @@ public class IJVirtualFileSystemAdaptor implements VirtualFileSystem, Disposable
         }
 
         @Override
-        public String path() {
+        public String url() {
             return vfs.getUrl();
+        }
+
+        @Override
+        public String path() {
+            return vfs.getPath();
+        }
+
+        @Override
+        public WeaveResource asResource() {
+            return org.mule.weave.v2.editor.VirtualFile.super.asResource();
         }
 
         @Override
