@@ -16,7 +16,7 @@ allprojects {
     apply plugin: 'idea'
     apply plugin: 'org.jetbrains.intellij'
     apply plugin: 'java'
-    apply plugin: "net.linguica.maven-settings"
+//    apply plugin: "net.linguica.maven-settings"
 
     if (ijPluginRepoChannel.equalsIgnoreCase("Develop")) {
         version = pluginVersion + "-" + DateTimeFormatter.ofPattern("yyyyMMdd.HHmmss").withZone(ZoneOffset.UTC).format(Instant.now())
