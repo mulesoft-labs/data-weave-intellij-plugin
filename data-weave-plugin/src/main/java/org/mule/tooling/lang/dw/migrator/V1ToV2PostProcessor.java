@@ -37,7 +37,7 @@ public class V1ToV2PostProcessor extends CopyPastePostProcessor<TextBlockTransfe
     }
 
     @Override
-    public void processTransferableData(Project project, Editor editor, RangeMarker bounds, int caretOffset, Ref<Boolean> indented, List<TextBlockTransferableData> values) {
+    public void processTransferableData(Project project, Editor editor, RangeMarker bounds, int caretOffset, Ref<? super Boolean> indented, List<? extends TextBlockTransferableData> values) {
         if (values.size() == 1 && values.get(0) instanceof ConvertedCode) {
             PsiFile psiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument());
             if(psiFile != null && psiFile.getFileType() == WeaveFileType.getInstance()) {
@@ -51,6 +51,8 @@ public class V1ToV2PostProcessor extends CopyPastePostProcessor<TextBlockTransfe
             }
         }
     }
+
+
 
     @NotNull
     @Override

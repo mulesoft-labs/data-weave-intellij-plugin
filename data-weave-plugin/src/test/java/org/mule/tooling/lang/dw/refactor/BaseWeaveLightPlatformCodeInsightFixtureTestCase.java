@@ -6,8 +6,10 @@ import com.intellij.testFramework.EdtTestUtilKt;
 import com.intellij.testFramework.LightProjectDescriptor;
 import com.intellij.testFramework.TestLoggerFactory;
 import com.intellij.testFramework.TestRunnerUtil;
+import com.intellij.testFramework.fixtures.BasePlatformTestCase;
 import com.intellij.testFramework.fixtures.DefaultLightProjectDescriptor;
 import com.intellij.testFramework.fixtures.LightPlatformCodeInsightFixtureTestCase;
+import com.intellij.util.ThrowableRunnable;
 import org.apache.commons.io.FilenameUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.After;
@@ -22,7 +24,7 @@ import java.util.List;
 
 import static org.mule.tooling.lang.dw.parser.DataWeaveLangParserTest.DWL;
 
-public abstract class BaseWeaveLightPlatformCodeInsightFixtureTestCase extends LightPlatformCodeInsightFixtureTestCase {
+public abstract class BaseWeaveLightPlatformCodeInsightFixtureTestCase extends BasePlatformTestCase {
 
     public static final String POST_DWL = "_post.dwl";
     public static final String DWL_EXTENSION = ".dwl";
@@ -52,7 +54,7 @@ public abstract class BaseWeaveLightPlatformCodeInsightFixtureTestCase extends L
     }
 
     public void runIntroduceHandlerTest(String testName, RefactoringActionHandler constantHandler) throws Throwable {
-        final Runnable runnable = () -> {
+        final ThrowableRunnable<Throwable> runnable = () -> {
             myFixture.configureByFile(new File(testName + DWL_EXTENSION).getName());
             constantHandler.invoke(myFixture.getProject(), myFixture.getEditor(), myFixture.getFile(), null);
             myFixture.checkResultByFile(new File(testName + POST_DWL).getName(), true);
@@ -63,7 +65,6 @@ public abstract class BaseWeaveLightPlatformCodeInsightFixtureTestCase extends L
 
     @Before
     public void before() throws Throwable {
-        setUp();
         EdtTestUtilKt.runInEdtAndWait(() -> {
             String sourceFilePath = getSdkRelativePath();
             myFixture.copyDirectoryToProject(sourceFilePath, "");
@@ -81,7 +82,7 @@ public abstract class BaseWeaveLightPlatformCodeInsightFixtureTestCase extends L
 
     @After
     public void after() throws Throwable {
-        tearDown();
+
     }
 
     @Override
@@ -89,12 +90,12 @@ public abstract class BaseWeaveLightPlatformCodeInsightFixtureTestCase extends L
         return new DefaultLightProjectDescriptor();
     }
 
-    protected void runTest(Runnable runnable) throws Throwable {
+    protected void runTest(ThrowableRunnable<Throwable> runnable) throws Throwable {
         if (runInDispatchThread()) {
             TestRunnerUtil.replaceIdeEventQueueSafely();
-            invokeTestRunnable(runnable);
+            runTestRunnable(runnable);
         } else {
-            invokeTestRunnable(runnable);
+            runTestRunnable(runnable);
         }
     }
 

@@ -245,6 +245,7 @@
     <depends>com.intellij.properties</depends>
     <depends>org.jetbrains.idea.maven</depends>
     <depends>com.intellij.modules.java</depends>
+    <depends>org.jetbrains.plugins.yaml</depends>
 
     <extensions defaultExtensionNs="com.intellij">
 
@@ -295,6 +296,7 @@
         <programRunner id="WeaveDebug" implementation="org.mule.tooling.lang.dw.debug.WeaveDebuggerRunner"
                        order="last"/>
         <languageInjector implementation="org.mule.tooling.lang.dw.injector.MuleLanguageInjector"/>
+        <multiHostInjector implementation="org.mule.tooling.lang.dw.injector.YamlLanguageInjector"/>
         <languageInjector implementation="org.mule.tooling.lang.dw.injector.StringInterpolationLanguageInjector"/>
 
         <breadcrumbsInfoProvider implementation="org.mule.tooling.lang.dw.breadcrums.WeaveBreadcrumbsInfoProvider"/>

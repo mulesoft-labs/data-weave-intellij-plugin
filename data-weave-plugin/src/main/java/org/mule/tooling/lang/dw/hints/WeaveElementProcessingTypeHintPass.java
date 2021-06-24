@@ -17,6 +17,7 @@ import org.mule.tooling.lang.dw.parser.psi.WeaveFunctionDefinition;
 import org.mule.tooling.lang.dw.parser.psi.WeaveTypes;
 import org.mule.tooling.lang.dw.parser.psi.WeaveVariableDefinition;
 import org.mule.tooling.lang.dw.service.WeaveEditorToolingAPI;
+import org.mule.weave.v2.parser.phase.ParsingNotificationManager;
 import org.mule.weave.v2.ts.*;
 import scala.collection.Iterator;
 import scala.collection.Seq;
@@ -88,7 +89,7 @@ public class WeaveElementProcessingTypeHintPass extends ElementProcessingHintPas
             final ObjectType objectType = (ObjectType) weaveType;
             return objectType.properties().isEmpty();
         } else {
-            return TypeHelper.isPrimitiveType(weaveType);
+            return new TypeHelper(new ParsingNotificationManager()).isPrimitiveType(weaveType);
         }
     }
 

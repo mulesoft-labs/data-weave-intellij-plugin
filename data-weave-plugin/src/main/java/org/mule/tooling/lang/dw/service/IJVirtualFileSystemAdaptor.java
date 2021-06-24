@@ -13,14 +13,12 @@ import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiTreeAnyChangeAbstractAdapter;
-import com.intellij.psi.search.FileTypeIndex;
 import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.concurrency.AppExecutorUtil;
 import com.intellij.util.concurrency.SequentialTaskExecutor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.mule.tooling.lang.dw.WeaveFileType;
 import org.mule.tooling.lang.dw.util.ScalaUtils;
 import org.mule.tooling.lang.dw.util.VirtualFileSystemUtils;
 import org.mule.weave.v2.editor.ChangeListener;
@@ -169,20 +167,20 @@ public class IJVirtualFileSystemAdaptor implements VirtualFileSystem, Disposable
     }
 
 
-    @Override
-    public org.mule.weave.v2.editor.VirtualFile[] listFilesByNameIdentifier(String filter) {
-        final List<org.mule.weave.v2.editor.VirtualFile> fileList = new ArrayList<>();
-        FileTypeIndex.processFiles(WeaveFileType.getInstance(), virtualFile -> {
-            NameIdentifier nameIdentifier = VirtualFileSystemUtils.calculateNameIdentifier(project, virtualFile);
-            if (nameIdentifier.toString().contains(filter)) {
-                fileList.add(new IJVirtualFileAdaptor(this, virtualFile, project, null));
-                return true;
-            } else {
-                return true;
-            }
-        }, GlobalSearchScope.allScope(project));
-        return fileList.toArray(new org.mule.weave.v2.editor.VirtualFile[0]);
-    }
+//    @Override
+//    public org.mule.weave.v2.editor.VirtualFile[] listFilesByNameIdentifier(String filter) {
+//        final List<org.mule.weave.v2.editor.VirtualFile> fileList = new ArrayList<>();
+//        FileTypeIndex.processFiles(WeaveFileType.getInstance(), virtualFile -> {
+//            NameIdentifier nameIdentifier = VirtualFileSystemUtils.calculateNameIdentifier(project, virtualFile);
+//            if (nameIdentifier.toString().contains(filter)) {
+//                fileList.add(new IJVirtualFileAdaptor(this, virtualFile, project, null));
+//                return true;
+//            } else {
+//                return true;
+//            }
+//        }, GlobalSearchScope.allScope(project));
+//        return fileList.toArray(new org.mule.weave.v2.editor.VirtualFile[0]);
+//    }
 
     @Override
     public WeaveResourceResolver asResourceResolver() {

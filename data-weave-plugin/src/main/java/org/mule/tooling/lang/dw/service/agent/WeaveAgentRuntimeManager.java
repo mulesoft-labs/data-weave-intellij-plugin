@@ -36,6 +36,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootEvent;
 import com.intellij.openapi.roots.ModuleRootListener;
 import com.intellij.openapi.roots.OrderEnumerator;
+import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.util.Key;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
@@ -63,7 +64,7 @@ import java.util.UUID;
 public class WeaveAgentRuntimeManager implements Disposable, ProjectComponent {
 
     public static final int MAX_RETRIES = 10;
-    public static final long ONE_SECOND_DELAY = 1000L;
+    public static final long MAX_ALLOWED_WAIT = 10;
 
     @Nullable
     private WeaveAgentClient client;
@@ -97,7 +98,10 @@ public class WeaveAgentRuntimeManager implements Disposable, ProjectComponent {
                     @Override
                     public void rootsChanged(@NotNull ModuleRootEvent event) {
                         //We stop the server as classpath has changed
-                        restart();
+                        //But only if the process was started
+                        if (processHandler != null) {
+                            restart();
+                        }
                     }
                 });
 
@@ -191,6 +195,10 @@ public class WeaveAgentRuntimeManager implements Disposable, ProjectComponent {
             };
             final Executor executor = DefaultRunExecutor.getRunExecutorInstance();
             try {
+                final ProjectRootManager manager = ProjectRootManager.getInstance(myProject);
+                if (manager.getProjectSdk() == null) {
+                    return;
+                }
                 final RunProfileState state = createRunProfileState(freePort);
                 final ExecutionResult result = state.execute(executor, runner);
 
@@ -203,8 +211,11 @@ public class WeaveAgentRuntimeManager implements Disposable, ProjectComponent {
                         LOG.info("[Agent Process] " + event.getText());
                     }
                 });
-                //Wait for it to init
-                processHandler.waitFor(ONE_SECOND_DELAY);
+                int i = 0;
+                //Wait for two seconds
+                while (!processHandler.waitFor(MAX_ALLOWED_WAIT) && i < 200) {
+                    i = i + 1;
+                }
             } catch (Throwable e) {
                 Notifications.Bus.notify(new Notification(Notifications.SYSTEM_MESSAGES_GROUP_ID, "Unable to start agent", "Unable to start agent. Reason: \n" + e.getMessage(), NotificationType.ERROR));
                 LOG.warn("\"Unable to start agent. Reason: \\n\" + e.getMessage()", e);
@@ -489,6 +500,7 @@ public class WeaveAgentRuntimeManager implements Disposable, ProjectComponent {
             @NotNull
             protected OSProcessHandler startProcess() throws ExecutionException {
                 SimpleJavaParameters params = createJavaParameters();
+
                 GeneralCommandLine commandLine = params.toCommandLine();
                 OSProcessHandler processHandler = new OSProcessHandler(commandLine);
                 processHandler.setShouldDestroyProcessRecursively(false);

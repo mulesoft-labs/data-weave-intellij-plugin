@@ -51,7 +51,7 @@ public class WeaveTestConfigurationProducer extends JavaRunConfigurationProducer
         if (isTestFile(configurationContext) && psiLocation != null) {
             final PsiFile containingFile = psiLocation.getContainingFile();
             final NameIdentifier nameIdentifier = WeavePsiImplUtils.getNameIdentifier(containingFile);
-            return nameIdentifier.name().equals(muleConfiguration.getTests());
+            return muleConfiguration.getTests().contains(nameIdentifier.name());
         } else {
             return false;
         }
