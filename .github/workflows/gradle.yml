@@ -11,9 +11,7 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Set up JDK 11
@@ -25,3 +23,7 @@ jobs:
       run: chmod +x gradlew
     - name: Build with Gradle
       run: ./gradlew build
+    - name: Deploy to Jetbrain
+      run:  ./gradlew data-weave-plugin:publishPlugin --stacktrace --info
+      env:
+        IJ_TOKEN: ${{secrets.IJ_TOKEN}}

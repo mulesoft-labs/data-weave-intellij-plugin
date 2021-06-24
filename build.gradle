@@ -47,14 +47,6 @@ allprojects {
             url "https://repository.mulesoft.org/nexus/content/repositories/releases"
         }
         maven {
-            name "mule-ee-releases"
-            url "https://repository.mulesoft.org/nexus/content/repositories/ci-releases/"
-        }
-        maven {
-            name "mule-ee-snapshots"
-            url "https://repository.mulesoft.org/nexus/content/repositories/ci-snapshots/"
-        }
-        maven {
             name "jitpack"
             url "https://jitpack.io"
         }
