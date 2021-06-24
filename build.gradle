@@ -5,7 +5,6 @@ import java.time.format.DateTimeFormatter
 
 plugins {
     id "org.jetbrains.intellij" version "1.0"
-    id "net.linguica.maven-settings" version "0.5"
 }
 
 version = pluginVersion
@@ -16,7 +15,6 @@ allprojects {
     apply plugin: 'idea'
     apply plugin: 'org.jetbrains.intellij'
     apply plugin: 'java'
-//    apply plugin: "net.linguica.maven-settings"
 
     if (ijPluginRepoChannel.equalsIgnoreCase("Develop")) {
         version = pluginVersion + "-" + DateTimeFormatter.ofPattern("yyyyMMdd.HHmmss").withZone(ZoneOffset.UTC).format(Instant.now())
