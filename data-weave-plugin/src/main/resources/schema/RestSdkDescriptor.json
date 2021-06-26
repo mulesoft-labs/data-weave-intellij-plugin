@@ -1,0 +1,427 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "http://mulesoft.com/rest-sdk.json",
+  "type": "object",
+  "title": "The root schema",
+  "description": "The root schema comprises the entire JSON document.",
+  "properties": {
+    "apiSpec": {
+      "type": "object",
+      "title": "The apiSpec schema",
+      "description": "An explanation about the purpose of this instance.",
+      "properties": {
+        "url": {
+          "type": "string",
+          "title": "The url schema",
+          "description": "An explanation about the purpose of this instance.",
+          "default": ""
+        }
+      },
+      "additionalProperties": true
+    },
+    "baseUri": {
+      "type": "object",
+      "title": "The baseUri schema",
+      "description": "An explanation about the purpose of this instance.",
+      "properties": {
+        "type": {
+          "type": "string",
+          "title": "The type schema",
+          "description": "An explanation about the purpose of this instance.",
+          "default": ""
+        }
+      },
+      "additionalProperties": true
+    },
+    "endpoints": {
+      "type": "object",
+      "title": "The endpoints schema",
+      "description": "An explanation about the purpose of this instance.",
+      "patternProperties": {
+        "^.*$": {
+          "type": "object",
+          "title": "The Endpoint Schema",
+          "description": "A Definition of An Endpoint.",
+          "properties": {
+            "operations": {
+              "type": "object",
+              "title": "The operations schema",
+              "description": "An explanation about the purpose of this instance.",
+              "properties": {
+                "get": {
+                  "$ref": "#/definitions/operation"
+                },
+                "put": {
+                  "$ref": "#/definitions/operation"
+                },
+                "post": {
+                  "$ref": "#/definitions/operation"
+                },
+                "delete": {
+                  "$ref": "#/definitions/operation"
+                },
+                "options": {
+                  "$ref": "#/definitions/operation"
+                },
+                "head": {
+                  "$ref": "#/definitions/operation"
+                },
+                "patch": {
+                  "$ref": "#/definitions/operation"
+                }
+              },
+              "additionalProperties": true
+            }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    },
+    "valueProviders": {
+      "$ref": "#/definitions/valueProviders"
+    },
+    "paginations": {
+      "$ref": "#/definitions/paginations"
+    },
+    "sampleData": {
+      "type": "object",
+      "properties": {
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          }
+        },
+        "definition": {
+          "$ref": "#/definitions/sampleData"
+        }
+      }
+    },
+    "triggers": {
+      "patternProperties": {
+        "^.*$": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string"
+            },
+            "method": {
+              "$ref": "#/definitions/httpMethod"
+            },
+            "displayName": {
+              "type": "string"
+            },
+            "outputMediaType": {
+              "type": "string"
+            },
+            "outputType": {
+              "type": "string"
+            },
+            "sampleData": {
+              "$ref": "#/definitions/sampleData"
+            },
+            "parameters": {
+              "patternProperties": {
+                "^.*$": {
+                  "type": "object",
+                  "properties": {
+                    "displayName": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "$ref": "#/definitions/type"
+                    }
+                  }
+                }
+              }
+            },
+            "binding": {
+              "$ref": "#/definitions/binding"
+            },
+            "items": {
+              "type": "object",
+              "properties": {
+                "extraction": {
+                  "$ref": "#/definitions/script"
+                }
+              }
+            },
+            "watermark": {
+              "type": "object",
+              "properties": {
+                "extraction": {
+                  "$ref": "#/definitions/script"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "additionalProperties": true,
+  "definitions": {
+    "type": {
+      "$ref": "#/definitions/type"
+    },
+    "paginations": {
+      "type": "object",
+      "patternProperties": {
+        "^.*$": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "offsetParamName": {
+                  "type": "string"
+                },
+                "pagingResponse": {
+                  "$ref": "#/definitions/script"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "operation": {
+      "type": "object",
+      "title": "The post schema",
+      "description": "An explanation about the purpose of this instance.",
+      "properties": {
+        "pagination": {
+          "type": "string",
+          "description": "The name of the pagination provider.",
+          "title": "The name of the pagination provider."
+        },
+        "sampleData": {
+          "$ref": "#/definitions/sampleData"
+        },
+        "expects": {
+          "$ref": "#/definitions/expects"
+        }
+      },
+      "additionalProperties": true
+    },
+    "expects": {
+      "type": "object",
+      "title": "The expects schema",
+      "description": "An explanation about the purpose of this instance.",
+      "properties": {
+        "queryParameter": {
+          "type": "object",
+          "title": "The queryParameter schema",
+          "description": "An explanation about the purpose of this instance.",
+          "properties": {
+            "channel": {
+              "type": "object",
+              "title": "The channel schema",
+              "description": "An explanation about the purpose of this instance.",
+              "properties": {
+                "valueProvider": {
+                  "$ref": "#/definitions/valueProvider"
+                }
+              },
+              "additionalProperties": true
+            },
+            "kind": {
+              "type": "object",
+              "title": "The kind schema",
+              "description": "An explanation about the purpose of this instance.",
+              "properties": {
+                "valueProvider": {
+                  "$ref": "#/definitions/valueProvider"
+                }
+              },
+              "additionalProperties": true
+            }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    },
+    "sampleData": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "transform": {
+          "$ref": "#/definitions/script"
+        },
+        "request": {
+          "type": "object",
+          "properties": {
+            "method": {
+              "$ref": "#/definitions/httpMethod"
+            },
+            "path": {
+              "type": "string"
+            },
+            "binding": {
+              "type": "object",
+              "properties": {
+                "queryParameter": {
+                  "type": "object",
+                  "properties": {
+                    "offset": {
+                      "type": "object",
+                      "properties": {
+                        "value": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "id": {
+          "type": "string"
+        },
+        "arguments": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "object",
+              "properties": {
+                "value": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "binding": {
+      "type": "object",
+      "properties": {
+        "uriParameter": {
+          "type": "object",
+          "patternProperties": {
+            "^.*$": {
+              "type": "object",
+              "properties": {
+                "value": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "queryParameter": {
+          "type": "object",
+          "properties": {
+            "offset": {
+              "type": "object",
+              "properties": {
+                "value": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "valueProvider": {
+      "type": "object",
+      "title": "The kindProvider schema",
+      "description": "An explanation about the purpose of this instance.",
+      "properties": {
+        "definition": {
+          "type": "object",
+          "title": "The definition schema",
+          "description": "An explanation about the purpose of this instance.",
+          "properties": {
+            "request": {
+              "type": "object",
+              "title": "The request schema",
+              "description": "An explanation about the purpose of this instance.",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "title": "The path schema",
+                  "description": "An explanation about the purpose of this instance.",
+                  "default": ""
+                },
+                "method": {
+                  "$ref": "#/definitions/httpMethod"
+                }
+              },
+              "additionalProperties": true
+            },
+            "items": {
+              "type": "object",
+              "title": "The items schema",
+              "description": "An explanation about the purpose of this instance.",
+              "properties": {
+                "extraction": {
+                  "$ref": "#/definitions/script"
+                },
+                "value": {
+                  "$ref": "#/definitions/script"
+                }
+              },
+              "additionalProperties": true
+            }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    },
+    "httpMethod": {
+      "type": "string",
+      "enum": [
+        "get",
+        "post",
+        "put",
+        "patch",
+        "head",
+        "delete",
+        "options"
+      ],
+      "title": "The method schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": ""
+    },
+    "script": {
+      "type": "object",
+      "properties": {
+        "expression": {
+          "type": "string",
+          "title": "The expression schema",
+          "description": "An explanation about the purpose of this instance.",
+          "default": ""
+        },
+        "language": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "valueProviders": {
+      "type": "object",
+      "title": "The valueProviders schema",
+      "description": "An explanation about the purpose of this instance.",
+      "patternProperties": {
+        "^.*$": {
+          "$ref": "#/definitions/valueProvider"
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}

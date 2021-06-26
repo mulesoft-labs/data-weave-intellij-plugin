@@ -247,6 +247,10 @@
     <depends>com.intellij.modules.java</depends>
     <depends>org.jetbrains.plugins.yaml</depends>
 
+    <extensions defaultExtensionNs="JavaScript.JsonSchema">
+        <ProviderFactory implementation="org.mule.tooling.restsdk.schema.RestSdkDescriptorJsonSchemaProviderFactory"/>
+    </extensions>
+
     <extensions defaultExtensionNs="com.intellij">
 
         <intentionAction>
