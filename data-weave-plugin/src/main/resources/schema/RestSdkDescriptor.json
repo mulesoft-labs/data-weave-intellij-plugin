@@ -1,523 +1,1386 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "http://mulesoft.com/rest-sdk.json",
   "type": "object",
-  "title": "The root schema",
-  "description": "The root schema comprises the entire JSON document.",
   "properties": {
     "apiSpec": {
-      "type": "object",
-      "title": "The apiSpec schema",
-      "description": "An explanation about the purpose of this instance.",
-      "properties": {
-        "url": {
-          "type": "string",
-          "title": "The url schema",
-          "description": "An explanation about the purpose of this instance.",
-          "default": ""
-        }
-      },
-      "additionalProperties": true
+      "$ref": "#/definitions/APISpec",
+      "description": "A reference to the API spec this metadata file is linked to",
+      "title": "API Spec"
+    },
+    "connectorName": {
+      "type": "string",
+      "description": "",
+      "title": ""
+    },
+    "connectorDescription": {
+      "type": "string",
+      "description": "",
+      "title": ""
+    },
+    "connectorGav": {
+      "$ref": "#/definitions/MavenGav",
+      "description": "This is the Maven GAV the generated connector will get.",
+      "title": "Connector GAV"
+    },
+    "connectorCategory": {
+      "type": "string",
+      "enum": [
+        "community",
+        "select",
+        "premium",
+        "certified"
+      ],
+      "description": "Defines the category the generated connector will have.",
+      "title": "Connector Category"
+    },
+    "extensionXml": {
+      "type": "string",
+      "description": "Defines the value for the @Xml annotation that will be used when generating the Extension class of the connector.",
+      "title": "Extension Xml"
+    },
+    "baseJavaPackage": {
+      "type": "string",
+      "description": "Defines the base Java package the generated connector will have. Sub packages will be created depending on this value.",
+      "title": "Base Java Package"
+    },
+    "skipOutputTypeValidation": {
+      "type": "boolean",
+      "description": "GET, POST, PATCH and OPTIONS operations are required to define a type for it's body.\nUse this property to avoid this check and generate a connector that does not declare a type for it's body.\n",
+      "title": "Skip Output Type Validation"
+    },
+    "defaultInputMediaType": {
+      "type": "string",
+      "description": "Allows to select the input media type for all of the operations.\nThis value gets overriden if a value is present at the operation level.\nIf the API defines possible media types this value must be one of those.\nIf the API does not define possible media types this value can be anything.\n",
+      "title": "Default Input media Type"
+    },
+    "defaultOutputMediaType": {
+      "type": "string",
+      "description": "Allows to select the output media type for all of the operations.\nThis value gets overriden if a value is present at the operation level.\nIf the API defines possible media types this value must be one of those.\nIf the API does not define possible media types this value can be anything.\n",
+      "title": "Default Output Media Type"
     },
     "baseUri": {
-      "type": "object",
-      "title": "The baseUri schema",
-      "description": "An explanation about the purpose of this instance.",
-      "properties": {
-        "type": {
-          "type": "string",
-          "title": "The type schema",
-          "description": "An explanation about the purpose of this instance.",
-          "default": ""
+      "$ref": "#/definitions/BaseUri",
+      "description": "Base URI for an API.",
+      "title": "Base URI"
+    },
+    "paginations": {
+      "patternProperties": {
+        "^.*$": {
+          "$ref": "#/definitions/PaginationDeclarationUnion",
+          "description": "Declares the pagination strategies that will be used with an API.",
+          "title": "Pagination Declarations"
         }
-      },
-      "additionalProperties": true
+      }
+    },
+    "endpoints": {
+      "patternProperties": {
+        "^.*$": {
+          "$ref": "#/definitions/EndPoint",
+          "description": "",
+          "title": ""
+        }
+      }
+    },
+    "security": {
+      "patternProperties": {
+        "^.*$": {
+          "$ref": "#/definitions/Security",
+          "description": "Allows customizing the authentication methods to be used within this API",
+          "title": "Security"
+        }
+      }
     },
     "queryParameterArrayFormat": {
       "type": "string",
       "enum": [
         "multimap",
         "comma"
-      ]
+      ],
+      "description": "Defines how query parameters that represent arrrays should be formatted\ni.e. comma: key=value1,value2  multimap: key=value1&key=value2\n",
+      "title": "Query Parameter Array Format"
     },
     "testConnection": {
-     "$ref": "#/definitions/testConnection"
-    },
-    "security": {
-      "type": "object",
-      "patternProperties": {
-        "^.*$": {
-          "type": "object",
-          "properties": {
-            "headers": {
-              "$ref": "#/definitions/parameter"
-            },
-            "queryParameters": {
-              "$ref": "#/definitions/parameter"
-            },
-            "ignored": {
-              "type": "boolean"
-            },
-            "refreshTokenCondition": {
-              "$ref": "#/definitions/expression"
-            },
-            "testConnection": {
-              "$ref": "#/definitions/testConnection"
-            }
-          }
-        }
-      }
-    },
-    "endpoints": {
-      "type": "object",
-      "title": "The endpoints schema",
-      "description": "An explanation about the purpose of this instance.",
-      "patternProperties": {
-        "^.*$": {
-          "type": "object",
-          "title": "The Endpoint Schema",
-          "description": "A Definition of An Endpoint.",
-          "properties": {
-            "operations": {
-              "type": "object",
-              "title": "The operations schema",
-              "description": "An explanation about the purpose of this instance.",
-              "properties": {
-                "get": {
-                  "$ref": "#/definitions/operation"
-                },
-                "put": {
-                  "$ref": "#/definitions/operation"
-                },
-                "post": {
-                  "$ref": "#/definitions/operation"
-                },
-                "delete": {
-                  "$ref": "#/definitions/operation"
-                },
-                "options": {
-                  "$ref": "#/definitions/operation"
-                },
-                "head": {
-                  "$ref": "#/definitions/operation"
-                },
-                "patch": {
-                  "$ref": "#/definitions/operation"
-                }
-              },
-              "additionalProperties": true
-            }
-          },
-          "additionalProperties": true
-        }
-      },
-      "additionalProperties": true
-    },
-    "valueProviders": {
-      "$ref": "#/definitions/valueProviders"
-    },
-    "paginations": {
-      "$ref": "#/definitions/paginations"
-    },
-    "sampleData": {
-      "type": "object",
-      "properties": {
-        "parameters": {
-          "$ref": "#/definitions/parameter"
-        },
-        "definition": {
-          "$ref": "#/definitions/sampleData"
-        }
-      }
+      "$ref": "#/definitions/TestConnection",
+      "description": "Allows defining a way of validating the connection for the generated connector.\n",
+      "title": "Test Connection"
     },
     "triggers": {
       "patternProperties": {
         "^.*$": {
-          "type": "object",
-          "properties": {
-            "path": {
-              "type": "string"
-            },
-            "method": {
-              "$ref": "#/definitions/httpMethod"
-            },
-            "displayName": {
-              "type": "string"
-            },
-            "outputMediaType": {
-              "type": "string"
-            },
-            "outputType": {
-              "type": "string"
-            },
-            "sampleData": {
-              "$ref": "#/definitions/sampleData"
-            },
-            "parameters": {
-              "patternProperties": {
-                "^.*$": {
-                  "$ref": "#/definitions/parameter"
-                }
-              }
-            },
-            "binding": {
-              "$ref": "#/definitions/binding"
-            },
-            "items": {
-              "type": "object",
-              "properties": {
-                "extraction": {
-                  "$ref": "#/definitions/expression"
-                }
-              }
-            },
-            "watermark": {
-              "type": "object",
-              "properties": {
-                "extraction": {
-                  "$ref": "#/definitions/expression"
-                }
-              }
-            }
-          }
+          "$ref": "#/definitions/Trigger",
+          "description": "A list of trigger definitions for this connector.",
+          "title": "Triggers"
         }
       }
+    },
+    "operationDisplayName": {
+      "$ref": "#/definitions/Expression",
+      "description": "If provided, the default naming mechanism will not be used for the connector generation and it will default to this the provided expression.\nAt the moment, the supported bindings will be `operationId`, `method`, `path` and `summary`\n",
+      "title": "Hook to replace the display naming generation for operations"
+    },
+    "operationIdentifier": {
+      "$ref": "#/definitions/Expression",
+      "description": "If provided, the default naming mechanism will not be used for the connector generation and it will default to this the provided expression.\nAt the moment, the supported bindings will be `operationId`, `method` and `path`\n",
+      "title": "Hook to replace the display naming generation for operations"
+    },
+    "ignoreOperations": {
+      "type": "boolean",
+      "description": "If set to true, all operations and triggers will be ignored unless explicitly set as not ignored.\nIf set to false, all operations and triggers will be generated unless explicitly ignored.\n",
+      "title": "Ignore Operations Globally"
     }
   },
-  "additionalProperties": true,
   "definitions": {
-    "typeDef": {
-      "type": "string",
-      "enum": [
-        "integer",
-        "number",
-        "string",
-        "localDateTime",
-        "zonedDateTime",
-        "boolean"
+    "Argument": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "",
+          "title": ""
+        },
+        "value": {
+          "type": "string",
+          "description": "The content of an expression.",
+          "title": "Expression Content"
+        }
+      }
+    },
+    "DataExpression": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/HttpRequest"
+        },
+        {
+          "$ref": "#/definitions/ScriptExpression"
+        }
       ]
     },
-    "testConnection": {
+    "ScriptExpression": {
+      "type": "object",
+      "properties": {
+        "language": {
+          "type": "string",
+          "description": "The language of an expression.",
+          "title": "Expression Language"
+        },
+        "expression": {
+          "type": "string",
+          "description": "The content of an expression.",
+          "title": "Expression Content"
+        }
+      }
+    },
+    "HttpRequest": {
       "type": "object",
       "properties": {
         "path": {
-          "type": "string"
+          "type": "string",
+          "description": "",
+          "title": ""
         },
         "method": {
-          "$ref": "#/definitions/httpMethod"
+          "type": "string",
+          "enum": [
+            "get",
+            "post",
+            "put",
+            "patch",
+            "delete",
+            "head",
+            "options"
+          ],
+          "description": "",
+          "title": ""
         },
-        "validStatusCodes": {
-          "type": "array",
-          "items": {
-            "type": "number"
+        "binding": {
+          "$ref": "#/definitions/HttpRequestBinding",
+          "description": "Allows defining the uri parameters, query parameters, headers and body that will be sent in the HTTP request using expressions.",
+          "title": "HTTP Request's binding"
+        }
+      }
+    },
+    "HttpRequestBinding": {
+      "type": "object",
+      "properties": {
+        "uriParameter": {
+          "patternProperties": {
+            "^.*$": {
+              "$ref": "#/definitions/Argument",
+              "description": "",
+              "title": ""
+            }
           }
         },
-        "mediaType": {
-          "type": "string"
+        "queryParameter": {
+          "patternProperties": {
+            "^.*$": {
+              "$ref": "#/definitions/Argument",
+              "description": "",
+              "title": ""
+            }
+          }
         },
-        "responseValidation": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "validations": {
-                "$ref": "#/definitions/expression"
-              },
-              "errorTemplate": {
-                "$ref": "#/definitions/expression"
-              }
+        "header": {
+          "patternProperties": {
+            "^.*$": {
+              "$ref": "#/definitions/Argument",
+              "description": "",
+              "title": ""
             }
           }
         }
       }
     },
-    "parameter": {
+    "ResolverDeclaration": {
       "type": "object",
       "properties": {
-        "type": {
-          "$ref": "#/definitions/typeDef"
+        "parameters": {
+          "patternProperties": {
+            "^.*$": {
+              "$ref": "#/definitions/ResolverParameter",
+              "description": "Declares the parameters that the resolver will receive as arguments and that can be used internally.",
+              "title": "Resolver Declarations's parameter"
+            }
+          }
         },
-        "paramName": {
-          "type": "string"
-        },
-        "displayName": {
-          "type": "string"
-        },
-        "description": {
-          "type": "string"
-        },
-        "ignored": {
-          "type": "boolean"
-        },
-        "valueProvider": {
-          "$ref": "#/definitions/valueProvider"
-        },
-        "additional": {
-          "type": "boolean"
-        },
-        "required": {
-          "type": "boolean"
-        },
-        "default": {
-          "type": "string"
+        "definition": {
+          "$ref": "#/definitions/ResolverDefinition",
+          "description": "The resolver definition of that is being declared.",
+          "title": "Resolver Declarations's definition"
         }
       }
     },
-    "paginations": {
+    "ResolverDefinition": {
+
+    },
+    "ResolverReference": {
       "type": "object",
-      "patternProperties": {
-        "^.*$": {
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/ResolverDeclaration",
+          "description": "The Id of the resolver declaration that is being referenced.",
+          "title": "Resolver Reference's id"
+        },
+        "arguments": {
+          "patternProperties": {
+            "^.*$": {
+              "$ref": "#/definitions/ResolverArgument",
+              "description": "The arguments that will be passed to the resolver declaration. These must match the declared parameters.",
+              "title": "Resolver Reference's argument"
+            }
+          }
+        }
+      }
+    },
+    "ResolverParameter": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "",
+          "title": ""
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "integer",
+            "number",
+            "string",
+            "localDateTime",
+            "zonedDateTime",
+            "boolean"
+          ],
+          "description": "Declares the data type of a parameter.",
+          "title": "Parameter Type"
+        }
+      }
+    },
+    "ResolverArgument": {
+      "$ref": "#/definitions/Argument"
+    },
+    "SampleDataDeclaration": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/ResolverDeclaration"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "definition": {
+              "$ref": "#/definitions/SampleDataHttpDefinition",
+              "$ref": "#/definitions/SampleDataCustomDefinition",
+              "description": "The resolver definition of that is being declared.",
+              "title": "Resolver Declarations's definition"
+            }
+          }
+        }
+      ]
+    },
+    "SampleDataReference": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/ResolverReference"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "$ref": "#/definitions/SampleDataDeclaration",
+              "description": "The Id of the resolver declaration that is being referenced.",
+              "title": "Resolver Reference's id"
+            }
+          }
+        }
+      ]
+    },
+    "SampleDataHttpDefinition": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/ResolverDefinition"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "request": {
+              "$ref": "#/definitions/HttpRequest",
+              "description": "An http request data expression that the sample data resolver will use to get the sample data.",
+              "title": "Simple Sample Data Definition's request"
+            },
+            "transform": {
+              "$ref": "#/definitions/ScriptExpression",
+              "description": "An script data expression that processes the http request result.",
+              "title": "Simple Sample Data Definition's transformation"
+            }
+          }
+        }
+      ]
+    },
+    "SampleDataCustomDefinition": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/ResolverDefinition"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "result": {
+              "$ref": "#/definitions/DataExpression",
+              "description": "A data expression that generates the sample data result.",
+              "title": "Sample Data Definition's result"
+            }
+          }
+        }
+      ]
+    },
+    "SampleDataSameOperationDefinition": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/ResolverDefinition"
+        },
+        {
           "type": "object",
           "properties": {
             "type": {
               "type": "string"
-            },
-            "parameters": {
-              "type": "object",
-              "properties": {
-                "offsetParamName": {
-                  "type": "string"
-                },
-                "pagingResponse": {
-                  "$ref": "#/definitions/expression"
-                }
-              }
             }
           }
         }
-      }
+      ]
     },
-    "operation": {
-      "type": "object",
-      "title": "The post schema",
-      "description": "An explanation about the purpose of this instance.",
-      "properties": {
-        "pagination": {
-          "type": "string",
-          "description": "The name of the pagination provider.",
-          "title": "The name of the pagination provider."
+    "SampleDataExpression": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/SampleDataSameOperationDefinition"
         },
-        "sampleData": {
-          "$ref": "#/definitions/sampleData"
+        {
+          "$ref": "#/definitions/SampleDataReference"
         },
-        "expects": {
-          "$ref": "#/definitions/expects"
+        {
+          "$ref": "#/definitions/SampleDataHttpDefinition"
         }
-      },
-      "additionalProperties": true
+      ]
     },
-    "expects": {
-      "type": "object",
-      "title": "The expects schema",
-      "description": "An explanation about the purpose of this instance.",
-      "properties": {
-        "queryParameter": {
-          "type": "object",
-          "title": "The queryParameter schema",
-          "description": "An explanation about the purpose of this instance.",
-          "properties": {
-            "channel": {
-              "type": "object",
-              "title": "The channel schema",
-              "description": "An explanation about the purpose of this instance.",
-              "properties": {
-                "valueProvider": {
-                  "$ref": "#/definitions/valueProvider"
-                }
-              },
-              "additionalProperties": true
-            },
-            "kind": {
-              "type": "object",
-              "title": "The kind schema",
-              "description": "An explanation about the purpose of this instance.",
-              "properties": {
-                "valueProvider": {
-                  "$ref": "#/definitions/valueProvider"
-                }
-              },
-              "additionalProperties": true
-            }
-          },
-          "additionalProperties": true
-        }
-      },
-      "additionalProperties": true
-    },
-    "sampleData": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string"
+    "ValueProviderDeclaration": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/ResolverDeclaration"
         },
-        "transform": {
-          "$ref": "#/definitions/expression"
-        },
-        "request": {
+        {
           "type": "object",
           "properties": {
-            "method": {
-              "$ref": "#/definitions/httpMethod"
-            },
-            "path": {
-              "type": "string"
-            },
-            "binding": {
-              "type": "object",
-              "properties": {
-                "queryParameter": {
-                  "type": "object",
-                  "properties": {
-                    "offset": {
-                      "type": "object",
-                      "properties": {
-                        "value": {
-                          "type": "string"
-                        }
-                      }
-                    }
-                  }
-                }
-              }
+            "definition": {
+              "$ref": "#/definitions/ValueProviderDefinition",
+              "description": "The resolver definition of that is being declared.",
+              "title": "Resolver Declarations's definition"
             }
           }
+        }
+      ]
+    },
+    "ValueProviderReference": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/ResolverReference"
         },
-        "id": {
-          "type": "string"
-        },
-        "arguments": {
+        {
           "type": "object",
           "properties": {
             "id": {
-              "type": "object",
-              "properties": {
-                "value": {
-                  "type": "string"
-                }
-              }
+              "$ref": "#/definitions/ValueProviderDeclaration",
+              "description": "The Id of the resolver declaration that is being referenced.",
+              "title": "Resolver Reference's id"
             }
           }
         }
+      ]
+    },
+    "ValueProviderDefinition": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/ResolverDefinition"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "request": {
+              "$ref": "#/definitions/HttpRequest",
+              "description": "The request the value provider should make to get the values from the server.",
+              "title": "Value Provider's Request"
+            },
+            "items": {
+              "$ref": "#/definitions/ValueProviderItems",
+              "description": "An specification on how to extract the relevant parts from the value provider server response.",
+              "title": "Value Provider's Items"
+            }
+          }
+        }
+      ]
+    },
+    "ValueProviderExpression": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/ValueProviderReference"
+        },
+        {
+          "$ref": "#/definitions/ValueProviderDefinition"
+        }
+      ]
+    },
+    "ValueProviderItems": {
+      "type": "object",
+      "properties": {
+        "extraction": {
+          "$ref": "#/definitions/Expression",
+          "description": "An expression used to extract the items array from the server response.",
+          "title": "Value Provider Item Extraction"
+        },
+        "value": {
+          "$ref": "#/definitions/Expression",
+          "description": "An expression used to extract the actual value from an item.",
+          "title": "Value Provider Item Value"
+        },
+        "displayName": {
+          "$ref": "#/definitions/Expression",
+          "description": "An expression that will be used to extract the name the user will see for a value from an item. If this expression is not provided the value will be used as display name.",
+          "title": "Value Provider Item Display Name"
+        }
       }
     },
-    "binding": {
+    "Trigger": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "",
+          "title": ""
+        },
+        "path": {
+          "type": "string",
+          "description": "",
+          "title": ""
+        },
+        "method": {
+          "type": "string",
+          "enum": [
+            "get",
+            "post",
+            "put",
+            "patch",
+            "delete",
+            "head",
+            "options"
+          ],
+          "description": "",
+          "title": ""
+        },
+        "displayName": {
+          "type": "string",
+          "description": "A human readable name.",
+          "title": "Display name"
+        },
+        "description": {
+          "type": "string",
+          "description": "",
+          "title": ""
+        },
+        "parameters": {
+          "patternProperties": {
+            "^.*$": {
+              "$ref": "#/definitions/TriggerParameter",
+              "description": "A A list of the parameters the generated trigger will expose to the connector user.",
+              "title": "Trigger Parameters"
+            }
+          }
+        },
+        "binding": {
+          "$ref": "#/definitions/TriggerParameterBindings",
+          "description": "A list containing all the parameter bindings for this trigger.",
+          "title": "Trigger Parameter Bindings"
+        },
+        "items": {
+          "$ref": "#/definitions/TriggerItems",
+          "description": "Allows defining how the actual items should be extracted from the server response.",
+          "title": "Trigger Items"
+        },
+        "watermark": {
+          "$ref": "#/definitions/TriggerWatermark",
+          "description": "Allows defining how the watermark should be extracted from the server response.",
+          "title": "Trigger Watermark"
+        },
+        "identity": {
+          "$ref": "#/definitions/TriggerIdentity",
+          "description": "Allows defining how the items identity should be extracted from the server response.",
+          "title": "Trigger Identity"
+        },
+        "outputType": {
+          "type": "string",
+          "description": "Allows to define or override the output type for an operation using a JSON or XSD Schema.\nIt's value should be the relativa path to a schema that will be used as the output type for the operation.\n",
+          "title": "Output Type"
+        },
+        "outputMediaType": {
+          "type": "string",
+          "description": "Output media type to use when executing this operation.",
+          "title": "Output media type"
+        },
+        "sampleData": {
+          "$ref": "#/definitions/SampleDataExpression",
+          "description": "The sample data expression to use.",
+          "title": "Sample Data"
+        },
+        "ignored": {
+          "type": "boolean",
+          "description": "Indicates if a node should be ignored.",
+          "title": "Ignored"
+        }
+      }
+    },
+    "TriggerParameter": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "",
+          "title": ""
+        },
+        "displayName": {
+          "type": "string",
+          "description": "A human readable name.",
+          "title": "Display name"
+        },
+        "description": {
+          "type": "string",
+          "description": "",
+          "title": ""
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "integer",
+            "number",
+            "string",
+            "localDateTime",
+            "zonedDateTime",
+            "boolean"
+          ],
+          "description": "Declares the data type of a parameter.",
+          "title": "Parameter Type"
+        },
+        "required": {
+          "type": "boolean",
+          "description": "Indicatres is a field is mandatory to be filled by the connector user.",
+          "title": "Required"
+        }
+      }
+    },
+    "TriggerParameterBindings": {
       "type": "object",
       "properties": {
         "uriParameter": {
-          "type": "object",
           "patternProperties": {
             "^.*$": {
-              "type": "object",
-              "properties": {
-                "value": {
-                  "type": "string"
-                }
-              }
+              "$ref": "#/definitions/TriggerParameterBinding",
+              "description": "",
+              "title": ""
             }
           }
         },
         "queryParameter": {
-          "type": "object",
-          "properties": {
-            "offset": {
-              "type": "object",
-              "properties": {
-                "value": {
-                  "type": "string"
+          "patternProperties": {
+            "^.*$": {
+              "$ref": "#/definitions/TriggerParameterBinding",
+              "description": "",
+              "title": ""
+            }
+          }
+        },
+        "header": {
+          "patternProperties": {
+            "^.*$": {
+              "$ref": "#/definitions/TriggerParameterBinding",
+              "description": "",
+              "title": ""
+            }
+          }
+        },
+        "body": {
+          "$ref": "#/definitions/Expression",
+          "description": "Allows defining an expression that will generate the request body for the source request to the server.",
+          "title": "Request Body Binding"
+        }
+      }
+    },
+    "TriggerParameterBinding": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "",
+          "title": ""
+        },
+        "value": {
+          "type": "string",
+          "description": "The content of an expression.",
+          "title": "Expression Content"
+        },
+        "language": {
+          "type": "string",
+          "description": "The language of an expression.",
+          "title": "Expression Language"
+        }
+      }
+    },
+    "TriggerWatermark": {
+      "type": "object",
+      "properties": {
+        "extraction": {
+          "$ref": "#/definitions/Expression",
+          "description": "Allows defining an expression that extracts the watermark from the server response.",
+          "title": "Trigger Watermark Extraction"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "integer",
+            "number",
+            "string",
+            "localDateTime",
+            "zonedDateTime"
+          ],
+          "description": "Indicates the data type of the watermark.\nThis will be used for correctly comparing watermarks (ie. number and dates should be compared in different ways)\n",
+          "title": "Trigger Watermark Type"
+        }
+      }
+    },
+    "TriggerItems": {
+      "type": "object",
+      "properties": {
+        "extraction": {
+          "$ref": "#/definitions/Expression",
+          "description": "Allows defining an expression that will be used to get the items array from the server response.",
+          "title": "Trigger Item Extraction"
+        }
+      }
+    },
+    "TriggerIdentity": {
+      "type": "object",
+      "properties": {
+        "extraction": {
+          "$ref": "#/definitions/Expression",
+          "description": "Allows defining an expression that extracts the identity of an item from the server response.",
+          "title": "Trigger Identity Extraction"
+        }
+      }
+    },
+    "TestConnection": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "Indicates a path relative to the base uri where the connector can make a request to test if the connectivity is\nworking as intended.\n",
+          "title": "Test Connection Path"
+        },
+        "method": {
+          "type": "string",
+          "enum": [
+            "get",
+            "post",
+            "put",
+            "patch",
+            "delete",
+            "head",
+            "options"
+          ],
+          "description": "Defines the method to use when making the request to the testConnectionPath.\nThe default request method to be used is get.\n",
+          "title": "Test Connection Method"
+        },
+        "validStatusCodes": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": [
+                {
+                  "type": "integer",
+                  "description": "A group of the expected status codes for the response of the request made to the testConnectionPath by the validate\nconnection method. If the response status code is not present in this list, it will be considered an invalid connection.\nIf this property is not set, rest SDK will check for a 200 status code.\n",
+                  "title": "Test Connection Valid Status Codes"
                 }
-              }
+              ]
+            },
+            {
+              "type": "integer",
+              "description": "A group of the expected status codes for the response of the request made to the testConnectionPath by the validate\nconnection method. If the response status code is not present in this list, it will be considered an invalid connection.\nIf this property is not set, rest SDK will check for a 200 status code.\n",
+              "title": "Test Connection Valid Status Codes"
+            }
+          ]
+        },
+        "mediaType": {
+          "type": "string",
+          "description": "The media type of the server response body.\nRest SDK will try to get it from the content-type header, use this property if the response does not have a content-type\nheader or if you want to override it.\n",
+          "title": "Test Connetion Media Type"
+        },
+        "responseValidation": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": [
+                {
+                  "$ref": "#/definitions/TestConnectionResponseValidation",
+                  "description": "Allows defining a set of validations to be run against the server response to check if the connection is valid.",
+                  "title": "Test Connection Response Validation"
+                }
+              ]
+            },
+            {
+              "$ref": "#/definitions/TestConnectionResponseValidation",
+              "description": "Allows defining a set of validations to be run against the server response to check if the connection is valid.",
+              "title": "Test Connection Response Validation"
+            }
+          ]
+        }
+      }
+    },
+    "TestConnectionResponseValidation": {
+      "type": "object",
+      "properties": {
+        "validation": {
+          "$ref": "#/definitions/Expression",
+          "description": "An expression used to validate the HTTP test connection request's response.\nThis expression must return true if the response is valid or false if it is not.\nRest SDK will assing the body and attributes of the server response to the 'payload' and 'attributes' vars respectively.\n",
+          "title": "Test Connection Validation Expression"
+        },
+        "errorTemplate": {
+          "$ref": "#/definitions/Expression",
+          "description": "Allows defining a message to be shown to the user if the connection validation fails.\nA default error telling that the validation expression failed will be shown if this expression is not defined.\n",
+          "title": "Test Connection Error Template"
+        }
+      }
+    },
+    "APISpec": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/APIUrl"
+        },
+        {
+          "$ref": "#/definitions/MavenGav"
+        }
+      ]
+    },
+    "APIUrl": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "The URL of the API spec this metadata file is linked to",
+          "title": "API Spec URL"
+        }
+      }
+    },
+    "MavenGav": {
+      "type": "object",
+      "properties": {
+        "groupId": {
+          "type": "string",
+          "description": "",
+          "title": ""
+        },
+        "artifactId": {
+          "type": "string",
+          "description": "",
+          "title": ""
+        },
+        "version": {
+          "type": "string",
+          "description": "",
+          "title": ""
+        }
+      }
+    },
+    "BaseUri": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "description": "",
+          "title": ""
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "fixed",
+            "parameter",
+            "multiple"
+          ],
+          "description": "The type of an alternative Base URI.",
+          "title": "Alternative Base URI type"
+        },
+        "mapping": {
+          "patternProperties": {
+            "^.*$": {
+              "$ref": "#/definitions/MultipleBaseUri",
+              "description": "Multiple base URI for an API.",
+              "title": "Multiple base URI"
             }
           }
         }
       }
     },
-    "valueProvider": {
+    "MultipleBaseUri": {
       "type": "object",
-      "title": "The kindProvider schema",
-      "description": "An explanation about the purpose of this instance.",
       "properties": {
-        "definition": {
-          "type": "object",
-          "title": "The definition schema",
-          "description": "An explanation about the purpose of this instance.",
-          "properties": {
-            "request": {
-              "type": "object",
-              "title": "The request schema",
-              "description": "An explanation about the purpose of this instance.",
-              "properties": {
-                "path": {
-                  "type": "string",
-                  "title": "The path schema",
-                  "description": "An explanation about the purpose of this instance.",
-                  "default": ""
-                },
-                "method": {
-                  "$ref": "#/definitions/httpMethod"
-                }
-              },
-              "additionalProperties": true
-            },
-            "items": {
-              "type": "object",
-              "title": "The items schema",
-              "description": "An explanation about the purpose of this instance.",
-              "properties": {
-                "extraction": {
-                  "$ref": "#/definitions/expression"
-                },
-                "value": {
-                  "$ref": "#/definitions/expression"
-                }
-              },
-              "additionalProperties": true
-            }
-          },
-          "additionalProperties": true
+        "name": {
+          "type": "string",
+          "description": "",
+          "title": ""
+        },
+        "value": {
+          "type": "string",
+          "description": "",
+          "title": ""
+        },
+        "default": {
+          "type": "boolean",
+          "description": "Default base URI for multiple base URI annotations.",
+          "title": "Default base URI"
         }
-      },
-      "additionalProperties": true
+      }
     },
-    "httpMethod": {
-      "type": "string",
-      "enum": [
-        "get",
-        "post",
-        "put",
-        "patch",
-        "head",
-        "delete",
-        "options"
-      ],
-      "title": "The method schema",
-      "description": "An explanation about the purpose of this instance.",
-      "default": ""
+    "PaginationDeclarationUnion": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/OffsetPaginationDeclaration"
+        },
+        {
+          "$ref": "#/definitions/MarkerPaginationDeclaration"
+        },
+        {
+          "$ref": "#/definitions/PageNumberPaginationDeclaration"
+        },
+        {
+          "$ref": "#/definitions/HypermediaPaginationDeclaration"
+        }
+      ]
     },
-    "expression": {
+    "PaginationDeclaration": {
       "type": "object",
       "properties": {
+        "name": {
+          "type": "string",
+          "description": "",
+          "title": ""
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "offset",
+            "marker",
+            "pageNumber",
+            "hypermedia"
+          ],
+          "description": "Defines the type of the the pagination strategy being declared. i.e. offset based pagination.\nAllowed types are: offset, marker, pageNumber and hypermedia.\n",
+          "title": "Pagination Type"
+        }
+      }
+    },
+    "OffsetPaginationDeclaration": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/PaginationDeclaration"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "parameters": {
+              "$ref": "#/definitions/OffsetPaginationParameters",
+              "description": "Declares the parameters that will be used within a pagination strategy.",
+              "title": "Pagination Parameters"
+            }
+          }
+        }
+      ]
+    },
+    "MarkerPaginationDeclaration": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/PaginationDeclaration"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "parameters": {
+              "$ref": "#/definitions/MarkerPaginationParameters",
+              "description": "Declares the parameters that will be used within a pagination strategy.",
+              "title": "Pagination Parameters"
+            }
+          }
+        }
+      ]
+    },
+    "PageNumberPaginationDeclaration": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/PaginationDeclaration"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "parameters": {
+              "$ref": "#/definitions/PageNumberPaginationParameters",
+              "description": "Declares the parameters that will be used within a pagination strategy.",
+              "title": "Pagination Parameters"
+            }
+          }
+        }
+      ]
+    },
+    "HypermediaPaginationDeclaration": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/PaginationDeclaration"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "parameters": {
+              "$ref": "#/definitions/HypermediaPaginationParameters",
+              "description": "Declares the parameters that will be used within a pagination strategy.",
+              "title": "Pagination Parameters"
+            }
+          }
+        }
+      ]
+    },
+    "OffsetPaginationParameters": {
+      "type": "object",
+      "properties": {
+        "offsetParamName": {
+          "type": "string",
+          "description": "the name of the query param that carries the value of the pagination (offset, pageNumber, token, etc).",
+          "title": "Pagination Parameter Name"
+        },
+        "initialOffset": {
+          "type": "number",
+          "description": "Initial offset value to handle on the first offset-based paging http request.",
+          "title": "Initial Offset"
+        },
+        "pagingResponse": {
+          "$ref": "#/definitions/Expression",
+          "description": "Defines the way a pagination parameter will be extracted from an http response.",
+          "title": "Pagination Response Expression"
+        }
+      }
+    },
+    "MarkerPaginationParameters": {
+      "type": "object",
+      "properties": {
+        "nextTokenParamName": {
+          "type": "string",
+          "description": "the name of the query param that carries the value of the pagination (offset, pageNumber, token, etc).",
+          "title": "Pagination Parameter Name"
+        },
+        "nextToken": {
+          "$ref": "#/definitions/Expression",
+          "description": "the DW expression used to extract the next token from the response in marker-based pagination request.",
+          "title": "Next Token Expression"
+        },
+        "pagingResponse": {
+          "$ref": "#/definitions/Expression",
+          "description": "Defines the way a pagination parameter will be extracted from an http response.",
+          "title": "Pagination Response Expression"
+        }
+      }
+    },
+    "PageNumberPaginationParameters": {
+      "type": "object",
+      "properties": {
+        "pageNumberParamName": {
+          "type": "string",
+          "description": "the name of the query param that carries the value of the pagination (offset, pageNumber, token, etc).",
+          "title": "Pagination Parameter Name"
+        },
+        "pageCount": {
+          "$ref": "#/definitions/Expression",
+          "description": "The DW expression used to extract the total page count from the response in page-number pagination request.",
+          "title": "Page count"
+        },
+        "initialPageNumber": {
+          "type": "number",
+          "description": "the initial page to get in the first pageNumber-based to handle in a http request.",
+          "title": "Initial Page Number"
+        },
+        "pagingResponse": {
+          "$ref": "#/definitions/Expression",
+          "description": "Defines the way a pagination parameter will be extracted from an http response.",
+          "title": "Pagination Response Expression"
+        }
+      }
+    },
+    "HypermediaPaginationParameters": {
+      "type": "object",
+      "properties": {
+        "nextUrl": {
+          "$ref": "#/definitions/Expression",
+          "description": "the DW expression used to extract the next URL from the response in hypermedia-based pagination request.",
+          "title": "Next Url Expression"
+        },
+        "pagingResponse": {
+          "$ref": "#/definitions/Expression",
+          "description": "Defines the way a pagination parameter will be extracted from an http response.",
+          "title": "Pagination Response Expression"
+        }
+      }
+    },
+    "EndPoint": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "",
+          "title": ""
+        },
+        "operations": {
+          "patternProperties": {
+            "^.*$": {
+              "$ref": "#/definitions/Operation",
+              "description": "",
+              "title": ""
+            }
+          }
+        },
+        "ignored": {
+          "type": "boolean",
+          "description": "Indicates if a node should be ignored.",
+          "title": "Ignored"
+        },
+        "baseUri": {
+          "type": "string",
+          "description": "Indicates the base URI an endpoint should use.",
+          "title": "Alternative base URI reference"
+        },
+        "security": {
+          "type": "string",
+          "description": "Allows customizing the authentication methods to be used within this API",
+          "title": "Security"
+        }
+      }
+    },
+    "Operation": {
+      "type": "object",
+      "properties": {
+        "method": {
+          "type": "string",
+          "enum": [
+            "get",
+            "post",
+            "put",
+            "patch",
+            "delete",
+            "head",
+            "options"
+          ],
+          "description": "",
+          "title": ""
+        },
+        "displayName": {
+          "type": "string",
+          "description": "A human readable name.",
+          "title": "Display name"
+        },
+        "description": {
+          "type": "string",
+          "description": "Human readable description of the operation.",
+          "title": "Operation description"
+        },
+        "inputType": {
+          "type": "string",
+          "description": "Allows to define or override the input type for an operation using a JSON or XSD Schema.\nIt's value should be the relativa path to a schema that will be used as the input type for the operation.\n",
+          "title": "Input Type"
+        },
+        "inputMediaType": {
+          "type": "string",
+          "description": "Input media type to use when executing this operation.",
+          "title": "Input media type"
+        },
+        "outputType": {
+          "type": "string",
+          "description": "Allows to define or override the output type for an operation using a JSON or XSD Schema.\nIt's value should be the relativa path to a schema that will be used as the output type for the operation.\n",
+          "title": "Output Type"
+        },
+        "outputMediaType": {
+          "type": "string",
+          "description": "Output media type to use when executing this operation.",
+          "title": "Output media type"
+        },
+        "expects": {
+          "$ref": "#/definitions/Request",
+          "description": "",
+          "title": ""
+        },
+        "ignored": {
+          "type": "boolean",
+          "description": "Indicates if a node should be ignored.",
+          "title": "Ignored"
+        },
+        "baseUri": {
+          "type": "string",
+          "description": "Indicates the base URI an endpoint should use.",
+          "title": "Alternative base URI reference"
+        },
+        "pagination": {
+          "type": "string",
+          "description": "Defines that a pagination strategy should be used for this operation.\nThe value must match the name of a declared pagination strategy.\n",
+          "title": "Pagination Reference"
+        },
+        "skipOutputTypeValidation": {
+          "type": "boolean",
+          "description": "GET, POST, PATCH and OPTIONS operations are required to define a type for it's body.\nUse this property to avoid this check and generate a connector that does not declare a type for it's body.\n",
+          "title": "Skip Output Type Validation"
+        },
+        "voidOperation": {
+          "type": "boolean",
+          "description": "GET, POST, PATCH and OPTIONS operations are required to define a type for it's body.\nUse this property to declare one of those operations' responses as bodyless.\nDoing this will cause rest SDK to generate different code for that operation.\n",
+          "title": "Void Operation"
+        },
+        "queryParameterArrayFormat": {
+          "type": "string",
+          "enum": [
+            "multimap",
+            "comma"
+          ],
+          "description": "Defines how query parameters that represent arrrays should be formatted\ni.e. comma: key=value1,value2  multimap: key=value1&key=value2\n",
+          "title": "Query Parameter Array Format"
+        },
+        "sampleData": {
+          "$ref": "#/definitions/SampleDataExpression",
+          "description": "The sample data expression to use.",
+          "title": "Sample Data"
+        }
+      }
+    },
+    "Request": {
+      "type": "object",
+      "properties": {
+        "header": {
+          "patternProperties": {
+            "^.*$": {
+              "$ref": "#/definitions/Parameter",
+              "description": "",
+              "title": ""
+            }
+          }
+        },
+        "queryParameter": {
+          "patternProperties": {
+            "^.*$": {
+              "$ref": "#/definitions/Parameter",
+              "description": "",
+              "title": ""
+            }
+          }
+        },
+        "uriParameter": {
+          "patternProperties": {
+            "^.*$": {
+              "$ref": "#/definitions/Parameter",
+              "description": "",
+              "title": ""
+            }
+          }
+        },
+        "part": {
+          "patternProperties": {
+            "^.*$": {
+              "$ref": "#/definitions/PartDescriptor",
+              "description": "Declares metadata for multipart parts that RAML and OAS 2.0 specs do not provide.",
+              "title": "Part (Multipart)"
+            }
+          }
+        }
+      }
+    },
+    "Parameter": {
+      "type": "object",
+      "properties": {
+        "paramName": {
+          "type": "string",
+          "description": "",
+          "title": ""
+        },
+        "displayName": {
+          "type": "string",
+          "description": "A human readable name.",
+          "title": "Display name"
+        },
+        "description": {
+          "type": "string",
+          "description": "",
+          "title": ""
+        },
+        "ignored": {
+          "type": "boolean",
+          "description": "Indicates if a node should be ignored.",
+          "title": "Ignored"
+        },
+        "valueProvider": {
+          "$ref": "#/definitions/ValueProviderExpression",
+          "description": "The value provider expression to use.",
+          "title": "Value Provider"
+        },
+        "additional": {
+          "type": "boolean",
+          "description": "Indicates if this parameter is being generated in the connector descriptor.",
+          "title": "Additional"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "integer",
+            "number",
+            "string",
+            "localDateTime",
+            "zonedDateTime",
+            "boolean"
+          ],
+          "description": "Declares the data type of a parameter.",
+          "title": "Parameter Type"
+        },
+        "required": {
+          "type": "boolean",
+          "description": "Indicatres is a field is mandatory to be filled by the connector user.",
+          "title": "Required"
+        },
+        "default": {
+          "type": "string",
+          "description": "Defines a default value for the parameter.",
+          "title": "Default Value"
+        }
+      }
+    },
+    "PartDescriptor": {
+      "type": "object",
+      "properties": {
+        "partName": {
+          "type": "string",
+          "description": "",
+          "title": ""
+        },
+        "displayName": {
+          "type": "string",
+          "description": "A human readable name.",
+          "title": "Display name"
+        },
+        "description": {
+          "type": "string",
+          "description": "",
+          "title": ""
+        },
+        "contentType": {
+          "type": "string",
+          "description": "Input media type to use when executing this operation.",
+          "title": "Input media type"
+        },
+        "inputType": {
+          "type": "string",
+          "description": "Allows to define or override the input type for an operation using a JSON or XSD Schema.\nIt's value should be the relativa path to a schema that will be used as the input type for the operation.\n",
+          "title": "Input Type"
+        },
+        "file": {
+          "type": "boolean",
+          "description": "Indicates if this multipart part should be hanlded as a file.",
+          "title": "File Part"
+        }
+      }
+    },
+    "Expression": {
+      "type": "object",
+      "properties": {
+        "language": {
+          "type": "string",
+          "description": "The language of an expression.",
+          "title": "Expression Language"
+        },
         "expression": {
           "type": "string",
-          "title": "The expression schema",
-          "description": "An explanation about the purpose of this instance.",
-          "default": ""
-        },
-        "language": {
-          "type": "string"
+          "description": "The content of an expression.",
+          "title": "Expression Content"
         }
-      },
-      "additionalProperties": true
+      }
     },
-    "valueProviders": {
+    "Security": {
       "type": "object",
-      "title": "The valueProviders schema",
-      "description": "An explanation about the purpose of this instance.",
-      "patternProperties": {
-        "^.*$": {
-          "$ref": "#/definitions/valueProvider"
+      "properties": {
+        "headers": {
+          "patternProperties": {
+            "^.*$": {
+              "$ref": "#/definitions/Parameter",
+              "description": "Defines the security headers the generated connector will have. Sub packages will be created depending on this value.",
+              "title": "Security Headers"
+            }
+          }
+        },
+        "queryParameters": {
+          "patternProperties": {
+            "^.*$": {
+              "$ref": "#/definitions/Parameter",
+              "description": "Defines the security query Parameters the generated connector will have. Sub packages will be created depending on this value.",
+              "title": "Security Query Parameters"
+            }
+          }
+        },
+        "ignored": {
+          "type": "boolean",
+          "description": "Indicates if a node should be ignored.",
+          "title": "Ignored"
+        },
+        "refreshTokenCondition": {
+          "$ref": "#/definitions/Expression",
+          "description": "Allows defining an expression to customize condition upon which a refresh token is needed.",
+          "title": "Refresh token condition expression"
+        },
+        "testConnection": {
+          "$ref": "#/definitions/TestConnection",
+          "description": "Allows defining a way of validating the connection for the generated connector.\n",
+          "title": "Test Connection"
         }
-      },
-      "additionalProperties": true
+      }
     }
   }
 }
