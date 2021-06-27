@@ -33,6 +33,41 @@
       },
       "additionalProperties": true
     },
+    "queryParameterArrayFormat": {
+      "type": "string",
+      "enum": [
+        "multimap",
+        "comma"
+      ]
+    },
+    "testConnection": {
+     "$ref": "#/definitions/testConnection"
+    },
+    "security": {
+      "type": "object",
+      "patternProperties": {
+        "^.*$": {
+          "type": "object",
+          "properties": {
+            "headers": {
+              "$ref": "#/definitions/parameter"
+            },
+            "queryParameters": {
+              "$ref": "#/definitions/parameter"
+            },
+            "ignored": {
+              "type": "boolean"
+            },
+            "refreshTokenCondition": {
+              "$ref": "#/definitions/expression"
+            },
+            "testConnection": {
+              "$ref": "#/definitions/testConnection"
+            }
+          }
+        }
+      }
+    },
     "endpoints": {
       "type": "object",
       "title": "The endpoints schema",
@@ -88,12 +123,7 @@
       "type": "object",
       "properties": {
         "parameters": {
-          "type": "object",
-          "properties": {
-            "id": {
-              "type": "string"
-            }
-          }
+          "$ref": "#/definitions/parameter"
         },
         "definition": {
           "$ref": "#/definitions/sampleData"
@@ -126,15 +156,7 @@
             "parameters": {
               "patternProperties": {
                 "^.*$": {
-                  "type": "object",
-                  "properties": {
-                    "displayName": {
-                      "type": "string"
-                    },
-                    "type": {
-                      "$ref": "#/definitions/type"
-                    }
-                  }
+                  "$ref": "#/definitions/parameter"
                 }
               }
             },
@@ -145,7 +167,7 @@
               "type": "object",
               "properties": {
                 "extraction": {
-                  "$ref": "#/definitions/script"
+                  "$ref": "#/definitions/expression"
                 }
               }
             },
@@ -153,7 +175,7 @@
               "type": "object",
               "properties": {
                 "extraction": {
-                  "$ref": "#/definitions/script"
+                  "$ref": "#/definitions/expression"
                 }
               }
             }
@@ -164,8 +186,82 @@
   },
   "additionalProperties": true,
   "definitions": {
-    "type": {
-      "$ref": "#/definitions/type"
+    "typeDef": {
+      "type": "string",
+      "enum": [
+        "integer",
+        "number",
+        "string",
+        "localDateTime",
+        "zonedDateTime",
+        "boolean"
+      ]
+    },
+    "testConnection": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "method": {
+          "$ref": "#/definitions/httpMethod"
+        },
+        "validStatusCodes": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "mediaType": {
+          "type": "string"
+        },
+        "responseValidation": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "validations": {
+                "$ref": "#/definitions/expression"
+              },
+              "errorTemplate": {
+                "$ref": "#/definitions/expression"
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameter": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "$ref": "#/definitions/typeDef"
+        },
+        "paramName": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "ignored": {
+          "type": "boolean"
+        },
+        "valueProvider": {
+          "$ref": "#/definitions/valueProvider"
+        },
+        "additional": {
+          "type": "boolean"
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "default": {
+          "type": "string"
+        }
+      }
     },
     "paginations": {
       "type": "object",
@@ -183,7 +279,7 @@
                   "type": "string"
                 },
                 "pagingResponse": {
-                  "$ref": "#/definitions/script"
+                  "$ref": "#/definitions/expression"
                 }
               }
             }
@@ -255,7 +351,7 @@
           "type": "string"
         },
         "transform": {
-          "$ref": "#/definitions/script"
+          "$ref": "#/definitions/expression"
         },
         "request": {
           "type": "object",
@@ -368,10 +464,10 @@
               "description": "An explanation about the purpose of this instance.",
               "properties": {
                 "extraction": {
-                  "$ref": "#/definitions/script"
+                  "$ref": "#/definitions/expression"
                 },
                 "value": {
-                  "$ref": "#/definitions/script"
+                  "$ref": "#/definitions/expression"
                 }
               },
               "additionalProperties": true
@@ -397,7 +493,7 @@
       "description": "An explanation about the purpose of this instance.",
       "default": ""
     },
-    "script": {
+    "expression": {
       "type": "object",
       "properties": {
         "expression": {
