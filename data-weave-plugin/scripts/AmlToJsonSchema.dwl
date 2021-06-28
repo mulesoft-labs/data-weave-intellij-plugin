@@ -6,12 +6,11 @@ output application/json
 
 input payload application/yaml
 input vocabulary application/yaml
-
 import * from dw::core::Strings
 
 fun rangeToType(range: String | Array) =
     range match {
-            case is Array<String | Array> ->  $ map ((item, index) -> rangeToType(item))
+            case is Array<String|Array> ->  $ map ((item, index) -> rangeToType(item))
             case "string" ->  {"type": "string"}
             case "number" ->  {"type": "number"}
             case "integer" -> {"type": "integer"}
@@ -29,13 +28,31 @@ fun mapVocabulary(value: {propertyTerm?: String}) =
     }
 
 fun mapPropertyValue(value: {}) =
-    if(value.mapTermKey?) //If it has mapTermKey it means it only has contrains to the values
-        {
-            "patternProperties": {
-                "^.*\$": mapPropertyValue((value - "mapTermKey"))
+//If it has mapTermKey it means it only has contrains to the values
+    if(value.mapTermKey?) do {
+        var term = payload.nodeMappings..[?($ is Object and $.propertyTerm == value.mapTermKey)][0]
+        ---
+        log(term) match {
+          case term is {"enum": Array<String>} -> {
+            "type": "object",
+            properties: {
+                (term."enum" map (option) -> {
+                    (option): mapPropertyValue((value - "mapTermKey"))
+                })
+            },
+            (mapVocabulary(value))
+          }
+          else -> {
+                "type": "object",
+                "patternProperties": {
+                    "^.*\$": mapPropertyValue((value - "mapTermKey"))
+                },
+                (mapVocabulary(value))
             }
         }
-    else if(value.allowMultiple default false) //The semantics of allowMultiple is that it can be the value of an Array of Values
+
+    }
+    else if(value.allowMultiple default false) //The semantics of allowMutiple is that it can be the value of an Array of Values
         {
             "anyOf": [
                 {

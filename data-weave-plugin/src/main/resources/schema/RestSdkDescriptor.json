@@ -65,31 +65,40 @@
       "title": "Base URI"
     },
     "paginations": {
+      "type": "object",
       "patternProperties": {
         "^.*$": {
           "$ref": "#/definitions/PaginationDeclarationUnion",
           "description": "Declares the pagination strategies that will be used with an API.",
           "title": "Pagination Declarations"
         }
-      }
+      },
+      "description": "Declares the pagination strategies that will be used with an API.",
+      "title": "Pagination Declarations"
     },
     "endpoints": {
+      "type": "object",
       "patternProperties": {
         "^.*$": {
           "$ref": "#/definitions/EndPoint",
           "description": "",
           "title": ""
         }
-      }
+      },
+      "description": "",
+      "title": ""
     },
     "security": {
+      "type": "object",
       "patternProperties": {
         "^.*$": {
           "$ref": "#/definitions/Security",
           "description": "Allows customizing the authentication methods to be used within this API",
           "title": "Security"
         }
-      }
+      },
+      "description": "Allows customizing the authentication methods to be used within this API",
+      "title": "Security"
     },
     "queryParameterArrayFormat": {
       "type": "string",
@@ -106,13 +115,16 @@
       "title": "Test Connection"
     },
     "triggers": {
+      "type": "object",
       "patternProperties": {
         "^.*$": {
           "$ref": "#/definitions/Trigger",
           "description": "A list of trigger definitions for this connector.",
           "title": "Triggers"
         }
-      }
+      },
+      "description": "A list of trigger definitions for this connector.",
+      "title": "Triggers"
     },
     "operationDisplayName": {
       "$ref": "#/definitions/Expression",
@@ -204,31 +216,40 @@
       "type": "object",
       "properties": {
         "uriParameter": {
+          "type": "object",
           "patternProperties": {
             "^.*$": {
               "$ref": "#/definitions/Argument",
               "description": "",
               "title": ""
             }
-          }
+          },
+          "description": "",
+          "title": ""
         },
         "queryParameter": {
+          "type": "object",
           "patternProperties": {
             "^.*$": {
               "$ref": "#/definitions/Argument",
               "description": "",
               "title": ""
             }
-          }
+          },
+          "description": "",
+          "title": ""
         },
         "header": {
+          "type": "object",
           "patternProperties": {
             "^.*$": {
               "$ref": "#/definitions/Argument",
               "description": "",
               "title": ""
             }
-          }
+          },
+          "description": "",
+          "title": ""
         }
       }
     },
@@ -236,13 +257,16 @@
       "type": "object",
       "properties": {
         "parameters": {
+          "type": "object",
           "patternProperties": {
             "^.*$": {
               "$ref": "#/definitions/ResolverParameter",
               "description": "Declares the parameters that the resolver will receive as arguments and that can be used internally.",
               "title": "Resolver Declarations's parameter"
             }
-          }
+          },
+          "description": "Declares the parameters that the resolver will receive as arguments and that can be used internally.",
+          "title": "Resolver Declarations's parameter"
         },
         "definition": {
           "$ref": "#/definitions/ResolverDefinition",
@@ -263,13 +287,16 @@
           "title": "Resolver Reference's id"
         },
         "arguments": {
+          "type": "object",
           "patternProperties": {
             "^.*$": {
               "$ref": "#/definitions/ResolverArgument",
               "description": "The arguments that will be passed to the resolver declaration. These must match the declared parameters.",
               "title": "Resolver Reference's argument"
             }
-          }
+          },
+          "description": "The arguments that will be passed to the resolver declaration. These must match the declared parameters.",
+          "title": "Resolver Reference's argument"
         }
       }
     },
@@ -525,13 +552,16 @@
           "title": ""
         },
         "parameters": {
+          "type": "object",
           "patternProperties": {
             "^.*$": {
               "$ref": "#/definitions/TriggerParameter",
               "description": "A A list of the parameters the generated trigger will expose to the connector user.",
               "title": "Trigger Parameters"
             }
-          }
+          },
+          "description": "A A list of the parameters the generated trigger will expose to the connector user.",
+          "title": "Trigger Parameters"
         },
         "binding": {
           "$ref": "#/definitions/TriggerParameterBindings",
@@ -617,31 +647,40 @@
       "type": "object",
       "properties": {
         "uriParameter": {
+          "type": "object",
           "patternProperties": {
             "^.*$": {
               "$ref": "#/definitions/TriggerParameterBinding",
               "description": "",
               "title": ""
             }
-          }
+          },
+          "description": "",
+          "title": ""
         },
         "queryParameter": {
+          "type": "object",
           "patternProperties": {
             "^.*$": {
               "$ref": "#/definitions/TriggerParameterBinding",
               "description": "",
               "title": ""
             }
-          }
+          },
+          "description": "",
+          "title": ""
         },
         "header": {
+          "type": "object",
           "patternProperties": {
             "^.*$": {
               "$ref": "#/definitions/TriggerParameterBinding",
               "description": "",
               "title": ""
             }
-          }
+          },
+          "description": "",
+          "title": ""
         },
         "body": {
           "$ref": "#/definitions/Expression",
@@ -853,13 +892,16 @@
           "title": "Alternative Base URI type"
         },
         "mapping": {
+          "type": "object",
           "patternProperties": {
             "^.*$": {
               "$ref": "#/definitions/MultipleBaseUri",
               "description": "Multiple base URI for an API.",
               "title": "Multiple base URI"
             }
-          }
+          },
+          "description": "Multiple base URI for an API.",
+          "title": "Multiple base URI"
         }
       }
     },
@@ -1077,13 +1119,46 @@
           "title": ""
         },
         "operations": {
-          "patternProperties": {
-            "^.*$": {
+          "type": "object",
+          "properties": {
+            "get": {
+              "$ref": "#/definitions/Operation",
+              "description": "",
+              "title": ""
+            },
+            "post": {
+              "$ref": "#/definitions/Operation",
+              "description": "",
+              "title": ""
+            },
+            "put": {
+              "$ref": "#/definitions/Operation",
+              "description": "",
+              "title": ""
+            },
+            "patch": {
+              "$ref": "#/definitions/Operation",
+              "description": "",
+              "title": ""
+            },
+            "delete": {
+              "$ref": "#/definitions/Operation",
+              "description": "",
+              "title": ""
+            },
+            "head": {
+              "$ref": "#/definitions/Operation",
+              "description": "",
+              "title": ""
+            },
+            "options": {
               "$ref": "#/definitions/Operation",
               "description": "",
               "title": ""
             }
-          }
+          },
+          "description": "",
+          "title": ""
         },
         "ignored": {
           "type": "boolean",
@@ -1199,40 +1274,52 @@
       "type": "object",
       "properties": {
         "header": {
+          "type": "object",
           "patternProperties": {
             "^.*$": {
               "$ref": "#/definitions/Parameter",
               "description": "",
               "title": ""
             }
-          }
+          },
+          "description": "",
+          "title": ""
         },
         "queryParameter": {
+          "type": "object",
           "patternProperties": {
             "^.*$": {
               "$ref": "#/definitions/Parameter",
               "description": "",
               "title": ""
             }
-          }
+          },
+          "description": "",
+          "title": ""
         },
         "uriParameter": {
+          "type": "object",
           "patternProperties": {
             "^.*$": {
               "$ref": "#/definitions/Parameter",
               "description": "",
               "title": ""
             }
-          }
+          },
+          "description": "",
+          "title": ""
         },
         "part": {
+          "type": "object",
           "patternProperties": {
             "^.*$": {
               "$ref": "#/definitions/PartDescriptor",
               "description": "Declares metadata for multipart parts that RAML and OAS 2.0 specs do not provide.",
               "title": "Part (Multipart)"
             }
-          }
+          },
+          "description": "Declares metadata for multipart parts that RAML and OAS 2.0 specs do not provide.",
+          "title": "Part (Multipart)"
         }
       }
     },
@@ -1348,22 +1435,28 @@
       "type": "object",
       "properties": {
         "headers": {
+          "type": "object",
           "patternProperties": {
             "^.*$": {
               "$ref": "#/definitions/Parameter",
               "description": "Defines the security headers the generated connector will have. Sub packages will be created depending on this value.",
               "title": "Security Headers"
             }
-          }
+          },
+          "description": "Defines the security headers the generated connector will have. Sub packages will be created depending on this value.",
+          "title": "Security Headers"
         },
         "queryParameters": {
+          "type": "object",
           "patternProperties": {
             "^.*$": {
               "$ref": "#/definitions/Parameter",
               "description": "Defines the security query Parameters the generated connector will have. Sub packages will be created depending on this value.",
               "title": "Security Query Parameters"
             }
-          }
+          },
+          "description": "Defines the security query Parameters the generated connector will have. Sub packages will be created depending on this value.",
+          "title": "Security Query Parameters"
         },
         "ignored": {
           "type": "boolean",
