@@ -28,11 +28,11 @@ fun mapVocabulary(value: {propertyTerm?: String}) =
     }
 
 fun mapPropertyValue(value: {}) =
-//If it has mapTermKey it means it only has contrains to the values
+//If it has mapTermKey it means it only has constrains to the values
     if(value.mapTermKey?) do {
         var term = payload.nodeMappings..[?($ is Object and $.propertyTerm == value.mapTermKey)][0]
         ---
-        log(term) match {
+        term match {
           case term is {"enum": Array<String>} -> {
             "type": "object",
             properties: {
@@ -52,7 +52,7 @@ fun mapPropertyValue(value: {}) =
         }
 
     }
-    else if(value.allowMultiple default false) //The semantics of allowMutiple is that it can be the value of an Array of Values
+    else if(value.allowMultiple default false) //The semantics of allowMultiple is that it can be the value of an Array of Values
         {
             "anyOf": [
                 {

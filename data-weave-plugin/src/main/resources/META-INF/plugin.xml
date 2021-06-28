@@ -356,6 +356,10 @@
                            implementationClass="org.mule.tooling.lang.dw.annotator.WeaveDocsAnnotator"/>
 
         <highlightingPassFactory implementation="org.mule.tooling.lang.dw.hints.WeaveTypeHintPassFactory"/>
+
+        <!--  REST-SDK      -->
+
+        <psi.referenceContributor language="yaml" implementation="org.mule.tooling.restsdk.reference.RestSdkReferenceContributor"/>
     </extensions>
 
     <project-components>
