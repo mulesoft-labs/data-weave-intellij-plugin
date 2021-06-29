@@ -140,6 +140,22 @@
       "type": "boolean",
       "description": "If set to true, all operations and triggers will be ignored unless explicitly set as not ignored.\nIf set to false, all operations and triggers will be generated unless explicitly ignored.\n",
       "title": "Ignore Operations Globally"
+    },
+    "sampleData": {
+      "type": "object",
+      "patternProperties": {
+        "^.*$": {
+          "$ref": "#/definitions/SampleDataDeclaration"
+        }
+      }
+    },
+    "valueProviders": {
+      "type": "object",
+      "patternProperties": {
+        "^.*$": {
+          "$ref": "#/definitions/ValueProviderDeclaration"
+        }
+      }
     }
   },
   "definitions": {
@@ -161,10 +177,42 @@
     "DataExpression": {
       "anyOf": [
         {
-          "$ref": "#/definitions/HttpRequest"
+          "allOf": [
+            {
+              "$ref": "#/definitions/HttpRequest"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "httpRequest",
+                    "script"
+                  ]
+                }
+              }
+            }
+          ]
         },
         {
-          "$ref": "#/definitions/ScriptExpression"
+          "allOf": [
+            {
+              "$ref": "#/definitions/ScriptExpression"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "httpRequest",
+                    "script"
+                  ]
+                }
+              }
+            }
+          ]
         }
       ]
     },
@@ -335,8 +383,14 @@
           "type": "object",
           "properties": {
             "definition": {
-              "$ref": "#/definitions/SampleDataHttpDefinition",
-              "$ref": "#/definitions/SampleDataCustomDefinition",
+              "union": [
+                {
+                  "$ref": "#/definitions/SampleDataHttpDefinition"
+                },
+                {
+                  "$ref": "#/definitions/SampleDataCustomDefinition"
+                }
+              ],
               "description": "The resolver definition of that is being declared.",
               "title": "Resolver Declarations's definition"
             }
@@ -418,13 +472,64 @@
     "SampleDataExpression": {
       "anyOf": [
         {
-          "$ref": "#/definitions/SampleDataSameOperationDefinition"
+          "allOf": [
+            {
+              "$ref": "#/definitions/SampleDataSameOperationDefinition"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "sameOperation",
+                    "reference",
+                    "http"
+                  ]
+                }
+              }
+            }
+          ]
         },
         {
-          "$ref": "#/definitions/SampleDataReference"
+          "allOf": [
+            {
+              "$ref": "#/definitions/SampleDataReference"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "sameOperation",
+                    "reference",
+                    "http"
+                  ]
+                }
+              }
+            }
+          ]
         },
         {
-          "$ref": "#/definitions/SampleDataHttpDefinition"
+          "allOf": [
+            {
+              "$ref": "#/definitions/SampleDataHttpDefinition"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "sameOperation",
+                    "reference",
+                    "http"
+                  ]
+                }
+              }
+            }
+          ]
         }
       ]
     },
@@ -487,10 +592,42 @@
     "ValueProviderExpression": {
       "anyOf": [
         {
-          "$ref": "#/definitions/ValueProviderReference"
+          "allOf": [
+            {
+              "$ref": "#/definitions/ValueProviderReference"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "inline",
+                    "reference"
+                  ]
+                }
+              }
+            }
+          ]
         },
         {
-          "$ref": "#/definitions/ValueProviderDefinition"
+          "allOf": [
+            {
+              "$ref": "#/definitions/ValueProviderDefinition"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "inline",
+                    "reference"
+                  ]
+                }
+              }
+            }
+          ]
         }
       ]
     },
@@ -928,16 +1065,88 @@
     "PaginationDeclarationUnion": {
       "anyOf": [
         {
-          "$ref": "#/definitions/OffsetPaginationDeclaration"
+          "allOf": [
+            {
+              "$ref": "#/definitions/OffsetPaginationDeclaration"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "offset",
+                    "marker",
+                    "pageNumber",
+                    "hypermedia"
+                  ]
+                }
+              }
+            }
+          ]
         },
         {
-          "$ref": "#/definitions/MarkerPaginationDeclaration"
+          "allOf": [
+            {
+              "$ref": "#/definitions/MarkerPaginationDeclaration"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "offset",
+                    "marker",
+                    "pageNumber",
+                    "hypermedia"
+                  ]
+                }
+              }
+            }
+          ]
         },
         {
-          "$ref": "#/definitions/PageNumberPaginationDeclaration"
+          "allOf": [
+            {
+              "$ref": "#/definitions/PageNumberPaginationDeclaration"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "offset",
+                    "marker",
+                    "pageNumber",
+                    "hypermedia"
+                  ]
+                }
+              }
+            }
+          ]
         },
         {
-          "$ref": "#/definitions/HypermediaPaginationDeclaration"
+          "allOf": [
+            {
+              "$ref": "#/definitions/HypermediaPaginationDeclaration"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "offset",
+                    "marker",
+                    "pageNumber",
+                    "hypermedia"
+                  ]
+                }
+              }
+            }
+          ]
         }
       ]
     },

@@ -10,12 +10,12 @@ import * from dw::core::Strings
 
 fun rangeToType(range: String | Array) =
     range match {
-            case is Array<String|Array> ->  $ map ((item, index) -> rangeToType(item))
-            case "string" ->  {"type": "string"}
-            case "number" ->  {"type": "number"}
-            case "integer" -> {"type": "integer"}
-            case "boolean" -> {"type": "boolean"}
-            case is String -> {"\$ref": "#/definitions/$"}
+            case is Array<String|Array> ->  { "union": $ map ((item, index) -> rangeToType(item)) }
+            case "string"  ->  {"type": "string"}
+            case "number"  ->  {"type": "number"}
+            case "integer" ->  {"type": "integer"}
+            case "boolean" ->  {"type": "boolean"}
+            case is String ->  {"\$ref": "#/definitions/$"}
     }
 
 fun mapVocabulary(value: {propertyTerm?: String}) =
@@ -93,9 +93,29 @@ fun amfToJsonSchemaDef(amfDef) =
             }
             case e is {'extends': String} ->  extendsToRef(e)
             case m is {mapping: {}} -> mappingToObjectType(m)
-            case u is {'union': Array} ->  {
-                "anyOf": u.union map ((item, index) -> rangeToType(item))
-            }
+            case u is {'union': Array} ->
+                if(u.typeDiscriminatorName?) do {
+                    var discriminators = keysOf(u.typeDiscriminator)
+                    ---
+                    {
+                        "anyOf": u.union
+                                map ((item, index) ->
+                                    {
+                                        'allOf': [ rangeToType(item),
+                                                    {
+                                                        "type": "object",
+                                                        properties: {(u.typeDiscriminatorName): {
+                                                            "type": "string",
+                                                            "enum": discriminators
+                                                        }}}
+                                                ]
+                                    }
+                                )
+                    }
+                }
+                else
+                    { "anyOf": u.union map ((item, index) -> rangeToType(item))}
+
             else -> {}
         }
 ---
@@ -103,7 +123,24 @@ fun amfToJsonSchemaDef(amfDef) =
     "\$schema":  "http://json-schema.org/draft-07/schema#",
     "\$id": "http://mulesoft.com/rest-sdk.json",
     (
-        amfToJsonSchemaDef(payload.nodeMappings[payload.documents.root.encodes])
+        amfToJsonSchemaDef(payload.nodeMappings[payload.documents.root.encodes]) update {
+            //Add the declares at the rootObject
+            case prop at .properties ->
+                     prop ++ {
+                         (
+                             payload.documents.root.declares mapObject (value, key) ->
+                                {
+                                    (key): {
+                                        "type": "object",
+                                        "patternProperties": {
+                                            "^.*\$": rangeToType(value)
+                                        }
+                                    }
+                                }
+                         )
+                     }
+
+        }
     ),
     definitions: payload.nodeMappings
                     mapObject ((value, key, index) -> {
