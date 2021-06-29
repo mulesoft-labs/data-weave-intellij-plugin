@@ -20,10 +20,17 @@ public class RestSdkReferenceContributor extends PsiReferenceContributor {
                 return new PsiReference[]{new LocalReference(element, "sampleData")};
             }
         });
-        registrar.registerReferenceProvider(pagination(), new PsiReferenceProvider() {
+        registrar.registerReferenceProvider(paginationRef(), new PsiReferenceProvider() {
             @Override
             public PsiReference @NotNull [] getReferencesByElement(@NotNull PsiElement element, @NotNull ProcessingContext context) {
                 return new PsiReference[]{new LocalReference(element, "paginations")};
+            }
+        });
+
+        registrar.registerReferenceProvider(valueProviderRef(), new PsiReferenceProvider() {
+            @Override
+            public PsiReference @NotNull [] getReferencesByElement(@NotNull PsiElement element, @NotNull ProcessingContext context) {
+                return new PsiReference[]{new LocalReference(element, "valueProviders")};
             }
         });
     }
@@ -35,7 +42,14 @@ public class RestSdkReferenceContributor extends PsiReferenceContributor {
                 .withLanguage(YAMLLanguage.INSTANCE);
     }
 
-    private PsiElementPattern.Capture<YAMLScalar> pagination() {
+    private PsiElementPattern.Capture<YAMLScalar> valueProviderRef() {
+        return psiElement(YAMLScalar.class)
+                .and(psiElement().withParent(psiElement(YAMLKeyValue.class).withName("id")))
+                .and(psiElement().withSuperParent(3, psiElement(YAMLKeyValue.class).withName("valueProvider")))
+                .withLanguage(YAMLLanguage.INSTANCE);
+    }
+
+    private PsiElementPattern.Capture<YAMLScalar> paginationRef() {
         return psiElement(YAMLScalar.class)
                 .and(psiElement().withParent(psiElement(YAMLKeyValue.class).withName("pagination")))
                 .withLanguage(YAMLLanguage.INSTANCE);

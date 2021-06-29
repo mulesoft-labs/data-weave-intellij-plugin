@@ -1,0 +1,6 @@
+#% Rest Connector Descriptor 1.0
+
+connectorName: ${ARTIFACT_ID}
+connectorDescription:
+
+
