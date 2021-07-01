@@ -66,6 +66,8 @@ public class WeaveAgentRuntimeManager implements Disposable, ProjectComponent {
     public static final int MAX_RETRIES = 10;
     public static final long MAX_ALLOWED_WAIT = 10;
 
+    private final Alarm myRestartAlarm = new Alarm(Alarm.ThreadToUse.POOLED_THREAD, this);
+
     @Nullable
     private WeaveAgentClient client;
     private ProcessHandler processHandler;
@@ -100,7 +102,7 @@ public class WeaveAgentRuntimeManager implements Disposable, ProjectComponent {
                         //We stop the server as classpath has changed
                         //But only if the process was started
                         if (processHandler != null) {
-                            restart();
+                            scheduleRestart();
                         }
                     }
                 });
@@ -112,7 +114,7 @@ public class WeaveAgentRuntimeManager implements Disposable, ProjectComponent {
             @Override
             public void buildFinished(@NotNull Project project, @NotNull UUID sessionId, boolean isAutomake) {
                 if (project == myProject) {
-                    restart();
+                    scheduleRestart();
                 }
             }
         });
@@ -130,7 +132,7 @@ public class WeaveAgentRuntimeManager implements Disposable, ProjectComponent {
 
             private void compilationFinished(@NotNull CompileContext context) {
                 if (!(context instanceof DummyCompileContext) && context.getProject() == myProject) {
-                    restart();
+                    scheduleRestart();
                 }
             }
         });
@@ -138,11 +140,15 @@ public class WeaveAgentRuntimeManager implements Disposable, ProjectComponent {
         Runtime.getRuntime().addShutdownHook(new Thread(this::tearDown));
     }
 
-    private void restart() {
+    private void scheduleRestart() {
         if (client != null) {
-            //We only restart if there is an active connection
-            tearDown();
-            init(new EmptyProgressIndicator());
+            myRestartAlarm.cancelAllRequests();
+            myRestartAlarm.addRequest(() -> {
+                //We only restart if there is an active connection
+                tearDown();
+                init(new EmptyProgressIndicator());
+            }, 500);
+
         }
     }
 
