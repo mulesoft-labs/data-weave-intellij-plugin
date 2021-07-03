@@ -7,7 +7,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.service.Scenario;
-import org.mule.tooling.lang.dw.service.WeaveRuntimeContextManager;
+import org.mule.tooling.lang.dw.service.WeaveRuntimeService;
 
 import javax.swing.*;
 import java.awt.event.KeyAdapter;
@@ -17,11 +17,11 @@ public class AddScenarioDialog extends DialogWrapper {
 
     private JPanel mainPanel;
     private JTextField nameField;
-    private WeaveRuntimeContextManager manager;
+    private WeaveRuntimeService manager;
     private PsiFile currentFile;
     private final OnOkAction onOkAction;
 
-    public AddScenarioDialog(@Nullable Project project, WeaveRuntimeContextManager manager, PsiFile currentFile, OnOkAction action) {
+    public AddScenarioDialog(@Nullable Project project, WeaveRuntimeService manager, PsiFile currentFile, OnOkAction action) {
         super(project);
         this.manager = manager;
         this.currentFile = currentFile;

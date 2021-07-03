@@ -6,7 +6,7 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
-import org.mule.tooling.lang.dw.service.WeaveEditorToolingAPI;
+import org.mule.tooling.lang.dw.service.WeaveToolingService;
 
 public class DependencyGraphToolingWindowPanel extends DotBasedToolingWindowPanel {
 
@@ -30,7 +30,7 @@ public class DependencyGraphToolingWindowPanel extends DotBasedToolingWindowPane
 
         @Override
         public void actionPerformed(AnActionEvent e) {
-            final String text = WeaveEditorToolingAPI.getInstance(project).dependencyGraph();
+            final String text = WeaveToolingService.getInstance(project).dependencyGraph();
             if (text != null) {
                 updateDot(text);
             }

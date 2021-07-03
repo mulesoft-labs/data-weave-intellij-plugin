@@ -15,7 +15,7 @@ import org.mule.tooling.lang.dw.WeaveConstants;
 import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.service.Scenario;
-import org.mule.tooling.lang.dw.service.WeaveRuntimeContextManager;
+import org.mule.tooling.lang.dw.service.WeaveRuntimeService;
 
 public class PreviewToolWindowFactory implements ToolWindowFactory {
 
@@ -37,7 +37,7 @@ public class PreviewToolWindowFactory implements ToolWindowFactory {
         PsiFile selectedPsiFile = getSelectedPsiFile(project);
         if (selectedPsiFile != null) {
             WeaveDocument currentWeaveDocument = WeavePsiUtils.getWeaveDocument(selectedPsiFile);
-            Scenario scenario = WeaveRuntimeContextManager.getInstance(project).getCurrentScenarioFor(currentWeaveDocument);
+            Scenario scenario = WeaveRuntimeService.getInstance(project).getCurrentScenarioFor(currentWeaveDocument);
             if (scenario != null) {
                 return "Scenario: " + String.valueOf(scenario.getPresentableText());
             }

@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.WeaveFileType;
 import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
-import org.mule.tooling.lang.dw.service.WeaveEditorToolingAPI;
+import org.mule.tooling.lang.dw.service.WeaveToolingService;
 import org.mule.tooling.lang.dw.util.AsyncCache;
 import org.mule.weave.v2.editor.ValidationMessage;
 import org.mule.weave.v2.editor.ValidationMessages;
@@ -39,13 +39,9 @@ public class WeaveDocsAnnotator extends ExternalAnnotator<PsiFile, ValidationMes
         if (weaveDocument == null) return null;
         final Project project = file.getProject();
         if (project.isDisposed()) return null;
-        final WeaveEditorToolingAPI toolingAPI = WeaveEditorToolingAPI.getInstance(project);
+        final WeaveToolingService toolingAPI = WeaveToolingService.getInstance(project);
         if (cache == null) {
             cache = new AsyncCache<>(toolingAPI::weaveDocCheck);
-            toolingAPI.addOnCloseListener(() -> {
-                // throw away cache on project close.
-                cache = null;
-            });
         }
         return cache.resolve(file).orElse(null);
 
@@ -64,7 +60,7 @@ public class WeaveDocsAnnotator extends ExternalAnnotator<PsiFile, ValidationMes
             final WeaveLocation location = validationMessage.location();
             final int startIndex = getValidIndex(location.startPosition());
             final int endIndex = getValidIndex(location.endPosition());
-            holder.createAnnotation(severity, new TextRange(startIndex, endIndex), validationMessage.message().message(), WeaveEditorToolingAPI.toHtml(validationMessage.message().message()));
+            holder.createAnnotation(severity, new TextRange(startIndex, endIndex), validationMessage.message().message(), WeaveToolingService.toHtml(validationMessage.message().message()));
         }
     }
 

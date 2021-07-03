@@ -12,7 +12,7 @@ import org.mule.tooling.lang.dw.parser.psi.WeaveFunctionCallArguments;
 import org.mule.tooling.lang.dw.parser.psi.WeaveFunctionCallExpression;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.parser.psi.WeaveTypes;
-import org.mule.tooling.lang.dw.service.WeaveEditorToolingAPI;
+import org.mule.tooling.lang.dw.service.WeaveToolingService;
 import org.mule.tooling.lang.dw.settings.DataWeaveSettingsState;
 import org.mule.tooling.lang.dw.util.ScalaUtils;
 import org.mule.weave.v2.ts.FunctionType;
@@ -34,7 +34,7 @@ public class WeaveInlayParameterHintsProvider implements InlayParameterHintsProv
             if (parent instanceof WeaveFunctionCallArguments && !(element instanceof LeafPsiElement)) {
                 int currentParameterIndex = ParameterInfoUtils.getCurrentParameterIndex(parent.getNode(), element.getNode().getStartOffset(), WeaveTypes.COMMA);
                 WeaveFunctionCallExpression functionCall = (WeaveFunctionCallExpression) WeavePsiUtils.getParent(parent, (p) -> p instanceof WeaveFunctionCallExpression);
-                WeaveEditorToolingAPI instance = WeaveEditorToolingAPI.getInstance(element.getProject());
+                WeaveToolingService instance = WeaveToolingService.getInstance(element.getProject());
                 WeaveType weaveType = instance.typeOf(functionCall.getExpression());
                 if (weaveType instanceof FunctionType) {
                     FunctionType ft = (FunctionType) weaveType;

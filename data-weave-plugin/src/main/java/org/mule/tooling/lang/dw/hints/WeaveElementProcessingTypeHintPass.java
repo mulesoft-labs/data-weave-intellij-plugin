@@ -16,7 +16,7 @@ import org.mule.tooling.lang.dw.WeaveFileType;
 import org.mule.tooling.lang.dw.parser.psi.WeaveFunctionDefinition;
 import org.mule.tooling.lang.dw.parser.psi.WeaveTypes;
 import org.mule.tooling.lang.dw.parser.psi.WeaveVariableDefinition;
-import org.mule.tooling.lang.dw.service.WeaveEditorToolingAPI;
+import org.mule.tooling.lang.dw.service.WeaveToolingService;
 import org.mule.weave.v2.parser.phase.ParsingNotificationManager;
 import org.mule.weave.v2.ts.*;
 import scala.collection.Iterator;
@@ -34,7 +34,7 @@ public class WeaveElementProcessingTypeHintPass extends ElementProcessingHintPas
     public void collectElementHints(@NotNull PsiElement psiElement, @NotNull Function2<? super Integer, ? super String, Unit> collector) {
         PsiElement parent = psiElement.getParent();
         if (psiElement instanceof WeaveVariableDefinition) {
-            WeaveEditorToolingAPI instance = WeaveEditorToolingAPI.getInstance(parent.getProject());
+            WeaveToolingService instance = WeaveToolingService.getInstance(parent.getProject());
             WeaveVariableDefinition variableDefinition = (WeaveVariableDefinition) psiElement;
             if (variableDefinition.getType() == null) {
                 WeaveType weaveType = instance.typeOf(variableDefinition.getExpression());
@@ -46,7 +46,7 @@ public class WeaveElementProcessingTypeHintPass extends ElementProcessingHintPas
                 }
             }
         } else if (psiElement instanceof WeaveFunctionDefinition) {
-            WeaveEditorToolingAPI instance = WeaveEditorToolingAPI.getInstance(parent.getProject());
+            WeaveToolingService instance = WeaveToolingService.getInstance(parent.getProject());
             WeaveFunctionDefinition functionDefinition = (WeaveFunctionDefinition) psiElement;
             if (functionDefinition.getType() == null) {
                 WeaveType weaveType = instance.typeOf(functionDefinition.getExpression());

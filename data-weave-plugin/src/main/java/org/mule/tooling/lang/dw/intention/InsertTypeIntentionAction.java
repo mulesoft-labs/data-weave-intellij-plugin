@@ -13,7 +13,7 @@ import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.mule.tooling.lang.dw.parser.psi.*;
-import org.mule.tooling.lang.dw.service.WeaveEditorToolingAPI;
+import org.mule.tooling.lang.dw.service.WeaveToolingService;
 import org.mule.weave.v2.ts.WeaveType;
 
 public class InsertTypeIntentionAction extends PsiElementBaseIntentionAction implements IntentionAction {
@@ -51,7 +51,7 @@ public class InsertTypeIntentionAction extends PsiElementBaseIntentionAction imp
     public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement element) throws IncorrectOperationException {
         final WeaveVariableDefinition weaveIdentifier = PsiTreeUtil.getParentOfType(element, WeaveVariableDefinition.class);
         if (weaveIdentifier != null) {
-            final WeaveType weaveType = WeaveEditorToolingAPI.getInstance(project).typeOf(weaveIdentifier.getExpression());
+            final WeaveType weaveType = WeaveToolingService.getInstance(project).typeOf(weaveIdentifier.getExpression());
             if (weaveType != null && weaveIdentifier.getNameIdentifier() != null) {
                 WriteAction.run(() -> {
                     editor.getDocument().insertString(weaveIdentifier.getNameIdentifier().getTextRange().getEndOffset(), ": " + weaveType.baseType().toString(false, true));
@@ -60,7 +60,7 @@ public class InsertTypeIntentionAction extends PsiElementBaseIntentionAction imp
         } else {
             final WeaveFunctionDefinition functionDefinition = PsiTreeUtil.getParentOfType(element, WeaveFunctionDefinition.class);
             if (functionDefinition != null) {
-                WeaveEditorToolingAPI instance = WeaveEditorToolingAPI.getInstance(project);
+                WeaveToolingService instance = WeaveToolingService.getInstance(project);
                 if (functionDefinition.getType() == null) {
                     WeaveType weaveType = instance.typeOf(functionDefinition.getExpression());
                     if (weaveType != null && functionDefinition.getExpression() != null) {

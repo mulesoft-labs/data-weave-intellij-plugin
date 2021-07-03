@@ -29,9 +29,9 @@ import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.preview.ui.AddInputDialog;
 import org.mule.tooling.lang.dw.preview.ui.AddScenarioDialog;
 import org.mule.tooling.lang.dw.service.Scenario;
-import org.mule.tooling.lang.dw.service.WeaveRuntimeContextManager;
+import org.mule.tooling.lang.dw.service.WeaveRuntimeService;
 import org.mule.tooling.lang.dw.service.agent.RunPreviewCallback;
-import org.mule.tooling.lang.dw.service.agent.WeaveAgentRuntimeManager;
+import org.mule.tooling.lang.dw.service.agent.WeaveAgentService;
 import org.mule.tooling.lang.dw.settings.DataWeaveSettingsState;
 import org.mule.tooling.lang.dw.util.ScalaUtils;
 import org.mule.weave.v2.debugger.event.PreviewExecutedFailedEvent;
@@ -107,11 +107,11 @@ public class WeavePreviewComponent implements Disposable {
         group.add(new AnAction("Add New Scenario", "Adds a new scenario for the current mapping", AllIcons.General.Add) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
-                WeaveRuntimeContextManager manager = getScenariosManager();
+                WeaveRuntimeService manager = getScenariosManager();
                 AddScenarioDialog dialog = new AddScenarioDialog(myProject, manager, currentFile, (scenario) -> {
                     WeaveDocument currentWeaveDocument = getCurrentWeaveDocument();
                     if (currentWeaveDocument != null) {
-                        WeaveRuntimeContextManager.getInstance(myProject).setCurrentScenario(currentWeaveDocument, scenario);
+                        WeaveRuntimeService.getInstance(myProject).setCurrentScenario(currentWeaveDocument, scenario);
                         loadScenario(scenario);
                     }
                 });
@@ -182,7 +182,7 @@ public class WeavePreviewComponent implements Disposable {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
                 Scenario currentScenarioMaybe = ReadAction.compute(() -> getCurrentScenario());
-                WeaveRuntimeContextManager manager = getScenariosManager();
+                WeaveRuntimeService manager = getScenariosManager();
                 AddInputDialog dialog = new AddInputDialog(myProject, manager, currentScenarioMaybe, currentFile);
                 dialog.show();
             }
@@ -218,7 +218,7 @@ public class WeavePreviewComponent implements Disposable {
         outputComponent.setCurrentFile(psiFile);
         WeaveDocument weaveDocument = WeavePsiUtils.getWeaveDocument(psiFile);
         if (weaveDocument != null) {
-            WeaveRuntimeContextManager instance = getScenariosManager();
+            WeaveRuntimeService instance = getScenariosManager();
             List<Scenario> scenarios = instance.getScenariosFor(weaveDocument);
 
             if (scenarios.isEmpty()) {
@@ -306,7 +306,7 @@ public class WeavePreviewComponent implements Disposable {
             final String url = ReadAction.compute(() -> currentFile.getVirtualFile().getUrl());
             final Module module = ModuleUtil.findModuleForFile(currentFile.getVirtualFile(), myProject);
             if(module != null) {
-                final WeaveAgentRuntimeManager agentComponent = WeaveAgentRuntimeManager.getInstance(myProject);
+                final WeaveAgentService agentComponent = WeaveAgentService.getInstance(myProject);
                 agentComponent.runPreview(inputsPath, text, documentQName, url, (long) DataWeaveSettingsState.getInstance().getMaxTimePreview(), module, new MyRunPreviewCallback());
             }
         }
@@ -317,8 +317,8 @@ public class WeavePreviewComponent implements Disposable {
         return WeavePsiUtils.getWeaveDocument(currentFile);
     }
 
-    private WeaveRuntimeContextManager getScenariosManager() {
-        return WeaveRuntimeContextManager.getInstance(myProject);
+    private WeaveRuntimeService getScenariosManager() {
+        return WeaveRuntimeService.getInstance(myProject);
     }
 
     private Scenario getCurrentScenario() {
@@ -471,7 +471,7 @@ public class WeavePreviewComponent implements Disposable {
             return new ArrayList<>();
         }
         WeaveDocument weaveDocument = WeavePsiUtils.getWeaveDocument(selectedPsiFile);
-        WeaveRuntimeContextManager instance = WeaveRuntimeContextManager.getInstance(myProject);
+        WeaveRuntimeService instance = WeaveRuntimeService.getInstance(myProject);
         return instance.getScenariosFor(weaveDocument);
     }
 
@@ -514,7 +514,7 @@ public class WeavePreviewComponent implements Disposable {
                     @Override
                     public void actionPerformed(AnActionEvent e) {
                         WeaveDocument currentWeaveDocument = getCurrentWeaveDocument();
-                        WeaveRuntimeContextManager.getInstance(myProject).setCurrentScenario(currentWeaveDocument, scenario);
+                        WeaveRuntimeService.getInstance(myProject).setCurrentScenario(currentWeaveDocument, scenario);
                         loadScenario(scenario);
                     }
                 });

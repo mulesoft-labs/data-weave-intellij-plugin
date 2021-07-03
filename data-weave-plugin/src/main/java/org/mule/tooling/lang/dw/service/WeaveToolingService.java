@@ -12,8 +12,11 @@ import com.intellij.icons.AllIcons;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ReadAction;
-import com.intellij.openapi.components.AbstractProjectComponent;
+import com.intellij.openapi.components.Service;
 import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootEvent;
 import com.intellij.openapi.roots.ModuleRootListener;
@@ -35,32 +38,18 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.WeaveConstants;
 import org.mule.tooling.lang.dw.WeaveIcons;
+import org.mule.tooling.lang.dw.indexer.IJDataWeaveIndexerService;
 import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
 import org.mule.tooling.lang.dw.parser.psi.WeaveIdentifier;
 import org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.qn.WeaveQualifiedNameProvider;
-import org.mule.tooling.lang.dw.service.agent.WeaveAgentRuntimeManager;
+import org.mule.tooling.lang.dw.service.agent.WeaveAgentService;
 import org.mule.tooling.lang.dw.util.AsyncCache;
-import org.mule.weave.v2.completion.DataFormatDescriptor;
-import org.mule.weave.v2.completion.DataFormatDescriptorProvider;
-import org.mule.weave.v2.completion.DataFormatProperty;
-import org.mule.weave.v2.completion.Suggestion;
-import org.mule.weave.v2.completion.SuggestionType;
+import org.mule.weave.v2.completion.*;
 import org.mule.weave.v2.debugger.event.WeaveDataFormatDescriptor;
 import org.mule.weave.v2.debugger.event.WeaveDataFormatProperty;
-import org.mule.weave.v2.editor.ChangeListener;
-import org.mule.weave.v2.editor.ImplicitInput;
-import org.mule.weave.v2.editor.Link;
-import org.mule.weave.v2.editor.ModuleLoaderFactory;
-import org.mule.weave.v2.editor.QuickFixAction;
-import org.mule.weave.v2.editor.ReformatResult;
-import org.mule.weave.v2.editor.SpecificModuleResourceResolver;
-import org.mule.weave.v2.editor.ValidationMessages;
-import org.mule.weave.v2.editor.VariableDependency;
-import org.mule.weave.v2.editor.VirtualFile;
-import org.mule.weave.v2.editor.WeaveDocumentToolingService;
-import org.mule.weave.v2.editor.WeaveToolingService;
+import org.mule.weave.v2.editor.*;
 import org.mule.weave.v2.hover.HoverMessage;
 import org.mule.weave.v2.module.raml.RamlModuleLoader;
 import org.mule.weave.v2.parser.ast.AstNode;
@@ -75,32 +64,32 @@ import org.mule.weave.v2.sdk.WeaveResourceResolver;
 import org.mule.weave.v2.ts.WeaveType;
 import scala.Option;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
-public class WeaveEditorToolingAPI extends AbstractProjectComponent implements Disposable {
+@Service(Service.Level.PROJECT)
+public final class WeaveToolingService implements Disposable {
 
     public static final String RAML = "raml";
     public static final String JAVA = "java";
+    private IJDataWeaveIndexerService indexer;
     private IJVirtualFileSystemAdaptor projectVirtualFileSystem;
-    private WeaveToolingService dwTextDocumentService;
-    private final List<Runnable> onProjectCloseListener;
-    private final List<Runnable> onProjectOpenListener;
-    final MessageBus messageBus = ApplicationManager.getApplication().getMessageBus();
+    private org.mule.weave.v2.editor.WeaveToolingService dwTextDocumentService;
 
-    protected WeaveEditorToolingAPI(Project project) {
-        super(project);
-        this.onProjectCloseListener = new ArrayList<>();
-        this.onProjectOpenListener = new ArrayList<>();
+    final MessageBus messageBus = ApplicationManager.getApplication().getMessageBus();
+    private Project myProject;
+
+    public static WeaveToolingService getInstance(@NotNull Project project) {
+        return project.getService(WeaveToolingService.class);
     }
 
-    @Override
+    protected WeaveToolingService(Project project) {
+        this.myProject = project;
+        initComponent();
+    }
+
     public void initComponent() {
-        projectVirtualFileSystem = new IJVirtualFileSystemAdaptor(myProject);
+        this.indexer = new IJDataWeaveIndexerService(myProject);
+        this.projectVirtualFileSystem = new IJVirtualFileSystemAdaptor(myProject);
         final RemoteResourceResolver javaRemoteResolver = new RemoteResourceResolver(myProject);
         final RemoteResourceResolver ramlRemoteResolver = new RemoteResourceResolver(myProject);
         final ModuleLoaderFactory[] moduleResourceResolvers = {
@@ -116,10 +105,9 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
                 }
         };
 
-        final WeaveRuntimeContextManager weaveRuntime = WeaveRuntimeContextManager.getInstance(myProject);
-
-        final AsyDataFormatProvider dataFormatProvider = new AsyDataFormatProvider(weaveRuntime);
-        dwTextDocumentService = new WeaveToolingService(projectVirtualFileSystem, dataFormatProvider, moduleResourceResolvers);
+        final AsyncDataFormatProvider dataFormatProvider = new AsyncDataFormatProvider(myProject);
+        dwTextDocumentService = new org.mule.weave.v2.editor.WeaveToolingService(projectVirtualFileSystem, dataFormatProvider, moduleResourceResolvers)
+                .withSymbolsIndexService(indexer);
         projectVirtualFileSystem.changeListener(new ChangeListener() {
 
             private void invalidate(VirtualFile file) {
@@ -234,7 +222,7 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
     }
 
     private WeaveDocumentToolingService didOpen(PsiFile psiFile, boolean useExpectedOutput) {
-        final WeaveRuntimeContextManager instance = WeaveRuntimeContextManager.getInstance(myProject);
+        final WeaveRuntimeService instance = WeaveRuntimeService.getInstance(myProject);
         final WeaveDocument weaveDocument = ReadAction.compute(() -> WeavePsiUtils.getWeaveDocument(psiFile));
         final ImplicitInput currentImplicitTypes = instance.getImplicitInputTypes(weaveDocument);
         return ReadAction.compute(() -> {
@@ -405,9 +393,6 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
         return elementBuilder;
     }
 
-    public static WeaveEditorToolingAPI getInstance(@NotNull Project project) {
-        return project.getComponent(WeaveEditorToolingAPI.class);
-    }
 
     @Nullable
     public String documentation(PsiElement psiElement) {
@@ -493,28 +478,6 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
         }
     }
 
-    public void addOnOpenListener(Runnable runnable) {
-        onProjectOpenListener.add(runnable);
-    }
-
-    public void addOnCloseListener(Runnable runnable) {
-        onProjectCloseListener.add(runnable);
-    }
-
-    @Override
-    public void projectOpened() {
-        for (Runnable runnable : onProjectOpenListener) {
-            runnable.run();
-        }
-    }
-
-    @Override
-    public void projectClosed() {
-        for (Runnable runnable : onProjectCloseListener) {
-            runnable.run();
-        }
-    }
-
     @Nullable
     public String astString(PsiFile selectedFile) {
         Option<String> stringOption = didOpen(selectedFile, false).astString();
@@ -591,7 +554,7 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
 
         private Project myProject;
         private AsyncCache<NameIdentifier, Option<WeaveResource>> cache = new AsyncCache<NameIdentifier, Option<WeaveResource>>((name, callback) ->
-                WeaveAgentRuntimeManager.getInstance(myProject)
+                WeaveAgentService.getInstance(myProject)
                         .resolveModule(name.name(), name.loader().get(), myProject, event -> {
                             if (event.content().isDefined()) {
                                 String content = event.content().get();
@@ -622,25 +585,31 @@ public class WeaveEditorToolingAPI extends AbstractProjectComponent implements D
     }
 
 
-    private static class AsyDataFormatProvider implements DataFormatDescriptorProvider {
+    private static class AsyncDataFormatProvider implements DataFormatDescriptorProvider {
 
         private DataFormatDescriptor[] formats = new DataFormatDescriptor[0];
-        private WeaveRuntimeContextManager weaveRuntime;
+        private Project project;
 
-        public AsyDataFormatProvider(WeaveRuntimeContextManager weaveRuntime) {
-            this.weaveRuntime = weaveRuntime;
+        public AsyncDataFormatProvider(Project project) {
+            this.project = project;
             loadDataFormats();
         }
 
         public void loadDataFormats() {
-            weaveRuntime.availableDataFormat((dataFormatDescriptor) -> {
-                final List<DataFormatDescriptor> descriptors = new ArrayList<>();
-                for (WeaveDataFormatDescriptor weaveDataFormatDescriptor : dataFormatDescriptor) {
-                    final String mimeType = weaveDataFormatDescriptor.mimeType();
-                    final DataFormatDescriptor descriptor = DataFormatDescriptor.apply(mimeType, weaveDataFormatDescriptor.id(), toDataFormatProp(weaveDataFormatDescriptor.writerProperties()), toDataFormatProp(weaveDataFormatDescriptor.readerProperties()));
-                    descriptors.add(descriptor);
+            ProgressManager.getInstance().run(new Task.Backgroundable(project, "Loading data formats") {
+                @Override
+                public void run(@NotNull ProgressIndicator indicator) {
+                    WeaveRuntimeService weaveRuntimeService = WeaveRuntimeService.getInstance(project);
+                    weaveRuntimeService.availableDataFormat((dataFormatDescriptor) -> {
+                        final List<DataFormatDescriptor> descriptors = new ArrayList<>();
+                        for (WeaveDataFormatDescriptor weaveDataFormatDescriptor : dataFormatDescriptor) {
+                            final String mimeType = weaveDataFormatDescriptor.mimeType();
+                            final DataFormatDescriptor descriptor = DataFormatDescriptor.apply(mimeType, weaveDataFormatDescriptor.id(), toDataFormatProp(weaveDataFormatDescriptor.writerProperties()), toDataFormatProp(weaveDataFormatDescriptor.readerProperties()));
+                            descriptors.add(descriptor);
+                        }
+                        formats = descriptors.toArray(new DataFormatDescriptor[0]);
+                    });
                 }
-                formats = descriptors.toArray(new DataFormatDescriptor[0]);
             });
         }
 

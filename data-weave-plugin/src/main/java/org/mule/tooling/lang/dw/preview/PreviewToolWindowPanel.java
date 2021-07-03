@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.WeaveFileType;
 import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
-import org.mule.tooling.lang.dw.service.agent.WeaveAgentRuntimeManager;
+import org.mule.tooling.lang.dw.service.agent.WeaveAgentService;
 import org.mule.tooling.lang.dw.ui.MessagePanel;
 
 import javax.swing.*;
@@ -42,12 +42,12 @@ public class PreviewToolWindowPanel extends SimpleToolWindowPanel implements Dis
     private CardLayout cardLayout;
     private JComponent previewComponent;
 
-    private WeaveAgentRuntimeManager agentRuntimeManager;
+    private WeaveAgentService agentRuntimeManager;
 
     public PreviewToolWindowPanel(Project project) {
         super(false);
         this.myProject = project;
-        this.agentRuntimeManager = WeaveAgentRuntimeManager.getInstance(myProject);
+        this.agentRuntimeManager = WeaveAgentService.getInstance(myProject);
         cardLayout = new CardLayout();
         mainPanel = new JPanel(cardLayout);
         mainPanel.add(new MessagePanel("No DataWeave runtime found."), NO_RUNTIME_AVAILABLE);

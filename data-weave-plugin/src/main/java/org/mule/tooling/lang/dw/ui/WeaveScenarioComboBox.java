@@ -8,7 +8,7 @@ import org.jdesktop.swingx.combobox.ListComboBoxModel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.service.Scenario;
-import org.mule.tooling.lang.dw.service.WeaveRuntimeContextManager;
+import org.mule.tooling.lang.dw.service.WeaveRuntimeService;
 import org.mule.tooling.lang.dw.util.VirtualFileSystemUtils;
 import org.mule.weave.v2.parser.ast.variables.NameIdentifier;
 import scala.Option;
@@ -69,7 +69,7 @@ public class WeaveScenarioComboBox extends JComboBox<Scenario> {
 
   private List<Scenario> getScenarios() {
     final VirtualFile mappingFile = VirtualFileSystemUtils.resolve(module, NameIdentifier.apply(nameIdentifier, Option.empty()));
-    final WeaveRuntimeContextManager instance = WeaveRuntimeContextManager.getInstance(module.getProject());
+    final WeaveRuntimeService instance = WeaveRuntimeService.getInstance(module.getProject());
     return instance.getScenariosFor(mappingFile);
   }
 }

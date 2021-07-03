@@ -7,7 +7,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
-import org.mule.tooling.lang.dw.service.WeaveEditorToolingAPI;
+import org.mule.tooling.lang.dw.service.WeaveToolingService;
 
 public class VariableGraphToolingWindowPanel extends DotBasedToolingWindowPanel {
 
@@ -33,7 +33,7 @@ public class VariableGraphToolingWindowPanel extends DotBasedToolingWindowPanel 
     public void actionPerformed(AnActionEvent e) {
       PsiFile currentFile = getCurrentFile();
       if (currentFile != null) {
-        final String text = WeaveEditorToolingAPI.getInstance(project).scopeGraphString(currentFile);
+        final String text = WeaveToolingService.getInstance(project).scopeGraphString(currentFile);
         if (text != null) {
           updateDot(text);
         }

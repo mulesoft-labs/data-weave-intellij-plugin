@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.WeaveConstants;
 import org.mule.tooling.lang.dw.service.Scenario;
-import org.mule.tooling.lang.dw.service.WeaveRuntimeContextManager;
+import org.mule.tooling.lang.dw.service.WeaveRuntimeService;
 
 import javax.swing.*;
 import java.awt.event.KeyAdapter;
@@ -21,11 +21,11 @@ public class AddInputDialog extends DialogWrapper {
     private JPanel mainPanel;
     private JTextField nameField;
     private JComboBox<DataFormat> formatCombo;
-    private WeaveRuntimeContextManager manager;
+    private WeaveRuntimeService manager;
     private Scenario currentScenarioMaybe;
     private PsiFile currentFile;
 
-    public AddInputDialog(@Nullable Project project, WeaveRuntimeContextManager manager, Scenario currentScenario, PsiFile currentFile) {
+    public AddInputDialog(@Nullable Project project, WeaveRuntimeService manager, Scenario currentScenario, PsiFile currentFile) {
         super(project);
         this.manager = manager;
         currentScenarioMaybe = currentScenario;

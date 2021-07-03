@@ -24,7 +24,7 @@ import com.intellij.openapi.compiler.CompilationStatusListener;
 import com.intellij.openapi.compiler.CompileContext;
 import com.intellij.openapi.compiler.CompilerTopics;
 import com.intellij.openapi.compiler.DummyCompileContext;
-import com.intellij.openapi.components.ProjectComponent;
+import com.intellij.openapi.components.Service;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
@@ -61,7 +61,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class WeaveAgentRuntimeManager implements Disposable, ProjectComponent {
+@Service(Service.Level.PROJECT)
+public final class WeaveAgentService implements Disposable {
 
     public static final int MAX_RETRIES = 10;
     public static final long MAX_ALLOWED_WAIT = 10;
@@ -76,12 +77,13 @@ public class WeaveAgentRuntimeManager implements Disposable, ProjectComponent {
 
     private Alarm idleAgentAlarm = new Alarm(Alarm.ThreadToUse.POOLED_THREAD, this);
 
-    private static final Logger LOG = Logger.getInstance(WeaveAgentRuntimeManager.class);
+    private static final Logger LOG = Logger.getInstance(WeaveAgentService.class);
     private Project myProject;
 
-    protected WeaveAgentRuntimeManager(Project project) {
+    protected WeaveAgentService(Project project) {
         this.myProject = project;
         this.listeners = new ArrayList<>();
+        initialize();
     }
 
     public void addStatusListener(WeaveAgentStatusListener listener) {
@@ -91,9 +93,8 @@ public class WeaveAgentRuntimeManager implements Disposable, ProjectComponent {
         this.listeners.add(listener);
     }
 
-    @Override
-    public void projectOpened() {
 
+    public void initialize() {
         myProject.getMessageBus()
                 .connect(myProject)
                 .subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootListener() {
@@ -161,15 +162,6 @@ public class WeaveAgentRuntimeManager implements Disposable, ProjectComponent {
         this.disabled = false;
     }
 
-    @Override
-    public void projectClosed() {
-        tearDown();
-    }
-
-    @Override
-    public void disposeComponent() {
-        tearDown();
-    }
 
     public synchronized void init(ProgressIndicator indicator) {
         if (isEnabled() && (client == null || !client.isConnected())) {
@@ -515,13 +507,13 @@ public class WeaveAgentRuntimeManager implements Disposable, ProjectComponent {
         };
     }
 
-    public static WeaveAgentRuntimeManager getInstance(@NotNull Project project) {
-        return project.getComponent(WeaveAgentRuntimeManager.class);
+    public static WeaveAgentService getInstance(@NotNull Project project) {
+        return project.getService(WeaveAgentService.class);
     }
 
     @Override
     public void dispose() {
-
+        tearDown();
     }
 
     public interface WeaveAgentStatusListener {

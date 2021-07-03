@@ -9,7 +9,7 @@ import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.mule.tooling.lang.dw.launcher.configuration.WeaveConfiguration;
 import org.mule.tooling.lang.dw.service.Scenario;
-import org.mule.tooling.lang.dw.service.WeaveRuntimeContextManager;
+import org.mule.tooling.lang.dw.service.WeaveRuntimeService;
 import org.mule.tooling.lang.dw.util.VirtualFileSystemUtils;
 import org.mule.weave.v2.parser.ast.variables.NameIdentifier;
 import scala.Option;
@@ -40,7 +40,7 @@ public class WeaveRunnerCommandLine extends WeaveCommandLineState {
         if (!StringUtils.isBlank(scenario)) {
             VirtualFile resolve = VirtualFileSystemUtils.resolve(model.getModule(), NameIdentifier.apply(model.getNameIdentifier(), Option.<String>empty()));
             if (resolve != null) {
-                final WeaveRuntimeContextManager instance = WeaveRuntimeContextManager.getInstance(project);
+                final WeaveRuntimeService instance = WeaveRuntimeService.getInstance(project);
                 Scenario scenarioWithName = instance.getScenarioWithName(resolve, scenario);
                 if (scenarioWithName != null && scenarioWithName.getInputs() != null) {
                     javaParams.getProgramParametersList().add("-scenario", scenarioWithName.getInputs().getPath());

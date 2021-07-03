@@ -28,7 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.service.Scenario;
-import org.mule.tooling.lang.dw.service.WeaveRuntimeContextManager;
+import org.mule.tooling.lang.dw.service.WeaveRuntimeService;
 import org.mule.tooling.lang.dw.ui.MessagePanel;
 import org.mule.weave.v2.debugger.event.PreviewExecutedSuccessfulEvent;
 
@@ -208,7 +208,7 @@ public class OutputComponent implements Disposable {
 
         private Scenario getOrCreateScenario() {
             WeaveDocument document = WeavePsiUtils.getWeaveDocument(currentFile);
-            WeaveRuntimeContextManager manager = WeaveRuntimeContextManager.getInstance(myProject);
+            WeaveRuntimeService manager = WeaveRuntimeService.getInstance(myProject);
             Scenario currentScenario = manager.getCurrentScenarioFor(document);
             if (currentScenario == null || !currentScenario.isValid()) {
                 //create scenario

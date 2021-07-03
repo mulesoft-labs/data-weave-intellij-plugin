@@ -5,7 +5,7 @@ import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.application.WriteAction;
-import com.intellij.openapi.components.ProjectComponent;
+import com.intellij.openapi.components.Service;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtil;
@@ -29,7 +29,7 @@ import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.WeaveConstants;
 import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
-import org.mule.tooling.lang.dw.service.agent.WeaveAgentRuntimeManager;
+import org.mule.tooling.lang.dw.service.agent.WeaveAgentService;
 import org.mule.tooling.lang.dw.util.WeaveUtils;
 import org.mule.weave.v2.debugger.event.WeaveDataFormatDescriptor;
 import org.mule.weave.v2.debugger.event.WeaveTypeEntry;
@@ -49,9 +49,10 @@ import java.util.stream.Collectors;
 
 import static org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils.getWeaveDocument;
 
-public class WeaveRuntimeContextManager implements ProjectComponent, Disposable {
+@Service(Service.Level.PROJECT)
+public final class WeaveRuntimeService implements Disposable {
 
-    private static final Logger LOG = Logger.getInstance(WeaveRuntimeContextManager.class);
+    private static final Logger LOG = Logger.getInstance(WeaveRuntimeService.class);
 
     private Map<String, Scenario> selectedScenariosByMapping = new HashMap<>();
     private Map<Scenario, ImplicitInput> implicitInputTypes = new ConcurrentHashMap<>();
@@ -62,28 +63,15 @@ public class WeaveRuntimeContextManager implements ProjectComponent, Disposable 
     private Project myProject;
     private volatile boolean started;
 
-    private List<Runnable> onComponentStarted = new ArrayList<>();
+    public static WeaveRuntimeService getInstance(Project myProject) {
+        return myProject.getService(WeaveRuntimeService.class);
+    }
 
-
-    protected WeaveRuntimeContextManager(Project project) {
+    public WeaveRuntimeService(Project project) {
         myProject = project;
+        initComponent();
     }
 
-    public static WeaveRuntimeContextManager getInstance(Project myProject) {
-        return myProject.getComponent(WeaveRuntimeContextManager.class);
-    }
-
-    @Override
-    public void projectOpened() {
-        started = true;
-        ApplicationManager.getApplication().executeOnPooledThread(() -> {
-            for (Runnable runnable : onComponentStarted) {
-                runnable.run();
-            }
-        });
-    }
-
-    @Override
     public void initComponent() {
         PsiManager.getInstance(myProject).addPsiTreeChangeListener(new PsiTreeChangeAdapter() {
             @Override
@@ -139,7 +127,7 @@ public class WeaveRuntimeContextManager implements ProjectComponent, Disposable 
         }
         final Application app = ApplicationManager.getApplication();
         Runnable r = () -> {
-            if(myProject.isDisposed()){
+            if (myProject.isDisposed()) {
                 return; //sometime
             }
             final Module moduleForFile = ModuleUtil.findModuleForFile(modifiedFile, myProject);
@@ -159,23 +147,11 @@ public class WeaveRuntimeContextManager implements ProjectComponent, Disposable 
     }
 
     public void availableDataFormat(Consumer<WeaveDataFormatDescriptor[]> callback) {
-        runWhenStarted(() -> {
-            FutureResult<WeaveDataFormatDescriptor[]> futureResult = new FutureResult<>();
-            WeaveAgentRuntimeManager.getInstance(myProject).dataFormats((dataFormatEvent) -> {
-                WeaveDataFormatDescriptor[] formats = dataFormatEvent.formats();
-                callback.accept(formats);
-            });
+        FutureResult<WeaveDataFormatDescriptor[]> futureResult = new FutureResult<>();
+        WeaveAgentService.getInstance(myProject).dataFormats((dataFormatEvent) -> {
+            WeaveDataFormatDescriptor[] formats = dataFormatEvent.formats();
+            callback.accept(formats);
         });
-
-
-    }
-
-    private void runWhenStarted(Runnable runnable) {
-        if (started) {
-            runnable.run();
-        } else {
-            onComponentStarted.add(runnable);
-        }
     }
 
 
@@ -185,7 +161,7 @@ public class WeaveRuntimeContextManager implements ProjectComponent, Disposable 
             return modules;
         } else {
             FutureResult<String[]> futureResult = new FutureResult<>();
-            WeaveAgentRuntimeManager.getInstance(myProject).availableModules((modulesEvent) -> {
+            WeaveAgentService.getInstance(myProject).availableModules((modulesEvent) -> {
                 String[] modules = modulesEvent.modules();
                 this.modules = modules;
                 futureResult.set(modules);
@@ -238,7 +214,7 @@ public class WeaveRuntimeContextManager implements ProjectComponent, Disposable 
                 return null;
             } else {
                 final FutureResult<WeaveType> futureResult = new FutureResult<>();
-                WeaveAgentRuntimeManager.getInstance(myProject).calculateWeaveType(expectedOutput.getPath(), event -> {
+                WeaveAgentService.getInstance(myProject).calculateWeaveType(expectedOutput.getPath(), event -> {
                     WeaveType result = getWeaveServiceManager().parseType(event.typeString());
                     expectedOutputType.put(scenario, result);
                     futureResult.set(result);
@@ -262,15 +238,15 @@ public class WeaveRuntimeContextManager implements ProjectComponent, Disposable 
             return implicitInputTypes.get(currentScenario);
         } else {
             final FutureResult<ImplicitInput> futureResult = new FutureResult<>();
-            if (WeaveAgentRuntimeManager.getInstance(myProject).isWeaveRuntimeInstalled()) {
+            if (WeaveAgentService.getInstance(myProject).isWeaveRuntimeInstalled()) {
                 VirtualFile inputs = currentScenario.getInputs();
                 if (inputs != null) {
                     AppExecutorUtil.getAppExecutorService().submit(() -> {
-                                WeaveAgentRuntimeManager.getInstance(myProject)
+                                WeaveAgentService.getInstance(myProject)
                                         .calculateImplicitInputTypes(inputs.getPath(), event -> {
                                             final ImplicitInput implicitInput = new ImplicitInput();
                                             final WeaveTypeEntry[] weaveTypeEntries = event.types();
-                                            final WeaveEditorToolingAPI dataWeaveServiceManager = getWeaveServiceManager();
+                                            final WeaveToolingService dataWeaveServiceManager = getWeaveServiceManager();
                                             for (WeaveTypeEntry weaveTypeEntry : weaveTypeEntries) {
                                                 WeaveType weaveType = dataWeaveServiceManager.parseType(weaveTypeEntry.wtypeString());
                                                 if (weaveType == null) {
@@ -318,8 +294,8 @@ public class WeaveRuntimeContextManager implements ProjectComponent, Disposable 
         return (scala.collection.immutable.Map<K, V>) scala.collection.immutable.Map$.MODULE$.apply(seq);
     }
 
-    public WeaveEditorToolingAPI getWeaveServiceManager() {
-        return WeaveEditorToolingAPI.getInstance(myProject);
+    public WeaveToolingService getWeaveServiceManager() {
+        return WeaveToolingService.getInstance(myProject);
     }
 
     @Nullable
@@ -369,7 +345,7 @@ public class WeaveRuntimeContextManager implements ProjectComponent, Disposable 
 
     @NotNull
     public List<Scenario> getScenariosFor(WeaveDocument weaveDocument) {
-        if(weaveDocument == null){
+        if (weaveDocument == null) {
             return Collections.emptyList();
         }
         final List<Scenario> result = new ArrayList<>();
@@ -495,10 +471,6 @@ public class WeaveRuntimeContextManager implements ProjectComponent, Disposable 
         return WeaveUtils.getDWITFolder(module);
     }
 
-
     @Override
-    public void dispose() {
-
-    }
-
+    public void dispose() {}
 }

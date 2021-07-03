@@ -280,7 +280,7 @@
         <quoteHandler fileType="Weave" className="org.mule.tooling.lang.dw.WeaveQuoteHandler"/>
 
         <gotoClassContributor implementation="org.mule.tooling.lang.dw.navigation.GotoMappingContributor"/>
-
+        <fileBasedIndex  implementation="org.mule.tooling.lang.dw.indexer.WeaveGlobalDefinitionsIndexer"/>
         <lang.refactoringSupport language="Weave"
                                  implementationClass="org.mule.tooling.lang.dw.refactor.WeaveRefactoringSupportProvider"/>
         <lang.elementManipulator forClass="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
@@ -362,24 +362,6 @@
         <psi.referenceContributor language="yaml" implementation="org.mule.tooling.restsdk.reference.RestSdkReferenceContributor"/>
         <moduleBuilder builderClass="org.mule.tooling.restsdk.wizzard.RestSdkModuleBuilder"/>
     </extensions>
-
-    <project-components>
-        <component>
-            <implementation-class>org.mule.tooling.lang.dw.service.WeaveEditorToolingAPI</implementation-class>
-        </component>
-        <component>
-            <implementation-class>org.mule.tooling.lang.dw.service.agent.WeaveAgentRuntimeManager</implementation-class>
-        </component>
-        <component>
-            <implementation-class>org.mule.tooling.lang.dw.service.WeaveRuntimeContextManager</implementation-class>
-        </component>
-
-    </project-components>
-    <application-components>
-        <!-- Add your application components here -->
-    </application-components>
-
-
     <actions>
         <action id="org.mule.tooling.lang.dw.actions.WeaveFmtAction"
                 class="org.mule.tooling.lang.dw.actions.WeaveFmtAction"

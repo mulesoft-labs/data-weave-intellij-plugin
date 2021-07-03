@@ -8,7 +8,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
-import org.mule.tooling.lang.dw.service.WeaveEditorToolingAPI;
+import org.mule.tooling.lang.dw.service.WeaveToolingService;
 import org.mule.weave.v2.editor.VariableDependency;
 import org.mule.weave.v2.scope.VariableScope;
 
@@ -16,7 +16,7 @@ public class IntroduceConstantHandler extends IntroduceLocalVariableHandler {
 
     @Override
     public void invoke(@NotNull Project project, Editor editor, PsiFile psiFile, DataContext dataContext, PsiElement valueToReplace) {
-        WeaveEditorToolingAPI toolingAPI = WeaveEditorToolingAPI.getInstance(project);
+        WeaveToolingService toolingAPI = WeaveToolingService.getInstance(project);
         VariableScope variableScope = toolingAPI.scopeOf(getTargetScope(psiFile, valueToReplace));
         VariableDependency[] variableDependencies = toolingAPI.externalScopeDependencies(valueToReplace, variableScope);
         if (variableDependencies.length > 0) {

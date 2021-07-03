@@ -8,7 +8,7 @@ import com.intellij.psi.PsiWhiteSpace;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.parser.psi.*;
-import org.mule.tooling.lang.dw.service.WeaveEditorToolingAPI;
+import org.mule.tooling.lang.dw.service.WeaveToolingService;
 import org.mule.tooling.lang.dw.util.ScalaUtils;
 import org.mule.weave.v2.ts.FunctionType;
 import org.mule.weave.v2.ts.FunctionTypeParameter;
@@ -38,7 +38,7 @@ public class WeaveParameterInfoHandler implements ParameterInfoHandler<WeaveExpr
         final WeaveExpression functionCallExpression = getFunctionCallExpression(context);
         if (functionCallExpression != null) {
             final FunctionCallInformation element = FunctionCallInformation.fromWeaveExpression((WeaveExpression) functionCallExpression);
-            WeaveEditorToolingAPI instance = WeaveEditorToolingAPI.getInstance(context.getProject());
+            WeaveToolingService instance = WeaveToolingService.getInstance(context.getProject());
             WeaveType weaveType = instance.typeOf(element.getFunction());
             if (weaveType instanceof FunctionType) {
                 FunctionType functionType = (FunctionType) weaveType;

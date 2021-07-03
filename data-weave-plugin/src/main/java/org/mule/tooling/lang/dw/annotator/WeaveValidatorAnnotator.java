@@ -18,8 +18,8 @@ import org.mule.tooling.lang.dw.WeaveFileType;
 import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.service.IJWeaveTextDocument;
-import org.mule.tooling.lang.dw.service.WeaveEditorToolingAPI;
-import org.mule.tooling.lang.dw.service.WeaveRuntimeContextManager;
+import org.mule.tooling.lang.dw.service.WeaveToolingService;
+import org.mule.tooling.lang.dw.service.WeaveRuntimeService;
 import org.mule.tooling.lang.dw.util.AsyncCache;
 import org.mule.weave.v2.editor.ImplicitInput;
 import org.mule.weave.v2.editor.QuickFix;
@@ -52,8 +52,8 @@ public class WeaveValidatorAnnotator extends ExternalAnnotator<PsiFile, Validati
         final Project project = file.getProject();
         if (project.isDisposed()) return null;
 
-        final WeaveRuntimeContextManager scenariosManager = WeaveRuntimeContextManager.getInstance(project);
-        final WeaveEditorToolingAPI toolingAPI = WeaveEditorToolingAPI.getInstance(project);
+        final WeaveRuntimeService scenariosManager = WeaveRuntimeService.getInstance(project);
+        final WeaveToolingService toolingAPI = WeaveToolingService.getInstance(project);
         final ImplicitInput currentImplicitTypes = ReadAction.compute(() -> scenariosManager.getImplicitInputTypes(weaveDocument));
         final Boolean compute = ReadAction.compute(() -> WeavePsiUtils.getInputTypes(weaveDocument).isEmpty());
         //Also type check if
@@ -83,7 +83,7 @@ public class WeaveValidatorAnnotator extends ExternalAnnotator<PsiFile, Validati
             final WeaveLocation location = validationMessage.location();
             final int startIndex = getValidIndex(location.startPosition());
             final int endIndex = getValidIndex(location.endPosition());
-            final Annotation annotation = holder.createAnnotation(severity, new TextRange(startIndex, endIndex), validationMessage.message().message(), WeaveEditorToolingAPI.toHtml(validationMessage.message().message()));
+            final Annotation annotation = holder.createAnnotation(severity, new TextRange(startIndex, endIndex), validationMessage.message().message(), WeaveToolingService.toHtml(validationMessage.message().message()));
             final QuickFix[] quickFixes = validationMessage.quickFix();
             for (QuickFix quickFix : quickFixes) {
                 annotation.registerFix(new WeaveIntentionAction(quickFix));

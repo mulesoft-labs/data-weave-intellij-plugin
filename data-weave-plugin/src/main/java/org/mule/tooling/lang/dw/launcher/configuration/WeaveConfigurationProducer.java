@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.service.Scenario;
-import org.mule.tooling.lang.dw.service.WeaveRuntimeContextManager;
+import org.mule.tooling.lang.dw.service.WeaveRuntimeService;
 import org.mule.tooling.lang.dw.util.VirtualFileSystemUtils;
 import org.mule.tooling.lang.dw.util.WeaveUtils;
 import org.mule.weave.v2.parser.ast.variables.NameIdentifier;
@@ -35,7 +35,7 @@ public class WeaveConfigurationProducer extends JavaRunConfigurationProducerBase
                     final Module module = configurationContext.getModule();
                     if (module != null) {
                         weaveConfiguration.setModule(module);
-                        final WeaveRuntimeContextManager instance = WeaveRuntimeContextManager.getInstance(module.getProject());
+                        final WeaveRuntimeService instance = WeaveRuntimeService.getInstance(module.getProject());
                         final Scenario currentScenarioFor = instance.getCurrentScenarioFor(weaveDocument);
                         if (currentScenarioFor != null) {
                             weaveConfiguration.setScenario(currentScenarioFor.getName());

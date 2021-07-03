@@ -15,7 +15,7 @@ import org.mule.tooling.lang.dw.parser.psi.WeaveType;
 import org.mule.tooling.lang.dw.parser.psi.WeaveTypeDirective;
 import org.mule.tooling.lang.dw.parser.psi.WeaveVariableDirective;
 import org.mule.tooling.lang.dw.parser.psi.WeaveVariableReferenceExpression;
-import org.mule.tooling.lang.dw.service.WeaveEditorToolingAPI;
+import org.mule.tooling.lang.dw.service.WeaveToolingService;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -48,7 +48,7 @@ public class IntroduceLocalVariableHandler extends AbstractIntroduceDirectiveHan
         if (valueToReplace instanceof WeaveType) {
             return WeavePsiUtils.getWeaveDocument(psiFile);
         } else {
-            return WeaveEditorToolingAPI.getInstance(psiFile.getProject()).scopeOf(psiFile, valueToReplace);
+            return WeaveToolingService.getInstance(psiFile.getProject()).scopeOf(psiFile, valueToReplace);
         }
     }
 

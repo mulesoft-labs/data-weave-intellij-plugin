@@ -9,7 +9,7 @@ import com.intellij.openapi.editor.SelectionModel;
 import com.intellij.openapi.editor.VisualPosition;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.LightweightHint;
-import org.mule.tooling.lang.dw.service.WeaveEditorToolingAPI;
+import org.mule.tooling.lang.dw.service.WeaveToolingService;
 
 import javax.swing.*;
 import java.awt.*;
@@ -28,7 +28,7 @@ public class ShowTypeOfSelectionAction extends AbstractWeaveAction {
       final SelectionModel selectionModel = editor.getSelectionModel();
       final int selectionStart = selectionModel.getSelectionStart();
       final int selectionEnd = selectionModel.getSelectionEnd();
-      String weaveType = WeaveEditorToolingAPI.getInstance(project).typeOf(editor.getDocument(), selectionStart, selectionEnd);
+      String weaveType = WeaveToolingService.getInstance(project).typeOf(editor.getDocument(), selectionStart, selectionEnd);
       if (weaveType == null) {
         weaveType = "Unable to infer type of expression.";
       }
