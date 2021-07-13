@@ -22,6 +22,11 @@ public class RestSdkConfigurationStep extends ModuleWizardStep {
     }
 
     @Override
+    public JComponent getPreferredFocusedComponent() {
+        return ui.getName();
+    }
+
+    @Override
     public JComponent getComponent() {
         return ui.getContainer();
     }

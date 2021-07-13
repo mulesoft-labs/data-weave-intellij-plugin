@@ -77,7 +77,8 @@ fun mappingToObjectType(m: {mapping: {}}) =
         "properties":
                 m.mapping mapObject ((value, key, index) -> {
                     (key): mapPropertyValue(value)
-                })
+                }),
+        "additionalProperties": false        
     }
 
 fun extendsToRef(e: {'extends': String}) =

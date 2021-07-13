@@ -12,30 +12,29 @@ import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.model.MavenId;
+import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.idea.maven.utils.MavenUtil;
-import org.jetbrains.idea.maven.wizards.AbstractMavenModuleBuilder;
-import org.jetbrains.idea.maven.wizards.MavenModuleWizardStep;
-import org.jetbrains.idea.maven.wizards.SelectPropertiesStep;
+import org.mule.tooling.commons.wizard.maven.AbstractMavenBasedProjectBuilder;
+import org.mule.tooling.commons.wizard.maven.MavenCreatorUtils;
 import org.mule.tooling.lang.dw.WeaveIcons;
 
 import javax.swing.*;
 import java.io.File;
 import java.util.Objects;
 
-public class RestSdkModuleBuilder extends AbstractMavenModuleBuilder implements SourcePathsBuilder {
+public class RestSdkModuleBuilder extends AbstractMavenBasedProjectBuilder implements SourcePathsBuilder {
 
-    private RestSdkConfigurationModel dwModel;
+    private RestSdkConfigurationModel restSdkModel;
 
     public RestSdkModuleBuilder() {
-        this.dwModel = new RestSdkConfigurationModel("0.4.0-SNAPSHOT", "", ApiKind.OPEN_API);
+        this.restSdkModel = new RestSdkConfigurationModel("0.4.0-SNAPSHOT", "", ApiKind.OPEN_API);
         setProjectId(new MavenId("com.mulesoft.connectors", "mule4-connector-connector", "1.0.0-SNAPSHOT"));
     }
 
     public ModuleWizardStep[] createWizardSteps(@NotNull WizardContext wizardContext, @NotNull ModulesProvider modulesProvider) {
         return new ModuleWizardStep[]{
-                new MavenModuleWizardStep(this, wizardContext, false),
-                new RestSdkConfigurationStep(this.dwModel),
-                new SelectPropertiesStep(wizardContext.getProject(), this)
+                createMavenStep(),
+                new RestSdkConfigurationStep(this.restSdkModel)
         };
     }
 
@@ -45,12 +44,22 @@ public class RestSdkModuleBuilder extends AbstractMavenModuleBuilder implements 
         final Project project = rootModel.getProject();
         final VirtualFile root = createAndGetContentEntry();
         rootModel.addContentEntry(root);
-        //Check if this is a module and has parent
-        final MavenId parentId = (this.getParentProject() != null ? this.getParentProject().getMavenId() : null);
 
+        //Check if this is a module and has parent
+//   From ->      AbstractMavenModuleBuilder
+//        if (myEnvironmentForm != null) {
+//            myEnvironmentForm.setData(MavenProjectsManager.getInstance(project).getGeneralSettings());
+//        }
+//
+//        new MavenModuleBuilderHelper(myProjectId, myAggregatorProject, myParentProject, myInheritGroupId,
+//                myInheritVersion, myArchetype, myPropertiesToCreateByArtifact,
+//                MavenProjectBundle.message("command.name.create.new.maven.module")).configure(project, root, false);
         MavenUtil.runWhenInitialized(project, (DumbAwareRunnable) () -> {
-            RestSdkModuleInitializer.configure(project, getProjectId(), this.dwModel, root, parentId);
+            MavenCreatorUtils.createMavenStructure(root);
+            RestSdkModuleInitializer.configure(project, getProjectId(), this.restSdkModel, root);
+            MavenProjectsManager.getInstance(project).forceUpdateAllProjectsOrFindAllAvailablePomFiles();
         });
+
     }
 
     private VirtualFile createAndGetContentEntry() {
