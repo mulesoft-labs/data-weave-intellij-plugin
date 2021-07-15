@@ -1,13 +1,25 @@
 <idea-plugin>
     <idea-version since-build="203.8084.24"/>
     <id>org.mule.tooling.intellij.dataweave.v2</id>
-    <name>DataWeave 2.0.</name>
+    <name>Mulesoft DataWeave 2.0 And RestSdk.</name>
     <version>2.0.6</version>
     <vendor email="mariano.achaval@mulesoft.com" url="https://github.com/mulesoft-labs/data-weave-intellij-plugin">
         Mulesoft
     </vendor>
     <description><![CDATA[
-     DataWeave 2.0 Intellij Plugin. This plugin allows to edit, run debug data weave files.
+     This plugin add support for:
+      - DataWeave 2.0:
+        - Completion
+        - Refactor
+        - Navigation
+        - Debugging
+        - Preview Support
+        - Type Information
+      - RestSdk:
+        - Completion
+        - Navigation
+        - Basic Validation
+        - DataWeave injection
     ]]></description>
 
     <change-notes><![CDATA[
@@ -236,6 +248,17 @@
             <li>Improve support for Weave Testing Framework.</li>
             <li>Add support for Weave Integration Test.</li>
             <li>Fix classcast.</li>
+          </ul>
+        </li>
+      </ul>
+       <h1>v2.0.58</h1>
+      <ul>
+       <li>
+          <p>RestSDK Support</p>
+          <ul>
+            <li>Basic Completion.</li>
+            <li>Basic Navigation cross References.</li>
+            <li>Wizard support for new RestSdk project.</li>
           </ul>
         </li>
       </ul>
