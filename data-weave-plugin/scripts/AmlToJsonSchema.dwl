@@ -50,7 +50,6 @@ fun mapPropertyValue(value: {}) =
                 (mapVocabulary(value))
             }
         }
-
     }
     else if(value.allowMultiple default false) //The semantics of allowMultiple is that it can be the value of an Array of Values
         {
@@ -71,15 +70,19 @@ fun mapPropertyValue(value: {}) =
             (mapVocabulary(value))
         }
 
-fun mappingToObjectType(m: {mapping: {}}) =
+fun mappingToObjectType(m: {mapping: {}}) = do {
+    var requiredFields = namesOf(m.mapping filterObject ((value,key) ->  value.mandatory default false))
+    ---
     {
         "type": "object",
         "properties":
                 m.mapping mapObject ((value, key, index) -> {
                     (key): mapPropertyValue(value)
                 }),
-        "additionalProperties": false        
+        "additionalProperties": false,
+        ("required": requiredFields) if(!isEmpty(requiredFields))
     }
+}
 
 fun extendsToRef(e: {'extends': String}) =
     {"\$ref": "#/definitions/$(e.'extends')"}

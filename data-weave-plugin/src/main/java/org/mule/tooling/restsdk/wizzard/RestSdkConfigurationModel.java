@@ -11,7 +11,6 @@ public class RestSdkConfigurationModel {
         this.connectorName = connectorName;
     }
 
-
     public String getConnectorName() {
         return connectorName;
     }

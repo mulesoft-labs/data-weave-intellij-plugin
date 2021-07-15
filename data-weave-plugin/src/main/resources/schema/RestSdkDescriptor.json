@@ -141,6 +141,23 @@
       "description": "If set to true, all operations and triggers will be ignored unless explicitly set as not ignored.\nIf set to false, all operations and triggers will be generated unless explicitly ignored.\n",
       "title": "Ignore Operations Globally"
     },
+    "sidecarOperations": {
+      "type": "boolean",
+      "description": "Generate operations as sidecars.\n",
+      "title": "Generate operations as sidecars"
+    },
+    "operations": {
+      "type": "object",
+      "patternProperties": {
+        "^.*$": {
+          "$ref": "#/definitions/OperationAdapter",
+          "description": "List of operation adapters.",
+          "title": "Operation adapters"
+        }
+      },
+      "description": "List of operation adapters.",
+      "title": "Operation adapters"
+    },
     "sampleData": {
       "type": "object",
       "patternProperties": {
@@ -174,7 +191,11 @@
           "title": "Expression Content"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "value"
+      ]
     },
     "DataExpression": {
       "anyOf": [
@@ -232,7 +253,10 @@
           "title": "Expression Content"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "required": [
+        "expression"
+      ]
     },
     "HttpRequest": {
       "type": "object",
@@ -262,7 +286,11 @@
           "title": "HTTP Request's binding"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "method"
+      ]
     },
     "HttpRequestBinding": {
       "type": "object",
@@ -327,7 +355,10 @@
           "title": "Resolver Declarations's definition"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "required": [
+        "definition"
+      ]
     },
     "ResolverDefinition": {
 
@@ -353,7 +384,10 @@
           "title": "Resolver Reference's argument"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "required": [
+        "id"
+      ]
     },
     "ResolverParameter": {
       "type": "object",
@@ -377,7 +411,11 @@
           "title": "Parameter Type"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "type"
+      ]
     },
     "ResolverArgument": {
       "$ref": "#/definitions/Argument"
@@ -421,7 +459,10 @@
               "title": "Resolver Reference's id"
             }
           },
-          "additionalProperties": false
+          "additionalProperties": false,
+          "required": [
+            "id"
+          ]
         }
       ]
     },
@@ -444,7 +485,10 @@
               "title": "Simple Sample Data Definition's transformation"
             }
           },
-          "additionalProperties": false
+          "additionalProperties": false,
+          "required": [
+            "request"
+          ]
         }
       ]
     },
@@ -462,7 +506,10 @@
               "title": "Sample Data Definition's result"
             }
           },
-          "additionalProperties": false
+          "additionalProperties": false,
+          "required": [
+            "result"
+          ]
         }
       ]
     },
@@ -578,7 +625,10 @@
               "title": "Resolver Reference's id"
             }
           },
-          "additionalProperties": false
+          "additionalProperties": false,
+          "required": [
+            "id"
+          ]
         }
       ]
     },
@@ -601,7 +651,11 @@
               "title": "Value Provider's Items"
             }
           },
-          "additionalProperties": false
+          "additionalProperties": false,
+          "required": [
+            "request",
+            "items"
+          ]
         }
       ]
     },
@@ -647,6 +701,59 @@
         }
       ]
     },
+    "OperationAdapter": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "",
+          "title": ""
+        },
+        "base": {
+          "type": "string",
+          "description": "Base Operation.",
+          "title": "Base Operation"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "A human readable name.",
+          "title": "Display name"
+        },
+        "description": {
+          "type": "string",
+          "description": "",
+          "title": ""
+        },
+        "parameters": {
+          "type": "object",
+          "patternProperties": {
+            "^.*$": {
+              "$ref": "#/definitions/TriggerParameter",
+              "description": "A A list of the parameters the generated trigger will expose to the connector user.",
+              "title": "Trigger Parameters"
+            }
+          },
+          "description": "A A list of the parameters the generated trigger will expose to the connector user.",
+          "title": "Trigger Parameters"
+        },
+        "request": {
+          "$ref": "#/definitions/RequestBindings",
+          "description": "Request bindings.",
+          "title": "Request bindings"
+        },
+        "response": {
+          "$ref": "#/definitions/ResponseBindings",
+          "description": "Response bindings.",
+          "title": "Response bindings"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "base",
+        "displayName"
+      ]
+    },
     "ValueProviderItems": {
       "type": "object",
       "properties": {
@@ -666,7 +773,11 @@
           "title": "Value Provider Item Display Name"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "required": [
+        "extraction",
+        "value"
+      ]
     },
     "Trigger": {
       "type": "object",
@@ -758,7 +869,10 @@
           "title": "Ignored"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "required": [
+        "name"
+      ]
     },
     "TriggerParameter": {
       "type": "object",
@@ -791,13 +905,27 @@
           "description": "Declares the data type of a parameter.",
           "title": "Parameter Type"
         },
+        "typeSchema": {
+          "type": "string",
+          "description": "Allows to define or override the input type for an operation using a JSON or XSD Schema.\nIt's value should be the relativa path to a schema that will be used as the input type for the operation.\n",
+          "title": "Type Schema"
+        },
+        "mediaType": {
+          "type": "string",
+          "description": "Media type to use when executing this operation.",
+          "title": "Media type"
+        },
         "required": {
           "type": "boolean",
           "description": "Indicatres is a field is mandatory to be filled by the connector user.",
           "title": "Required"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "displayName"
+      ]
     },
     "TriggerParameterBindings": {
       "type": "object",
@@ -846,6 +974,124 @@
       },
       "additionalProperties": false
     },
+    "RequestBindings": {
+      "type": "object",
+      "properties": {
+        "uriParameter": {
+          "type": "object",
+          "patternProperties": {
+            "^.*$": {
+              "$ref": "#/definitions/TriggerParameterBinding",
+              "description": "",
+              "title": ""
+            }
+          },
+          "description": "",
+          "title": ""
+        },
+        "queryParameter": {
+          "type": "object",
+          "patternProperties": {
+            "^.*$": {
+              "$ref": "#/definitions/TriggerParameterBinding",
+              "description": "",
+              "title": ""
+            }
+          },
+          "description": "",
+          "title": ""
+        },
+        "header": {
+          "type": "object",
+          "patternProperties": {
+            "^.*$": {
+              "$ref": "#/definitions/TriggerParameterBinding",
+              "description": "",
+              "title": ""
+            }
+          },
+          "description": "",
+          "title": ""
+        },
+        "bodyParts": {
+          "type": "object",
+          "patternProperties": {
+            "^.*$": {
+              "$ref": "#/definitions/TriggerParameterBinding",
+              "description": "Request bindings.",
+              "title": "Request bindings"
+            }
+          },
+          "description": "Request bindings.",
+          "title": "Request bindings"
+        },
+        "body": {
+          "$ref": "#/definitions/Expression",
+          "description": "Allows defining an expression that will generate the request body for the source request to the server.",
+          "title": "Request Body Binding"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ResponseBindings": {
+      "type": "object",
+      "properties": {
+        "uriParameter": {
+          "type": "object",
+          "patternProperties": {
+            "^.*$": {
+              "$ref": "#/definitions/TriggerParameterBinding",
+              "description": "",
+              "title": ""
+            }
+          },
+          "description": "",
+          "title": ""
+        },
+        "queryParameter": {
+          "type": "object",
+          "patternProperties": {
+            "^.*$": {
+              "$ref": "#/definitions/TriggerParameterBinding",
+              "description": "",
+              "title": ""
+            }
+          },
+          "description": "",
+          "title": ""
+        },
+        "header": {
+          "type": "object",
+          "patternProperties": {
+            "^.*$": {
+              "$ref": "#/definitions/TriggerParameterBinding",
+              "description": "",
+              "title": ""
+            }
+          },
+          "description": "",
+          "title": ""
+        },
+        "bodyParts": {
+          "type": "object",
+          "patternProperties": {
+            "^.*$": {
+              "$ref": "#/definitions/TriggerParameterBinding",
+              "description": "Request bindings.",
+              "title": "Request bindings"
+            }
+          },
+          "description": "Request bindings.",
+          "title": "Request bindings"
+        },
+        "body": {
+          "$ref": "#/definitions/Expression",
+          "description": "Allows defining an expression that will generate the request body for the source request to the server.",
+          "title": "Request Body Binding"
+        }
+      },
+      "additionalProperties": false
+    },
     "TriggerParameterBinding": {
       "type": "object",
       "properties": {
@@ -853,6 +1099,16 @@
           "type": "string",
           "description": "",
           "title": ""
+        },
+        "typeSchema": {
+          "type": "string",
+          "description": "Allows to define or override the input type for an operation using a JSON or XSD Schema.\nIt's value should be the relativa path to a schema that will be used as the input type for the operation.\n",
+          "title": "Type Schema"
+        },
+        "mediaType": {
+          "type": "string",
+          "description": "Media type to use when executing this operation.",
+          "title": "Media type"
         },
         "value": {
           "type": "string",
@@ -865,7 +1121,40 @@
           "title": "Expression Language"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "value"
+      ]
+    },
+    "TriggerParameterBodyBinding": {
+      "type": "object",
+      "properties": {
+        "typeSchema": {
+          "type": "string",
+          "description": "Allows to define or override the input type for an operation using a JSON or XSD Schema.\nIt's value should be the relativa path to a schema that will be used as the input type for the operation.\n",
+          "title": "Type Schema"
+        },
+        "mediaType": {
+          "type": "string",
+          "description": "Media type to use when executing this operation.",
+          "title": "Media type"
+        },
+        "value": {
+          "type": "string",
+          "description": "The content of an expression.",
+          "title": "Expression Content"
+        },
+        "language": {
+          "type": "string",
+          "description": "The language of an expression.",
+          "title": "Expression Language"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "value"
+      ]
     },
     "TriggerWatermark": {
       "type": "object",
@@ -888,7 +1177,10 @@
           "title": "Trigger Watermark Type"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "required": [
+        "extraction"
+      ]
     },
     "TriggerItems": {
       "type": "object",
@@ -899,7 +1191,10 @@
           "title": "Trigger Item Extraction"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "required": [
+        "extraction"
+      ]
     },
     "TriggerIdentity": {
       "type": "object",
@@ -910,7 +1205,10 @@
           "title": "Trigger Identity Extraction"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "required": [
+        "extraction"
+      ]
     },
     "TestConnection": {
       "type": "object",
@@ -978,7 +1276,10 @@
           ]
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "required": [
+        "path"
+      ]
     },
     "TestConnectionResponseValidation": {
       "type": "object",
@@ -1015,7 +1316,10 @@
           "title": "API Spec URL"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "required": [
+        "url"
+      ]
     },
     "MavenGav": {
       "type": "object",
@@ -1036,7 +1340,12 @@
           "title": ""
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "required": [
+        "groupId",
+        "artifactId",
+        "version"
+      ]
     },
     "BaseUri": {
       "type": "object",
@@ -1200,7 +1509,11 @@
           "title": "Pagination Type"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "type"
+      ]
     },
     "OffsetPaginationDeclaration": {
       "allOf": [
@@ -1293,7 +1606,10 @@
           "title": "Pagination Response Expression"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "required": [
+        "offsetParamName"
+      ]
     },
     "MarkerPaginationParameters": {
       "type": "object",
@@ -1314,7 +1630,11 @@
           "title": "Pagination Response Expression"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "required": [
+        "nextTokenParamName",
+        "nextToken"
+      ]
     },
     "PageNumberPaginationParameters": {
       "type": "object",
@@ -1340,7 +1660,10 @@
           "title": "Pagination Response Expression"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "required": [
+        "pageNumberParamName"
+      ]
     },
     "HypermediaPaginationParameters": {
       "type": "object",
@@ -1356,7 +1679,10 @@
           "title": "Pagination Response Expression"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "required": [
+        "nextUrl"
+      ]
     },
     "EndPoint": {
       "type": "object",
@@ -1518,7 +1844,10 @@
           "title": "Sample Data"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "required": [
+        "method"
+      ]
     },
     "Request": {
       "type": "object",
@@ -1570,6 +1899,11 @@
           },
           "description": "Declares metadata for multipart parts that RAML and OAS 2.0 specs do not provide.",
           "title": "Part (Multipart)"
+        },
+        "body": {
+          "$ref": "#/definitions/BodyDescriptor",
+          "description": "Declares metadata for the body of the request",
+          "title": "Body"
         }
       },
       "additionalProperties": false
@@ -1631,7 +1965,47 @@
           "title": "Default Value"
         }
       },
+      "additionalProperties": false,
+      "required": [
+        "paramName"
+      ]
+    },
+    "BodyDescriptor": {
+      "type": "object",
+      "properties": {
+        "schema": {
+          "type": "object",
+          "patternProperties": {
+            "^.*$": {
+              "$ref": "#/definitions/BodySchema",
+              "description": "Declares metadata for the schema of the body",
+              "title": "Body Schema"
+            }
+          },
+          "description": "Declares metadata for the schema of the body",
+          "title": "Body Schema"
+        }
+      },
       "additionalProperties": false
+    },
+    "BodySchema": {
+      "type": "object",
+      "properties": {
+        "paramName": {
+          "type": "string",
+          "description": "",
+          "title": ""
+        },
+        "valueProvider": {
+          "$ref": "#/definitions/ValueProviderExpression",
+          "description": "The value provider expression to use.",
+          "title": "Value Provider"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "paramName"
+      ]
     },
     "PartDescriptor": {
       "type": "object",
@@ -1667,7 +2041,10 @@
           "title": "File Part"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "required": [
+        "partName"
+      ]
     },
     "Expression": {
       "type": "object",

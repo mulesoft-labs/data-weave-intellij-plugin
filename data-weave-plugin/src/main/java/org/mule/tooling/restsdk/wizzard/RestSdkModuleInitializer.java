@@ -25,6 +25,7 @@ public class RestSdkModuleInitializer {
     public static void configure(final Project project, final MavenId projectId, final RestSdkConfigurationModel model, final VirtualFile root) {
         try {
             VfsUtil.createDirectories(root.getPath() + "/src/main/resources");
+            VfsUtil.createDirectories(root.getPath() + "/src/main/override");
             final VirtualFile apiDirectory = VfsUtil.createDirectories(root.getPath() + "/src/main/resources/api");
             final VirtualFile descriptorsDirectory = VfsUtil.createDirectories(root.getPath() + "/src/main/resources/descriptor");
             VfsUtil.createDirectories(root.getPath() + "/src/test/resources");

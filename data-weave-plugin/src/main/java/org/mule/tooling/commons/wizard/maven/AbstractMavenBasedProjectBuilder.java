@@ -47,6 +47,10 @@ public abstract class AbstractMavenBasedProjectBuilder extends ModuleBuilder imp
         return myModel.getMavenId();
     }
 
+    public MavenInfoModel getMavenModel() {
+        return myModel;
+    }
+
     @Override
     public void setupRootModel(@NotNull ModifiableRootModel rootModel) {
         final Project project = rootModel.getProject();

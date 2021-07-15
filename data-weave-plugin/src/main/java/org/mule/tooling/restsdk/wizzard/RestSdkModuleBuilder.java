@@ -34,7 +34,7 @@ public class RestSdkModuleBuilder extends AbstractMavenBasedProjectBuilder imple
     public ModuleWizardStep[] createWizardSteps(@NotNull WizardContext wizardContext, @NotNull ModulesProvider modulesProvider) {
         return new ModuleWizardStep[]{
                 createMavenStep(),
-                new RestSdkConfigurationStep(this.restSdkModel)
+                new RestSdkConfigurationStep(this.restSdkModel, getMavenModel())
         };
     }
 

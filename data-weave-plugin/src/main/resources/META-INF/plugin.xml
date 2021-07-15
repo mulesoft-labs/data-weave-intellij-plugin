@@ -1,5 +1,5 @@
 <idea-plugin>
-    <idea-version since-build="193.7288.26"/>
+    <idea-version since-build="203.8084.24"/>
     <id>org.mule.tooling.intellij.dataweave.v2</id>
     <name>DataWeave 2.0.</name>
     <version>2.0.6</version>
