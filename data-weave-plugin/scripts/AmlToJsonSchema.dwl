@@ -71,7 +71,17 @@ fun mapPropertyValue(value: {}) =
         }
 
 fun mappingToObjectType(m: {mapping: {}}) = do {
-    var requiredFields = namesOf(m.mapping filterObject ((value,key) ->  value.mandatory default false))
+    var requiredFields = namesOf(m.mapping 
+                                    filterObject ((value,key) ->  do {
+                                            var required = value.mandatory default false
+                                            ---
+                                            if(required)
+                                                !contains(payload..mapTermKey, value.propertyTerm)
+                                            else
+                                                false
+                                        }
+                                     )
+                                )
     ---
     {
         "type": "object",
@@ -80,7 +90,9 @@ fun mappingToObjectType(m: {mapping: {}}) = do {
                     (key): mapPropertyValue(value)
                 }),
         "additionalProperties": false,
-        ("required": requiredFields) if(!isEmpty(requiredFields))
+        ("required": requiredFields) if(!isEmpty(requiredFields)),
+        description: vocabulary.classTerms[(m.classTerm substringAfter ".")].description default "",
+        title: vocabulary.classTerms[(m.classTerm substringAfter ".")].displayName default ""
     }
 }
 

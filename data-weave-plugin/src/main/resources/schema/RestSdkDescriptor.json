@@ -176,6 +176,8 @@
     }
   },
   "additionalProperties": false,
+  "description": "Declares the metadata that Rest SDK needs in order to process an API and generate a connector from it.",
+  "title": "Connector Descriptor",
   "definitions": {
     "Argument": {
       "type": "object",
@@ -193,9 +195,10 @@
       },
       "additionalProperties": false,
       "required": [
-        "name",
         "value"
-      ]
+      ],
+      "description": "An assignation of a value for a parameter.",
+      "title": "Argument"
     },
     "DataExpression": {
       "anyOf": [
@@ -256,7 +259,9 @@
       "additionalProperties": false,
       "required": [
         "expression"
-      ]
+      ],
+      "description": "A description of a script.",
+      "title": "Script Data Expression"
     },
     "HttpRequest": {
       "type": "object",
@@ -287,10 +292,8 @@
         }
       },
       "additionalProperties": false,
-      "required": [
-        "path",
-        "method"
-      ]
+      "description": "A description of an http request.",
+      "title": "Http Request"
     },
     "HttpRequestBinding": {
       "type": "object",
@@ -332,7 +335,9 @@
           "title": ""
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Allows defining the uri parameters, query parameters, headers and body that will be sent in the HTTP request using expressions.",
+      "title": "HTTP Request Binding"
     },
     "ResolverDeclaration": {
       "type": "object",
@@ -358,7 +363,9 @@
       "additionalProperties": false,
       "required": [
         "definition"
-      ]
+      ],
+      "description": "A declaration of a resolver. This includes the name, definition, and input parameters of the resolver.",
+      "title": "Resolver Declaration"
     },
     "ResolverDefinition": {
 
@@ -387,7 +394,9 @@
       "additionalProperties": false,
       "required": [
         "id"
-      ]
+      ],
+      "description": "A reference to a resolver declaration.",
+      "title": "Resolver Reference"
     },
     "ResolverParameter": {
       "type": "object",
@@ -413,9 +422,10 @@
       },
       "additionalProperties": false,
       "required": [
-        "name",
         "type"
-      ]
+      ],
+      "description": "A parameter declaration for a resolver.",
+      "title": "Resolver Parameter"
     },
     "ResolverArgument": {
       "$ref": "#/definitions/Argument"
@@ -441,7 +451,9 @@
               "title": "Resolver Declarations's definition"
             }
           },
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "A declaration of a sample data resolver.",
+          "title": "Sample Data Declaration"
         }
       ]
     },
@@ -462,7 +474,9 @@
           "additionalProperties": false,
           "required": [
             "id"
-          ]
+          ],
+          "description": "A reference to a sample data declaration.",
+          "title": "Sample Data Reference"
         }
       ]
     },
@@ -488,7 +502,9 @@
           "additionalProperties": false,
           "required": [
             "request"
-          ]
+          ],
+          "description": "The definition of a sample data resolver that does an HTTP request and optionally a transformation on its result.",
+          "title": "Sample Data HTTP Definition"
         }
       ]
     },
@@ -509,7 +525,9 @@
           "additionalProperties": false,
           "required": [
             "result"
-          ]
+          ],
+          "description": "A definition of a sample data resolver that allows using a custom data expression.",
+          "title": "Sample Data Custom Definition"
         }
       ]
     },
@@ -525,7 +543,9 @@
               "type": "string"
             }
           },
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "A sample data definition that will automatically match the operation/trigger result.",
+          "title": "Sample Data Same Operation Definition"
         }
       ]
     },
@@ -607,7 +627,9 @@
               "title": "Resolver Declarations's definition"
             }
           },
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "A declaration of a value provider resolver.",
+          "title": "Value Provider Declaration"
         }
       ]
     },
@@ -628,7 +650,9 @@
           "additionalProperties": false,
           "required": [
             "id"
-          ]
+          ],
+          "description": "A reference to a value provider declaration.",
+          "title": "Value Provider Reference"
         }
       ]
     },
@@ -655,7 +679,9 @@
           "required": [
             "request",
             "items"
-          ]
+          ],
+          "description": "The actual definition of a value provider.",
+          "title": "Value Provider Definition"
         }
       ]
     },
@@ -749,10 +775,11 @@
       },
       "additionalProperties": false,
       "required": [
-        "name",
         "base",
         "displayName"
-      ]
+      ],
+      "description": "Defines an operation adapter.",
+      "title": "Operation adapter"
     },
     "ValueProviderItems": {
       "type": "object",
@@ -777,7 +804,9 @@
       "required": [
         "extraction",
         "value"
-      ]
+      ],
+      "description": "Defines how the specific values will be extracted from the value provider’s server response.",
+      "title": "Value Provider Items"
     },
     "Trigger": {
       "type": "object",
@@ -870,9 +899,8 @@
         }
       },
       "additionalProperties": false,
-      "required": [
-        "name"
-      ]
+      "description": "A trigger definition for this connector.",
+      "title": "Trigger"
     },
     "TriggerParameter": {
       "type": "object",
@@ -923,9 +951,10 @@
       },
       "additionalProperties": false,
       "required": [
-        "name",
         "displayName"
-      ]
+      ],
+      "description": "The declaration of a parameter that the generated trigger will expose to the connector user.",
+      "title": "Trigger Parameter"
     },
     "TriggerParameterBindings": {
       "type": "object",
@@ -972,7 +1001,9 @@
           "title": "Request Body Binding"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "A list containing all the parameter bindings for this trigger.",
+      "title": "Trigger Parameter Bindings"
     },
     "RequestBindings": {
       "type": "object",
@@ -1031,7 +1062,9 @@
           "title": "Request Body Binding"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "A list containing all the parameter bindings for this trigger.",
+      "title": "Trigger Parameter Bindings"
     },
     "ResponseBindings": {
       "type": "object",
@@ -1090,7 +1123,9 @@
           "title": "Request Body Binding"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "A list containing all the parameter bindings for this trigger.",
+      "title": "Trigger Parameter Bindings"
     },
     "TriggerParameterBinding": {
       "type": "object",
@@ -1123,9 +1158,10 @@
       },
       "additionalProperties": false,
       "required": [
-        "name",
         "value"
-      ]
+      ],
+      "description": "A parameter binding for this trigger.\nThis binding defines the actual values -Or expressions- of the parameters that will be sent to the server.\n",
+      "title": "Trigger Parameter Binding"
     },
     "TriggerParameterBodyBinding": {
       "type": "object",
@@ -1154,7 +1190,9 @@
       "additionalProperties": false,
       "required": [
         "value"
-      ]
+      ],
+      "description": "A parameter binding for this trigger.\nThis binding defines the actual values -Or expressions- of the parameters that will be sent to the server.\n",
+      "title": "Trigger Parameter Binding"
     },
     "TriggerWatermark": {
       "type": "object",
@@ -1180,7 +1218,9 @@
       "additionalProperties": false,
       "required": [
         "extraction"
-      ]
+      ],
+      "description": "Allows defining how the watermark should be extracted from the server response.",
+      "title": "Trigger Watermark"
     },
     "TriggerItems": {
       "type": "object",
@@ -1194,7 +1234,9 @@
       "additionalProperties": false,
       "required": [
         "extraction"
-      ]
+      ],
+      "description": "Allows defining how the actual items should be extracted from the server response.",
+      "title": "Trigger Items"
     },
     "TriggerIdentity": {
       "type": "object",
@@ -1208,7 +1250,9 @@
       "additionalProperties": false,
       "required": [
         "extraction"
-      ]
+      ],
+      "description": "Allows defining how the items identity should be extracted from the server response.",
+      "title": "Trigger Identity"
     },
     "TestConnection": {
       "type": "object",
@@ -1279,7 +1323,9 @@
       "additionalProperties": false,
       "required": [
         "path"
-      ]
+      ],
+      "description": "Allows defining a way of validating the connection for the generated connector.\nThis property can be declared globally and it will get used for all the secuirty schemes defined in the API.\nYou can also define different test connection properties at a security scheme level.\n",
+      "title": "Test Connection"
     },
     "TestConnectionResponseValidation": {
       "type": "object",
@@ -1295,7 +1341,9 @@
           "title": "Test Connection Error Template"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Defines a validation that must be run against the server response to check if a connection is valid.",
+      "title": "Test Connection Response Validation"
     },
     "APISpec": {
       "anyOf": [
@@ -1319,7 +1367,9 @@
       "additionalProperties": false,
       "required": [
         "url"
-      ]
+      ],
+      "description": "",
+      "title": ""
     },
     "MavenGav": {
       "type": "object",
@@ -1345,7 +1395,9 @@
         "groupId",
         "artifactId",
         "version"
-      ]
+      ],
+      "description": "The maven's group, artifact and version that will be used when identifying an asset.",
+      "title": "Maven GAV"
     },
     "BaseUri": {
       "type": "object",
@@ -1378,7 +1430,9 @@
           "title": "Multiple base URI"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "A base URI for an API.",
+      "title": "Base URI"
     },
     "MultipleBaseUri": {
       "type": "object",
@@ -1399,7 +1453,9 @@
           "title": "Default base URI"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "A multiple base URI for an API.",
+      "title": "Multiple Base URI"
     },
     "PaginationDeclarationUnion": {
       "anyOf": [
@@ -1511,9 +1567,10 @@
       },
       "additionalProperties": false,
       "required": [
-        "name",
         "type"
-      ]
+      ],
+      "description": "Declares a pagination startegy that will be used with an API.",
+      "title": "Pagination Declaration"
     },
     "OffsetPaginationDeclaration": {
       "allOf": [
@@ -1529,7 +1586,9 @@
               "title": "Pagination Parameters"
             }
           },
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "Declares an offset pagination startegy that will be used with an API.",
+          "title": "Offset Pagination Declaration"
         }
       ]
     },
@@ -1547,7 +1606,9 @@
               "title": "Pagination Parameters"
             }
           },
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "Declares a marker pagination startegy that will be used with an API.",
+          "title": "Marker Pagination Declaration"
         }
       ]
     },
@@ -1565,7 +1626,9 @@
               "title": "Pagination Parameters"
             }
           },
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "Declares a page number pagination startegy that will be used with an API.",
+          "title": "Page Number Pagination Declaration"
         }
       ]
     },
@@ -1583,7 +1646,9 @@
               "title": "Pagination Parameters"
             }
           },
-          "additionalProperties": false
+          "additionalProperties": false,
+          "description": "Declares a hypermedia pagination startegy that will be used with an API.",
+          "title": "Hypermedia Pagination Declaration"
         }
       ]
     },
@@ -1609,7 +1674,9 @@
       "additionalProperties": false,
       "required": [
         "offsetParamName"
-      ]
+      ],
+      "description": "Declares a parameter that will be used within a pagination strategy.",
+      "title": "Pagination Parameter"
     },
     "MarkerPaginationParameters": {
       "type": "object",
@@ -1634,7 +1701,9 @@
       "required": [
         "nextTokenParamName",
         "nextToken"
-      ]
+      ],
+      "description": "Declares a parameter that will be used within a pagination strategy.",
+      "title": "Pagination Parameter"
     },
     "PageNumberPaginationParameters": {
       "type": "object",
@@ -1663,7 +1732,9 @@
       "additionalProperties": false,
       "required": [
         "pageNumberParamName"
-      ]
+      ],
+      "description": "Declares a parameter that will be used within a pagination strategy.",
+      "title": "Pagination Parameter"
     },
     "HypermediaPaginationParameters": {
       "type": "object",
@@ -1682,7 +1753,9 @@
       "additionalProperties": false,
       "required": [
         "nextUrl"
-      ]
+      ],
+      "description": "Declares a parameter that will be used within a pagination strategy.",
+      "title": "Pagination Parameter"
     },
     "EndPoint": {
       "type": "object",
@@ -1750,7 +1823,9 @@
           "title": "Security"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "",
+      "title": ""
     },
     "Operation": {
       "type": "object",
@@ -1845,9 +1920,8 @@
         }
       },
       "additionalProperties": false,
-      "required": [
-        "method"
-      ]
+      "description": "",
+      "title": ""
     },
     "Request": {
       "type": "object",
@@ -1906,7 +1980,9 @@
           "title": "Body"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "",
+      "title": ""
     },
     "Parameter": {
       "type": "object",
@@ -1966,9 +2042,8 @@
         }
       },
       "additionalProperties": false,
-      "required": [
-        "paramName"
-      ]
+      "description": "",
+      "title": ""
     },
     "BodyDescriptor": {
       "type": "object",
@@ -1986,7 +2061,9 @@
           "title": "Body Schema"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Declares metadata for the body of the request",
+      "title": "Body metadata"
     },
     "BodySchema": {
       "type": "object",
@@ -2003,9 +2080,8 @@
         }
       },
       "additionalProperties": false,
-      "required": [
-        "paramName"
-      ]
+      "description": "Declares metadata for the schema of the body",
+      "title": "Body schema metadata"
     },
     "PartDescriptor": {
       "type": "object",
@@ -2042,9 +2118,8 @@
         }
       },
       "additionalProperties": false,
-      "required": [
-        "partName"
-      ]
+      "description": "Declares metadata for a multipart part that RAML and OAS 2.0 specs do not provide.",
+      "title": "Metadata for multipart part"
     },
     "Expression": {
       "type": "object",
@@ -2060,7 +2135,9 @@
           "title": "Expression Content"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Declares an expression that is able to extract a value from an HTTP response.",
+      "title": "Extraction Expression"
     },
     "Security": {
       "type": "object",
@@ -2105,7 +2182,9 @@
           "title": "Test Connection"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Allows customizing the authentication methods to be used within this API",
+      "title": "Security"
     }
   }
 }

@@ -8,18 +8,22 @@
     </vendor>
     <description><![CDATA[
      This plugin add support for:
-      - DataWeave 2.0:
-        - Completion
-        - Refactor
-        - Navigation
-        - Debugging
-        - Preview Support
-        - Type Information
-      - RestSdk:
-        - Completion
-        - Navigation
-        - Basic Validation
-        - DataWeave injection
+      <h1>DataWeave 2.0:</h1>
+      <ul>
+        <li> Completion</li>
+        <li> Refactor</li>
+        <li> Navigation</li>
+        <li> Debugging</li>
+        <li> Preview Support</li>
+        <li> Type Information</li>
+       </ul>
+      <h1>RestSdk:</h1>
+      <ul>
+        <li> Completion</li>
+        <li> Navigation</li>
+        <li> Basic Validation</li>
+        <li> DataWeave injection</li>
+       </ul>
     ]]></description>
 
     <change-notes><![CDATA[
@@ -251,7 +255,7 @@
           </ul>
         </li>
       </ul>
-       <h1>v2.0.58</h1>
+      <h1>v2.0.58</h1>
       <ul>
        <li>
           <p>RestSDK Support</p>
@@ -259,6 +263,15 @@
             <li>Basic Completion.</li>
             <li>Basic Navigation cross References.</li>
             <li>Wizard support for new RestSdk project.</li>
+          </ul>
+        </li>
+      </ul>
+      <h1>v2.0.60</h1>
+      <ul>
+       <li>
+          <p>RestSDK Support</p>
+          <ul>
+            <li>Fix validation of missing property.</li>
           </ul>
         </li>
       </ul>

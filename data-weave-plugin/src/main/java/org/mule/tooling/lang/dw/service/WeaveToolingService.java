@@ -160,6 +160,7 @@ public final class WeaveToolingService implements Disposable {
 
     public List<LookupElement> completion(CompletionParameters completionParameters) {
         //First make sure is in the write context
+//        PsiElement context = completionParameters.getOriginalFile().getContext();
         final Document document = completionParameters.getEditor().getDocument();
         final WeaveDocumentToolingService weaveDocumentService = didOpen(document, true);
         final int offset = completionParameters.getOffset();
