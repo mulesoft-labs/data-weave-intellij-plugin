@@ -17,9 +17,7 @@ import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.WeaveFileType;
 import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
-import org.mule.tooling.lang.dw.service.IJWeaveTextDocument;
-import org.mule.tooling.lang.dw.service.WeaveToolingService;
-import org.mule.tooling.lang.dw.service.WeaveRuntimeService;
+import org.mule.tooling.lang.dw.service.*;
 import org.mule.tooling.lang.dw.util.AsyncCache;
 import org.mule.weave.v2.editor.ImplicitInput;
 import org.mule.weave.v2.editor.QuickFix;
@@ -29,6 +27,7 @@ import org.mule.weave.v2.parser.ScopePhaseCategory$;
 import org.mule.weave.v2.parser.location.Position;
 import org.mule.weave.v2.parser.location.WeaveLocation;
 
+import java.util.Optional;
 import java.util.stream.Stream;
 
 public class WeaveValidatorAnnotator extends ExternalAnnotator<PsiFile, ValidationMessages> {
@@ -54,7 +53,13 @@ public class WeaveValidatorAnnotator extends ExternalAnnotator<PsiFile, Validati
 
         final WeaveRuntimeService scenariosManager = WeaveRuntimeService.getInstance(project);
         final WeaveToolingService toolingAPI = WeaveToolingService.getInstance(project);
-        final ImplicitInput currentImplicitTypes = ReadAction.compute(() -> scenariosManager.getImplicitInputTypes(weaveDocument));
+        final ImplicitInput currentImplicitTypes;
+        Optional<InputOutputTypesProvider> inputOutputTypesProvider = InputOutputTypesExtensionService.inputOutputTypesProvider(file);
+        if (!inputOutputTypesProvider.isPresent()) {
+            currentImplicitTypes = ReadAction.compute(() -> scenariosManager.getImplicitInputTypes(weaveDocument));
+        } else {
+            currentImplicitTypes = inputOutputTypesProvider.get().inputTypes(file);
+        }
         final Boolean compute = ReadAction.compute(() -> WeavePsiUtils.getInputTypes(weaveDocument).isEmpty());
         //Also type check if
         final boolean shouldFilterVariableReferences = weaveDocument.isModuleDocument() || currentImplicitTypes != null || !compute;

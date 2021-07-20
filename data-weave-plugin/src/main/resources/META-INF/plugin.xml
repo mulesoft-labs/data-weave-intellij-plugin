@@ -283,9 +283,19 @@
     <depends>com.intellij.modules.java</depends>
     <depends>org.jetbrains.plugins.yaml</depends>
 
+    <extensionPoints>
+        <extensionPoint name="inputOutputTypes"
+                        interface="org.mule.tooling.lang.dw.service.InputOutputTypesProvider"/>
+    </extensionPoints>
+
+    <!-- Begins  REST SDK -->
+    <extensions defaultExtensionNs="org.mule.tooling.intellij.dataweave.v2">
+        <inputOutputTypes implementation="org.mule.tooling.restsdk.datasense.RestSdkInputOutputTypesProvider"/>
+    </extensions>
     <extensions defaultExtensionNs="JavaScript.JsonSchema">
         <ProviderFactory implementation="org.mule.tooling.restsdk.schema.RestSdkDescriptorJsonSchemaProviderFactory"/>
     </extensions>
+    <!-- FINISH REST SDK Extensions -->
 
     <extensions defaultExtensionNs="com.intellij">
 
@@ -301,12 +311,15 @@
         <runConfigurationProducer
                 implementation="org.mule.tooling.lang.dw.launcher.configuration.WeaveConfigurationProducer"/>
 
-        <configurationType implementation="org.mule.tooling.lang.dw.launcher.configuration.ui.test.WeaveTestConfigurationType"/>
-        <configurationType implementation="org.mule.tooling.lang.dw.launcher.configuration.ui.test.WeaveIntegrationTestConfigurationType"/>
+        <configurationType
+                implementation="org.mule.tooling.lang.dw.launcher.configuration.ui.test.WeaveTestConfigurationType"/>
+        <configurationType
+                implementation="org.mule.tooling.lang.dw.launcher.configuration.ui.test.WeaveIntegrationTestConfigurationType"/>
         <runConfigurationProducer
                 implementation="org.mule.tooling.lang.dw.launcher.configuration.ui.test.WeaveTestConfigurationProducer"/>
 
-        <fileType name="Weave" language="Weave" implementationClass="org.mule.tooling.lang.dw.WeaveFileType" fieldName="instance" extensions="dwl"/>
+        <fileType name="Weave" language="Weave" implementationClass="org.mule.tooling.lang.dw.WeaveFileType"
+                  fieldName="instance" extensions="dwl"/>
         <lang.parserDefinition language="Weave"
                                implementationClass="org.mule.tooling.lang.dw.parser.WeaveParserDefinition"/>
         <lang.syntaxHighlighterFactory language="Weave"
@@ -316,7 +329,7 @@
         <quoteHandler fileType="Weave" className="org.mule.tooling.lang.dw.WeaveQuoteHandler"/>
 
         <gotoClassContributor implementation="org.mule.tooling.lang.dw.navigation.GotoMappingContributor"/>
-        <fileBasedIndex  implementation="org.mule.tooling.lang.dw.indexer.WeaveGlobalDefinitionsIndexer"/>
+        <fileBasedIndex implementation="org.mule.tooling.lang.dw.indexer.WeaveGlobalDefinitionsIndexer"/>
         <lang.refactoringSupport language="Weave"
                                  implementationClass="org.mule.tooling.lang.dw.refactor.WeaveRefactoringSupportProvider"/>
         <lang.elementManipulator forClass="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
@@ -340,7 +353,8 @@
         <languageInjector implementation="org.mule.tooling.lang.dw.injector.StringInterpolationLanguageInjector"/>
 
         <breadcrumbsInfoProvider implementation="org.mule.tooling.lang.dw.breadcrums.WeaveBreadcrumbsInfoProvider"/>
-        <spellchecker.support language="Weave" implementationClass="org.mule.tooling.lang.dw.spellchecker.WeaveSpellCheckerStrategy"/>
+        <spellchecker.support language="Weave"
+                              implementationClass="org.mule.tooling.lang.dw.spellchecker.WeaveSpellCheckerStrategy"/>
         <!--<toolWindow id="Design Center" anchor="bottom"-->
         <!--factoryClass="org.mule.tooling.lang.browser.BrowserToolWindowFactory"/>-->
 
@@ -395,8 +409,10 @@
 
         <!--  REST-SDK      -->
 
-        <psi.referenceContributor language="yaml" implementation="org.mule.tooling.restsdk.reference.RestSdkReferenceContributor"/>
+        <psi.referenceContributor language="yaml"
+                                  implementation="org.mule.tooling.restsdk.reference.RestSdkReferenceContributor"/>
         <moduleBuilder builderClass="org.mule.tooling.restsdk.wizzard.RestSdkModuleBuilder"/>
+
     </extensions>
     <actions>
         <action id="org.mule.tooling.lang.dw.actions.WeaveFmtAction"

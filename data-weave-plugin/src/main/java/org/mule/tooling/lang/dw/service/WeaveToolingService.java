@@ -217,15 +217,24 @@ public final class WeaveToolingService implements Disposable {
         }
     }
 
-
     public ValidationMessages weaveDocCheck(PsiFile file) {
         return didOpen(file, false).validateDocs();
     }
 
     private WeaveDocumentToolingService didOpen(PsiFile psiFile, boolean useExpectedOutput) {
+        Optional<InputOutputTypesProvider> inputOutputTypesProvider = InputOutputTypesExtensionService.inputOutputTypesProvider(psiFile);
         final WeaveRuntimeService instance = WeaveRuntimeService.getInstance(myProject);
-        final WeaveDocument weaveDocument = ReadAction.compute(() -> WeavePsiUtils.getWeaveDocument(psiFile));
-        final ImplicitInput currentImplicitTypes = instance.getImplicitInputTypes(weaveDocument);
+        final ImplicitInput currentImplicitTypes;
+        final WeaveType expectedOutput;
+        if (!inputOutputTypesProvider.isPresent()) {
+            final WeaveDocument weaveDocument = ReadAction.compute(() -> WeavePsiUtils.getWeaveDocument(psiFile));
+            currentImplicitTypes = weaveDocument != null ? instance.getImplicitInputTypes(weaveDocument) : null;
+            expectedOutput = useExpectedOutput && weaveDocument != null ? instance.getExpectedOutput(weaveDocument) : null;
+        } else {
+            currentImplicitTypes = inputOutputTypesProvider.get().inputTypes(psiFile);
+            expectedOutput = useExpectedOutput ? inputOutputTypesProvider.get().expectedOutput(psiFile).orElse(null) : null;
+        }
+
         return ReadAction.compute(() -> {
             com.intellij.openapi.vfs.VirtualFile virtualFile = psiFile.getVirtualFile();
             final VirtualFile file;
@@ -238,7 +247,7 @@ public final class WeaveToolingService implements Disposable {
                 final String url = virtualFile.getUrl();
                 file = projectVirtualFileSystem.file(url);
             }
-            final WeaveType expectedOutput = useExpectedOutput ? instance.getExpectedOutput(weaveDocument) : null;
+
             final Option<WeaveType> apply = Option.apply(expectedOutput);
             if (virtualFile != null && virtualFile.isInLocalFileSystem()) {
                 ImplicitInput implicitInput = currentImplicitTypes != null ? currentImplicitTypes : new ImplicitInput();
@@ -563,8 +572,7 @@ public final class WeaveToolingService implements Disposable {
                                 callback.accept(resourceOption);
                                 dwTextDocumentService.invalidateModule(name);
                             } else {
-                                Option<WeaveResource> empty = Option.empty();
-                                callback.accept(empty);
+                                callback.accept(Option.<WeaveResource>empty());
                             }
                         })
         )
@@ -580,7 +588,7 @@ public final class WeaveToolingService implements Disposable {
 
         @Override
         public Option<WeaveResource> resolve(NameIdentifier name) {
-            return cache.resolve(name).orElse(Option.empty());
+            return cache.resolve(name).orElse(Option.<WeaveResource>empty());
         }
 
     }

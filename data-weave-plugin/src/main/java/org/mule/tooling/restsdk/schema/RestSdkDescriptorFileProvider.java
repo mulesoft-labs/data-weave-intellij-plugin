@@ -25,11 +25,15 @@ public class RestSdkDescriptorFileProvider implements JsonSchemaFileProvider {
     public boolean isAvailable(@NotNull VirtualFile file) {
         try {
             String text = VfsUtilCore.loadText(file, 2000);
-            return text.contains("#% Rest Connector Descriptor 1.0");
+            return isRestSdkDescriptor(text);
         } catch (IOException e) {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public static boolean isRestSdkDescriptor(String text) {
+        return text.contains("#% Rest Connector Descriptor 1.0");
     }
 
     @Override
