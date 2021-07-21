@@ -23,15 +23,22 @@ import java.util.Optional;
 public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider {
 
     public static final Path OPERATION_IDENTIFIER_PATH = Path.DOCUMENT.child("operationIdentifier").child("expression");
+    public static final Path OPERATION_DISPLAY_NAME_PATH = Path.DOCUMENT.child("operationDisplayName").child("expression");
     public static final Path PAGINATION_PATH = Path.DOCUMENT.child("paginations").child("*").child("pagingResponse").child("expression");
     public static final Path VALIDATION_PATH = Path.DOCUMENT.child("security").child("*").child("responseValidation").arrayItem().child("validation").child("expression");
     public static final Path ERROR_TEMPLATE_PATH = Path.DOCUMENT.child("security").child("*").child("responseValidation").arrayItem().child("validation").child("errorTemplate");
     public static final Path REFRESH_PATH = Path.DOCUMENT.child("security").child("*").child("refreshTokenCondition");
-    public static final Path TRIGGERS_PATH = Path.DOCUMENT.child("triggers").child("*").child("binding").any().any().child("value");
+    public static final Path TRIGGERS_BINDING = Path.DOCUMENT.child("triggers").child("*").child("binding");
+    public static final Path TRIGGERS_BINDING_PATH_URI_HEADER_QUERY = TRIGGERS_BINDING.any().any().child("value");
+    public static final Path TRIGGERS_BINDING_BODY = TRIGGERS_BINDING.child("body").child("expression");
     public static final Path TRIGGERS_WATERMARK_PATH = Path.DOCUMENT.child("triggers").child("*").child("watermark").child("extraction").child("expression");
     public static final Path TRIGGERS_ITEMS_PATH = Path.DOCUMENT.child("triggers").child("*").child("items").child("extraction").child("expression");
     public static final Path TRIGGERS_SAMPLE_DATA_PATH = Path.DOCUMENT.child("triggers").child("*").child("sampleData").child("transform").child("expression");
     public static final Path SAMPLE_DATA_URI_PARAMETER = Path.DOCUMENT.child("sampleData").any().child("definition").child("request").child("binding").any().any().child("value");
+
+    public static final Path VALUE_PROVIDER_PATH = Path.DOCUMENT.child("valueProviders").child("*").child("items").any().child("expression");
+    public static final Path TEST_CONNECTION_PATH = Path.DOCUMENT.child("security").child("*").child("testConnection")
+            .child("responseValidation").any().child("expression");
 
     public static final Path PARAMETERS_SELECTOR = Path.PARENT.parent().parent().parent().child("parameters");
     public static final Path PARAMETERS_SELECTOR_FROM_ITEMS = Path.PARENT.parent().parent().child("parameters");
@@ -58,17 +65,38 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
                 implicitInput.addInput("operationId", new StringType(Option.empty()));
                 implicitInput.addInput("method", new StringType(Option.empty()));
                 implicitInput.addInput("path", new StringType(Option.empty()));
-            } else if (path.matches(PAGINATION_PATH) || path.matches(VALIDATION_PATH) || path.matches(ERROR_TEMPLATE_PATH) || path.matches(REFRESH_PATH) || path.matches(TRIGGERS_SAMPLE_DATA_PATH)) {
+            } else if (path.matches(OPERATION_DISPLAY_NAME_PATH)) {
+                implicitInput.addInput("operationId", new StringType(Option.empty()));
+                implicitInput.addInput("method", new StringType(Option.empty()));
+                implicitInput.addInput("path", new StringType(Option.empty()));
+                implicitInput.addInput("summary", new StringType(Option.empty()));
+            }
+            else if (path.matches(PAGINATION_PATH) || path.matches(VALIDATION_PATH) || path.matches(ERROR_TEMPLATE_PATH) || path.matches(REFRESH_PATH) || path.matches(TRIGGERS_SAMPLE_DATA_PATH)) {
                 createPayloadWithAttributesInputs(implicitInput);
-            } else if (path.matches(TRIGGERS_PATH)) {
-                createTriggersInputs(implicitInput, context, PARAMETERS_SELECTOR);
+            } else if (path.matches(TRIGGERS_BINDING_PATH_URI_HEADER_QUERY) || path.matches(TRIGGERS_BINDING_BODY)) {
+                createTriggersBinding(implicitInput, context, PARAMETERS_SELECTOR);
             } else if (path.matches(TRIGGERS_WATERMARK_PATH) || path.matches(TRIGGERS_ITEMS_PATH)) {
                 createTriggersInputs(implicitInput, context, PARAMETERS_SELECTOR_FROM_ITEMS);
             } else if (path.matches(SAMPLE_DATA_URI_PARAMETER)) {
                 createTriggersInputs(implicitInput, context, PARAMETERS_SELECTOR_FROM_ROOT_SAMPLE_DATA);
+            }else if (path.matches(VALUE_PROVIDER_PATH)) {
+                createValueProviderInputs(implicitInput, context);
+            }else if (path.matches(TEST_CONNECTION_PATH)) {
+                createTestConnectionInputs(implicitInput, context);
             }
+
         }
         return implicitInput;
+    }
+
+    private void createTestConnectionInputs(ImplicitInput implicitInput, PsiElement context) {
+        implicitInput.addInput("payload", new AnyType()); //TODO can be inferred from the response of the requests being hit after?
+        implicitInput.addInput("attributes", createHttpAttributes());
+    }
+
+    private void createValueProviderInputs(ImplicitInput implicitInput, PsiElement context) {
+        implicitInput.addInput("payload", new AnyType()); //TODO can be inferred from the response of the requests being hit after?
+        implicitInput.addInput("item", new AnyType()); //TODO can be inferred from the response of the requests being hit after applying the `extraction` expression on it?
     }
 
     private void createPayloadWithAttributesInputs(ImplicitInput implicitInput) {
@@ -79,8 +107,14 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
     private void createTriggersInputs(ImplicitInput implicitInput, PsiElement context, Path parameters_selector) {
         ObjectType weaveType = loadParametersType(context, parameters_selector);
         implicitInput.addInput("payload", new AnyType());
-        implicitInput.addInput("watermark", new AnyType());
-        implicitInput.addInput("items", new AnyType());
+        implicitInput.addInput("watermark", new AnyType()); //TODO shoudln't this be a type of date?
+        implicitInput.addInput("item", new AnyType()); //TODO how can we extract the type from the `trigger>outputType` key schema?
+        implicitInput.addInput("parameters", weaveType);
+    }
+
+    private void createTriggersBinding(ImplicitInput implicitInput, PsiElement context, Path parameters_selector) {
+        ObjectType weaveType = loadParametersType(context, parameters_selector);
+        implicitInput.addInput("watermark", new AnyType());//TODO shoudln't this be a type of date?
         implicitInput.addInput("parameters", weaveType);
     }
 
@@ -126,7 +160,7 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
         PsiElement context = psiFile.getContext();
         if (context != null) {
             Path path = pathOf(context);
-            if (path.matches(OPERATION_IDENTIFIER_PATH) || path.matches(ERROR_TEMPLATE_PATH)) {
+            if (path.matches(OPERATION_IDENTIFIER_PATH) || path.matches(OPERATION_DISPLAY_NAME_PATH) || path.matches(ERROR_TEMPLATE_PATH)) {
                 return Optional.of(new StringType(Option.empty()));
             } else if (path.matches(PAGINATION_PATH)) {
                 return Optional.of(new ArrayType(new AnyType()));
