@@ -222,7 +222,7 @@ public final class WeaveToolingService implements Disposable {
     }
 
     private WeaveDocumentToolingService didOpen(PsiFile psiFile, boolean useExpectedOutput) {
-        Optional<InputOutputTypesProvider> inputOutputTypesProvider = InputOutputTypesExtensionService.inputOutputTypesProvider(psiFile);
+        Optional<InputOutputTypesProvider> inputOutputTypesProvider = ReadAction.compute(() -> InputOutputTypesExtensionService.inputOutputTypesProvider(psiFile));
         final WeaveRuntimeService instance = WeaveRuntimeService.getInstance(myProject);
         final ImplicitInput currentImplicitTypes;
         final WeaveType expectedOutput;
@@ -231,8 +231,8 @@ public final class WeaveToolingService implements Disposable {
             currentImplicitTypes = weaveDocument != null ? instance.getImplicitInputTypes(weaveDocument) : null;
             expectedOutput = useExpectedOutput && weaveDocument != null ? instance.getExpectedOutput(weaveDocument) : null;
         } else {
-            currentImplicitTypes = inputOutputTypesProvider.get().inputTypes(psiFile);
-            expectedOutput = useExpectedOutput ? inputOutputTypesProvider.get().expectedOutput(psiFile).orElse(null) : null;
+            currentImplicitTypes = ReadAction.compute(() -> inputOutputTypesProvider.get().inputTypes(psiFile));
+            expectedOutput = useExpectedOutput ? ReadAction.compute(() -> inputOutputTypesProvider.get().expectedOutput(psiFile)).orElse(null) : null;
         }
 
         return ReadAction.compute(() -> {

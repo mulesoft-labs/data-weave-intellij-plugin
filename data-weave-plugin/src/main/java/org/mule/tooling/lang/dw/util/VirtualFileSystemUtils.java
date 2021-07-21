@@ -13,6 +13,8 @@ import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.FileTypeIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 import org.jetbrains.annotations.NotNull;
@@ -25,6 +27,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 public class VirtualFileSystemUtils {
 
@@ -41,7 +44,14 @@ public class VirtualFileSystemUtils {
                 final String relativePath = scratchPath(project, vfs);
                 return NameIdentifierHelper.fromWeaveFilePath(relativePath);
             } else {
-                return NameIdentifierHelper.fromWeaveFilePath(vfs.getPath());
+                PsiFile file = PsiManager.getInstance(project).findFile(vfs);
+                if (file != null) {
+                    Optional<NameIdentifier> nameIdentifier = NameIdentifierService.resolveNameIdentifier(file);
+                    if (nameIdentifier.isPresent()) {
+                        return nameIdentifier.get();
+                    }
+                }
+                return NameIdentifierHelper.fromWeaveFilePath(vfs.getName());
             }
         }
     }

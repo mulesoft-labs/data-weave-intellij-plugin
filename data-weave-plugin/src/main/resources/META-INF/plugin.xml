@@ -284,13 +284,16 @@
     <depends>org.jetbrains.plugins.yaml</depends>
 
     <extensionPoints>
-        <extensionPoint name="inputOutputTypes"
+        <extensionPoint name="inputOutputTypesProvider"
                         interface="org.mule.tooling.lang.dw.service.InputOutputTypesProvider"/>
+        <extensionPoint name="nameIdentifierProvider"
+                        interface="org.mule.tooling.lang.dw.util.NameIdentifierProvider"/>
     </extensionPoints>
 
     <!-- Begins  REST SDK -->
     <extensions defaultExtensionNs="org.mule.tooling.intellij.dataweave.v2">
-        <inputOutputTypes implementation="org.mule.tooling.restsdk.datasense.RestSdkInputOutputTypesProvider"/>
+        <inputOutputTypesProvider implementation="org.mule.tooling.restsdk.datasense.RestSdkInputOutputTypesProvider"/>
+        <nameIdentifierProvider implementation="org.mule.tooling.restsdk.nameidentifier.RestSdkNameIdentifierProvider"/>
     </extensions>
     <extensions defaultExtensionNs="JavaScript.JsonSchema">
         <ProviderFactory implementation="org.mule.tooling.restsdk.schema.RestSdkDescriptorJsonSchemaProviderFactory"/>

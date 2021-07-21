@@ -9,7 +9,7 @@ import java.util.Optional;
 public class InputOutputTypesExtensionService {
 
     private static final ExtensionPointName<InputOutputTypesProvider> EP_NAME =
-            ExtensionPointName.create("org.mule.tooling.intellij.dataweave.v2.inputOutputTypes");
+            ExtensionPointName.create("org.mule.tooling.intellij.dataweave.v2.inputOutputTypesProvider");
 
 
     public static Optional<InputOutputTypesProvider> inputOutputTypesProvider(PsiFile file) {

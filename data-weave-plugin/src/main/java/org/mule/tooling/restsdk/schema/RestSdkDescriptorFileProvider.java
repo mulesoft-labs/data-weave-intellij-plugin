@@ -13,6 +13,8 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.net.URL;
 
+import static org.mule.tooling.restsdk.utils.RestSdkHelper.isRestSdkDescriptor;
+
 public class RestSdkDescriptorFileProvider implements JsonSchemaFileProvider {
 
     private Project project;
@@ -30,10 +32,6 @@ public class RestSdkDescriptorFileProvider implements JsonSchemaFileProvider {
             e.printStackTrace();
         }
         return false;
-    }
-
-    public static boolean isRestSdkDescriptor(String text) {
-        return text.contains("#% Rest Connector Descriptor 1.0");
     }
 
     @Override

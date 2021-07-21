@@ -33,6 +33,7 @@ import org.mule.tooling.lang.dw.service.WeaveRuntimeService;
 import org.mule.tooling.lang.dw.service.agent.RunPreviewCallback;
 import org.mule.tooling.lang.dw.service.agent.WeaveAgentService;
 import org.mule.tooling.lang.dw.settings.DataWeaveSettingsState;
+import org.mule.tooling.lang.dw.util.ModuleUtils;
 import org.mule.tooling.lang.dw.util.ScalaUtils;
 import org.mule.weave.v2.debugger.event.PreviewExecutedFailedEvent;
 import org.mule.weave.v2.debugger.event.PreviewExecutedSuccessfulEvent;
@@ -304,13 +305,15 @@ public class WeavePreviewComponent implements Disposable {
         });
         if (documentQName != null) {
             final String url = ReadAction.compute(() -> currentFile.getVirtualFile().getUrl());
-            final Module module = ModuleUtil.findModuleForFile(currentFile.getVirtualFile(), myProject);
-            if(module != null) {
+            final Module module = ModuleUtils.findModule(currentFile);
+            if (module != null) {
                 final WeaveAgentService agentComponent = WeaveAgentService.getInstance(myProject);
                 agentComponent.runPreview(inputsPath, text, documentQName, url, (long) DataWeaveSettingsState.getInstance().getMaxTimePreview(), module, new MyRunPreviewCallback());
             }
         }
     }
+
+
 
     @Nullable
     public WeaveDocument getCurrentWeaveDocument() {

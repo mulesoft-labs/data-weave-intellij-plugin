@@ -30,6 +30,7 @@ import org.mule.tooling.lang.dw.WeaveConstants;
 import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.service.agent.WeaveAgentService;
+import org.mule.tooling.lang.dw.util.ModuleUtils;
 import org.mule.tooling.lang.dw.util.WeaveUtils;
 import org.mule.weave.v2.debugger.event.WeaveDataFormatDescriptor;
 import org.mule.weave.v2.debugger.event.WeaveTypeEntry;
@@ -130,6 +131,7 @@ public final class WeaveRuntimeService implements Disposable {
             if (myProject.isDisposed()) {
                 return; //sometime
             }
+
             final Module moduleForFile = ModuleUtil.findModuleForFile(modifiedFile, myProject);
             app.runWriteAction(() -> {
                 final VirtualFile dwitFolder = getScenariosRootFolder(moduleForFile);
@@ -350,7 +352,7 @@ public final class WeaveRuntimeService implements Disposable {
         }
         final List<Scenario> result = new ArrayList<>();
         final PsiFile weaveFile = weaveDocument.getContainingFile();
-        final Module moduleForFile = ModuleUtil.findModuleForFile(weaveFile.getVirtualFile(), weaveFile.getProject());
+        final Module moduleForFile = ModuleUtils.findModule(weaveFile);
         if (moduleForFile != null) {
             List<VirtualFile> scenarios = findScenarios(weaveFile);
             result.addAll(scenarios.stream().map(Scenario::new).collect(Collectors.toList()));
@@ -418,7 +420,7 @@ public final class WeaveRuntimeService implements Disposable {
                 VirtualFile dwitFolder = getScenariosRootFolder(weaveFile);
                 if (dwitFolder == null) {
                     //See if "src/test/dwit exists, if not, create it
-                    final Module module = ModuleUtil.findModuleForFile(weaveFile.getVirtualFile(), weaveFile.getProject());
+                    final Module module = ModuleUtils.findModule(weaveFile);
                     if (module == null) {
                         return null;
                     }
@@ -434,7 +436,12 @@ public final class WeaveRuntimeService implements Disposable {
                     } else if (!testFolder.isDirectory()) {
                         return null;
                     }
-                    dwitFolder = testFolder.createChildDirectory(this, WeaveConstants.INTEGRATION_TEST_FOLDER_NAME);
+                    dwitFolder = testFolder.findChild(WeaveConstants.INTEGRATION_TEST_FOLDER_NAME);
+                    if (dwitFolder == null) {
+                        dwitFolder = testFolder.createChildDirectory(this, WeaveConstants.INTEGRATION_TEST_FOLDER_NAME);
+                    } else if (!dwitFolder.isDirectory()) {
+                        return null;
+                    }
                     ModifiableRootModel model = ModuleRootManager.getInstance(module).getModifiableModel();
                     ContentEntry[] entries = model.getContentEntries();
                     for (ContentEntry entry : entries) {
@@ -446,7 +453,16 @@ public final class WeaveRuntimeService implements Disposable {
                 final WeaveDocument document = WeavePsiUtils.getWeaveDocument(weaveFile);
                 if (document != null) {
                     String qName = getTestFolderName(document);
-                    return dwitFolder.createChildDirectory(this, qName);
+                    VirtualFile child = dwitFolder.findChild(qName);
+                    if (child == null) {
+                        return dwitFolder.createChildDirectory(this, qName);
+                    } else {
+                        if (child.isDirectory()) {
+                            return child;
+                        } else {
+                            return null;
+                        }
+                    }
                 } else {
                     return null;
                 }
@@ -459,7 +475,7 @@ public final class WeaveRuntimeService implements Disposable {
 
     @Nullable
     public VirtualFile getScenariosRootFolder(PsiFile weaveFile) {
-        final Module module = ModuleUtil.findModuleForFile(weaveFile.getVirtualFile(), weaveFile.getProject());
+        final Module module = ModuleUtils.findModule(weaveFile);
         if (module != null) {
             return getScenariosRootFolder(module);
         }
@@ -472,5 +488,6 @@ public final class WeaveRuntimeService implements Disposable {
     }
 
     @Override
-    public void dispose() {}
+    public void dispose() {
+    }
 }

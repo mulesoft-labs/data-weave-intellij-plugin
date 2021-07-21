@@ -54,11 +54,11 @@ public class WeaveValidatorAnnotator extends ExternalAnnotator<PsiFile, Validati
         final WeaveRuntimeService scenariosManager = WeaveRuntimeService.getInstance(project);
         final WeaveToolingService toolingAPI = WeaveToolingService.getInstance(project);
         final ImplicitInput currentImplicitTypes;
-        Optional<InputOutputTypesProvider> inputOutputTypesProvider = InputOutputTypesExtensionService.inputOutputTypesProvider(file);
+        Optional<InputOutputTypesProvider> inputOutputTypesProvider = ReadAction.compute(() -> InputOutputTypesExtensionService.inputOutputTypesProvider(file));
         if (!inputOutputTypesProvider.isPresent()) {
             currentImplicitTypes = ReadAction.compute(() -> scenariosManager.getImplicitInputTypes(weaveDocument));
         } else {
-            currentImplicitTypes = inputOutputTypesProvider.get().inputTypes(file);
+            currentImplicitTypes = ReadAction.compute(() -> inputOutputTypesProvider.get().inputTypes(file));
         }
         final Boolean compute = ReadAction.compute(() -> WeavePsiUtils.getInputTypes(weaveDocument).isEmpty());
         //Also type check if
