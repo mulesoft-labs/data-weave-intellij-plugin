@@ -67,7 +67,7 @@ public class WeaveConfigurationProducer extends JavaRunConfigurationProducerBase
         if (containingFile == null) {
             return false;
         }
-        final NameIdentifier nameIdentifier = VirtualFileSystemUtils.calculateNameIdentifier(containingFile.getProject(), containingFile.getVirtualFile());
+        final NameIdentifier nameIdentifier = VirtualFileSystemUtils.calculateNameIdentifier(containingFile.getProject(), containingFile);
         final String currentNameIdentifier = nameIdentifier.name();
         final WeaveDocument document = WeavePsiUtils.getDocument(containingFile);
         return module.equals(muleConfiguration.getModule()) && configurationNameIdentifier.equals(currentNameIdentifier) && !WeaveUtils.isTestFile(document);

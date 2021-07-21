@@ -1,11 +1,15 @@
 package org.mule.tooling.restsdk.datasense;
 
+import com.intellij.openapi.application.ReadAction;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
 import org.jetbrains.yaml.psi.YAMLMapping;
+import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
+import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.service.InputOutputTypesProvider;
+import org.mule.tooling.lang.dw.service.WeaveRuntimeService;
 import org.mule.tooling.restsdk.utils.YamlPath;
 import org.mule.weave.v2.editor.ImplicitInput;
 import org.mule.weave.v2.parser.ast.QName;
@@ -27,7 +31,8 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
     public static final YamlPath OPERATION_IDENTIFIER_PATH = YamlPath.DOCUMENT.child("operationIdentifier").child("expression");
 
     public static final YamlPath PAGINATION_PATH = YamlPath.DOCUMENT.child("paginations").any().child("pagingResponse").child("expression");
-    public static final YamlPath PAGINATION_PARAMETERS = YamlPath.DOCUMENT.child("paginations").any().child("parameters").any().child("expression");
+    public static final String PARAMETERS_KEY = "parameters";
+    public static final YamlPath PAGINATION_PARAMETERS = YamlPath.DOCUMENT.child("paginations").any().child(PARAMETERS_KEY).any().child("expression");
 
     public static final YamlPath SECURITY_VALIDATION_PATH = YamlPath.DOCUMENT.child("security").any().child("responseValidation").any().child("validation").child("expression");
     public static final YamlPath SECURITY_ERROR_TEMPLATE_PATH = YamlPath.DOCUMENT.child("security").any().child("responseValidation").any().child("validation").child("errorTemplate");
@@ -35,7 +40,8 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
 
     public static final YamlPath TRIGGERS_BINDING_VALUE = YamlPath.DOCUMENT.child("triggers").any().child("binding").any().any().child("value");
     public static final YamlPath TRIGGERS_BINDING_BODY_EXPRESSION = YamlPath.DOCUMENT.child("triggers").any().child("binding").any().child("expression");
-    public static final YamlPath TRIGGERS_WATERMARK_PATH = YamlPath.DOCUMENT.child("triggers").any().child("watermark").child("extraction").child("expression");
+    public static final String WATERMARK_KEY = "watermark";
+    public static final YamlPath TRIGGERS_WATERMARK_PATH = YamlPath.DOCUMENT.child("triggers").any().child(WATERMARK_KEY).child("extraction").child("expression");
     public static final YamlPath TRIGGERS_ITEMS_PATH = YamlPath.DOCUMENT.child("triggers").any().child("items").child("extraction").child("expression");
     public static final YamlPath TRIGGERS_SAMPLE_DATA_PATH = YamlPath.DOCUMENT.child("triggers").any().child("sampleData").child("transform").child("expression");
 
@@ -47,12 +53,16 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
 
     //    Selectors
 
-    public static final YamlPath PARAMETERS_SELECTOR_FROM_BODY_REQUEST = YamlPath.PARENT.parent().parent().child("parameters");
-    public static final YamlPath PARAMETERS_SELECTOR_FROM_QUERY_PARAMETER = YamlPath.PARENT.parent().parent().parent().child("parameters");
+    public static final YamlPath PARAMETERS_SELECTOR_FROM_BODY_REQUEST = YamlPath.PARENT.parent().parent().child(PARAMETERS_KEY);
+    public static final YamlPath PARAMETERS_SELECTOR_FROM_QUERY_PARAMETER = YamlPath.PARENT.parent().parent().parent().child(PARAMETERS_KEY);
 
-    public static final YamlPath PARAMETERS_SELECTOR = YamlPath.PARENT.parent().parent().parent().child("parameters");
-    public static final YamlPath PARAMETERS_SELECTOR_FROM_ITEMS = YamlPath.PARENT.parent().parent().child("parameters");
-    public static final YamlPath PARAMETERS_SELECTOR_FROM_ROOT_SAMPLE_DATA = YamlPath.PARENT.parent().parent().parent().parent().parent().child("parameters");
+    public static final YamlPath PARAMETERS_SELECTOR = YamlPath.PARENT.parent().parent().parent().child(PARAMETERS_KEY);
+    public static final YamlPath PARAMETERS_SELECTOR_FROM_ITEMS = YamlPath.PARENT.parent().parent().child(PARAMETERS_KEY);
+    public static final YamlPath PARAMETERS_SELECTOR_FROM_ROOT_SAMPLE_DATA = YamlPath.PARENT.parent().parent().parent().parent().parent().child(PARAMETERS_KEY);
+    public static final String PAYLOAD_KEY = "payload";
+    public static final String ITEM_KEY = "item";
+    public static final String ATTRIBUTES_KEY = "attributes";
+    public static final String LINK_KEY = "link";
 
     @Override
     public boolean support(PsiFile psiFile) {
@@ -66,9 +76,9 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
         if (context != null) {
             YamlPath path = pathOf(context);
             if (path.matches(OPERATION_IDENTIFIER_PATH)) {
-                implicitInput.addInput("operationId", new StringType(Option.empty()));
-                implicitInput.addInput("method", new StringType(Option.empty()));
-                implicitInput.addInput("path", new StringType(Option.empty()));
+                implicitInput.addInput("operationId", new StringType(Option.<String>empty()));
+                implicitInput.addInput("method", new StringType(Option.<String>empty()));
+                implicitInput.addInput("path", new StringType(Option.<String>empty()));
             } else if (path.matches(PAGINATION_PATH) || path.matches(SECURITY_VALIDATION_PATH)
                     || path.matches(SECURITY_ERROR_TEMPLATE_PATH) || path.matches(SECURITY_REFRESH_PATH)
                     || path.matches(TRIGGERS_SAMPLE_DATA_PATH)) {
@@ -91,41 +101,61 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
                 createPayloadWithAttributesInputs(implicitInput);
             }
         }
+
+        final ImplicitInput sampleImplicits = loadSampleImplicits(psiFile);
+        if (sampleImplicits != null) {
+            //Merge With sample data
+            final scala.collection.Iterator<String> mayBePayload = sampleImplicits.implicitInputs().keySet().iterator();
+            while (mayBePayload.hasNext()) {
+                String inputName = mayBePayload.next();
+                implicitInput.addInput(inputName, sampleImplicits.implicitInputs().apply(inputName));
+            }
+        }
         return implicitInput;
     }
 
+
+    private ImplicitInput loadSampleImplicits(PsiFile psiFile) {
+        final WeaveRuntimeService instance = WeaveRuntimeService.getInstance(psiFile.getProject());
+        final WeaveDocument weaveDocument = ReadAction.compute(() -> WeavePsiUtils.getWeaveDocument(psiFile));
+        return weaveDocument != null ? instance.getImplicitInputTypes(weaveDocument) : null;
+    }
+
+
     private void createValueProvider(ImplicitInput implicitInput) {
-        implicitInput.addInput("payload", new AnyType());
-        implicitInput.addInput("item", new AnyType());
+        implicitInput.addInput(PAYLOAD_KEY, new AnyType());
+        implicitInput.addInput(ITEM_KEY, new AnyType());
+
+
     }
 
     private void createOperationRequest(ImplicitInput implicitInput, PsiElement context, YamlPath parameters_selector) {
         ObjectType weaveType = loadParametersType(context, parameters_selector);
-        implicitInput.addInput("parameters", weaveType);
+        implicitInput.addInput(PARAMETERS_KEY, weaveType);
     }
 
     private void createOperationResponse(ImplicitInput implicitInput) {
-        implicitInput.addInput("payload", new AnyType());
-        implicitInput.addInput("attributes", createHttpAttributes());
+        implicitInput.addInput(PAYLOAD_KEY, new AnyType());
+        implicitInput.addInput(ATTRIBUTES_KEY, createHttpAttributes());
     }
 
     private void createPayloadWithAttributesInputs(ImplicitInput implicitInput) {
-        implicitInput.addInput("payload", new AnyType());
-        implicitInput.addInput("attributes", createHttpAttributes());
+        implicitInput.addInput(PAYLOAD_KEY, new AnyType());
+        implicitInput.addInput(ATTRIBUTES_KEY, createHttpAttributes());
     }
 
     private void createPaginationParametersInputs(ImplicitInput implicitInput) {
-        implicitInput.addInput("payload", new AnyType());
-        implicitInput.addInput("link", createEmptyObject());
-        implicitInput.addInput("attributes", createHttpAttributes());
+        implicitInput.addInput(PAYLOAD_KEY, new AnyType());
+        implicitInput.addInput(LINK_KEY, createEmptyObject());
+        implicitInput.addInput(ATTRIBUTES_KEY, createHttpAttributes());
     }
 
     private void createTriggersInputs(ImplicitInput implicitInput, PsiElement context, YamlPath parameters_selector) {
         ObjectType weaveType = loadParametersType(context, parameters_selector);
-        implicitInput.addInput("payload", new AnyType());
-        implicitInput.addInput("watermark", new AnyType());
-        implicitInput.addInput("item", new AnyType());
-        implicitInput.addInput("parameters", weaveType);
+        implicitInput.addInput(PAYLOAD_KEY, new AnyType());
+        implicitInput.addInput(WATERMARK_KEY, new AnyType());
+        implicitInput.addInput(ITEM_KEY, new AnyType());
+        implicitInput.addInput(PARAMETERS_KEY, weaveType);
     }
 
     @NotNull

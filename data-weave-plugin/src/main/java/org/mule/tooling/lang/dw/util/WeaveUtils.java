@@ -40,14 +40,14 @@ public class WeaveUtils {
         if (module == null) {
             return null;
         }
+
         final ModuleRootManager rootManager = ModuleRootManager.getInstance(module);
-        final VirtualFile[] sourceRoots = rootManager.getSourceRoots(true);
-        for (VirtualFile sourceRoot : sourceRoots) {
-            if (sourceRoot.isDirectory() && sourceRoot.getName().endsWith(WeaveConstants.INTEGRATION_TEST_FOLDER_NAME)) {
-                return sourceRoot;
-            }
+        VirtualFile moduleRoot = rootManager.getContentRoots()[0].findChild("src");
+        if (moduleRoot == null) {
+            return null;
         }
-        return null;
+        //Create it here
+        return moduleRoot.findFileByRelativePath(WeaveConstants.TEST_BASE_FOLDER_NAME + "/" + WeaveConstants.INTEGRATION_TEST_FOLDER_NAME);
     }
 
     @Nullable
@@ -55,14 +55,14 @@ public class WeaveUtils {
         if (module == null) {
             return null;
         }
+
         final ModuleRootManager rootManager = ModuleRootManager.getInstance(module);
-        final VirtualFile[] sourceRoots = rootManager.getSourceRoots(true);
-        for (VirtualFile sourceRoot : sourceRoots) {
-            if (sourceRoot.isDirectory() && sourceRoot.getName().endsWith(WeaveConstants.MODULE_INTEGRATION_TEST_FOLDER_NAME)) {
-                return sourceRoot;
-            }
+        VirtualFile moduleRoot = rootManager.getContentRoots()[0].findChild("src");
+        if (moduleRoot == null) {
+            return null;
         }
-        return null;
+        //Create it here
+        return moduleRoot.findFileByRelativePath(WeaveConstants.TEST_BASE_FOLDER_NAME + "/" + WeaveConstants.MODULE_INTEGRATION_TEST_FOLDER_NAME);
     }
 
 }

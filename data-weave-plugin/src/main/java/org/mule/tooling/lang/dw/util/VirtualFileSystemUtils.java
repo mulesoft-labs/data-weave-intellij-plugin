@@ -32,6 +32,12 @@ import java.util.Optional;
 public class VirtualFileSystemUtils {
 
     @NotNull
+    public static NameIdentifier calculateNameIdentifier(Project project, PsiFile vfs) {
+        Optional<NameIdentifier> nameIdentifier = NameIdentifierService.resolveNameIdentifier(vfs);
+        return nameIdentifier.orElseGet(() -> calculateNameIdentifier(project, vfs.getVirtualFile()));
+    }
+
+    @NotNull
     public static NameIdentifier calculateNameIdentifier(Project project, VirtualFile vfs) {
         final VirtualFile contentRootForFile = ProjectFileIndex.SERVICE.getInstance(project).getSourceRootForFile(vfs);
         if (contentRootForFile != null) {

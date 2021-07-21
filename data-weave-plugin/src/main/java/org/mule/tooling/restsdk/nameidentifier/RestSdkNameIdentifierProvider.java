@@ -24,7 +24,7 @@ public class RestSdkNameIdentifierProvider implements NameIdentifierProvider {
 
     private NameIdentifier toNameIdentifier(YamlPath yamlPath, PsiFile file) {
         if (yamlPath.getParent() == null || yamlPath.getKind() == YamlPath.Kind.DOCUMENT) {
-            return new NameIdentifier(file.getVirtualFile().getNameWithoutExtension(), Option.empty());
+            return new NameIdentifier(file.getVirtualFile().getNameWithoutExtension(), Option.<String>empty());
         } else {
             return toNameIdentifier(yamlPath.getParent(), file).child(yamlPath.getName());
         }

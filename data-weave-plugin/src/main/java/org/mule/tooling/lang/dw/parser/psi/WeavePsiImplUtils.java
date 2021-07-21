@@ -101,7 +101,7 @@ public class WeavePsiImplUtils {
     }
 
     public static NameIdentifier getNameIdentifier(PsiFile containingFile) {
-        return VirtualFileSystemUtils.calculateNameIdentifier(containingFile.getProject(), containingFile.getVirtualFile());
+        return VirtualFileSystemUtils.calculateNameIdentifier(containingFile.getProject(), containingFile);
     }
 
     @NotNull
