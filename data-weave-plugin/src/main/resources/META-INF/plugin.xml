@@ -275,6 +275,16 @@
           </ul>
         </li>
       </ul>
+       <h1>v2.0.62</h1>
+      <ul>
+       <li>
+          <p>RestSDK Support</p>
+          <ul>
+            <li>Add autocompletion of DW expressions with DataSense.</li>
+            <li>Allow injected expressions to work with WeavePreview Tool.</li>
+          </ul>
+        </li>
+      </ul>
     ]]>
     </change-notes>
 
