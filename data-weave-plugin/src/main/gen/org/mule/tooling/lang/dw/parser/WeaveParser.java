@@ -489,9 +489,20 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // LambdaType | CloseOrderedObjectType | OrderedObjectType | CloseObjectType | ObjectType  | ReferenceType | LiteralType | ('(' Type ')')
+  // (LambdaType | CloseOrderedObjectType | OrderedObjectType | CloseObjectType | ObjectType  | ReferenceType | LiteralType | ('(' Type ')')) (Schema)?
   static boolean BasicTypeExpression(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "BasicTypeExpression")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = BasicTypeExpression_0(b, l + 1);
+    r = r && BasicTypeExpression_1(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // LambdaType | CloseOrderedObjectType | OrderedObjectType | CloseObjectType | ObjectType  | ReferenceType | LiteralType | ('(' Type ')')
+  private static boolean BasicTypeExpression_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "BasicTypeExpression_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = LambdaType(b, l + 1);
@@ -501,19 +512,36 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     if (!r) r = ObjectType(b, l + 1);
     if (!r) r = ReferenceType(b, l + 1);
     if (!r) r = LiteralType(b, l + 1);
-    if (!r) r = BasicTypeExpression_7(b, l + 1);
+    if (!r) r = BasicTypeExpression_0_7(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
   }
 
   // '(' Type ')'
-  private static boolean BasicTypeExpression_7(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "BasicTypeExpression_7")) return false;
+  private static boolean BasicTypeExpression_0_7(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "BasicTypeExpression_0_7")) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, L_PARREN);
     r = r && Type(b, l + 1);
     r = r && consumeToken(b, R_PARREN);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // (Schema)?
+  private static boolean BasicTypeExpression_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "BasicTypeExpression_1")) return false;
+    BasicTypeExpression_1_0(b, l + 1);
+    return true;
+  }
+
+  // (Schema)
+  private static boolean BasicTypeExpression_1_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "BasicTypeExpression_1_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = Schema(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
   }
@@ -2687,17 +2715,15 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // FqnIdentifier ('<' Type (',' Type)* '>')? (Schema)?
+  // FqnIdentifier ('<' Type (',' Type)* '>')?
   public static boolean ReferenceType(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ReferenceType")) return false;
-    boolean r, p;
+    boolean r;
     Marker m = enter_section_(b, l, _NONE_, REFERENCE_TYPE, "<reference type>");
     r = FqnIdentifier(b, l + 1);
     r = r && ReferenceType_1(b, l + 1);
-    p = r; // pin = 2
-    r = r && ReferenceType_2(b, l + 1);
-    exit_section_(b, l, m, r, p, null);
-    return r || p;
+    exit_section_(b, l, m, r, false, null);
+    return r;
   }
 
   // ('<' Type (',' Type)* '>')?
@@ -2738,23 +2764,6 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     Marker m = enter_section_(b);
     r = consumeToken(b, COMMA);
     r = r && Type(b, l + 1);
-    exit_section_(b, m, null, r);
-    return r;
-  }
-
-  // (Schema)?
-  private static boolean ReferenceType_2(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "ReferenceType_2")) return false;
-    ReferenceType_2_0(b, l + 1);
-    return true;
-  }
-
-  // (Schema)
-  private static boolean ReferenceType_2_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "ReferenceType_2_0")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
-    r = Schema(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
   }

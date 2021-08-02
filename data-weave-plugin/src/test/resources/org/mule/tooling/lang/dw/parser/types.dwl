@@ -20,6 +20,14 @@ type User = {name: String,lastName: String, "key with spaces": Number}
 type Account = {email: String, id: String}
 type MyUser = Object {class: "com.mulesoft.MyUser"}
 
+type FieldDiff = {|
+  literal?: "SIMILAR" {"typeId": "org.mule.extension.salesforce.api.utility.DifferenceType"},
+  union?: ("DIFFERENT" | "NULL" | "SAME" | "SIMILAR") {"typeId": "org.mule.extension.salesforce.api.utility.DifferenceType"},
+  name?: String
+|} {"typeAlias": "FieldDiff",
+"class": "org.mule.extension.salesforce.api.utility.FieldDiff",
+"typeId": "org.mule.extension.salesforce.api.utility.FieldDiff"}
+
 fun test(value:Null):Null = null
 
 fun test2(value:Null, callback: (Nothing , Nothing) -> Any):Null = null

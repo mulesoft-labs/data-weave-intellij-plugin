@@ -29,6 +29,12 @@ public class WeaveIntersectionTypeImpl extends WeaveTypeImpl implements WeaveInt
 
   @Override
   @NotNull
+  public List<WeaveSchema> getSchemaList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, WeaveSchema.class);
+  }
+
+  @Override
+  @NotNull
   public List<WeaveType> getTypeList() {
     return PsiTreeUtil.getChildrenOfTypeAsList(this, WeaveType.class);
   }

@@ -10,9 +10,6 @@ public interface WeaveReferenceType extends WeaveType {
   @NotNull
   WeaveFqnIdentifier getFqnIdentifier();
 
-  @Nullable
-  WeaveSchema getSchema();
-
   @NotNull
   List<WeaveType> getTypeList();
 

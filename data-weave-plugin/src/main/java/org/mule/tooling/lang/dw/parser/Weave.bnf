@@ -574,7 +574,7 @@ private TypeLiteral ::= Type
 
 Type ::= UnionType
 
-private BasicTypeExpression ::= LambdaType | CloseOrderedObjectType | OrderedObjectType | CloseObjectType | ObjectType  | ReferenceType | LiteralType | ('(' Type ')')
+private BasicTypeExpression ::= (LambdaType | CloseOrderedObjectType | OrderedObjectType | CloseObjectType | ObjectType  | ReferenceType | LiteralType | ('(' Type ')')) (Schema)?
 
 TypeParameter ::= Identifier ( '<:' Type)? {
        methods = [getName setName getNameIdentifier]
@@ -614,7 +614,7 @@ LambdaTypeParameter ::= NamedLambdaTypeParameter | Type
 
 private NamedLambdaTypeParameter ::= Identifier ('?')? ':' Type {pin=3}
 
-ReferenceType ::= FqnIdentifier ('<' Type (',' Type)* '>')? (Schema)? {pin = 2}
+ReferenceType ::= FqnIdentifier ('<' Type (',' Type)* '>')? {pin = 2}
 
 DataFormat ::= MIME_TYPE_KEYWORD
 

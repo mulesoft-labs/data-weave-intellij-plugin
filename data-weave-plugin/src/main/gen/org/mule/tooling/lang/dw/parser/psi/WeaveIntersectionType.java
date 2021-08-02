@@ -8,6 +8,9 @@ import com.intellij.psi.PsiElement;
 public interface WeaveIntersectionType extends WeaveType {
 
   @NotNull
+  List<WeaveSchema> getSchemaList();
+
+  @NotNull
   List<WeaveType> getTypeList();
 
 }
