@@ -41,7 +41,7 @@ public class RestSdkDescriptorFileProvider implements JsonSchemaFileProvider {
 
     @Override
     public @Nullable VirtualFile getSchemaFile() {
-        URL resource = getClass().getClassLoader().getResource("/schema/RestSdkDescriptor.json");
+        URL resource = getClass().getClassLoader().getResource("schema/RestSdkDescriptor.json");
         assert resource != null;
         return VfsUtil.findFileByURL(resource);
     }
