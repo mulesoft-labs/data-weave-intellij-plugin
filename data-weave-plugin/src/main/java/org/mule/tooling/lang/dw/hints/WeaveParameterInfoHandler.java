@@ -1,6 +1,5 @@
 package org.mule.tooling.lang.dw.hints;
 
-import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.lang.parameterInfo.*;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -19,18 +18,6 @@ import java.util.Collections;
 import java.util.List;
 
 public class WeaveParameterInfoHandler implements ParameterInfoHandler<WeaveExpression, WeaveParameterInfoHandler.ArgumentCallInfo> {
-
-
-    @Override
-    public boolean couldShowInLookup() {
-        return false;
-    }
-
-    @Nullable
-    @Override
-    public Object[] getParametersForLookup(LookupElement item, ParameterInfoContext context) {
-        return null;
-    }
 
     @Nullable
     @Override
@@ -67,7 +54,6 @@ public class WeaveParameterInfoHandler implements ParameterInfoHandler<WeaveExpr
         }
         PsiElement parent = WeavePsiUtils.getParent(elementAt, (element) -> element instanceof WeaveFunctionCallExpression || element instanceof WeaveBinaryExpression);
         if (parent instanceof WeaveFunctionCallExpression || parent instanceof WeaveBinaryExpression) {
-
             return (WeaveExpression) parent;
         } else {
             return null;

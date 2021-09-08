@@ -49,7 +49,7 @@ public class VirtualFileSystemUtils {
             } else if (ScratchUtil.isScratch(vfs)) {
                 final String relativePath = scratchPath(project, vfs);
                 return NameIdentifierHelper.fromWeaveFilePath(relativePath);
-            } else {
+            } else if (vfs.isValid()) {
                 PsiFile file = PsiManager.getInstance(project).findFile(vfs);
                 if (file != null) {
                     Optional<NameIdentifier> nameIdentifier = NameIdentifierService.resolveNameIdentifier(file);
@@ -57,6 +57,8 @@ public class VirtualFileSystemUtils {
                         return nameIdentifier.get();
                     }
                 }
+                return NameIdentifierHelper.fromWeaveFilePath(vfs.getName());
+            } else {
                 return NameIdentifierHelper.fromWeaveFilePath(vfs.getName());
             }
         }

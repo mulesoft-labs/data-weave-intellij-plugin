@@ -410,6 +410,7 @@
           "type": "string",
           "enum": [
             "integer",
+            "long",
             "number",
             "string",
             "localDateTime",
@@ -754,7 +755,7 @@
           "type": "object",
           "patternProperties": {
             "^.*$": {
-              "$ref": "#/definitions/TriggerParameter",
+              "$ref": "#/definitions/AuxiliarParameter",
               "description": "A A list of the parameters the generated trigger will expose to the connector user.",
               "title": "Trigger Parameters"
             }
@@ -763,14 +764,19 @@
           "title": "Trigger Parameters"
         },
         "request": {
-          "$ref": "#/definitions/RequestBindings",
+          "$ref": "#/definitions/Bindings",
           "description": "Request bindings.",
           "title": "Request bindings"
         },
         "response": {
-          "$ref": "#/definitions/ResponseBindings",
+          "$ref": "#/definitions/Bindings",
           "description": "Response bindings.",
           "title": "Response bindings"
+        },
+        "sampleData": {
+          "$ref": "#/definitions/SampleDataExpression",
+          "description": "The sample data expression to use.",
+          "title": "Sample Data"
         }
       },
       "additionalProperties": false,
@@ -858,7 +864,7 @@
           "title": "Trigger Parameters"
         },
         "binding": {
-          "$ref": "#/definitions/TriggerParameterBindings",
+          "$ref": "#/definitions/ParameterBindings",
           "description": "A list containing all the parameter bindings for this trigger.",
           "title": "Trigger Parameter Bindings"
         },
@@ -871,6 +877,11 @@
           "$ref": "#/definitions/TriggerWatermark",
           "description": "Allows defining how the watermark should be extracted from the server response.",
           "title": "Trigger Watermark"
+        },
+        "event": {
+          "$ref": "#/definitions/TriggerEvent",
+          "description": "",
+          "title": ""
         },
         "identity": {
           "$ref": "#/definitions/TriggerIdentity",
@@ -924,6 +935,7 @@
           "type": "string",
           "enum": [
             "integer",
+            "long",
             "number",
             "string",
             "localDateTime",
@@ -956,14 +968,74 @@
       "description": "The declaration of a parameter that the generated trigger will expose to the connector user.",
       "title": "Trigger Parameter"
     },
-    "TriggerParameterBindings": {
+    "AuxiliarParameter": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "",
+          "title": ""
+        },
+        "displayName": {
+          "type": "string",
+          "description": "A human readable name.",
+          "title": "Display name"
+        },
+        "description": {
+          "type": "string",
+          "description": "",
+          "title": ""
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "integer",
+            "number",
+            "long",
+            "string",
+            "localDateTime",
+            "zonedDateTime",
+            "boolean"
+          ],
+          "description": "Declares the data type of a parameter.",
+          "title": "Parameter Type"
+        },
+        "typeSchema": {
+          "type": "string",
+          "description": "Allows to define or override the input type for an operation using a JSON or XSD Schema.\nIt's value should be the relativa path to a schema that will be used as the input type for the operation.\n",
+          "title": "Type Schema"
+        },
+        "mediaType": {
+          "type": "string",
+          "description": "Media type to use when executing this operation.",
+          "title": "Media type"
+        },
+        "required": {
+          "type": "boolean",
+          "description": "Indicatres is a field is mandatory to be filled by the connector user.",
+          "title": "Required"
+        },
+        "valueProvider": {
+          "$ref": "#/definitions/ValueProviderExpression",
+          "description": "The value provider expression to use.",
+          "title": "Value Provider"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "displayName"
+      ],
+      "description": "",
+      "title": ""
+    },
+    "ParameterBindings": {
       "type": "object",
       "properties": {
         "uriParameter": {
           "type": "object",
           "patternProperties": {
             "^.*$": {
-              "$ref": "#/definitions/TriggerParameterBinding",
+              "$ref": "#/definitions/ParameterBinding",
               "description": "",
               "title": ""
             }
@@ -975,7 +1047,7 @@
           "type": "object",
           "patternProperties": {
             "^.*$": {
-              "$ref": "#/definitions/TriggerParameterBinding",
+              "$ref": "#/definitions/ParameterBinding",
               "description": "",
               "title": ""
             }
@@ -987,7 +1059,7 @@
           "type": "object",
           "patternProperties": {
             "^.*$": {
-              "$ref": "#/definitions/TriggerParameterBinding",
+              "$ref": "#/definitions/ParameterBinding",
               "description": "",
               "title": ""
             }
@@ -997,22 +1069,22 @@
         },
         "body": {
           "$ref": "#/definitions/Expression",
-          "description": "Allows defining an expression that will generate the request body for the source request to the server.",
-          "title": "Request Body Binding"
+          "description": "",
+          "title": ""
         }
       },
       "additionalProperties": false,
-      "description": "A list containing all the parameter bindings for this trigger.",
-      "title": "Trigger Parameter Bindings"
+      "description": "",
+      "title": ""
     },
-    "RequestBindings": {
+    "Bindings": {
       "type": "object",
       "properties": {
         "uriParameter": {
           "type": "object",
           "patternProperties": {
             "^.*$": {
-              "$ref": "#/definitions/TriggerParameterBinding",
+              "$ref": "#/definitions/ParameterBinding",
               "description": "",
               "title": ""
             }
@@ -1024,7 +1096,7 @@
           "type": "object",
           "patternProperties": {
             "^.*$": {
-              "$ref": "#/definitions/TriggerParameterBinding",
+              "$ref": "#/definitions/ParameterBinding",
               "description": "",
               "title": ""
             }
@@ -1036,7 +1108,7 @@
           "type": "object",
           "patternProperties": {
             "^.*$": {
-              "$ref": "#/definitions/TriggerParameterBinding",
+              "$ref": "#/definitions/ParameterBinding",
               "description": "",
               "title": ""
             }
@@ -1048,7 +1120,7 @@
           "type": "object",
           "patternProperties": {
             "^.*$": {
-              "$ref": "#/definitions/TriggerParameterBinding",
+              "$ref": "#/definitions/ParameterBinding",
               "description": "Request bindings.",
               "title": "Request bindings"
             }
@@ -1058,76 +1130,15 @@
         },
         "body": {
           "$ref": "#/definitions/Expression",
-          "description": "Allows defining an expression that will generate the request body for the source request to the server.",
-          "title": "Request Body Binding"
+          "description": "",
+          "title": ""
         }
       },
       "additionalProperties": false,
-      "description": "A list containing all the parameter bindings for this trigger.",
-      "title": "Trigger Parameter Bindings"
+      "description": "",
+      "title": ""
     },
-    "ResponseBindings": {
-      "type": "object",
-      "properties": {
-        "uriParameter": {
-          "type": "object",
-          "patternProperties": {
-            "^.*$": {
-              "$ref": "#/definitions/TriggerParameterBinding",
-              "description": "",
-              "title": ""
-            }
-          },
-          "description": "",
-          "title": ""
-        },
-        "queryParameter": {
-          "type": "object",
-          "patternProperties": {
-            "^.*$": {
-              "$ref": "#/definitions/TriggerParameterBinding",
-              "description": "",
-              "title": ""
-            }
-          },
-          "description": "",
-          "title": ""
-        },
-        "header": {
-          "type": "object",
-          "patternProperties": {
-            "^.*$": {
-              "$ref": "#/definitions/TriggerParameterBinding",
-              "description": "",
-              "title": ""
-            }
-          },
-          "description": "",
-          "title": ""
-        },
-        "bodyParts": {
-          "type": "object",
-          "patternProperties": {
-            "^.*$": {
-              "$ref": "#/definitions/TriggerParameterBinding",
-              "description": "Request bindings.",
-              "title": "Request bindings"
-            }
-          },
-          "description": "Request bindings.",
-          "title": "Request bindings"
-        },
-        "body": {
-          "$ref": "#/definitions/Expression",
-          "description": "Allows defining an expression that will generate the request body for the source request to the server.",
-          "title": "Request Body Binding"
-        }
-      },
-      "additionalProperties": false,
-      "description": "A list containing all the parameter bindings for this trigger.",
-      "title": "Trigger Parameter Bindings"
-    },
-    "TriggerParameterBinding": {
+    "ParameterBinding": {
       "type": "object",
       "properties": {
         "name": {
@@ -1154,45 +1165,16 @@
           "type": "string",
           "description": "The language of an expression.",
           "title": "Expression Language"
+        },
+        "ignored": {
+          "type": "boolean",
+          "description": "Indicates if a node should be ignored.",
+          "title": "Ignored"
         }
       },
       "additionalProperties": false,
-      "required": [
-        "value"
-      ],
-      "description": "A parameter binding for this trigger.\nThis binding defines the actual values -Or expressions- of the parameters that will be sent to the server.\n",
-      "title": "Trigger Parameter Binding"
-    },
-    "TriggerParameterBodyBinding": {
-      "type": "object",
-      "properties": {
-        "typeSchema": {
-          "type": "string",
-          "description": "Allows to define or override the input type for an operation using a JSON or XSD Schema.\nIt's value should be the relativa path to a schema that will be used as the input type for the operation.\n",
-          "title": "Type Schema"
-        },
-        "mediaType": {
-          "type": "string",
-          "description": "Media type to use when executing this operation.",
-          "title": "Media type"
-        },
-        "value": {
-          "type": "string",
-          "description": "The content of an expression.",
-          "title": "Expression Content"
-        },
-        "language": {
-          "type": "string",
-          "description": "The language of an expression.",
-          "title": "Expression Language"
-        }
-      },
-      "additionalProperties": false,
-      "required": [
-        "value"
-      ],
-      "description": "A parameter binding for this trigger.\nThis binding defines the actual values -Or expressions- of the parameters that will be sent to the server.\n",
-      "title": "Trigger Parameter Binding"
+      "description": "",
+      "title": ""
     },
     "TriggerWatermark": {
       "type": "object",
@@ -1206,6 +1188,7 @@
           "type": "string",
           "enum": [
             "integer",
+            "long",
             "number",
             "string",
             "localDateTime",
@@ -1253,6 +1236,22 @@
       ],
       "description": "Allows defining how the items identity should be extracted from the server response.",
       "title": "Trigger Identity"
+    },
+    "TriggerEvent": {
+      "type": "object",
+      "properties": {
+        "extraction": {
+          "$ref": "#/definitions/Expression",
+          "description": "",
+          "title": ""
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "extraction"
+      ],
+      "description": "",
+      "title": ""
     },
     "TestConnection": {
       "type": "object",
@@ -2021,6 +2020,7 @@
           "type": "string",
           "enum": [
             "integer",
+            "long",
             "number",
             "string",
             "localDateTime",
