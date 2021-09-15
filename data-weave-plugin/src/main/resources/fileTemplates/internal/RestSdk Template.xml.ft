@@ -23,6 +23,12 @@
         <rest.sdk.mojo.version>${REST_SDK_PROJECT_VERSION}</rest.sdk.mojo.version>
 
         <shadePackage>${REST_SDK_SHADE_PACKAGE}</shadePackage>
+
+        <!--
+        Source files customization
+        <rest.sdk.apiSpec>${basedir}/src/main/resources/api/api.yaml</rest.sdk.apiSpec>
+        <rest.sdk.descriptor>${basedir}/src/main/resources/descriptor/descriptor.yaml</rest.sdk.descriptor>
+        -->
     </properties>
 
     <build>
