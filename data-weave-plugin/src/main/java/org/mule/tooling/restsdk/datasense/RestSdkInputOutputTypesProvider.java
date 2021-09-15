@@ -29,6 +29,7 @@ import static org.mule.tooling.restsdk.utils.YamlPath.pathOf;
 public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider {
 
     public static final YamlPath OPERATION_IDENTIFIER_PATH = YamlPath.DOCUMENT.child("operationIdentifier").child("expression");
+    public static final YamlPath OPERATION_DISPLAY_NAME_PATH = YamlPath.DOCUMENT.child("operationDisplayName").child("expression");
 
     public static final YamlPath PAGINATION_PATH = YamlPath.DOCUMENT.child("paginations").any().child("pagingResponse").child("expression");
     public static final String PARAMETERS_KEY = "parameters";
@@ -51,6 +52,10 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
     public static final YamlPath OPERATION_REQUEST_BODY = YamlPath.DOCUMENT.child("operations").any().child("request").child("body").child("expression");
     public static final YamlPath OPERATION_REQUEST_QUERY_PARAM = YamlPath.DOCUMENT.child("operations").any().child("request").any().any().child("value");
 
+    public static final YamlPath VALUE_PROVIDER_PATH = YamlPath.DOCUMENT.child("valueProviders").child("*").child("items").any().child("expression");
+    public static final YamlPath TEST_CONNECTION_PATH = YamlPath.DOCUMENT.child("security").child("*").child("testConnection")
+            .child("responseValidation").any().child("expression");
+
     //    Selectors
 
     public static final YamlPath PARAMETERS_SELECTOR_FROM_BODY_REQUEST = YamlPath.PARENT.parent().parent().child(PARAMETERS_KEY);
@@ -70,7 +75,7 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
     }
 
     @Override
-    public ImplicitInput inputTypes(PsiFile psiFile) {
+    public @NotNull ImplicitInput inputTypes(PsiFile psiFile) {
         ImplicitInput implicitInput = new ImplicitInput();
         PsiElement context = psiFile.getContext();
         if (context != null) {
@@ -83,9 +88,9 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
                     || path.matches(SECURITY_ERROR_TEMPLATE_PATH) || path.matches(SECURITY_REFRESH_PATH)
                     || path.matches(TRIGGERS_SAMPLE_DATA_PATH)) {
                 createPayloadWithAttributesInputs(implicitInput);
-            } else if (path.matches(TRIGGERS_BINDING_VALUE)) {
-                createTriggersInputs(implicitInput, context, PARAMETERS_SELECTOR);
-            } else if (path.matches(TRIGGERS_WATERMARK_PATH) || path.matches(TRIGGERS_ITEMS_PATH) || path.matches(TRIGGERS_BINDING_BODY_EXPRESSION)) {
+            } else if (path.matches(TRIGGERS_BINDING_VALUE) || path.matches(TRIGGERS_BINDING_BODY_EXPRESSION)) {
+                createTriggersBinding(implicitInput, context, PARAMETERS_SELECTOR);
+            } else if (path.matches(TRIGGERS_WATERMARK_PATH) || path.matches(TRIGGERS_ITEMS_PATH)) {
                 createTriggersInputs(implicitInput, context, PARAMETERS_SELECTOR_FROM_ITEMS);
             } else if (path.matches(SAMPLE_DATA_URI_PARAMETER)) {
                 createTriggersInputs(implicitInput, context, PARAMETERS_SELECTOR_FROM_ROOT_SAMPLE_DATA);
@@ -97,6 +102,15 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
                 createOperationRequest(implicitInput, context, PARAMETERS_SELECTOR_FROM_BODY_REQUEST);
             } else if (path.matches(OPERATION_REQUEST_QUERY_PARAM)) {
                 createOperationRequest(implicitInput, context, PARAMETERS_SELECTOR_FROM_QUERY_PARAMETER);
+            } else if (path.matches(OPERATION_DISPLAY_NAME_PATH)) {
+                implicitInput.addInput("operationId", new StringType(Option.empty()));
+                implicitInput.addInput("method", new StringType(Option.empty()));
+                implicitInput.addInput("path", new StringType(Option.empty()));
+                implicitInput.addInput("summary", new StringType(Option.empty()));
+            } else if (path.matches(VALUE_PROVIDER_PATH)) {
+                createValueProviderInputs(implicitInput, context);
+            } else if (path.matches(TEST_CONNECTION_PATH)) {
+                createTestConnectionInputs(implicitInput, context);
             } else {
                 createPayloadWithAttributesInputs(implicitInput);
             }
@@ -114,6 +128,22 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
         return implicitInput;
     }
 
+    private void createTriggersBinding(ImplicitInput implicitInput, PsiElement context, YamlPath parameterSelector) {
+        ObjectType weaveType = loadParametersType(context, parameterSelector);
+        implicitInput.addInput("watermark", new AnyType()); //TODO shoudln't this be a type of date?
+        implicitInput.addInput("parameters", weaveType);
+    }
+
+    private void createTestConnectionInputs(ImplicitInput implicitInput, PsiElement context) {
+        implicitInput.addInput("payload", new AnyType()); //TODO can be inferred from the response of the requests being hit after?
+        implicitInput.addInput("attributes", createHttpAttributes());
+    }
+
+    private void createValueProviderInputs(ImplicitInput implicitInput, PsiElement context) {
+        implicitInput.addInput("payload", new AnyType()); //TODO can be inferred from the response of the requests being hit after?
+        implicitInput.addInput("item", new AnyType()); //TODO can be inferred from the response of the requests being hit after applying the `extraction` expression on it?
+    }
+
 
     private ImplicitInput loadSampleImplicits(PsiFile psiFile) {
         final WeaveRuntimeService instance = WeaveRuntimeService.getInstance(psiFile.getProject());
@@ -125,8 +155,6 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
     private void createValueProvider(ImplicitInput implicitInput) {
         implicitInput.addInput(PAYLOAD_KEY, new AnyType());
         implicitInput.addInput(ITEM_KEY, new AnyType());
-
-
     }
 
     private void createOperationRequest(ImplicitInput implicitInput, PsiElement context, YamlPath parameters_selector) {
@@ -163,24 +191,29 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
         PsiElement parameters = parameters_selector.select(context);
         Builder<KeyValuePairType, Seq<KeyValuePairType>> objectSeqBuilder = Seq$.MODULE$.newBuilder();
         if (parameters instanceof YAMLMapping) {
-            Iterator<YAMLKeyValue> paramsKV = ((YAMLMapping) parameters).getKeyValues().iterator();
-            while (paramsKV.hasNext()) {
-                YAMLKeyValue keyValue = paramsKV.next();
+            for (YAMLKeyValue keyValue : ((YAMLMapping) parameters).getKeyValues()) {
                 WeaveType value = new AnyType();
                 if (keyValue.getValue() instanceof YAMLMapping) {
                     YAMLKeyValue type = ((YAMLMapping) keyValue.getValue()).getKeyValueByKey("type");
                     if (type != null && type.getValue() != null) {
                         String text = type.getValue().getText().trim();
-                        if (text.equals("boolean")) {
-                            value = new BooleanType(Option.empty(), VariableConstraints.emptyConstraints());
-                        } else if (text.equals("integer") || text.equals("number")) {
-                            value = new NumberType(Option.empty());
-                        } else if (text.equals("localDateTime")) {
-                            value = new LocalDateTimeType();
-                        } else if (text.equals("zonedDateTime")) {
-                            value = new DateTimeType();
-                        } else if (text.equals("string")) {
-                            value = new StringType(Option.empty());
+                        switch (text) {
+                            case "boolean":
+                                value = new BooleanType(Option.empty(), VariableConstraints.emptyConstraints());
+                                break;
+                            case "integer":
+                            case "number":
+                                value = new NumberType(Option.empty());
+                                break;
+                            case "localDateTime":
+                                value = new LocalDateTimeType();
+                                break;
+                            case "zonedDateTime":
+                                value = new DateTimeType();
+                                break;
+                            case "string":
+                                value = new StringType(Option.empty());
+                                break;
                         }
                     }
                 }
@@ -213,7 +246,7 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
     }
 
     @Override
-    public Optional<WeaveType> expectedOutput(PsiFile psiFile) {
+    public @NotNull Optional<WeaveType> expectedOutput(PsiFile psiFile) {
         PsiElement context = psiFile.getContext();
         if (context != null) {
             YamlPath path = pathOf(context);
