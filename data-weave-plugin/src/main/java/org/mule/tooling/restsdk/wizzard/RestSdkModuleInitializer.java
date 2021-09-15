@@ -21,6 +21,7 @@ import java.util.Properties;
 public class RestSdkModuleInitializer {
 
     public static final String DESCRIPTOR_YAML = "descriptor.yaml";
+    public static final String REST_SDK_PROJECT_VERSION = "0.8.0-alpha.1";
 
     public static void configure(final Project project, final MavenId projectId, final RestSdkConfigurationModel model, final VirtualFile root) {
         try {
@@ -112,7 +113,6 @@ public class RestSdkModuleInitializer {
                                     String targetFileName,
                                     String templateName) throws Throwable {
 
-
         WriteCommandAction.writeCommandAction(project).withName(actionDescription).run(new ThrowableRunnable<Throwable>() {
             @Override
             public void run() throws Throwable {
@@ -123,6 +123,7 @@ public class RestSdkModuleInitializer {
                 pomFile = targetFolder.findOrCreateChildData(this, targetFileName);
 
                 final Properties templateProps = new Properties();
+                templateProps.setProperty("REST_SDK_PROJECT_VERSION", REST_SDK_PROJECT_VERSION);
                 templateProps.setProperty("GROUP_ID", projectId.getGroupId());
                 templateProps.setProperty("ARTIFACT_ID", projectId.getArtifactId());
                 templateProps.setProperty("VERSION", projectId.getVersion());
@@ -137,8 +138,5 @@ public class RestSdkModuleInitializer {
                 VfsUtil.saveText(pomFile, text);
             }
         });
-
     }
-
-
 }
