@@ -1,206 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-      <groupId>org.mule.extensions</groupId>
-      <artifactId>mule-modules-parent</artifactId>
-      <version>1.2.0</version>
-  </parent>
+    <name>${REST_SDK_CONNECTOR_NAME} - Mule 4</name>
+    <description>Description for ${REST_SDK_CONNECTOR_NAME}.</description>
 
-  <name>${REST_SDK_CONNECTOR_NAME} - Mule 4</name>
-  <description>Description for ${REST_SDK_CONNECTOR_NAME}.</description>
+    <parent>
+        <groupId>com.mulesoft.connectivity</groupId>
+        <artifactId>rest-sdk-connector-parent-pom</artifactId>
+        <version>${REST_SDK_PROJECT_VERSION}</version>
+    </parent>
 
-  <groupId>${GROUP_ID}</groupId>
-  <artifactId>${ARTIFACT_ID}</artifactId>
-  <version>${VERSION}</version>
-  <packaging>mule-extension</packaging>
+    <groupId>${GROUP_ID}</groupId>
+    <artifactId>${ARTIFACT_ID}</artifactId>
+    <version>${VERSION}</version>
+    <packaging>mule-extension</packaging>
 
-  <properties>
-    <mule.version>4.2.1</mule.version>
-    <mule.api.version>1.2.1</mule.api.version>
-    <mule.sdk.version>1.2.1</mule.sdk.version>
-    <muleSdkApiVersion>0.1.0</muleSdkApiVersion>
+    <properties>
+        <rest.sdk.commons.version>${REST_SDK_PROJECT_VERSION}</rest.sdk.commons.version>
+        <rest.sdk.mojo.version>${REST_SDK_PROJECT_VERSION}</rest.sdk.mojo.version>
 
-    <muleExtensionsShadeVersion>1.0.1</muleExtensionsShadeVersion>
-    <!-- TODO -->
-    <shadePackage>${REST_SDK_SHADE_PACKAGE}</shadePackage>
-
-    <mule.extensions.maven.plugin.version>1.2.2</mule.extensions.maven.plugin.version>
-    <mule.app.plugins.maven.plugin.version>1.2.1</mule.app.plugins.maven.plugin.version>
-    <rest.sdk.commons.version>0.1.5</rest.sdk.commons.version>
-
-    <!-- Remove when a new parent version with MTF is available -->
-    <munit.input.directory>src/test/munit</munit.input.directory>
-    <munit.output.directory>${basedir}/target/test-mule/munit</munit.output.directory>
-    <munit.extensions.maven.plugin.version>1.0.0</munit.extensions.maven.plugin.version>
-    <munit.version>2.2.5</munit.version>
-    <mtf.tools.version>1.0.0</mtf.tools.version>
-    <mavenResources.version>3.0.2</mavenResources.version>
-    <!-- End of remove -->
-
-    <validations.module.version>1.1.0</validations.module.version>
-    <java.module.version>1.2.1</java.module.version>
-  </properties>
-
-  <dependencies>
-      <dependency>
-          <groupId>com.mulesoft.connectivity</groupId>
-          <artifactId>rest-sdk-commons</artifactId>
-          <version>${rest.sdk.commons.version}</version>
-      </dependency>
-      <dependency>
-          <groupId>org.json</groupId>
-          <artifactId>json</artifactId>
-          <version>20200518</version>
-      </dependency>
-
-      <dependency>
-          <groupId>org.mule.sdk</groupId>
-          <artifactId>mule-sdk-api</artifactId>
-          <version>0.1.0</version>
-          <scope>provided</scope>
-      </dependency>
-
-      <dependency>
-          <groupId>org.mule.module</groupId>
-          <artifactId>mule-java-module</artifactId>
-          <version>${java.module.version}</version>
-          <classifier>mule-plugin</classifier>
-          <scope>test</scope>
-      </dependency>
-      <dependency>
-          <groupId>org.mule.modules</groupId>
-          <artifactId>mule-validation-module</artifactId>
-          <version>${validations.module.version}</version>
-          <classifier>mule-plugin</classifier>
-          <scope>test</scope>
-      </dependency>
-  </dependencies>
-
+        <shadePackage>${REST_SDK_SHADE_PACKAGE}</shadePackage>
+    </properties>
 
     <build>
         <plugins>
-
             <plugin>
-                <!-- then from the "target/classes" files (those copied and then modified by the previous plugin)
-                we call our REST SDK plugin to generate the project under
-                "target/generated-connector/<NAME_OF_CONNECTOR>" -->
                 <groupId>com.mulesoft.connectivity</groupId>
                 <artifactId>rest-sdk-mojo</artifactId>
-                <version>${REST_SDK_VERSION}</version>
-                <executions>
-                    <execution>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>generateSources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDir>${project.basedir}</outputDir>
-                            <apiSpec>${project.basedir}/src/main/resources/api/api.raml</apiSpec>
-                            <descriptor>${project.basedir}/src/main/resources/descriptor/descriptor.yaml</descriptor>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>packageMetadata</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>package-metadata-api</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
-                <version>1.8</version>
-                <executions>
-                    <execution>
-                        <id>add-source-override</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>add-source</goal>
-                        </goals>
-                        <configuration>
-                            <sources>
-                                <source>src/main/override</source>
-                            </sources>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
-
+            <plugin>
+                <groupId>org.mule.runtime.plugins</groupId>
+                <artifactId>mule-extensions-maven-plugin</artifactId>
+            </plugin>
             <plugin>
                 <groupId>org.mule.runtime.plugins</groupId>
                 <artifactId>mule-extensions-shade-plugin</artifactId>
-                <version>${muleExtensionsShadeVersion}</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <artifactSet>
-                        <includes combine.children="append">
-                            <include>com.mulesoft.connectivity:rest-sdk-commons</include>
-                        </includes>
-                    </artifactSet>
-                    <relocations>
-                        <relocation>
-                            <pattern>com.mulesoft.connectivity.rest.commons</pattern>
-                            <shadedPattern>com.mulesoft.connectivity.${shadePackage}.rest.commons</shadedPattern>
-                        </relocation>
-                    </relocations>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>com.mulesoft.munit</groupId>
                 <artifactId>munit-extensions-maven-plugin</artifactId>
-                <version>${munit.extensions.maven.plugin.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>test</goal>
-                        </goals>
-                        <phase>integration-test</phase>
-                    </execution>
-                </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>com.mulesoft.munit</groupId>
-                        <artifactId>munit-runner</artifactId>
-                        <version>${munit.version}</version>
-                        <classifier>mule-plugin</classifier>
-                    </dependency>
-                    <dependency>
-                        <groupId>com.mulesoft.munit</groupId>
-                        <artifactId>munit-tools</artifactId>
-                        <version>${munit.version}</version>
-                        <classifier>mule-plugin</classifier>
-                    </dependency>
-                    <dependency>
-                        <groupId>com.mulesoft.munit</groupId>
-                        <artifactId>mtf-tools</artifactId>
-                        <version>${mtf.tools.version}</version>
-                        <classifier>mule-plugin</classifier>
-                    </dependency>
-                </dependencies>
             </plugin>
         </plugins>
     </build>
-
-    <repositories>
-        <repository>
-            <id>mule-releases</id>
-            <name>Nexus Public Releases</name>
-            <url>https://repository.mulesoft.org/nexus/content/repositories/releases/</url>
-        </repository>
-    </repositories>
 
 </project>
