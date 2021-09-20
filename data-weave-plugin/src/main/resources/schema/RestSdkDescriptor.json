@@ -756,20 +756,20 @@
           "patternProperties": {
             "^.*$": {
               "$ref": "#/definitions/AuxiliarParameter",
-              "description": "A A list of the parameters the generated trigger will expose to the connector user.",
-              "title": "Trigger Parameters"
+              "description": "A A list of the parameters the generated operation adapter will expose to the connector user.",
+              "title": "Auxiliar Parameters"
             }
           },
-          "description": "A A list of the parameters the generated trigger will expose to the connector user.",
-          "title": "Trigger Parameters"
+          "description": "A A list of the parameters the generated operation adapter will expose to the connector user.",
+          "title": "Auxiliar Parameters"
         },
         "request": {
-          "$ref": "#/definitions/Bindings",
+          "$ref": "#/definitions/RequestBindings",
           "description": "Request bindings.",
           "title": "Request bindings"
         },
         "response": {
-          "$ref": "#/definitions/Bindings",
+          "$ref": "#/definitions/ResponseBindings",
           "description": "Response bindings.",
           "title": "Response bindings"
         },
@@ -865,8 +865,8 @@
         },
         "binding": {
           "$ref": "#/definitions/ParameterBindings",
-          "description": "A list containing all the parameter bindings for this trigger.",
-          "title": "Trigger Parameter Bindings"
+          "description": "A list containing all the parameter bindings.",
+          "title": "Parameter Bindings"
         },
         "items": {
           "$ref": "#/definitions/TriggerItems",
@@ -880,8 +880,8 @@
         },
         "event": {
           "$ref": "#/definitions/TriggerEvent",
-          "description": "",
-          "title": ""
+          "description": "DW expression which reshapes the output event.",
+          "title": "Trigger Event"
         },
         "identity": {
           "$ref": "#/definitions/TriggerIdentity",
@@ -1019,14 +1019,26 @@
           "$ref": "#/definitions/ValueProviderExpression",
           "description": "The value provider expression to use.",
           "title": "Value Provider"
+        },
+        "schema": {
+          "type": "object",
+          "patternProperties": {
+            "^.*$": {
+              "$ref": "#/definitions/BodySchema",
+              "description": "Declares metadata for the schema of the body",
+              "title": "Body Schema"
+            }
+          },
+          "description": "Declares metadata for the schema of the body",
+          "title": "Body Schema"
         }
       },
       "additionalProperties": false,
       "required": [
         "displayName"
       ],
-      "description": "",
-      "title": ""
+      "description": "The declaration of a parameter that the generated operation adapter will expose to the connector user.",
+      "title": "Auxiliar Parameter"
     },
     "ParameterBindings": {
       "type": "object",
@@ -1069,15 +1081,15 @@
         },
         "body": {
           "$ref": "#/definitions/Expression",
-          "description": "",
-          "title": ""
+          "description": "Allows defining an expression that will generate the request body for the source request to the server.",
+          "title": "Body Binding"
         }
       },
       "additionalProperties": false,
-      "description": "",
-      "title": ""
+      "description": "A list containing all the parameter bindings.",
+      "title": "Parameter Bindings"
     },
-    "Bindings": {
+    "RequestBindings": {
       "type": "object",
       "properties": {
         "uriParameter": {
@@ -1130,13 +1142,26 @@
         },
         "body": {
           "$ref": "#/definitions/Expression",
-          "description": "",
-          "title": ""
+          "description": "Allows defining an expression that will generate the request body for the source request to the server.",
+          "title": "Body Binding"
         }
       },
       "additionalProperties": false,
-      "description": "",
-      "title": ""
+      "description": "A list containing all the parameter bindings.",
+      "title": "Parameter Bindings"
+    },
+    "ResponseBindings": {
+      "type": "object",
+      "properties": {
+        "body": {
+          "$ref": "#/definitions/BodyBinding",
+          "description": "Allows defining an expression that will generate the request body for the source request to the server.",
+          "title": "Body Binding"
+        }
+      },
+      "additionalProperties": false,
+      "description": "A list containing all the parameter bindings.",
+      "title": "Parameter Bindings"
     },
     "ParameterBinding": {
       "type": "object",
@@ -1170,6 +1195,34 @@
           "type": "boolean",
           "description": "Indicates if a node should be ignored.",
           "title": "Ignored"
+        }
+      },
+      "additionalProperties": false,
+      "description": "A parameter binding.\nThis binding defines the actual values -Or expressions- of the parameters that will be sent to the server.\n",
+      "title": "Parameter Binding"
+    },
+    "BodyBinding": {
+      "type": "object",
+      "properties": {
+        "typeSchema": {
+          "type": "string",
+          "description": "Allows to define or override the input type for an operation using a JSON or XSD Schema.\nIt's value should be the relativa path to a schema that will be used as the input type for the operation.\n",
+          "title": "Type Schema"
+        },
+        "mediaType": {
+          "type": "string",
+          "description": "Media type to use when executing this operation.",
+          "title": "Media type"
+        },
+        "value": {
+          "type": "string",
+          "description": "The content of an expression.",
+          "title": "Expression Content"
+        },
+        "language": {
+          "type": "string",
+          "description": "The language of an expression.",
+          "title": "Expression Language"
         }
       },
       "additionalProperties": false,
@@ -1242,16 +1295,16 @@
       "properties": {
         "extraction": {
           "$ref": "#/definitions/Expression",
-          "description": "",
-          "title": ""
+          "description": "Allows defining an expression that reshapes the item from the server response.",
+          "title": "Trigger Event Extraction"
         }
       },
       "additionalProperties": false,
       "required": [
         "extraction"
       ],
-      "description": "",
-      "title": ""
+      "description": "DW expression which reshapes the output event.",
+      "title": "Trigger Event"
     },
     "TestConnection": {
       "type": "object",
