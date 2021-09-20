@@ -20,7 +20,6 @@ import scala.collection.Seq;
 import scala.collection.Seq$;
 import scala.collection.mutable.Builder;
 
-import java.util.Iterator;
 import java.util.Optional;
 
 import static org.mule.tooling.restsdk.utils.RestSdkHelper.isRestSdkFile;
@@ -152,6 +151,13 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
     }
 
 
+    private WeaveType loadSampleOutput(PsiFile psiFile) {
+        final WeaveRuntimeService instance = WeaveRuntimeService.getInstance(psiFile.getProject());
+        final WeaveDocument weaveDocument = ReadAction.compute(() -> WeavePsiUtils.getWeaveDocument(psiFile));
+        return weaveDocument != null ? instance.getExpectedOutput(weaveDocument) : null;
+    }
+
+
     private void createValueProvider(ImplicitInput implicitInput) {
         implicitInput.addInput(PAYLOAD_KEY, new AnyType());
         implicitInput.addInput(ITEM_KEY, new AnyType());
@@ -258,7 +264,8 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
                 return Optional.of(new BooleanType(Option.empty(), VariableConstraints.emptyConstraints()));
             }
         }
-        return Optional.empty();
+        //Load from expected output
+        return Optional.ofNullable(loadSampleOutput(psiFile));
     }
 
 }

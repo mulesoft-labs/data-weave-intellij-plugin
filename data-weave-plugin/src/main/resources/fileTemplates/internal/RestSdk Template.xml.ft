@@ -10,7 +10,7 @@
     <parent>
         <groupId>com.mulesoft.connectivity</groupId>
         <artifactId>rest-sdk-connector-parent-pom</artifactId>
-        <version>${REST_SDK_PROJECT_VERSION}</version>
+        <version>${REST_SDK_VERSION}</version>
     </parent>
 
     <groupId>${GROUP_ID}</groupId>
@@ -19,9 +19,8 @@
     <packaging>mule-extension</packaging>
 
     <properties>
-        <rest.sdk.commons.version>${REST_SDK_PROJECT_VERSION}</rest.sdk.commons.version>
-        <rest.sdk.mojo.version>${REST_SDK_PROJECT_VERSION}</rest.sdk.mojo.version>
-
+        <rest.sdk.commons.version>${REST_SDK_VERSION}</rest.sdk.commons.version>
+        <rest.sdk.mojo.version>${REST_SDK_VERSION}</rest.sdk.mojo.version>
         <shadePackage>${REST_SDK_SHADE_PACKAGE}</shadePackage>
 
         <!--

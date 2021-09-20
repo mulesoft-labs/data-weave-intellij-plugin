@@ -24,10 +24,11 @@ import java.util.Objects;
 
 public class RestSdkModuleBuilder extends AbstractMavenBasedProjectBuilder implements SourcePathsBuilder {
 
+    public static final String REST_SDK_DEFAULT_VERSION = "0.8.0-alpha.1";
     private RestSdkConfigurationModel restSdkModel;
 
     public RestSdkModuleBuilder() {
-        this.restSdkModel = new RestSdkConfigurationModel("0.4.0-SNAPSHOT", "", ApiKind.OPEN_API);
+        this.restSdkModel = new RestSdkConfigurationModel(REST_SDK_DEFAULT_VERSION, "", ApiKind.OPEN_API);
         setProjectId(new MavenId("com.mulesoft.connectors", "mule4-connector-connector", "1.0.0-SNAPSHOT"));
     }
 

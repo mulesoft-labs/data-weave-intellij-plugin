@@ -7,6 +7,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Ref;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import org.apache.commons.io.FilenameUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.migrator.YesNoDialog;
@@ -14,6 +15,7 @@ import org.mule.tooling.lang.dw.migrator.YesNoDialog;
 import javax.swing.*;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -63,7 +65,24 @@ public class Scenario implements ItemPresentation {
   public VirtualFile addInput(String fileName) {
     try {
       VirtualFile inputs = getOrCreateInputs();
-      return inputs.createChildData(this, fileName);
+      String baseName = FilenameUtils.getBaseName(fileName);
+      String extension = FilenameUtils.getExtension(fileName);
+      if (baseName.contains(".")) {
+        String[] split = baseName.split("\\.");
+        List<String> folders = Arrays.asList(split).subList(0, split.length - 1);
+        VirtualFile childDirectory = inputs;
+        for (String folder : folders) {
+          VirtualFile child = childDirectory.findChild(folder);
+          if (child == null) {
+            childDirectory = childDirectory.createChildDirectory(this, folder);
+          } else {
+            childDirectory = child;
+          }
+        }
+        return childDirectory.createChildData(this, split[split.length - 1] + "." + extension);
+      } else {
+        return inputs.createChildData(this, fileName);
+      }
     } catch (IOException e) {
       e.printStackTrace();
       return null;

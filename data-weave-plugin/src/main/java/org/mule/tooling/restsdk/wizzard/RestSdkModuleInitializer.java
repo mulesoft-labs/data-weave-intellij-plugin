@@ -16,12 +16,13 @@ import org.jetbrains.idea.maven.model.MavenId;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 import org.mule.tooling.lang.dw.templates.WeaveFilesTemplateManager;
 
+import java.util.Objects;
 import java.util.Properties;
 
 public class RestSdkModuleInitializer {
 
     public static final String DESCRIPTOR_YAML = "descriptor.yaml";
-    public static final String REST_SDK_PROJECT_VERSION = "0.8.0-alpha.1";
+
 
     public static void configure(final Project project, final MavenId projectId, final RestSdkConfigurationModel model, final VirtualFile root) {
         try {
@@ -123,13 +124,12 @@ public class RestSdkModuleInitializer {
                 pomFile = targetFolder.findOrCreateChildData(this, targetFileName);
 
                 final Properties templateProps = new Properties();
-                templateProps.setProperty("REST_SDK_PROJECT_VERSION", REST_SDK_PROJECT_VERSION);
                 templateProps.setProperty("GROUP_ID", projectId.getGroupId());
                 templateProps.setProperty("ARTIFACT_ID", projectId.getArtifactId());
                 templateProps.setProperty("VERSION", projectId.getVersion());
                 templateProps.setProperty("REST_SDK_VERSION", model.getRestSdkVersion());
                 templateProps.setProperty("REST_SDK_CONNECTOR_NAME", model.getConnectorName());
-                templateProps.setProperty("REST_SDK_SHADE_PACKAGE", projectId.getArtifactId().replaceAll("-", ""));
+                templateProps.setProperty("REST_SDK_SHADE_PACKAGE", Objects.requireNonNull(projectId.getArtifactId()).replaceAll("-", ""));
                 final FileTemplateManager manager = FileTemplateManager.getInstance(project);
                 final FileTemplate template = manager.getInternalTemplate(templateName);
                 final Properties defaultProperties = manager.getDefaultProperties();
