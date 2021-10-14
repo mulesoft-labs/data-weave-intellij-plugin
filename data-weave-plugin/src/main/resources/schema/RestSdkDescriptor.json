@@ -106,7 +106,7 @@
         "multimap",
         "comma"
       ],
-      "description": "Defines how query parameters that represent arrrays should be formatted\ni.e. comma: key=value1,value2  multimap: key=value1&key=value2\n",
+      "description": "Defines how query parameters that represent arrays should be formatted\ni.e. comma: key=value1,value2  multimap: key=value1&key=value2\n",
       "title": "Query Parameter Array Format"
     },
     "testConnection": {
@@ -134,17 +134,27 @@
     "operationIdentifier": {
       "$ref": "#/definitions/Expression",
       "description": "If provided, the default naming mechanism will not be used for the connector generation and it will default to this the provided expression.\nAt the moment, the supported bindings will be `operationId`, `method` and `path`\n",
-      "title": "Hook to replace the display naming generation for operations"
+      "title": "Hook to replace the identifier generation for operations"
+    },
+    "parameterIdentifier": {
+      "$ref": "#/definitions/Expression",
+      "description": "If provided, the default naming mechanism will not be used for the connector generation and it will default to this the provided expression.\nAt the moment, the supported bindings will be `name` and `parameterType` (with possible values 'URI', 'HEADER' and 'QUERY')\n",
+      "title": "Hook to replace the identifier generation for parameters"
+    },
+    "bodyIdentifier": {
+      "$ref": "#/definitions/Expression",
+      "description": "If provided, the default naming mechanism will not be used for the connector generation and it will default to this the provided expression.\nAt the moment, the supported bindings will be `operationId`, `method`, `path` and `partName` (might be null, in case of single body)\n",
+      "title": "Hook to replace the identifier generation for parameters"
     },
     "ignoreOperations": {
       "type": "boolean",
       "description": "If set to true, all operations and triggers will be ignored unless explicitly set as not ignored.\nIf set to false, all operations and triggers will be generated unless explicitly ignored.\n",
       "title": "Ignore Operations Globally"
     },
-    "sidecarOperations": {
+    "sidecar": {
       "type": "boolean",
-      "description": "Generate operations as sidecars.\n",
-      "title": "Generate operations as sidecars"
+      "description": "Generate operations and triggers as sidecars.\n",
+      "title": "Generate operations and triggers as sidecars"
     },
     "operations": {
       "type": "object",
@@ -822,6 +832,11 @@
           "description": "",
           "title": ""
         },
+        "base": {
+          "type": "string",
+          "description": "Base Trigger.",
+          "title": "Base Trigger"
+        },
         "path": {
           "type": "string",
           "description": "",
@@ -1226,8 +1241,8 @@
         }
       },
       "additionalProperties": false,
-      "description": "",
-      "title": ""
+      "description": "Allows defining an expression that will generate the response body from the server along with its media type and schema.",
+      "title": "Body Binding"
     },
     "TriggerWatermark": {
       "type": "object",
@@ -1969,6 +1984,11 @@
           "$ref": "#/definitions/SampleDataExpression",
           "description": "The sample data expression to use.",
           "title": "Sample Data"
+        },
+        "operationIdentifier": {
+          "type": "string",
+          "description": "Literal value for the operation identifier for a single operation name",
+          "title": "Hook to replace the identifier for a given operation"
         }
       },
       "additionalProperties": false,
@@ -2092,6 +2112,11 @@
           "type": "string",
           "description": "Defines a default value for the parameter.",
           "title": "Default Value"
+        },
+        "parameterIdentifier": {
+          "type": "string",
+          "description": "Defines the identifier for the parameter in the rest sdk model.",
+          "title": "Identifier for the given parameter."
         }
       },
       "additionalProperties": false,
@@ -2112,6 +2137,11 @@
           },
           "description": "Declares metadata for the schema of the body",
           "title": "Body Schema"
+        },
+        "bodyIdentifier": {
+          "type": "string",
+          "description": "Defines the identifier for the body in the rest sdk model.",
+          "title": "Identifier for the body."
         }
       },
       "additionalProperties": false,
@@ -2168,6 +2198,11 @@
           "type": "boolean",
           "description": "Indicates if this multipart part should be hanlded as a file.",
           "title": "File Part"
+        },
+        "partIdentifier": {
+          "type": "string",
+          "description": "Defines the identifier for the part parameter in the rest sdk model.",
+          "title": "Identifier for the given body part."
         }
       },
       "additionalProperties": false,
