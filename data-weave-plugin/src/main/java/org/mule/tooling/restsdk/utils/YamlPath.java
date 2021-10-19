@@ -82,10 +82,26 @@ public class YamlPath {
                     match = keyValues.next().getValue();
                 }
             }
-        } else if (parentNode instanceof YAMLMapping) {
-            YAMLKeyValue keyValueByKey = ((YAMLMapping) parentNode).getKeyValueByKey(name);
-            if (keyValueByKey != null) {
-                match = keyValueByKey.getValue();
+        } else if(kind.equals(Kind.FIELD)){
+            if (parentNode instanceof YAMLMapping) {
+                YAMLKeyValue keyValueByKey = ((YAMLMapping) parentNode).getKeyValueByKey(name);
+                if (keyValueByKey != null) {
+                    match = keyValueByKey.getValue();
+                }
+            } else if (parentNode instanceof YAMLDocument) {
+                YAMLMapping yamlMapping = PsiTreeUtil.getChildOfType(parentNode, YAMLMapping.class);
+                if (yamlMapping != null) {
+                    YAMLKeyValue keyValueByKey = yamlMapping.getKeyValueByKey(name);
+                    if (keyValueByKey != null) {
+                        match = keyValueByKey.getValue();
+                    }
+                }
+            }
+        } else if (kind.equals(Kind.DOCUMENT)) {
+            if (element instanceof YAMLDocument) {
+                match = element;
+            } else if (element instanceof PsiFile) {
+                match = PsiTreeUtil.getChildOfType(element, YAMLDocument.class);
             }
         }
         return match;

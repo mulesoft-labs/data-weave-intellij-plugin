@@ -22,7 +22,7 @@ import scala.collection.mutable.Builder;
 
 import java.util.Optional;
 
-import static org.mule.tooling.restsdk.utils.RestSdkHelper.isRestSdkFile;
+import static org.mule.tooling.restsdk.utils.RestSdkHelper.isInRestSdkContextFile;
 import static org.mule.tooling.restsdk.utils.YamlPath.pathOf;
 
 public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider {
@@ -49,7 +49,8 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
 
     public static final YamlPath OPERATION_VALUE_PROVIDERS = YamlPath.DOCUMENT.child("endpoints").any().child("operations").any().child("expects").child("body").any().any().child("valueProvider").child("items").any().any().child("expression");
     public static final YamlPath OPERATION_REQUEST_BODY = YamlPath.DOCUMENT.child("operations").any().child("request").child("body").child("expression");
-    public static final YamlPath OPERATION_REQUEST_QUERY_PARAM = YamlPath.DOCUMENT.child("operations").any().child("request").any().any().child("value");
+    public static final YamlPath OPERATION_PATH = YamlPath.DOCUMENT.child("operations");
+    public static final YamlPath OPERATION_REQUEST_QUERY_PARAM = OPERATION_PATH.any().child("request").any().any().child("value");
 
     public static final YamlPath VALUE_PROVIDER_PATH = YamlPath.DOCUMENT.child("valueProviders").child("*").child("items").any().child("expression");
     public static final YamlPath TEST_CONNECTION_PATH = YamlPath.DOCUMENT.child("security").child("*").child("testConnection")
@@ -70,7 +71,7 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
 
     @Override
     public boolean support(PsiFile psiFile) {
-        return isRestSdkFile(psiFile);
+        return isInRestSdkContextFile(psiFile);
     }
 
     @Override

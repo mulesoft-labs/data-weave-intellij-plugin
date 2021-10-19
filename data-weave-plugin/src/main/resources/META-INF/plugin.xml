@@ -425,6 +425,8 @@
         <psi.referenceContributor language="yaml"
                                   implementation="org.mule.tooling.restsdk.reference.RestSdkReferenceContributor"/>
         <moduleBuilder builderClass="org.mule.tooling.restsdk.wizzard.RestSdkModuleBuilder"/>
+        <completion.contributor language="yaml"
+                                implementationClass="org.mule.tooling.restsdk.completion.RestSdkCompletionContributor"/>
 
     </extensions>
     <actions>

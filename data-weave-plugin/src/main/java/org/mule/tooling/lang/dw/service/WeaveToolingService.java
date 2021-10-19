@@ -51,7 +51,7 @@ import org.mule.weave.v2.debugger.event.WeaveDataFormatDescriptor;
 import org.mule.weave.v2.debugger.event.WeaveDataFormatProperty;
 import org.mule.weave.v2.editor.*;
 import org.mule.weave.v2.hover.HoverMessage;
-import org.mule.weave.v2.module.raml.RamlModuleLoader;
+
 import org.mule.weave.v2.parser.ast.AstNode;
 import org.mule.weave.v2.parser.ast.header.directives.FunctionDirectiveNode;
 import org.mule.weave.v2.parser.ast.variables.NameIdentifier;
@@ -93,16 +93,7 @@ public final class WeaveToolingService implements Disposable {
         final RemoteResourceResolver javaRemoteResolver = new RemoteResourceResolver(myProject);
         final RemoteResourceResolver ramlRemoteResolver = new RemoteResourceResolver(myProject);
         final ModuleLoaderFactory[] moduleResourceResolvers = {
-                SpecificModuleResourceResolver.apply(JAVA, javaRemoteResolver),
-                new ModuleLoaderFactory() {
-
-                    @Override
-                    public ModuleLoader createModuleLoader() {
-                        final RamlModuleLoader ramlModuleLoader = new RamlModuleLoader();
-                        ramlModuleLoader.resolver(projectVirtualFileSystem.asResourceResolver());
-                        return ramlModuleLoader;
-                    }
-                }
+                SpecificModuleResourceResolver.apply(JAVA, javaRemoteResolver)
         };
 
         final AsyncDataFormatProvider dataFormatProvider = new AsyncDataFormatProvider(myProject);
@@ -342,13 +333,13 @@ public final class WeaveToolingService implements Disposable {
 
     private LookupElement createLookupItem(Suggestion item) {
 
-        LookupElementBuilder elementBuilder;
+
         final Option<String> documentationMayBe = item.markdownDocumentation();
         String documentation = null;
         if (documentationMayBe.isDefined()) {
             documentation = documentationMayBe.get();
         }
-        elementBuilder = LookupElementBuilder.create(new CompletionData(item.name(), documentation));
+        LookupElementBuilder elementBuilder = LookupElementBuilder.create(new CompletionData(item.name(), documentation));
         elementBuilder = elementBuilder.withPresentableText(item.name());
 
 

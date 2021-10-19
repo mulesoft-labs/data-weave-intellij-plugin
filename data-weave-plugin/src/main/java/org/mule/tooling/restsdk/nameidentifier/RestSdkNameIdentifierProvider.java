@@ -11,7 +11,7 @@ import scala.Option;
 public class RestSdkNameIdentifierProvider implements NameIdentifierProvider {
     @Override
     public boolean support(PsiFile file) {
-        return RestSdkHelper.isRestSdkFile(file);
+        return RestSdkHelper.isInRestSdkContextFile(file);
     }
 
     @Override
