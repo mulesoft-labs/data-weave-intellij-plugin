@@ -10,42 +10,23 @@ import com.intellij.codeInsight.template.Template;
 import com.intellij.codeInsight.template.TemplateManager;
 import com.intellij.codeInsight.template.impl.TextExpression;
 import com.intellij.icons.AllIcons;
-import com.intellij.json.JsonFileType;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.yaml.YAMLFileType;
 import org.jetbrains.yaml.psi.YAMLScalar;
+import org.mule.tooling.restsdk.utils.RestSdkPaths;
 import org.mule.tooling.restsdk.utils.YamlPath;
-import webapi.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
-import static org.mule.tooling.restsdk.datasense.RestSdkInputOutputTypesProvider.OPERATION_PATH;
 import static org.mule.tooling.restsdk.utils.MapUtils.map;
+import static org.mule.tooling.restsdk.utils.RestSdkHelper.parseWebApi;
+import static org.mule.tooling.restsdk.utils.RestSdkPaths.OPERATION_PATH;
 
 public class RestSdkCompletionService {
-
-
-  public static YamlPath api = YamlPath.DOCUMENT.child("apiSpec").child("url");
-  public static YamlPath swaggerVersion = YamlPath.DOCUMENT.child("swagger");
-  public static YamlPath openApiVersion = YamlPath.DOCUMENT.child("openapi");
-
-  public static YamlPath baseOperation = OPERATION_PATH.any().child("base");
-  public static YamlPath queryParameters = OPERATION_PATH.any().child("request").child("queryParameter");
-  public static YamlPath headers = OPERATION_PATH.any().child("request").child("header");
-  public static YamlPath uriParameters = OPERATION_PATH.any().child("request").child("uriParameter");
-
-  public static YamlPath relativeBasePath = YamlPath.PARENT.parent().child("base");
 
 
   Map<String, String> SIMPLE_TYPE_MAP = map(
@@ -76,71 +57,55 @@ public class RestSdkCompletionService {
     final PsiElement position = completionParameters.getPosition();
     final PsiElement parentElement = position.getParent();
     final YamlPath yamlPath = YamlPath.pathOf(parentElement);
-    if (yamlPath.matches(baseOperation) ||
+    if (yamlPath.matches(RestSdkPaths.OPERATION_BASE_PATH) ||
             yamlPath.matches(OPERATION_PATH) ||
-            yamlPath.matches(queryParameters) ||
-            yamlPath.matches(headers) ||
-            yamlPath.matches(uriParameters)) {
+            yamlPath.matches(RestSdkPaths.OPERATION_QUERY_PARAMS_PATH) ||
+            yamlPath.matches(RestSdkPaths.OPERATION_REQUEST_HEADER_PATH) ||
+            yamlPath.matches(RestSdkPaths.OPERATION_URI_PARAMS_PATH)) {
       suggestBaseOperations(completionParameters, project, result, yamlPath);
     }
     return result;
   }
 
   private void suggestBaseOperations(CompletionParameters completionParameters, Project project, ArrayList<LookupElement> result, YamlPath yamlPath) {
-    final PsiElement select = api.select(completionParameters.getOriginalFile());
-    if (select instanceof YAMLScalar) {
-      String apiPath = ((YAMLScalar) select).getTextValue();
-      //
-      final VirtualFile parent = completionParameters.getOriginalFile().getVirtualFile().getParent();
-      final VirtualFile child = parent.findFileByRelativePath(apiPath);
-      if (child != null) {
-        try {
-          final WebApi webApi = parseWebApi(project, child);
-          if (webApi != null) {
-            if (yamlPath.matches(baseOperation)) {
-              suggestOperationBase(result, webApi);
-            } else if (yamlPath.matches(OPERATION_PATH)) {
-              suggestOperationTemplate(project, result, webApi);
-            } else {
-              PsiElement base = relativeBasePath.select(completionParameters.getPosition());
-              if (base instanceof YAMLScalar) {
-                String baseOperation = ((YAMLScalar) base).getTextValue();
-                Optional<Operation> maybeOperation = webApi.endPoints().stream().flatMap((endpoint) -> {
-                  return endpoint.operations().stream().filter((operation) -> operation.name().value().equals(baseOperation));
-                }).findFirst();
-                if (maybeOperation.isPresent()) {
-                  if (yamlPath.matches(queryParameters)) {
-                    List<Parameter> queryParameters = maybeOperation.get().request().queryParameters();
-                    queryParameters.forEach((queryParam) -> {
-                      LookupElementBuilder elementBuilder = LookupElementBuilder.create(queryParam.name() + ":");
-                      elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.Property);
-                      result.add(elementBuilder);
-                    });
-                  } else if (yamlPath.matches(headers)) {
-                    List<Parameter> queryParameters = maybeOperation.get().request().headers();
-                    queryParameters.forEach((queryParam) -> {
-                      LookupElementBuilder elementBuilder = LookupElementBuilder.create(queryParam.name() + ":");
-                      elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.Property);
-                      result.add(elementBuilder);
-                    });
-                  } else if (yamlPath.matches(uriParameters)) {
-                    List<Parameter> queryParameters = maybeOperation.get().request().uriParameters();
-                    queryParameters.forEach((queryParam) -> {
-                      LookupElementBuilder elementBuilder = LookupElementBuilder.create(queryParam.name() + ":");
-                      elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.Property);
-                      result.add(elementBuilder);
-                    });
-                  }
-                }
-              }
-
+    final WebApi webApi = parseWebApi(completionParameters.getOriginalFile());
+    if (webApi != null) {
+      if (yamlPath.matches(RestSdkPaths.OPERATION_BASE_PATH)) {
+        suggestOperationBase(result, webApi);
+      } else if (yamlPath.matches(OPERATION_PATH)) {
+        suggestOperationTemplate(project, result, webApi);
+      } else {
+        PsiElement base = RestSdkPaths.RELATIVE_BASE_PATH.select(completionParameters.getPosition());
+        if (base instanceof YAMLScalar) {
+          String baseOperation = ((YAMLScalar) base).getTextValue();
+          Optional<Operation> maybeOperation = webApi.endPoints().stream().flatMap((endpoint) -> {
+            return endpoint.operations().stream().filter((operation) -> operation.name().value().equals(baseOperation));
+          }).findFirst();
+          if (maybeOperation.isPresent()) {
+            if (yamlPath.matches(RestSdkPaths.OPERATION_QUERY_PARAMS_PATH)) {
+              List<Parameter> queryParameters = maybeOperation.get().request().queryParameters();
+              queryParameters.forEach((queryParam) -> {
+                LookupElementBuilder elementBuilder = LookupElementBuilder.create(queryParam.name() + ":");
+                elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.Property);
+                result.add(elementBuilder);
+              });
+            } else if (yamlPath.matches(RestSdkPaths.OPERATION_REQUEST_HEADER_PATH)) {
+              List<Parameter> queryParameters = maybeOperation.get().request().headers();
+              queryParameters.forEach((queryParam) -> {
+                LookupElementBuilder elementBuilder = LookupElementBuilder.create(queryParam.name() + ":");
+                elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.Property);
+                result.add(elementBuilder);
+              });
+            } else if (yamlPath.matches(RestSdkPaths.OPERATION_URI_PARAMS_PATH)) {
+              List<Parameter> queryParameters = maybeOperation.get().request().uriParameters();
+              queryParameters.forEach((queryParam) -> {
+                LookupElementBuilder elementBuilder = LookupElementBuilder.create(queryParam.name() + ":");
+                elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.Property);
+                result.add(elementBuilder);
+              });
             }
           }
-        } catch (InterruptedException | ExecutionException e) {
-          e.printStackTrace();
         }
-      } else {
-        System.out.println("Unable to resolver path : `" + apiPath + "`");
       }
     }
   }
@@ -149,63 +114,77 @@ public class RestSdkCompletionService {
     final List<EndPoint> endPoints = webApi.endPoints();
     endPoints.forEach((endpoint) -> {
       endpoint.operations().forEach((operation) -> {
-        LookupElementBuilder elementBuilder = LookupElementBuilder.create(operation.name() + "(New Operation)");
+        LookupElementBuilder elementBuilder = LookupElementBuilder.create(operation.name() + " (Scaffold New Operation)");
         elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.Property);
         elementBuilder = elementBuilder.withTypeText(operationType(operation), true);
-        String template =
-                "$name$:\n" +
+        final StringBuilder template =
+                new StringBuilder("$name$:\n" +
                         "  displayName: $name$\n" +
                         "  base: " + operation.name() + "\n" +
-                        "  parameters: ";
+                        "  parameters: ");
 
-        Request request = operation.request();
+        final Request request = operation.request();
         if (request != null) {
           final List<Payload> payloads = request.payloads();
           final List<Parameter> headers = request.headers();
           final List<Parameter> uriParameters = request.uriParameters();
           final List<Parameter> queryParameters = request.queryParameters();
           if (!payloads.isEmpty()) {
-            Shape schema = payloads.get(0).schema();
+            final Shape schema = payloads.get(0).schema();
             if (schema instanceof NodeShape) {
               List<PropertyShape> properties = ((NodeShape) schema).properties();
               for (PropertyShape property : properties) {
-                template = template + "\n" + "    " + property.name().value() + " : ";
-                template = template + "\n" + "      " + "type" + ": " + toSchemaName(property.range());
-                template = template + "\n" + "      " + "displayName" + ": " + property.name().value();
-                template = template + "\n" + "      " + "required" + ": " + (property.minCount().value() == 0);
+                template.append("\n").append("    ").append(property.name().value()).append(": ");
+                template.append("\n").append("      ").append("type").append(": ").append(toSchemaName(property.range()));
+                template.append("\n").append("      ").append("displayName").append(": ").append(property.name().value());
+                template.append("\n").append("      ").append("required").append(": ").append(property.minCount().value() == 0);
                 if (!property.description().isNullOrEmpty()) {
-                  template = template + "\n" + "      " + "description" + ": " + property.description().value();
+                  template.append("\n").append("      ").append("description").append(": ").append(property.description().value());
                 }
               }
             }
           }
-          template = template + buildParms(headers);
-          template = template + buildParms(uriParameters);
-          template = template + buildParms(queryParameters);
 
-          template = template + "\n  " + "request: ";
-          template = template + "\n    " + "body: ";
-          template = template + "\n      " + "expression: ";
+          template.append(buildParams(headers));
+          template.append(buildParams(uriParameters));
+          template.append(buildParams(queryParameters));
+          template.append("\n  ").append("request: ");
+
+          if (!request.payloads().isEmpty()) {
+            template.append("\n    ").append("body: ");
+            template.append("\n      ").append("expression: ");
+          }
 
           if (!headers.isEmpty()) {
-            template = template + "\n    " + "header: ";
+            template.append("\n    ").append("header: ");
             for (Parameter header : headers) {
-              template = template + "\n      " + header.name().value() + ": #[]";
+              template.append("\n      ").append(header.name().value()).append(":");
+              template.append("\n        ").append("value").append(": \"#[parameters['").append(header.name().value()).append("']]\"");
             }
           }
 
           if (!queryParameters.isEmpty()) {
-            template = template + "\n    " + "queryParameters: ";
+            template.append("\n    ").append("queryParameter: ");
             for (Parameter queryParam : queryParameters) {
-              template = template + "\n      " + queryParam.name().value() + ": #[]";
+              template.append("\n      ").append(queryParam.name().value()).append(": ");
+              template.append("\n        ").append("value").append(": \"#[parameters['").append(queryParam.name().value()).append("']]\"");
+            }
+          }
+
+          if (!uriParameters.isEmpty()) {
+            template.append("\n    ").append("uriParameter: ");
+            for (Parameter uriParameter : uriParameters) {
+              template.append("\n      ").append(uriParameter.name().value()).append(":");
+              template.append("\n        ").append("value").append(": \"#[parameters['").append(uriParameter.name().value()).append("']]\"");
             }
           }
         }
-        template = template + "\n  " + "response: ";
-        template = template + "\n    " + "body: \"#[payload]\"";
+
+        template.append("\n  ").append("response: ");
+        template.append("\n    ").append("body: \"#[payload]\"");
 
 
-        final Template myTemplate = TemplateManager.getInstance(project).createTemplate("template", "rest_sdk_suggest", template);
+        final Template myTemplate = TemplateManager.getInstance(project).createTemplate("template", "rest_sdk_suggest", template.toString());
         myTemplate.addVariable("name", new TextExpression(operation.name().value()), true);
         elementBuilder = elementBuilder.withInsertHandler((context, item1) -> {
           final int selectionStart = context.getEditor().getCaretModel().getOffset();
@@ -222,19 +201,19 @@ public class RestSdkCompletionService {
   }
 
   @NotNull
-  private String buildParms(List<Parameter> queryParameters) {
-    String queryParams = "";
+  private String buildParams(List<Parameter> queryParameters) {
+    final StringBuilder queryParams = new StringBuilder();
     for (Parameter queryParam : queryParameters) {
-      Shape schema = queryParam.schema();
-      queryParams = queryParams + "\n" + "    " + queryParam.name().value() + " : ";
-      queryParams = queryParams + "\n" + "      " + "type" + ": " + toSchemaName(schema);
-      queryParams = queryParams + "\n" + "      " + "displayName" + ": " + queryParam.name().value();
-      queryParams = queryParams + "\n" + "      " + "required" + ": " + (queryParam.required());
+      final Shape schema = queryParam.schema();
+      queryParams.append("\n").append("    ").append(queryParam.name().value()).append(" : ");
+      queryParams.append("\n").append("      ").append("type").append(": ").append(toSchemaName(schema));
+      queryParams.append("\n").append("      ").append("displayName").append(": ").append(queryParam.name().value());
+      queryParams.append("\n").append("      ").append("required").append(": ").append(queryParam.required());
       if (!queryParam.description().isNullOrEmpty()) {
-        queryParams = queryParams + "\n" + "      " + "description" + ": " + "\"" + queryParam.description().value() + "\"";
+        queryParams.append("\n").append("      ").append("description").append(": ").append("\"").append(queryParam.description().value()).append("\"");
       }
     }
-    return queryParams;
+    return queryParams.toString();
   }
 
   private String toSchemaName(Shape schema) {
@@ -244,7 +223,6 @@ public class RestSdkCompletionService {
       //TODO
       return "";
     }
-
   }
 
   private void suggestOperationBase(ArrayList<LookupElement> result, WebApi webApi) {
@@ -281,28 +259,5 @@ public class RestSdkCompletionService {
     return result;
   }
 
-  private @Nullable WebApi parseWebApi(Project project, VirtualFile child) throws InterruptedException, ExecutionException {
-    final PsiFile psiFile = PsiManager.getInstance(project).findFile(child);
-    if (psiFile != null) {
-      CompletableFuture<WebApiBaseUnit> parse;
-      if (psiFile.getFileType() instanceof YAMLFileType) {
-        if (swaggerVersion.select(psiFile) != null) {
-          parse = Oas20.parseYaml(child.getUrl());
-        } else if (openApiVersion.select(psiFile) != null) {
-          parse = Oas30.parseYaml(child.getUrl());
-        } else {
-          parse = Raml10.parse(child.getUrl());
-        }
-      } else if (psiFile.getFileType() instanceof JsonFileType) {
-        //TODO try to detect version better
-        parse = Oas30.parse(child.getUrl());
-      } else {
-        return null;
-      }
-      final WebApiDocument webApiBaseUnit = (WebApiDocument) parse.get();
-      return (WebApi) webApiBaseUnit.encodes();
-    } else {
-      return null;
-    }
-  }
+
 }
