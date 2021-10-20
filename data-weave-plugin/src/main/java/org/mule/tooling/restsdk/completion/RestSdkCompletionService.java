@@ -19,6 +19,7 @@ import com.intellij.psi.PsiFile;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.yaml.psi.YAMLScalar;
+import org.mule.tooling.restsdk.utils.RestSdkHelper;
 import org.mule.tooling.restsdk.utils.RestSdkPaths;
 import org.mule.tooling.restsdk.utils.SelectionPath;
 import webapi.WebApiDocument;
@@ -33,6 +34,7 @@ import java.util.Optional;
 import static org.mule.tooling.restsdk.utils.MapUtils.map;
 import static org.mule.tooling.restsdk.utils.RestSdkHelper.parseWebApi;
 import static org.mule.tooling.restsdk.utils.RestSdkPaths.OPERATION_PATH;
+import static org.mule.tooling.restsdk.utils.RestSdkPaths.TRIGGERS_PATH;
 
 public class RestSdkCompletionService {
 
@@ -74,8 +76,119 @@ public class RestSdkCompletionService {
             yamlPath.matches(RestSdkPaths.OPERATION_REQUEST_HEADER_PATH) ||
             yamlPath.matches(RestSdkPaths.OPERATION_URI_PARAMS_PATH)) {
       suggestOnOperations(completionParameters, project, result, yamlPath);
+    } else if (yamlPath.matches(TRIGGERS_PATH)
+            || yamlPath.matches(RestSdkPaths.TRIGGERS_BINDING_QUERY_PARAMS_PATH)
+            || yamlPath.matches(RestSdkPaths.TRIGGERS_PATH_PATH)
+            || yamlPath.matches(RestSdkPaths.TRIGGERS_BINDING_HEADER_PATH)
+            || yamlPath.matches(RestSdkPaths.TRIGGERS_BINDING_URI_PARAMETER_PATH)) {
+      suggestOnTriggers(completionParameters, project, result, yamlPath);
     }
     return result;
+  }
+
+  private void suggestOnTriggers(CompletionParameters completionParameters, Project project, ArrayList<LookupElement> result, SelectionPath yamlPath) {
+    final PsiFile yamlFile = completionParameters.getOriginalFile();
+    final WebApiDocument webApiDocument = parseWebApi(yamlFile);
+    if (webApiDocument != null) {
+      WebApi webApi = (WebApi) webApiDocument.encodes();
+      if (yamlPath.matches(TRIGGERS_PATH)) {
+        suggestTriggerTemplate(project, result, yamlFile, webApi);
+      } else if (yamlPath.matches(RestSdkPaths.TRIGGERS_PATH_PATH)) {
+        webApi.endPoints().forEach((endpoint) -> {
+          LookupElementBuilder elementBuilder = LookupElementBuilder.create(endpoint.path().value());
+          elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.Property);
+          result.add(elementBuilder);
+        });
+      } else {
+        final PsiElement path = RestSdkPaths.RELATIVE_TRIGGER_PATH_FROM_BINDING_PATH.selectYaml(completionParameters.getPosition());
+        final PsiElement method = RestSdkPaths.RELATIVE_TRIGGER_METHOD_FROM_BINDING_PATH.selectYaml(completionParameters.getPosition());
+        if (path instanceof YAMLScalar && method instanceof YAMLScalar) {
+          final String pathText = ((YAMLScalar) path).getTextValue();
+          final String methodText = ((YAMLScalar) method).getTextValue();
+          final Operation operation = RestSdkHelper.operationByMethodPath((WebApi) webApiDocument.encodes(), methodText, pathText);
+          if (operation != null) {
+            if (yamlPath.matches(RestSdkPaths.TRIGGERS_BINDING_QUERY_PARAMS_PATH)) {
+              suggestQueryParams(result, operation);
+            } else if (yamlPath.matches(RestSdkPaths.TRIGGERS_BINDING_HEADER_PATH)) {
+              suggestHeaders(result, operation);
+            } else if (yamlPath.matches(RestSdkPaths.TRIGGERS_BINDING_URI_PARAMETER_PATH)) {
+              suggestUriParams(result, operation);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  private void suggestTriggerTemplate(Project project, ArrayList<LookupElement> result, PsiFile yamlFile, WebApi webApi) {
+    final List<EndPoint> endPoints = webApi.endPoints();
+    endPoints.forEach((endpoint) -> {
+      endpoint.operations().forEach((operation) -> {
+        LookupElementBuilder elementBuilder = LookupElementBuilder.create(operation.name() + " (Scaffold New Trigger)");
+        elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.Property);
+        elementBuilder = elementBuilder.withTypeText(operationType(operation, endpoint), true);
+        final List<Resource> resources = new ArrayList<>();
+        final StringBuilder template = new StringBuilder();
+        template.append("$name$:\n")
+                .append("  ").append("description: $description$\n")
+                .append("  ").append("displayName: $name$\n")
+                .append("  ").append("method: ").append(operation.method()).append("\n")
+                .append("  ").append("path: \"").append(endpoint.path()).append("\"\n");
+        final Request request = operation.request();
+        if (request != null) {
+          template.append(parametersTemplate(resources, request));
+          template.append("  ").append("binding: ").append("\n");
+          template.append(buildOperationRequestTemplate(resources, request));
+        }
+        final Template myTemplate = TemplateManager.getInstance(project).createTemplate("template", "rest_sdk_suggest", template.toString());
+        myTemplate.addVariable("name", new TextExpression("On" + StringUtils.capitalize(operation.name().value())), true);
+        myTemplate.addVariable("description", operation.description().isNullOrEmpty() ? new EmptyExpression() : new ConstantNode(operation.description().value()), true);
+
+        elementBuilder = elementBuilder.withInsertHandler((context, item1) -> {
+          final int selectionStart = context.getEditor().getCaretModel().getOffset();
+          final int startOffset = context.getStartOffset();
+          final int tailOffset = context.getTailOffset();
+          context.getDocument().deleteString(startOffset, tailOffset);
+          context.setAddCompletionChar(false);
+          TemplateManager.getInstance(context.getProject()).startTemplate(context.getEditor(), myTemplate);
+          generateResources(yamlFile, resources);
+        });
+
+        result.add(elementBuilder);
+      });
+    });
+  }
+
+  private String parametersTemplate(List<Resource> resources, Request request) {
+    final List<Payload> payloads = request.payloads();
+    final List<Parameter> headers = request.headers();
+    final List<Parameter> uriParameters = request.uriParameters();
+    final List<Parameter> queryParameters = request.queryParameters();
+    final StringBuilder template = new StringBuilder();
+    template.append("  ").append("parameters").append(":").append("\n");
+    if (!payloads.isEmpty()) {
+      final Shape schema = payloads.get(0).schema();
+      if (schema instanceof NodeShape) {
+        List<PropertyShape> properties = ((NodeShape) schema).properties();
+        for (PropertyShape property : properties) {
+          template.append("    ").append(property.name().value()).append(": \n");
+          template.append("      ").append(toSchemaName(property.range(), resources)).append("\n");
+          template.append("      ").append("displayName").append(": ").append(property.name().value()).append("\n");
+          template.append("      ").append("required").append(": ").append(property.minCount().value() == 0).append("\n");
+          if (!property.description().isNullOrEmpty()) {
+            template.append("      ").append("description").append(": ").append(property.description().value()).append("\n");
+          }
+        }
+      } else {
+        template.append("    ").append("body").append(": ");
+        template.append("      ").append(toSchemaName(schema, resources)).append("\n");
+      }
+    }
+
+    template.append(buildParams(headers, resources));
+    template.append(buildParams(uriParameters, resources));
+    template.append(buildParams(queryParameters, resources));
+    return template.toString();
   }
 
   private void suggestOnOperations(CompletionParameters completionParameters, Project project, ArrayList<LookupElement> result, SelectionPath yamlPath) {
@@ -89,37 +202,47 @@ public class RestSdkCompletionService {
       } else {
         PsiElement base = RestSdkPaths.RELATIVE_OPERATION_BASE_FROM_REQUEST_PATH.selectYaml(completionParameters.getPosition());
         if (base instanceof YAMLScalar) {
-          String baseOperation = ((YAMLScalar) base).getTextValue();
-          Optional<Operation> maybeOperation = webApi.endPoints().stream().flatMap((endpoint) -> {
-            return endpoint.operations().stream().filter((operation) -> operation.name().value().equals(baseOperation));
-          }).findFirst();
-          if (maybeOperation.isPresent()) {
+          final String baseOperation = ((YAMLScalar) base).getTextValue();
+          final Operation operation = RestSdkHelper.operationById((WebApi) webApiDocument.encodes(), baseOperation);
+          if (operation != null) {
             if (yamlPath.matches(RestSdkPaths.OPERATION_QUERY_PARAMS_PATH)) {
-              List<Parameter> queryParameters = maybeOperation.get().request().queryParameters();
-              queryParameters.forEach((queryParam) -> {
-                LookupElementBuilder elementBuilder = LookupElementBuilder.create(queryParam.name() + ":");
-                elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.Property);
-                result.add(elementBuilder);
-              });
+              suggestQueryParams(result, operation);
             } else if (yamlPath.matches(RestSdkPaths.OPERATION_REQUEST_HEADER_PATH)) {
-              List<Parameter> queryParameters = maybeOperation.get().request().headers();
-              queryParameters.forEach((queryParam) -> {
-                LookupElementBuilder elementBuilder = LookupElementBuilder.create(queryParam.name() + ":");
-                elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.Property);
-                result.add(elementBuilder);
-              });
+              suggestHeaders(result, operation);
             } else if (yamlPath.matches(RestSdkPaths.OPERATION_URI_PARAMS_PATH)) {
-              List<Parameter> queryParameters = maybeOperation.get().request().uriParameters();
-              queryParameters.forEach((queryParam) -> {
-                LookupElementBuilder elementBuilder = LookupElementBuilder.create(queryParam.name() + ":");
-                elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.Property);
-                result.add(elementBuilder);
-              });
+              suggestUriParams(result, operation);
             }
           }
         }
       }
     }
+  }
+
+  private void suggestUriParams(ArrayList<LookupElement> result, Operation maybeOperation) {
+    List<Parameter> queryParameters = maybeOperation.request().uriParameters();
+    queryParameters.forEach((queryParam) -> {
+      LookupElementBuilder elementBuilder = LookupElementBuilder.create(queryParam.name() + ":");
+      elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.Property);
+      result.add(elementBuilder);
+    });
+  }
+
+  private void suggestHeaders(ArrayList<LookupElement> result, Operation maybeOperation) {
+    List<Parameter> queryParameters = maybeOperation.request().headers();
+    queryParameters.forEach((queryParam) -> {
+      LookupElementBuilder elementBuilder = LookupElementBuilder.create(queryParam.name() + ":");
+      elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.Property);
+      result.add(elementBuilder);
+    });
+  }
+
+  private void suggestQueryParams(ArrayList<LookupElement> result, Operation operation) {
+    List<Parameter> queryParameters = operation.request().queryParameters();
+    queryParameters.forEach((queryParam) -> {
+      LookupElementBuilder elementBuilder = LookupElementBuilder.create(queryParam.name() + ":" + "\n");
+      elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.Property);
+      result.add(elementBuilder);
+    });
   }
 
   private void suggestOperationTemplate(Project project, PsiFile file, ArrayList<LookupElement> result, WebApi webApi) {
@@ -130,85 +253,18 @@ public class RestSdkCompletionService {
         elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.Property);
         elementBuilder = elementBuilder.withTypeText(operationType(operation, endpoint), true);
         final List<Resource> resources = new ArrayList<>();
-        final StringBuilder template =
-                new StringBuilder("$name$:\n" +
-                        "  description: $description$\n" +
-                        "  displayName: $name$\n" +
-                        "  base: " + operation.name() + "\n" +
-                        "  parameters: ");
+        final StringBuilder template = new StringBuilder();
+        template.append("$name$:\n")
+                .append("  ").append("description: $description$\n")
+                .append("  ").append("displayName: $name$\n")
+                .append("  ").append("base: ").append(operation.name().value()).append("\n");
+
 
         final Request request = operation.request();
         if (request != null) {
-          final List<Payload> payloads = request.payloads();
-
-          if (!payloads.isEmpty()) {
-            final Shape schema = payloads.get(0).schema();
-            if (schema instanceof NodeShape) {
-              List<PropertyShape> properties = ((NodeShape) schema).properties();
-              for (PropertyShape property : properties) {
-                template.append("\n").append("    ").append(property.name().value()).append(": ");
-                template.append("\n").append("      ").append(toSchemaName(property.range(), resources));
-                template.append("\n").append("      ").append("displayName").append(": ").append(property.name().value());
-                template.append("\n").append("      ").append("required").append(": ").append(property.minCount().value() == 0);
-                if (!property.description().isNullOrEmpty()) {
-                  template.append("\n").append("      ").append("description").append(": ").append(property.description().value());
-                }
-              }
-            } else {
-              template.append("\n").append("    ").append("body").append(": ");
-              template.append("\n").append("      ").append(toSchemaName(schema, resources));
-            }
-          }
-
-          final List<Parameter> headers = request.headers();
-          final List<Parameter> uriParameters = request.uriParameters();
-          final List<Parameter> queryParameters = request.queryParameters();
-
-          template.append(buildParams(headers, resources));
-          template.append(buildParams(uriParameters, resources));
-          template.append(buildParams(queryParameters, resources));
-          template.append("\n  ").append("request: ");
-          if (!payloads.isEmpty()) {
-            template.append("\n    ").append("body: ");
-            template.append("\n      ").append("expression: \"#[");
-            final Shape schema = payloads.get(0).schema();
-            if (schema instanceof NodeShape) {
-              template.append("\n").append("        ").append("{\n");
-              List<PropertyShape> properties = ((NodeShape) schema).properties();
-              for (PropertyShape property : properties) {
-                template.append("          ").append("(parameters.&'").append(property.name().value()).append("'),").append("\n");
-              }
-              template.append("        ").append("}");
-            } else {
-              template.append("\n").append("    ").append("body").append(": ");
-              template.append("\n").append("      ").append(toSchemaName(schema, resources));
-            }
-            template.append("\n      ").append("]\"");
-          }
-
-          if (!headers.isEmpty()) {
-            template.append("\n    ").append("header: ");
-            for (Parameter header : headers) {
-              template.append("\n      ").append(header.name().value()).append(":");
-              template.append("\n        ").append("value").append(": \"#[parameters['").append(header.name().value()).append("']]\"");
-            }
-          }
-
-          if (!queryParameters.isEmpty()) {
-            template.append("\n    ").append("queryParameter: ");
-            for (Parameter queryParam : queryParameters) {
-              template.append("\n      ").append(queryParam.name().value()).append(": ");
-              template.append("\n        ").append("value").append(": \"#[parameters['").append(queryParam.name().value()).append("']]\"");
-            }
-          }
-
-          if (!uriParameters.isEmpty()) {
-            template.append("\n    ").append("uriParameter: ");
-            for (Parameter uriParameter : uriParameters) {
-              template.append("\n      ").append(uriParameter.name().value()).append(":");
-              template.append("\n        ").append("value").append(": \"#[parameters['").append(uriParameter.name().value()).append("']]\"");
-            }
-          }
+          template.append(parametersTemplate(resources, request));
+          template.append("  ").append("request: ").append("\n");
+          template.append(buildOperationRequestTemplate(resources, request));
         }
 
         List<Response> responses = operation.responses();
@@ -216,10 +272,10 @@ public class RestSdkCompletionService {
           Response response = responses.stream().filter((r) -> OK_STATUS.equals(r.statusCode().value())).findFirst().orElse(null);
           if (response != null && !response.payloads().isEmpty()) {
             Payload payload = response.payloads().get(0);
-            template.append("\n  ").append("response: ");
-            template.append("\n    ").append("body:");
-            template.append("\n      ").append("value: \"#[payload]\"");
-            template.append("\n      ").append(toSchemaName(payload.schema(), resources));
+            template.append("  ").append("response: ").append("\n");
+            template.append("    ").append("body:").append("\n");
+            template.append("      ").append("value: \"#[payload]\"").append("\n");
+            template.append("      ").append(toSchemaName(payload.schema(), resources)).append("\n");
           }
         }
 
@@ -240,6 +296,56 @@ public class RestSdkCompletionService {
         result.add(elementBuilder);
       });
     });
+  }
+
+  private String buildOperationRequestTemplate(List<Resource> resources, Request request) {
+    final List<Payload> payloads = request.payloads();
+    final List<Parameter> headers = request.headers();
+    final List<Parameter> uriParameters = request.uriParameters();
+    final List<Parameter> queryParameters = request.queryParameters();
+    StringBuilder template = new StringBuilder();
+    if (!payloads.isEmpty()) {
+      template.append("    ").append("body: ").append("\n");
+      template.append("      ").append("expression: \"#[").append("\n");
+      final Shape schema = payloads.get(0).schema();
+      if (schema instanceof NodeShape) {
+        template.append("        ").append("{\n");
+        List<PropertyShape> properties = ((NodeShape) schema).properties();
+        for (PropertyShape property : properties) {
+          template.append("          ").append("(parameters.&'").append(property.name().value()).append("'),").append("\n");
+        }
+        template.append("        ").append("}").append("\n");
+      } else {
+        template.append("    ").append("body").append(": ").append("\n");
+        template.append("      ").append(toSchemaName(schema, resources)).append("\n");
+      }
+      template.append("      ").append("]\"").append("\n");
+    }
+
+    if (!headers.isEmpty()) {
+      template.append("    ").append("header: ").append("\n");
+      for (Parameter header : headers) {
+        template.append("      ").append(header.name().value()).append(":").append("\n");
+        template.append("        ").append("value").append(": \"#[parameters['").append(header.name().value()).append("']]\"").append("\n");
+      }
+    }
+
+    if (!queryParameters.isEmpty()) {
+      template.append("    ").append("queryParameter: ").append("\n");
+      for (Parameter queryParam : queryParameters) {
+        template.append("      ").append(queryParam.name().value()).append(": ").append("\n");
+        template.append("        ").append("value").append(": \"#[parameters['").append(queryParam.name().value()).append("']]\"").append("\n");
+      }
+    }
+
+    if (!uriParameters.isEmpty()) {
+      template.append("    ").append("uriParameter: ").append("\n");
+      for (Parameter uriParameter : uriParameters) {
+        template.append("      ").append(uriParameter.name().value()).append(":").append("\n");
+        template.append("        ").append("value").append(": \"#[parameters['").append(uriParameter.name().value()).append("']]\"").append("\n");
+      }
+    }
+    return template.toString();
   }
 
   private void generateResources(PsiFile file, List<Resource> resources) {
@@ -271,12 +377,12 @@ public class RestSdkCompletionService {
     final StringBuilder queryParams = new StringBuilder();
     for (Parameter queryParam : queryParameters) {
       final Shape schema = queryParam.schema();
-      queryParams.append("\n").append("    ").append(queryParam.name().value()).append(" : ");
-      queryParams.append("\n").append("      ").append(toSchemaName(schema, resources));
-      queryParams.append("\n").append("      ").append("displayName").append(": ").append(queryParam.name().value());
-      queryParams.append("\n").append("      ").append("required").append(": ").append(queryParam.required());
+      queryParams.append("    ").append(queryParam.name().value()).append(" : ").append("\n");
+      queryParams.append("      ").append(toSchemaName(schema, resources)).append("\n");
+      queryParams.append("      ").append("displayName").append(": ").append(queryParam.name().value()).append("\n");
+      queryParams.append("      ").append("required").append(": ").append(queryParam.required()).append("\n");
       if (!queryParam.description().isNullOrEmpty()) {
-        queryParams.append("\n").append("      ").append("description").append(": ").append("\"").append(queryParam.description().value()).append("\"");
+        queryParams.append("      ").append("description").append(": ").append("\"").append(queryParam.description().value()).append("\"").append("\n");
       }
     }
     return queryParams.toString();

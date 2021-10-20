@@ -63,8 +63,8 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
               || path.matches(RestSdkPaths.SECURITY_ERROR_TEMPLATE_PATH) || path.matches(RestSdkPaths.SECURITY_REFRESH_PATH)
               || path.matches(RestSdkPaths.TRIGGERS_SAMPLE_DATA_PATH)) {
         createPayloadWithAttributesInputs(implicitInput);
-      } else if (path.matches(RestSdkPaths.TRIGGERS_BINDING_VALUE) || path.matches(RestSdkPaths.TRIGGERS_BINDING_BODY_EXPRESSION)) {
-        createTriggersBinding(implicitInput, context, RestSdkPaths.PARAMETERS_SELECTOR_PATH);
+      } else if (path.matches(RestSdkPaths.TRIGGERS_BINDING_BODY_EXPRESSION)) {
+        createTriggersBinding(implicitInput, context, RestSdkPaths.RELATIVE_TRIGGER_PARAMETERS_SELECTOR_FROM_BINDING_BODY_PATH);
       } else if (path.matches(RestSdkPaths.TRIGGERS_WATERMARK_PATH) || path.matches(RestSdkPaths.TRIGGERS_ITEMS_PATH)) {
         createTriggersInputs(implicitInput, context, RestSdkPaths.PARAMETERS_SELECTOR_FROM_ITEMS_PATH);
       } else if (path.matches(RestSdkPaths.SAMPLE_DATA_URI_PARAMETER_PATH)) {
@@ -84,7 +84,7 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
         implicitInput.addInput(SUMMARY_KEY, new StringType(Option.empty()));
       } else if (path.matches(RestSdkPaths.VALUE_PROVIDER_PATH)) {
         createValueProviderInputs(implicitInput, context);
-      } else if (path.matches(RestSdkPaths.TEST_CONNECTION_PATH)) {
+      } else if (path.matches(RestSdkPaths.SECURITY_TEST_CONNECTION_PATH)) {
         createTestConnectionInputs(implicitInput, context);
       } else {
         createPayloadWithAttributesInputs(implicitInput);
@@ -244,6 +244,19 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
           WebApiDocument webApiDocument = RestSdkHelper.parseWebApi(context.getContainingFile());
           String opIdValue = ((YAMLScalar) operationId).getTextValue();
           Operation operation = RestSdkHelper.operationById((WebApi) webApiDocument.encodes(), opIdValue);
+          if (operation != null && operation.request() != null && !operation.request().payloads().isEmpty()) {
+            final WeaveType weaveType = RestSdkHelper.toWeaveType(operation.request().payloads().get(0).schema(), webApiDocument);
+            return Optional.of(weaveType);
+          }
+        }
+      } else if (path.matches(RestSdkPaths.TRIGGERS_BINDING_BODY_EXPRESSION)) {
+        final PsiElement pathElement = RestSdkPaths.RELATIVE_TRIGGER_PATH_FROM_BINDING_BODY_PATH.selectYaml(context);
+        final PsiElement method = RestSdkPaths.RELATIVE_TRIGGER_METHOD_FROM_BINDING_BODY_PATH.selectYaml(context);
+        if (pathElement instanceof YAMLScalar && method instanceof YAMLScalar) {
+          final String pathText = ((YAMLScalar) pathElement).getTextValue();
+          final String methodText = ((YAMLScalar) method).getTextValue();
+          WebApiDocument webApiDocument = RestSdkHelper.parseWebApi(context.getContainingFile());
+          final Operation operation = RestSdkHelper.operationByMethodPath((WebApi) webApiDocument.encodes(), methodText, pathText);
           if (operation != null && operation.request() != null && !operation.request().payloads().isEmpty()) {
             final WeaveType weaveType = RestSdkHelper.toWeaveType(operation.request().payloads().get(0).schema(), webApiDocument);
             return Optional.of(weaveType);

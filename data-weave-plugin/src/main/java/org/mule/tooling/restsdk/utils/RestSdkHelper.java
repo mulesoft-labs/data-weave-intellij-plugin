@@ -21,6 +21,7 @@ import webapi.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 public class RestSdkHelper {
@@ -188,6 +189,18 @@ public class RestSdkHelper {
     } else {
       return new AnyType();
     }
+  }
+
+  public static Operation operationByMethodPath(WebApi webApi, String methodText, String pathText) {
+    return
+            webApi.endPoints().stream()
+                    .filter((endpoint) -> {
+                      return endpoint.path().value().equals(pathText);
+                    })
+                    .flatMap((endpoint) -> {
+                      return endpoint.operations().stream().filter((operation) -> operation.method().value().equals(methodText));
+                    })
+                    .findFirst().orElse(null);
   }
 
   static class WeaveReferenceTypeResolver {
