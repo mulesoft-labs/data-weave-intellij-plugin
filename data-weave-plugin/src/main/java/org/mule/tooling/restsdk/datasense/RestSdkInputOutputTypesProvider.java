@@ -15,7 +15,7 @@ import org.mule.tooling.lang.dw.service.InputOutputTypesProvider;
 import org.mule.tooling.lang.dw.service.WeaveRuntimeService;
 import org.mule.tooling.restsdk.utils.RestSdkHelper;
 import org.mule.tooling.restsdk.utils.RestSdkPaths;
-import org.mule.tooling.restsdk.utils.YamlPath;
+import org.mule.tooling.restsdk.utils.SelectionPath;
 import org.mule.weave.v2.editor.ImplicitInput;
 import org.mule.weave.v2.parser.ast.QName;
 import org.mule.weave.v2.ts.*;
@@ -29,7 +29,7 @@ import webapi.WebApiDocument;
 import java.util.Optional;
 
 import static org.mule.tooling.restsdk.utils.RestSdkHelper.isInRestSdkContextFile;
-import static org.mule.tooling.restsdk.utils.YamlPath.pathOf;
+import static org.mule.tooling.restsdk.utils.SelectionPath.pathOfYaml;
 
 public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider {
   // Bindings
@@ -54,7 +54,7 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
     final ImplicitInput implicitInput = new ImplicitInput();
     final PsiElement context = psiFile.getContext();
     if (context != null) {
-      final YamlPath path = pathOf(context);
+      final SelectionPath path = pathOfYaml(context);
       if (path.matches(RestSdkPaths.OPERATION_IDENTIFIER_PATH)) {
         implicitInput.addInput(OPERATION_ID_KEY, new StringType(Option.<String>empty()));
         implicitInput.addInput(METHOD_KEY, new StringType(Option.<String>empty()));
@@ -103,7 +103,7 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
     return implicitInput;
   }
 
-  private void createTriggersBinding(ImplicitInput implicitInput, PsiElement context, YamlPath parameterSelector) {
+  private void createTriggersBinding(ImplicitInput implicitInput, PsiElement context, SelectionPath parameterSelector) {
     ObjectType weaveType = loadParametersType(context, parameterSelector);
     implicitInput.addInput(WATERMARK_KEY, new AnyType()); //TODO shoudln't this be a type of date?
     implicitInput.addInput(PARAMETERS_KEY, weaveType);
@@ -139,7 +139,7 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
     implicitInput.addInput(ITEM_KEY, new AnyType());
   }
 
-  private void createOperationRequest(ImplicitInput implicitInput, PsiElement context, YamlPath parameters_selector) {
+  private void createOperationRequest(ImplicitInput implicitInput, PsiElement context, SelectionPath parameters_selector) {
     ObjectType weaveType = loadParametersType(context, parameters_selector);
     implicitInput.addInput(PARAMETERS_KEY, weaveType);
   }
@@ -160,7 +160,7 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
     implicitInput.addInput(ATTRIBUTES_KEY, createHttpAttributes());
   }
 
-  private void createTriggersInputs(ImplicitInput implicitInput, PsiElement context, YamlPath parameters_selector) {
+  private void createTriggersInputs(ImplicitInput implicitInput, PsiElement context, SelectionPath parameters_selector) {
     ObjectType weaveType = loadParametersType(context, parameters_selector);
     implicitInput.addInput(PAYLOAD_KEY, new AnyType());
     implicitInput.addInput(WATERMARK_KEY, new AnyType());
@@ -169,8 +169,8 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
   }
 
   @NotNull
-  private ObjectType loadParametersType(PsiElement context, YamlPath parameters_selector) {
-    PsiElement parameters = parameters_selector.select(context);
+  private ObjectType loadParametersType(PsiElement context, SelectionPath parameters_selector) {
+    PsiElement parameters = parameters_selector.selectYaml(context);
     Builder<KeyValuePairType, Seq<KeyValuePairType>> objectSeqBuilder = Seq$.MODULE$.newBuilder();
     if (parameters instanceof YAMLMapping) {
       for (YAMLKeyValue keyValue : ((YAMLMapping) parameters).getKeyValues()) {
@@ -231,7 +231,7 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
   public @NotNull Optional<WeaveType> expectedOutput(PsiFile psiFile) {
     PsiElement context = psiFile.getContext();
     if (context != null) {
-      final YamlPath path = pathOf(context);
+      final SelectionPath path = pathOfYaml(context);
       if (path.matches(RestSdkPaths.OPERATION_IDENTIFIER_PATH) || path.matches(RestSdkPaths.SECURITY_ERROR_TEMPLATE_PATH)) {
         return Optional.of(new StringType(Option.empty()));
       } else if (path.matches(RestSdkPaths.PAGINATION_PATH)) {
@@ -239,7 +239,7 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
       } else if (path.matches(RestSdkPaths.SECURITY_REFRESH_PATH) || path.matches(RestSdkPaths.SECURITY_VALIDATION_PATH)) {
         return Optional.of(new BooleanType(Option.empty(), VariableConstraints.emptyConstraints()));
       } else if (path.matches(RestSdkPaths.OPERATION_REQUEST_BODY_PATH)) {
-        final PsiElement operationId = RestSdkPaths.RELATIVE_OPERATION_BASE_FROM_BODY_EXPRESSION_PATH.select(context);
+        final PsiElement operationId = RestSdkPaths.RELATIVE_OPERATION_BASE_FROM_BODY_EXPRESSION_PATH.selectYaml(context);
         if (operationId instanceof YAMLScalar) {
           WebApiDocument webApiDocument = RestSdkHelper.parseWebApi(context.getContainingFile());
           String opIdValue = ((YAMLScalar) operationId).getTextValue();

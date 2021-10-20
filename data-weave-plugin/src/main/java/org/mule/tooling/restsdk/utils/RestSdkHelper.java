@@ -25,8 +25,8 @@ import java.util.concurrent.ExecutionException;
 
 public class RestSdkHelper {
 
-  public static YamlPath swaggerVersion = YamlPath.DOCUMENT.child("swagger");
-  public static YamlPath openApiVersion = YamlPath.DOCUMENT.child("openapi");
+  public static SelectionPath swaggerVersion = SelectionPath.DOCUMENT.child("swagger");
+  public static SelectionPath openApiVersion = SelectionPath.DOCUMENT.child("openapi");
 
 
   public static boolean isInRestSdkContextFile(PsiFile psiFile) {
@@ -51,7 +51,7 @@ public class RestSdkHelper {
 
   public static WebApiDocument parseWebApi(PsiFile restSdkFile) {
     WebApiDocument result = null;
-    final PsiElement select = RestSdkPaths.API_PATH.select(restSdkFile);
+    final PsiElement select = RestSdkPaths.API_PATH.selectYaml(restSdkFile);
     if (select instanceof YAMLScalar) {
       String apiPath = ((YAMLScalar) select).getTextValue();
       //
@@ -71,16 +71,21 @@ public class RestSdkHelper {
       WebApiBaseUnit parse;
       try {
         if (psiFile.getFileType() instanceof YAMLFileType) {
-          if (swaggerVersion.select(psiFile) != null) {
+          if (swaggerVersion.selectYaml(psiFile) != null) {
             parse = Oas20.resolve(Oas20.parseYaml(child.getUrl()).get()).get();
-          } else if (openApiVersion.select(psiFile) != null) {
+          } else if (openApiVersion.selectYaml(psiFile) != null) {
             parse = Oas30.resolve(Oas30.parseYaml(child.getUrl()).get()).get();
           } else {
             parse = Raml10.resolve(Raml10.parse(child.getUrl()).get()).get();
           }
         } else if (psiFile.getFileType() instanceof JsonFileType) {
-          //TODO try to detect version better
-          parse = Oas30.resolve(Oas30.parse(child.getUrl()).get()).get();
+          if (swaggerVersion.selectJson(psiFile) != null) {
+            parse = Oas20.resolve(Oas20.parse(child.getUrl()).get()).get();
+          } else if (openApiVersion.selectJson(psiFile) != null) {
+            parse = Oas30.resolve(Oas30.parse(child.getUrl()).get()).get();
+          } else {
+            parse = Oas20.resolve(Oas20.parse(child.getUrl()).get()).get();
+          }
         } else {
           return null;
         }

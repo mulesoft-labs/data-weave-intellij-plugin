@@ -8,7 +8,6 @@ import com.intellij.codeInsight.daemon.impl.quickfix.EmptyExpression;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.codeInsight.template.Template;
-import com.intellij.codeInsight.template.TemplateEditingAdapter;
 import com.intellij.codeInsight.template.TemplateManager;
 import com.intellij.codeInsight.template.impl.ConstantNode;
 import com.intellij.codeInsight.template.impl.TextExpression;
@@ -21,7 +20,7 @@ import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.yaml.psi.YAMLScalar;
 import org.mule.tooling.restsdk.utils.RestSdkPaths;
-import org.mule.tooling.restsdk.utils.YamlPath;
+import org.mule.tooling.restsdk.utils.SelectionPath;
 import webapi.WebApiDocument;
 
 import java.io.IOException;
@@ -68,18 +67,18 @@ public class RestSdkCompletionService {
 
     final PsiElement position = completionParameters.getPosition();
     final PsiElement parentElement = position.getParent();
-    final YamlPath yamlPath = YamlPath.pathOf(parentElement);
+    final SelectionPath yamlPath = SelectionPath.pathOfYaml(parentElement);
     if (yamlPath.matches(RestSdkPaths.OPERATION_BASE_PATH) ||
             yamlPath.matches(OPERATION_PATH) ||
             yamlPath.matches(RestSdkPaths.OPERATION_QUERY_PARAMS_PATH) ||
             yamlPath.matches(RestSdkPaths.OPERATION_REQUEST_HEADER_PATH) ||
             yamlPath.matches(RestSdkPaths.OPERATION_URI_PARAMS_PATH)) {
-      suggestBaseOperations(completionParameters, project, result, yamlPath);
+      suggestOnOperations(completionParameters, project, result, yamlPath);
     }
     return result;
   }
 
-  private void suggestBaseOperations(CompletionParameters completionParameters, Project project, ArrayList<LookupElement> result, YamlPath yamlPath) {
+  private void suggestOnOperations(CompletionParameters completionParameters, Project project, ArrayList<LookupElement> result, SelectionPath yamlPath) {
     final WebApiDocument webApiDocument = parseWebApi(completionParameters.getOriginalFile());
     if (webApiDocument != null) {
       WebApi webApi = (WebApi) webApiDocument.encodes();
@@ -88,7 +87,7 @@ public class RestSdkCompletionService {
       } else if (yamlPath.matches(OPERATION_PATH)) {
         suggestOperationTemplate(project, completionParameters.getOriginalFile(), result, webApi);
       } else {
-        PsiElement base = RestSdkPaths.RELATIVE_OPERATION_BASE_FROM_REQUEST_PATH.select(completionParameters.getPosition());
+        PsiElement base = RestSdkPaths.RELATIVE_OPERATION_BASE_FROM_REQUEST_PATH.selectYaml(completionParameters.getPosition());
         if (base instanceof YAMLScalar) {
           String baseOperation = ((YAMLScalar) base).getTextValue();
           Optional<Operation> maybeOperation = webApi.endPoints().stream().flatMap((endpoint) -> {
@@ -129,7 +128,7 @@ public class RestSdkCompletionService {
       endpoint.operations().forEach((operation) -> {
         LookupElementBuilder elementBuilder = LookupElementBuilder.create(operation.name() + " (Scaffold New Operation)");
         elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.Property);
-        elementBuilder = elementBuilder.withTypeText(operationType(operation), true);
+        elementBuilder = elementBuilder.withTypeText(operationType(operation, endpoint), true);
         final List<Resource> resources = new ArrayList<>();
         final StringBuilder template =
                 new StringBuilder("$name$:\n" +
@@ -234,38 +233,37 @@ public class RestSdkCompletionService {
           final int tailOffset = context.getTailOffset();
           context.getDocument().deleteString(startOffset, tailOffset);
           context.setAddCompletionChar(false);
-          TemplateManager.getInstance(context.getProject()).startTemplate(context.getEditor(), myTemplate, new TemplateEditingAdapter() {
-            @Override
-            public void templateFinished(@NotNull Template template, boolean brokenOff) {
-              VirtualFile containerFolder = file.getVirtualFile().getParent();
-              if (!resources.isEmpty()) {
-                try {
-                  final VirtualFile resourcesFolder;
-                  if (containerFolder.findChild(SCHEMAS_FOLDER) == null) {
-                    resourcesFolder = containerFolder.createChildDirectory(this, SCHEMAS_FOLDER);
-                  } else {
-                    resourcesFolder = containerFolder.findChild(SCHEMAS_FOLDER);
-                  }
-                  resources.forEach((resource) -> {
-                    try {
-                      assert resourcesFolder != null;
-                      resourcesFolder.createChildData(this, resource.name).setBinaryContent(resource.content.getBytes(StandardCharsets.UTF_8));
-                    } catch (IOException e) {
-                      throw new RuntimeException(e);
-                    }
-                  });
-                } catch (IOException e) {
-                  throw new RuntimeException(e);
-                }
-              }
-              super.templateFinished(template, brokenOff);
-            }
-          });
+          TemplateManager.getInstance(context.getProject()).startTemplate(context.getEditor(), myTemplate);
+          generateResources(file, resources);
         });
 
         result.add(elementBuilder);
       });
     });
+  }
+
+  private void generateResources(PsiFile file, List<Resource> resources) {
+    final VirtualFile containerFolder = file.getVirtualFile().getParent();
+    if (!resources.isEmpty()) {
+      try {
+        final VirtualFile resourcesFolder;
+        if (containerFolder.findChild(SCHEMAS_FOLDER) == null) {
+          resourcesFolder = containerFolder.createChildDirectory(this, SCHEMAS_FOLDER);
+        } else {
+          resourcesFolder = containerFolder.findChild(SCHEMAS_FOLDER);
+        }
+        resources.forEach((resource) -> {
+          try {
+            assert resourcesFolder != null;
+            resourcesFolder.createChildData(this, resource.name).setBinaryContent(resource.content.getBytes(StandardCharsets.UTF_8));
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
+        });
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    }
   }
 
   @NotNull
@@ -292,7 +290,7 @@ public class RestSdkCompletionService {
       final String toJsonSchema = ((AnyShape) schema).toJsonSchema();
       final String fileName = schema.name().value() + ".json";
       resources.add(new Resource(fileName, toJsonSchema));
-      return result.append("schemaType").append(": ").append("./").append(SCHEMAS_FOLDER).append("/").append(fileName).toString();
+      return result.append("typeSchema").append(": ").append("./").append(SCHEMAS_FOLDER).append("/").append(fileName).toString();
     } else {
       return "";
     }
@@ -304,34 +302,15 @@ public class RestSdkCompletionService {
       endpoint.operations().forEach((operation) -> {
         LookupElementBuilder elementBuilder = LookupElementBuilder.create(operation.name());
         elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.Property);
-        elementBuilder = elementBuilder.withTypeText(operationType(operation), true);
+        elementBuilder = elementBuilder.withTypeText(operationType(operation, endpoint), true);
         result.add(elementBuilder);
       });
     });
   }
 
-  private String operationType(Operation operation) {
-    String result = operation.method().value() + " (";
-    Request request = operation.request();
-    if (request != null) {
-      List<Payload> payloadRequest = request.payloads();
-      if (!payloadRequest.isEmpty()) {
-        final Payload payload = payloadRequest.get(0);
-        result = result + payload.name().value() + ":" + payload.schema().description();
-      }
-    }
-    result = result + ")";
-    List<Response> responses = operation.responses();
-    if (!responses.isEmpty()) {
-      List<Payload> payloads = responses.get(0).payloads();
-      if (!payloads.isEmpty()) {
-        result = result + " -> " + payloads.get(0).schema().description();
-      }
-    }
-
-    return result;
+  private String operationType(Operation operation, EndPoint endpoint) {
+    return operation.method().value().toUpperCase() + "-" + endpoint.path().value();
   }
-
 
   static class Resource {
     String name;
