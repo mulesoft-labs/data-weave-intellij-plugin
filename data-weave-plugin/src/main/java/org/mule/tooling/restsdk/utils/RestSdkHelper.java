@@ -1,6 +1,7 @@
 package org.mule.tooling.restsdk.utils;
 
-import amf.client.model.domain.WebApi;
+import amf.client.model.domain.*;
+import amf.core.model.DataType;
 import com.intellij.json.JsonFileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -10,9 +11,16 @@ import com.intellij.psi.PsiManager;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.yaml.YAMLFileType;
 import org.jetbrains.yaml.psi.YAMLScalar;
+import org.mule.tooling.lang.dw.util.ScalaUtils;
+import org.mule.weave.v2.parser.ast.QName;
+import org.mule.weave.v2.parser.ast.variables.NameIdentifier;
+import org.mule.weave.v2.ts.*;
+import scala.Option;
 import webapi.*;
 
-import java.util.concurrent.CompletableFuture;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 public class RestSdkHelper {
@@ -41,8 +49,8 @@ public class RestSdkHelper {
   }
 
 
-  public static WebApi parseWebApi(PsiFile restSdkFile) {
-    WebApi result = null;
+  public static WebApiDocument parseWebApi(PsiFile restSdkFile) {
+    WebApiDocument result = null;
     final PsiElement select = RestSdkPaths.API_PATH.select(restSdkFile);
     if (select instanceof YAMLScalar) {
       String apiPath = ((YAMLScalar) select).getTextValue();
@@ -56,32 +64,150 @@ public class RestSdkHelper {
     return result;
   }
 
-  public static @Nullable WebApi parseWebApi(Project project, VirtualFile child) {
-    WebApi result = null;
+  public static @Nullable WebApiDocument parseWebApi(Project project, VirtualFile child) {
+    WebApiDocument result = null;
     final PsiFile psiFile = PsiManager.getInstance(project).findFile(child);
     if (psiFile != null) {
-      CompletableFuture<WebApiBaseUnit> parse;
-      if (psiFile.getFileType() instanceof YAMLFileType) {
-        if (swaggerVersion.select(psiFile) != null) {
-          parse = Oas20.parseYaml(child.getUrl());
-        } else if (openApiVersion.select(psiFile) != null) {
-          parse = Oas30.parseYaml(child.getUrl());
-        } else {
-          parse = Raml10.parse(child.getUrl());
-        }
-      } else if (psiFile.getFileType() instanceof JsonFileType) {
-        //TODO try to detect version better
-        parse = Oas30.parse(child.getUrl());
-      } else {
-        return null;
-      }
+      WebApiBaseUnit parse;
       try {
-        final WebApiDocument webApiBaseUnit = (WebApiDocument) parse.get();
-        result = (WebApi) webApiBaseUnit.encodes();
+        if (psiFile.getFileType() instanceof YAMLFileType) {
+          if (swaggerVersion.select(psiFile) != null) {
+            parse = Oas20.resolve(Oas20.parseYaml(child.getUrl()).get()).get();
+          } else if (openApiVersion.select(psiFile) != null) {
+            parse = Oas30.resolve(Oas30.parseYaml(child.getUrl()).get()).get();
+          } else {
+            parse = Raml10.resolve(Raml10.parse(child.getUrl()).get()).get();
+          }
+        } else if (psiFile.getFileType() instanceof JsonFileType) {
+          //TODO try to detect version better
+          parse = Oas30.resolve(Oas30.parse(child.getUrl()).get()).get();
+        } else {
+          return null;
+        }
+        result = (WebApiDocument) parse;
+
       } catch (InterruptedException | ExecutionException e) {
         e.printStackTrace();
       }
     }
     return result;
   }
+
+
+  public static @Nullable Operation operationById(@Nullable WebApi webApi, String id) {
+    if (webApi == null) {
+      return null;
+    }
+
+    List<EndPoint> endPoints = webApi.endPoints();
+    for (EndPoint endPoint : endPoints) {
+      List<Operation> operations = endPoint.operations();
+      for (Operation operation : operations) {
+        if (operation.name().value().equals(id)) {
+          return operation;
+        }
+      }
+    }
+    return null;
+  }
+
+  public static WeaveType toWeaveType(Shape shape, WebApiDocument webApi) {
+    return toWeaveType(shape, new WeaveReferenceTypeResolver(webApi));
+  }
+
+  public static WeaveType toWeaveType(Shape shape, WeaveReferenceTypeResolver referenceTypeResolver) {
+    if (shape instanceof NodeShape) {
+      final KeyValuePairType[] keyValuePairTypes = ((NodeShape) shape).properties().stream().map((property) -> {
+        final QName propertyName = new QName(property.name().value(), Option.empty());
+        return new KeyValuePairType(new KeyType(new NameType(Option.apply(propertyName)), ScalaUtils.toSeq()), toWeaveType(property.range(), referenceTypeResolver), property.minCount().value() == 0, property.maxCount().value() > 1);
+      }).toArray(KeyValuePairType[]::new);
+      return new ObjectType(ScalaUtils.toSeq(keyValuePairTypes), true, true);
+    } else if (shape instanceof ArrayShape) {
+      return new ArrayType(toWeaveType(((ArrayShape) shape).items(), referenceTypeResolver));
+    } else if (shape instanceof ScalarShape) {
+      String value = ((ScalarShape) shape).dataType().value();
+      if (DataType.String().equals(value)) {
+        return new StringType(Option.empty());
+      } else if (
+              DataType.Number().equals(value)
+                      || DataType.Decimal().equals(value)
+                      || DataType.Long().equals(value)
+                      || DataType.Float().equals(value)
+      ) {
+        return new NumberType(Option.empty());
+      } else if (DataType.DateTime().equals(value)) {
+        return new DateTimeType();
+      } else if (DataType.Date().equals(value)) {
+        return new LocalDateType();
+      } else if (DataType.DateTimeOnly().equals(value)) {
+        return new LocalDateTimeType();
+      } else if (DataType.Any().equals(value)) {
+        return new AnyType();
+      } else if (DataType.Nil().equals(value)) {
+        return new NullType();
+      } else if (DataType.Link().equals(value)) {
+        return new StringType(Option.empty());
+      } else if (DataType.Boolean().equals(value)) {
+        return new BooleanType(Option.empty(), VariableConstraints.emptyConstraints());
+      } else if (DataType.Password().equals(value)) {
+        return new StringType(Option.empty());
+      } else if (DataType.File().equals(value) || DataType.Byte().equals(value)) {
+        return new BinaryType();
+      } else {
+        return new AnyType();
+      }
+    } else if (shape instanceof NilShape) {
+      return new NullType();
+    } else if (shape instanceof RecursiveShape) {
+      return new ReferenceType(NameIdentifier.apply(shape.name().value(), Option.empty()), Option.empty(), new ReferenceTypeResolver() {
+        WeaveType result = null;
+
+        @Override
+        public WeaveType resolveType() {
+          if (result == null) {
+            result = referenceTypeResolver.resolve(shape.name().value());
+          }
+          if (result == null) {
+            //This shouldn't happen but just in case
+            result = new AnyType();
+          }
+          return result;
+        }
+      });
+    } else if (shape instanceof UnionShape) {
+      final List<Shape> shapes = ((UnionShape) shape).anyOf();
+      final WeaveType[] weaveTypes = shapes.stream()
+              .map((s) -> toWeaveType(s, referenceTypeResolver))
+              .toArray(WeaveType[]::new);
+      return new UnionType(ScalaUtils.toSeq(weaveTypes));
+    } else {
+      return new AnyType();
+    }
+  }
+
+  static class WeaveReferenceTypeResolver {
+
+    private Map<String, WeaveType> types = new HashMap<>();
+    private WebApiDocument webApi;
+
+    public WeaveReferenceTypeResolver(WebApiDocument webApi) {
+      this.webApi = webApi;
+    }
+
+    public WeaveType resolve(String name) {
+      final List<DomainElement> declares = this.webApi.declares();
+      WeaveType weaveType = types.get(name);
+      if (weaveType == null) {
+        for (DomainElement declare : declares) {
+          if (declare instanceof Shape && name.equals(((Shape) declare).name().value())) {
+            weaveType = RestSdkHelper.toWeaveType((Shape) declare, this);
+            types.put(name, weaveType);
+          }
+        }
+      }
+      return weaveType;
+    }
+  }
 }
+
+

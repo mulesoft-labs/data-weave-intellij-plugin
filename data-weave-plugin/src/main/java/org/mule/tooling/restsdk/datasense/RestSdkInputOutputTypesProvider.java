@@ -1,15 +1,19 @@
 package org.mule.tooling.restsdk.datasense;
 
+import amf.client.model.domain.Operation;
+import amf.client.model.domain.WebApi;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
 import org.jetbrains.yaml.psi.YAMLMapping;
+import org.jetbrains.yaml.psi.YAMLScalar;
 import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.service.InputOutputTypesProvider;
 import org.mule.tooling.lang.dw.service.WeaveRuntimeService;
+import org.mule.tooling.restsdk.utils.RestSdkHelper;
 import org.mule.tooling.restsdk.utils.RestSdkPaths;
 import org.mule.tooling.restsdk.utils.YamlPath;
 import org.mule.weave.v2.editor.ImplicitInput;
@@ -20,6 +24,7 @@ import scala.Some;
 import scala.collection.Seq;
 import scala.collection.Seq$;
 import scala.collection.mutable.Builder;
+import webapi.WebApiDocument;
 
 import java.util.Optional;
 
@@ -27,18 +32,17 @@ import static org.mule.tooling.restsdk.utils.RestSdkHelper.isInRestSdkContextFil
 import static org.mule.tooling.restsdk.utils.YamlPath.pathOf;
 
 public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider {
-  //Bindings
+  // Bindings
   public static final String PARAMETERS_KEY = "parameters";
   public static final String WATERMARK_KEY = "watermark";
-  //    Selectors
   public static final String PAYLOAD_KEY = "payload";
   public static final String ITEM_KEY = "item";
   public static final String ATTRIBUTES_KEY = "attributes";
   public static final String LINK_KEY = "link";
-  public static final String OPERATION_ID = "operationId";
-  public static final String METHOD = "method";
-  public static final String PATH = "path";
-  public static final String SUMMARY = "summary";
+  public static final String OPERATION_ID_KEY = "operationId";
+  public static final String METHOD_KEY = "method";
+  public static final String PATH_KEY = "path";
+  public static final String SUMMARY_KEY = "summary";
 
   @Override
   public boolean support(PsiFile psiFile) {
@@ -47,37 +51,37 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
 
   @Override
   public @NotNull ImplicitInput inputTypes(PsiFile psiFile) {
-    ImplicitInput implicitInput = new ImplicitInput();
-    PsiElement context = psiFile.getContext();
+    final ImplicitInput implicitInput = new ImplicitInput();
+    final PsiElement context = psiFile.getContext();
     if (context != null) {
-      YamlPath path = pathOf(context);
+      final YamlPath path = pathOf(context);
       if (path.matches(RestSdkPaths.OPERATION_IDENTIFIER_PATH)) {
-        implicitInput.addInput(OPERATION_ID, new StringType(Option.<String>empty()));
-        implicitInput.addInput(METHOD, new StringType(Option.<String>empty()));
-        implicitInput.addInput(PATH, new StringType(Option.<String>empty()));
+        implicitInput.addInput(OPERATION_ID_KEY, new StringType(Option.<String>empty()));
+        implicitInput.addInput(METHOD_KEY, new StringType(Option.<String>empty()));
+        implicitInput.addInput(PATH_KEY, new StringType(Option.<String>empty()));
       } else if (path.matches(RestSdkPaths.PAGINATION_PATH) || path.matches(RestSdkPaths.SECURITY_VALIDATION_PATH)
               || path.matches(RestSdkPaths.SECURITY_ERROR_TEMPLATE_PATH) || path.matches(RestSdkPaths.SECURITY_REFRESH_PATH)
               || path.matches(RestSdkPaths.TRIGGERS_SAMPLE_DATA_PATH)) {
         createPayloadWithAttributesInputs(implicitInput);
       } else if (path.matches(RestSdkPaths.TRIGGERS_BINDING_VALUE) || path.matches(RestSdkPaths.TRIGGERS_BINDING_BODY_EXPRESSION)) {
-        createTriggersBinding(implicitInput, context, RestSdkPaths.PARAMETERS_SELECTOR);
+        createTriggersBinding(implicitInput, context, RestSdkPaths.PARAMETERS_SELECTOR_PATH);
       } else if (path.matches(RestSdkPaths.TRIGGERS_WATERMARK_PATH) || path.matches(RestSdkPaths.TRIGGERS_ITEMS_PATH)) {
-        createTriggersInputs(implicitInput, context, RestSdkPaths.PARAMETERS_SELECTOR_FROM_ITEMS);
-      } else if (path.matches(RestSdkPaths.SAMPLE_DATA_URI_PARAMETER)) {
-        createTriggersInputs(implicitInput, context, RestSdkPaths.PARAMETERS_SELECTOR_FROM_ROOT_SAMPLE_DATA);
-      } else if (path.matches(RestSdkPaths.OPERATION_VALUE_PROVIDERS)) {
+        createTriggersInputs(implicitInput, context, RestSdkPaths.PARAMETERS_SELECTOR_FROM_ITEMS_PATH);
+      } else if (path.matches(RestSdkPaths.SAMPLE_DATA_URI_PARAMETER_PATH)) {
+        createTriggersInputs(implicitInput, context, RestSdkPaths.PARAMETERS_SELECTOR_FROM_ROOT_SAMPLE_DATA_PATH);
+      } else if (path.matches(RestSdkPaths.OPERATION_VALUE_PROVIDERS_PATH)) {
         createValueProvider(implicitInput);
       } else if (path.matches(RestSdkPaths.PAGINATION_PARAMETERS)) {
         createPaginationParametersInputs(implicitInput);
-      } else if (path.matches(RestSdkPaths.OPERATION_REQUEST_BODY)) {
-        createOperationRequest(implicitInput, context, RestSdkPaths.PARAMETERS_SELECTOR_FROM_BODY_REQUEST);
+      } else if (path.matches(RestSdkPaths.OPERATION_REQUEST_BODY_PATH)) {
+        createOperationRequest(implicitInput, context, RestSdkPaths.PARAMETERS_SELECTOR_FROM_BODY_REQUEST_PATH);
       } else if (path.matches(RestSdkPaths.OPERATION_REQUEST_QUERY_PARAM)) {
-        createOperationRequest(implicitInput, context, RestSdkPaths.PARAMETERS_SELECTOR_FROM_QUERY_PARAMETER);
+        createOperationRequest(implicitInput, context, RestSdkPaths.PARAMETERS_SELECTOR_FROM_QUERY_PARAMETER_PATH);
       } else if (path.matches(RestSdkPaths.OPERATION_DISPLAY_NAME_PATH)) {
-        implicitInput.addInput(OPERATION_ID, new StringType(Option.empty()));
-        implicitInput.addInput(METHOD, new StringType(Option.empty()));
-        implicitInput.addInput(PATH, new StringType(Option.empty()));
-        implicitInput.addInput(SUMMARY, new StringType(Option.empty()));
+        implicitInput.addInput(OPERATION_ID_KEY, new StringType(Option.empty()));
+        implicitInput.addInput(METHOD_KEY, new StringType(Option.empty()));
+        implicitInput.addInput(PATH_KEY, new StringType(Option.empty()));
+        implicitInput.addInput(SUMMARY_KEY, new StringType(Option.empty()));
       } else if (path.matches(RestSdkPaths.VALUE_PROVIDER_PATH)) {
         createValueProviderInputs(implicitInput, context);
       } else if (path.matches(RestSdkPaths.TEST_CONNECTION_PATH)) {
@@ -227,13 +231,24 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
   public @NotNull Optional<WeaveType> expectedOutput(PsiFile psiFile) {
     PsiElement context = psiFile.getContext();
     if (context != null) {
-      YamlPath path = pathOf(context);
+      final YamlPath path = pathOf(context);
       if (path.matches(RestSdkPaths.OPERATION_IDENTIFIER_PATH) || path.matches(RestSdkPaths.SECURITY_ERROR_TEMPLATE_PATH)) {
         return Optional.of(new StringType(Option.empty()));
       } else if (path.matches(RestSdkPaths.PAGINATION_PATH)) {
         return Optional.of(new ArrayType(new AnyType()));
       } else if (path.matches(RestSdkPaths.SECURITY_REFRESH_PATH) || path.matches(RestSdkPaths.SECURITY_VALIDATION_PATH)) {
         return Optional.of(new BooleanType(Option.empty(), VariableConstraints.emptyConstraints()));
+      } else if (path.matches(RestSdkPaths.OPERATION_REQUEST_BODY_PATH)) {
+        final PsiElement operationId = RestSdkPaths.RELATIVE_OPERATION_BASE_FROM_BODY_EXPRESSION_PATH.select(context);
+        if (operationId instanceof YAMLScalar) {
+          WebApiDocument webApiDocument = RestSdkHelper.parseWebApi(context.getContainingFile());
+          String opIdValue = ((YAMLScalar) operationId).getTextValue();
+          Operation operation = RestSdkHelper.operationById((WebApi) webApiDocument.encodes(), opIdValue);
+          if (operation != null && operation.request() != null && !operation.request().payloads().isEmpty()) {
+            final WeaveType weaveType = RestSdkHelper.toWeaveType(operation.request().payloads().get(0).schema(), webApiDocument);
+            return Optional.of(weaveType);
+          }
+        }
       }
     }
     //Load from expected output
