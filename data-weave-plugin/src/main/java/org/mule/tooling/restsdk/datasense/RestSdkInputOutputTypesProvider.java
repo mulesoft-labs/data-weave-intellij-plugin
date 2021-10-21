@@ -25,6 +25,7 @@ import org.mule.weave.v2.parser.ast.QName;
 import org.mule.weave.v2.ts.*;
 import scala.Option;
 import scala.Some;
+import scala.collection.JavaConverters;
 import scala.collection.Seq;
 import scala.collection.Seq$;
 import scala.collection.mutable.Builder;
@@ -77,6 +78,7 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
         createTriggersItemsBinding(implicitInput, context, RestSdkPaths.PARAMETERS_SELECTOR_FROM_ITEMS_PATH);
       } else if (path.matches(RestSdkPaths.SAMPLE_DATA_URI_PARAMETER_PATH)) {
         //
+
       } else if (path.matches(RestSdkPaths.OPERATION_VALUE_PROVIDERS_PATH)) {
         createValueProvider(implicitInput);
       } else if (path.matches(RestSdkPaths.PAGINATION_PARAMETERS)) {
@@ -188,12 +190,28 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
       final String weaveItemsExpression = YamlLanguageInjector.extractWeaveExpression(itemsExtractionTextExpression);
       WeaveType weaveType = WeaveToolingService.getInstance(project).typeOf(weaveItemsExpression, implicitInput);
       if (weaveType != null) {
-        if (weaveType instanceof ArrayType) {
-          itemType = ((ArrayType) weaveType).of();
-        }
+        itemType = arrayTypeOf(weaveType);
       }
     }
     implicitInput.addInput(ITEM_KEY, itemType);
+  }
+
+  private WeaveType arrayTypeOf(WeaveType weaveType) {
+    if (weaveType instanceof ArrayType) {
+      return ((ArrayType) weaveType).of();
+    } else if (weaveType instanceof UnionType) {
+      WeaveType[] weaveTypes = JavaConverters.asJavaCollection(((UnionType) weaveType).of()).stream().map((wt) -> arrayTypeOf(wt))
+              .filter((wt) -> wt != null)
+              .toArray(WeaveType[]::new);
+      if (weaveTypes.length == 0) {
+        return null;
+      } else if (weaveTypes.length == 1) {
+        return weaveTypes[0];
+      } else {
+        return new UnionType(ScalaUtils.toSeq(weaveTypes));
+      }
+    }
+    return null;
   }
 
   private void createTriggersItemsBinding(ImplicitInput implicitInput, PsiElement context, SelectionPath parametersSelector) {
@@ -324,7 +342,7 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
       final String methodText = ((YAMLScalar) method).getTextValue();
       WebApiDocument webApiDocument = RestSdkHelper.parseWebApi(context.getContainingFile());
       final Operation operation = RestSdkHelper.operationByMethodPath((WebApi) webApiDocument.encodes(), methodText, pathText);
-      if (operation != null && !operation.responses().isEmpty()  && !operation.responses().get(0).payloads().isEmpty()) {
+      if (operation != null && !operation.responses().isEmpty() && !operation.responses().get(0).payloads().isEmpty()) {
         final WeaveType weaveType = RestSdkHelper.toWeaveType(operation.responses().get(0).payloads().get(0).schema(), webApiDocument);
         return Optional.of(weaveType);
       }
