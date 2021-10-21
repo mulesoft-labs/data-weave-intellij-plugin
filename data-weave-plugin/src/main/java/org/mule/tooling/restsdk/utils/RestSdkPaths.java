@@ -21,7 +21,9 @@ public class RestSdkPaths {
   public static final SelectionPath TRIGGERS_BINDING_URI_PARAMETER_PATH = TRIGGERS_PATH.any().child("binding").child("header");
   public static final SelectionPath TRIGGERS_BINDING_HEADER_PATH = TRIGGERS_PATH.any().child("binding").child("uriParameter");
   public static final SelectionPath TRIGGERS_WATERMARK_PATH = TRIGGERS_PATH.any().child(RestSdkInputOutputTypesProvider.WATERMARK_KEY).child("extraction").child("expression");
+  public static final SelectionPath TRIGGERS_EVENT_PATH = TRIGGERS_PATH.any().child("event").child("extraction").child("expression");
   public static final SelectionPath TRIGGERS_ITEMS_PATH = TRIGGERS_PATH.any().child("items").child("extraction").child("expression");
+  public static final SelectionPath TRIGGERS_IDENTITY_EXTRACTION_PATH = TRIGGERS_PATH.any().child("identity").child("extraction").child("expression");
   public static final SelectionPath TRIGGERS_SAMPLE_DATA_PATH = TRIGGERS_PATH.any().child("sampleData").child("transform").child("expression");
 
   public static final SelectionPath RELATIVE_TRIGGER_METHOD_FROM_BINDING_PATH = SelectionPath.PARENT.parent().child("method");

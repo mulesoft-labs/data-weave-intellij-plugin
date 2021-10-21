@@ -3,16 +3,20 @@ package org.mule.tooling.restsdk.datasense;
 import amf.client.model.domain.Operation;
 import amf.client.model.domain.WebApi;
 import com.intellij.openapi.application.ReadAction;
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
 import org.jetbrains.yaml.psi.YAMLMapping;
 import org.jetbrains.yaml.psi.YAMLScalar;
+import org.mule.tooling.lang.dw.injector.YamlLanguageInjector;
 import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.service.InputOutputTypesProvider;
 import org.mule.tooling.lang.dw.service.WeaveRuntimeService;
+import org.mule.tooling.lang.dw.service.WeaveToolingService;
+import org.mule.tooling.lang.dw.util.ScalaUtils;
 import org.mule.tooling.restsdk.utils.RestSdkHelper;
 import org.mule.tooling.restsdk.utils.RestSdkPaths;
 import org.mule.tooling.restsdk.utils.SelectionPath;
@@ -65,10 +69,14 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
         createPayloadWithAttributesInputs(implicitInput);
       } else if (path.matches(RestSdkPaths.TRIGGERS_BINDING_BODY_EXPRESSION)) {
         createTriggersBinding(implicitInput, context, RestSdkPaths.RELATIVE_TRIGGER_PARAMETERS_SELECTOR_FROM_BINDING_BODY_PATH);
-      } else if (path.matches(RestSdkPaths.TRIGGERS_WATERMARK_PATH) || path.matches(RestSdkPaths.TRIGGERS_ITEMS_PATH)) {
-        createTriggersInputs(implicitInput, context, RestSdkPaths.PARAMETERS_SELECTOR_FROM_ITEMS_PATH);
+      } else if (path.matches(RestSdkPaths.TRIGGERS_WATERMARK_PATH)
+              || path.matches(RestSdkPaths.TRIGGERS_IDENTITY_EXTRACTION_PATH)
+              || path.matches(RestSdkPaths.TRIGGERS_EVENT_PATH)) {
+        createTriggersWatermarkExtractionBinding(implicitInput, context, RestSdkPaths.PARAMETERS_SELECTOR_FROM_ITEMS_PATH);
+      } else if (path.matches(RestSdkPaths.TRIGGERS_ITEMS_PATH)) {
+        createTriggersItemsBinding(implicitInput, context, RestSdkPaths.PARAMETERS_SELECTOR_FROM_ITEMS_PATH);
       } else if (path.matches(RestSdkPaths.SAMPLE_DATA_URI_PARAMETER_PATH)) {
-        createTriggersInputs(implicitInput, context, RestSdkPaths.PARAMETERS_SELECTOR_FROM_ROOT_SAMPLE_DATA_PATH);
+        //
       } else if (path.matches(RestSdkPaths.OPERATION_VALUE_PROVIDERS_PATH)) {
         createValueProvider(implicitInput);
       } else if (path.matches(RestSdkPaths.PAGINATION_PARAMETERS)) {
@@ -105,7 +113,7 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
 
   private void createTriggersBinding(ImplicitInput implicitInput, PsiElement context, SelectionPath parameterSelector) {
     ObjectType weaveType = loadParametersType(context, parameterSelector);
-    implicitInput.addInput(WATERMARK_KEY, new AnyType()); //TODO shoudln't this be a type of date?
+    implicitInput.addInput(WATERMARK_KEY, new DateTimeType());
     implicitInput.addInput(PARAMETERS_KEY, weaveType);
   }
 
@@ -160,12 +168,44 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
     implicitInput.addInput(ATTRIBUTES_KEY, createHttpAttributes());
   }
 
-  private void createTriggersInputs(ImplicitInput implicitInput, PsiElement context, SelectionPath parameters_selector) {
-    ObjectType weaveType = loadParametersType(context, parameters_selector);
-    implicitInput.addInput(PAYLOAD_KEY, new AnyType());
-    implicitInput.addInput(WATERMARK_KEY, new AnyType());
-    implicitInput.addInput(ITEM_KEY, new AnyType());
-    implicitInput.addInput(PARAMETERS_KEY, weaveType);
+  private void createTriggersWatermarkExtractionBinding(ImplicitInput implicitInput, PsiElement context, SelectionPath parametersSelector) {
+    assert parametersSelector.getParent() != null;
+    final SelectionPath path = parametersSelector.getParent().child(PATH_KEY);
+    final SelectionPath method = parametersSelector.getParent().child(METHOD_KEY);
+
+    final WeaveType payloadType = resolveOperationResponseType(context, path, method).orElse(new AnyType());
+    final ObjectType parametersType = loadParametersType(context, parametersSelector);
+    implicitInput.addInput(PAYLOAD_KEY, payloadType);
+    implicitInput.addInput(WATERMARK_KEY, new UnionType(ScalaUtils.toSeq(new NullType(), new DateTimeType())));
+    implicitInput.addInput(PARAMETERS_KEY, parametersType);
+
+    final SelectionPath itemsExtractionExpression = parametersSelector.getParent().child("items").child("extraction").child("expression");
+    final PsiElement itemsExtractionElement = itemsExtractionExpression.selectYaml(context);
+    WeaveType itemType = new AnyType();
+    if (itemsExtractionElement instanceof YAMLScalar) {
+      final String itemsExtractionTextExpression = ((YAMLScalar) itemsExtractionElement).getTextValue();
+      final Project project = context.getProject();
+      final String weaveItemsExpression = YamlLanguageInjector.extractWeaveExpression(itemsExtractionTextExpression);
+      WeaveType weaveType = WeaveToolingService.getInstance(project).typeOf(weaveItemsExpression, implicitInput);
+      if (weaveType != null) {
+        if (weaveType instanceof ArrayType) {
+          itemType = ((ArrayType) weaveType).of();
+        }
+      }
+    }
+    implicitInput.addInput(ITEM_KEY, itemType);
+  }
+
+  private void createTriggersItemsBinding(ImplicitInput implicitInput, PsiElement context, SelectionPath parametersSelector) {
+    assert parametersSelector.getParent() != null;
+    final SelectionPath path = parametersSelector.getParent().child(PATH_KEY);
+    final SelectionPath method = parametersSelector.getParent().child(METHOD_KEY);
+
+    final WeaveType payloadType = resolveOperationResponseType(context, path, method).orElse(new AnyType());
+    final ObjectType parametersType = loadParametersType(context, parametersSelector);
+    implicitInput.addInput(PAYLOAD_KEY, payloadType);
+    implicitInput.addInput(WATERMARK_KEY, new UnionType(ScalaUtils.toSeq(new NullType(), new DateTimeType())));
+    implicitInput.addInput(PARAMETERS_KEY, parametersType);
   }
 
   @NotNull
@@ -250,22 +290,46 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
           }
         }
       } else if (path.matches(RestSdkPaths.TRIGGERS_BINDING_BODY_EXPRESSION)) {
-        final PsiElement pathElement = RestSdkPaths.RELATIVE_TRIGGER_PATH_FROM_BINDING_BODY_PATH.selectYaml(context);
-        final PsiElement method = RestSdkPaths.RELATIVE_TRIGGER_METHOD_FROM_BINDING_BODY_PATH.selectYaml(context);
-        if (pathElement instanceof YAMLScalar && method instanceof YAMLScalar) {
-          final String pathText = ((YAMLScalar) pathElement).getTextValue();
-          final String methodText = ((YAMLScalar) method).getTextValue();
-          WebApiDocument webApiDocument = RestSdkHelper.parseWebApi(context.getContainingFile());
-          final Operation operation = RestSdkHelper.operationByMethodPath((WebApi) webApiDocument.encodes(), methodText, pathText);
-          if (operation != null && operation.request() != null && !operation.request().payloads().isEmpty()) {
-            final WeaveType weaveType = RestSdkHelper.toWeaveType(operation.request().payloads().get(0).schema(), webApiDocument);
-            return Optional.of(weaveType);
-          }
+        Optional<WeaveType> weaveType = resolveOperationRequestType(context, RestSdkPaths.RELATIVE_TRIGGER_PATH_FROM_BINDING_BODY_PATH, RestSdkPaths.RELATIVE_TRIGGER_METHOD_FROM_BINDING_BODY_PATH);
+        if (weaveType.isPresent()) {
+          return weaveType;
         }
       }
     }
     //Load from expected output
     return Optional.ofNullable(loadSampleOutput(psiFile));
+  }
+
+  private Optional<WeaveType> resolveOperationRequestType(PsiElement context, SelectionPath pathPath, SelectionPath methodPAth) {
+    final PsiElement pathElement = pathPath.selectYaml(context);
+    final PsiElement method = methodPAth.selectYaml(context);
+    if (pathElement instanceof YAMLScalar && method instanceof YAMLScalar) {
+      final String pathText = ((YAMLScalar) pathElement).getTextValue();
+      final String methodText = ((YAMLScalar) method).getTextValue();
+      WebApiDocument webApiDocument = RestSdkHelper.parseWebApi(context.getContainingFile());
+      final Operation operation = RestSdkHelper.operationByMethodPath((WebApi) webApiDocument.encodes(), methodText, pathText);
+      if (operation != null && operation.request() != null && !operation.request().payloads().isEmpty()) {
+        final WeaveType weaveType = RestSdkHelper.toWeaveType(operation.request().payloads().get(0).schema(), webApiDocument);
+        return Optional.of(weaveType);
+      }
+    }
+    return Optional.empty();
+  }
+
+  private Optional<WeaveType> resolveOperationResponseType(PsiElement context, SelectionPath pathPath, SelectionPath methodPAth) {
+    final PsiElement pathElement = pathPath.selectYaml(context);
+    final PsiElement method = methodPAth.selectYaml(context);
+    if (pathElement instanceof YAMLScalar && method instanceof YAMLScalar) {
+      final String pathText = ((YAMLScalar) pathElement).getTextValue();
+      final String methodText = ((YAMLScalar) method).getTextValue();
+      WebApiDocument webApiDocument = RestSdkHelper.parseWebApi(context.getContainingFile());
+      final Operation operation = RestSdkHelper.operationByMethodPath((WebApi) webApiDocument.encodes(), methodText, pathText);
+      if (operation != null && !operation.responses().isEmpty()  && !operation.responses().get(0).payloads().isEmpty()) {
+        final WeaveType weaveType = RestSdkHelper.toWeaveType(operation.responses().get(0).payloads().get(0).schema(), webApiDocument);
+        return Optional.of(weaveType);
+      }
+    }
+    return Optional.empty();
   }
 
 }

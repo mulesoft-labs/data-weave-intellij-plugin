@@ -9,6 +9,7 @@ import org.jetbrains.yaml.psi.YAMLKeyValue;
 import org.jetbrains.yaml.psi.YAMLScalar;
 
 import static com.intellij.patterns.PlatformPatterns.psiElement;
+import static com.intellij.patterns.StandardPatterns.string;
 
 public class RestSdkReferenceContributor extends PsiReferenceContributor {
 
@@ -33,6 +34,12 @@ public class RestSdkReferenceContributor extends PsiReferenceContributor {
                 return new PsiReference[]{new LocalReference(element, "valueProviders")};
             }
         });
+
+        registrar.registerReferenceProvider(apiRef()
+                , new FilePathReferenceProvider());
+
+        registrar.registerReferenceProvider(typeSchemaRef()
+                , new FilePathReferenceProvider());
     }
 
     private PsiElementPattern.Capture<YAMLScalar> sampleDataRef() {
@@ -52,6 +59,18 @@ public class RestSdkReferenceContributor extends PsiReferenceContributor {
     private PsiElementPattern.Capture<YAMLScalar> paginationRef() {
         return psiElement(YAMLScalar.class)
                 .and(psiElement().withParent(psiElement(YAMLKeyValue.class).withName("pagination")))
+                .withLanguage(YAMLLanguage.INSTANCE);
+    }
+
+    private PsiElementPattern.Capture<YAMLScalar> apiRef() {
+        return psiElement(YAMLScalar.class)
+                .and(psiElement().withParent(psiElement(YAMLKeyValue.class).withName("url")))
+                .withLanguage(YAMLLanguage.INSTANCE);
+    }
+
+    private PsiElementPattern.Capture<YAMLScalar> typeSchemaRef() {
+        return psiElement(YAMLScalar.class)
+                .and(psiElement().withParent(psiElement(YAMLKeyValue.class).withName("typeSchema")))
                 .withLanguage(YAMLLanguage.INSTANCE);
     }
 

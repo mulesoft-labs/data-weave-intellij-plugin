@@ -29,7 +29,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import static org.mule.tooling.restsdk.utils.MapUtils.map;
 import static org.mule.tooling.restsdk.utils.RestSdkHelper.parseWebApi;
@@ -131,15 +130,29 @@ public class RestSdkCompletionService {
         final StringBuilder template = new StringBuilder();
         template.append("$name$:\n")
                 .append("  ").append("description: $description$\n")
-                .append("  ").append("displayName: $name$\n")
-                .append("  ").append("method: ").append(operation.method()).append("\n")
-                .append("  ").append("path: \"").append(endpoint.path()).append("\"\n");
+                .append("  ").append("displayName: $name$\n");
+
         final Request request = operation.request();
         if (request != null) {
           template.append(parametersTemplate(resources, request));
+        }
+
+        template.append("  ").append("method: ").append(operation.method()).append("\n");
+        template.append("  ").append("path: \"").append(endpoint.path()).append("\"\n");
+        if (request != null) {
           template.append("  ").append("binding: ").append("\n");
           template.append(buildOperationRequestTemplate(resources, request));
         }
+        template.append("#").append("Extract the items the collection of items form the http response").append("\n");
+        template.append("   ").append("items:").append("\n");
+        template.append("     ").append("extraction:").append("\n");
+        template.append("       ").append("expression:").append("\"#[payload]\"").append("\n");
+
+        template.append("#").append("Extract the Watermark expression from each item.").append("\n");
+        template.append("   ").append("watermark:").append("\n");
+        template.append("     ").append("extraction:").append("\n");
+        template.append("       ").append("expression:").append("\"#[]\"").append("\n");
+
         final Template myTemplate = TemplateManager.getInstance(project).createTemplate("template", "rest_sdk_suggest", template.toString());
         myTemplate.addVariable("name", new TextExpression("On" + StringUtils.capitalize(operation.name().value())), true);
         myTemplate.addVariable("description", operation.description().isNullOrEmpty() ? new EmptyExpression() : new ConstantNode(operation.description().value()), true);
@@ -278,6 +291,7 @@ public class RestSdkCompletionService {
             template.append("      ").append(toSchemaName(payload.schema(), resources)).append("\n");
           }
         }
+
 
         final Template myTemplate = TemplateManager.getInstance(project).createTemplate("template", "rest_sdk_suggest", template.toString());
         myTemplate.addVariable("name", new TextExpression("My" + StringUtils.capitalize(operation.name().value())), true);

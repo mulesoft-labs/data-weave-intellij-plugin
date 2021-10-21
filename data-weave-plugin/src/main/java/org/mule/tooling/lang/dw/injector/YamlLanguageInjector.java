@@ -19,8 +19,12 @@ import java.util.List;
 
 public class YamlLanguageInjector implements MultiHostInjector {
 
-  private static final String EXPRESSION_LANGUAGE_PREFIX = "#[";
-  private static final String EXPRESSION_LANGUAGE_SUFFIX = "]";
+  public static final String EXPRESSION_LANGUAGE_PREFIX = "#[";
+  public static final String EXPRESSION_LANGUAGE_SUFFIX = "]";
+
+  public static String extractWeaveExpression(String expression){
+    return expression.substring(EXPRESSION_LANGUAGE_PREFIX.length(), expression.length() - EXPRESSION_LANGUAGE_SUFFIX.length());
+  }
 
   @Override
   public void getLanguagesToInject(@NotNull MultiHostRegistrar registrar, @NotNull PsiElement context) {

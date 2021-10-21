@@ -51,11 +51,9 @@ import org.mule.weave.v2.debugger.event.WeaveDataFormatDescriptor;
 import org.mule.weave.v2.debugger.event.WeaveDataFormatProperty;
 import org.mule.weave.v2.editor.*;
 import org.mule.weave.v2.hover.HoverMessage;
-
 import org.mule.weave.v2.parser.ast.AstNode;
 import org.mule.weave.v2.parser.ast.header.directives.FunctionDirectiveNode;
 import org.mule.weave.v2.parser.ast.variables.NameIdentifier;
-import org.mule.weave.v2.parser.phase.ModuleLoader;
 import org.mule.weave.v2.scope.Reference;
 import org.mule.weave.v2.scope.VariableScope;
 import org.mule.weave.v2.sdk.WeaveResource;
@@ -194,6 +192,18 @@ public final class WeaveToolingService implements Disposable {
             final WeaveDocumentToolingService weaveDocument = didOpen(element.getContainingFile(), false);
             final TextRange textRange = element.getTextRange();
             return weaveDocument.typeOf(textRange.getStartOffset(), textRange.getEndOffset());
+        }
+    }
+
+    @Nullable
+    public WeaveType typeOf(String element, ImplicitInput inputs) {
+        final VirtualFile file = new IJVirtualFileSystemAdaptor.IJInMemoryFileAdaptor(element, projectVirtualFileSystem);
+        final WeaveDocumentToolingService weaveDocumentToolingService = dwTextDocumentService.openInMemory(file, inputs, Option.empty());
+        final Option<WeaveType> weaveTypeOption = weaveDocumentToolingService.typeOfMapping();
+        if(weaveTypeOption.isDefined()){
+            return weaveTypeOption.get();
+        }else {
+            return null;
         }
     }
 
