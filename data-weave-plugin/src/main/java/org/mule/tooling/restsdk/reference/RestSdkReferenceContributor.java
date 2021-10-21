@@ -9,70 +9,75 @@ import org.jetbrains.yaml.psi.YAMLKeyValue;
 import org.jetbrains.yaml.psi.YAMLScalar;
 
 import static com.intellij.patterns.PlatformPatterns.psiElement;
-import static com.intellij.patterns.StandardPatterns.string;
 
 public class RestSdkReferenceContributor extends PsiReferenceContributor {
 
-    @Override
-    public void registerReferenceProviders(@NotNull final PsiReferenceRegistrar registrar) {
-        registrar.registerReferenceProvider(sampleDataRef(), new PsiReferenceProvider() {
-            @Override
-            public PsiReference @NotNull [] getReferencesByElement(@NotNull PsiElement element, @NotNull ProcessingContext context) {
-                return new PsiReference[]{new LocalReference(element, "sampleData")};
-            }
-        });
-        registrar.registerReferenceProvider(paginationRef(), new PsiReferenceProvider() {
-            @Override
-            public PsiReference @NotNull [] getReferencesByElement(@NotNull PsiElement element, @NotNull ProcessingContext context) {
-                return new PsiReference[]{new LocalReference(element, "paginations")};
-            }
-        });
+  @Override
+  public void registerReferenceProviders(@NotNull final PsiReferenceRegistrar registrar) {
+    registrar.registerReferenceProvider(sampleDataRef(), new PsiReferenceProvider() {
+      @Override
+      public PsiReference @NotNull [] getReferencesByElement(@NotNull PsiElement element, @NotNull ProcessingContext context) {
+        return new PsiReference[]{new LocalReference(element, "sampleData")};
+      }
+    });
+    registrar.registerReferenceProvider(paginationRef(), new PsiReferenceProvider() {
+      @Override
+      public PsiReference @NotNull [] getReferencesByElement(@NotNull PsiElement element, @NotNull ProcessingContext context) {
+        return new PsiReference[]{new LocalReference(element, "paginations")};
+      }
+    });
 
-        registrar.registerReferenceProvider(valueProviderRef(), new PsiReferenceProvider() {
-            @Override
-            public PsiReference @NotNull [] getReferencesByElement(@NotNull PsiElement element, @NotNull ProcessingContext context) {
-                return new PsiReference[]{new LocalReference(element, "valueProviders")};
-            }
-        });
+    registrar.registerReferenceProvider(valueProviderRef(), new PsiReferenceProvider() {
+      @Override
+      public PsiReference @NotNull [] getReferencesByElement(@NotNull PsiElement element, @NotNull ProcessingContext context) {
+        return new PsiReference[]{new LocalReference(element, "valueProviders")};
+      }
+    });
 
-        registrar.registerReferenceProvider(apiRef()
-                , new FilePathReferenceProvider());
+    registrar.registerReferenceProvider(apiRef(), new FilePathReferenceProvider());
 
-        registrar.registerReferenceProvider(typeSchemaRef()
-                , new FilePathReferenceProvider());
-    }
+    registrar.registerReferenceProvider(typeSchemaRef(), new FilePathReferenceProvider());
 
-    private PsiElementPattern.Capture<YAMLScalar> sampleDataRef() {
-        return psiElement(YAMLScalar.class)
-                .and(psiElement().withParent(psiElement(YAMLKeyValue.class).withName("id")))
-                .and(psiElement().withSuperParent(3, psiElement(YAMLKeyValue.class).withName("sampleData")))
-                .withLanguage(YAMLLanguage.INSTANCE);
-    }
+    registrar.registerReferenceProvider(outputTypeRef(), new FilePathReferenceProvider());
+  }
 
-    private PsiElementPattern.Capture<YAMLScalar> valueProviderRef() {
-        return psiElement(YAMLScalar.class)
-                .and(psiElement().withParent(psiElement(YAMLKeyValue.class).withName("id")))
-                .and(psiElement().withSuperParent(3, psiElement(YAMLKeyValue.class).withName("valueProvider")))
-                .withLanguage(YAMLLanguage.INSTANCE);
-    }
+  private PsiElementPattern.Capture<YAMLScalar> sampleDataRef() {
+    return psiElement(YAMLScalar.class)
+            .and(psiElement().withParent(psiElement(YAMLKeyValue.class).withName("id")))
+            .and(psiElement().withSuperParent(3, psiElement(YAMLKeyValue.class).withName("sampleData")))
+            .withLanguage(YAMLLanguage.INSTANCE);
+  }
 
-    private PsiElementPattern.Capture<YAMLScalar> paginationRef() {
-        return psiElement(YAMLScalar.class)
-                .and(psiElement().withParent(psiElement(YAMLKeyValue.class).withName("pagination")))
-                .withLanguage(YAMLLanguage.INSTANCE);
-    }
+  private PsiElementPattern.Capture<YAMLScalar> valueProviderRef() {
+    return psiElement(YAMLScalar.class)
+            .and(psiElement().withParent(psiElement(YAMLKeyValue.class).withName("id")))
+            .and(psiElement().withSuperParent(3, psiElement(YAMLKeyValue.class).withName("valueProvider")))
+            .withLanguage(YAMLLanguage.INSTANCE);
+  }
 
-    private PsiElementPattern.Capture<YAMLScalar> apiRef() {
-        return psiElement(YAMLScalar.class)
-                .and(psiElement().withParent(psiElement(YAMLKeyValue.class).withName("url")))
-                .withLanguage(YAMLLanguage.INSTANCE);
-    }
+  private PsiElementPattern.Capture<YAMLScalar> paginationRef() {
+    return psiElement(YAMLScalar.class)
+            .and(psiElement().withParent(psiElement(YAMLKeyValue.class).withName("pagination")))
+            .withLanguage(YAMLLanguage.INSTANCE);
+  }
 
-    private PsiElementPattern.Capture<YAMLScalar> typeSchemaRef() {
-        return psiElement(YAMLScalar.class)
-                .and(psiElement().withParent(psiElement(YAMLKeyValue.class).withName("typeSchema")))
-                .withLanguage(YAMLLanguage.INSTANCE);
-    }
+  private PsiElementPattern.Capture<YAMLScalar> apiRef() {
+    return psiElement(YAMLScalar.class)
+            .and(psiElement().withParent(psiElement(YAMLKeyValue.class).withName("url")))
+            .withLanguage(YAMLLanguage.INSTANCE);
+  }
+
+  private PsiElementPattern.Capture<YAMLScalar> typeSchemaRef() {
+    return psiElement(YAMLScalar.class)
+            .and(psiElement().withParent(psiElement(YAMLKeyValue.class).withName("typeSchema")))
+            .withLanguage(YAMLLanguage.INSTANCE);
+  }
+
+  private PsiElementPattern.Capture<YAMLScalar> outputTypeRef() {
+    return psiElement(YAMLScalar.class)
+            .and(psiElement().withParent(psiElement(YAMLKeyValue.class).withName("outputType")))
+            .withLanguage(YAMLLanguage.INSTANCE);
+  }
 
 
 }

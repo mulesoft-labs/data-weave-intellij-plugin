@@ -81,8 +81,48 @@ public class RestSdkCompletionService {
             || yamlPath.matches(RestSdkPaths.TRIGGERS_BINDING_HEADER_PATH)
             || yamlPath.matches(RestSdkPaths.TRIGGERS_BINDING_URI_PARAMETER_PATH)) {
       suggestOnTriggers(completionParameters, project, result, yamlPath);
+    } else if (yamlPath.matches(RestSdkPaths.GLOBAL_SAMPLE_DATA_PATH) ||
+            yamlPath.matches(RestSdkPaths.GLOBAL_SAMPLE_DATA_BINDING_QUERY_PARAMS_PATH) ||
+            yamlPath.matches(RestSdkPaths.GLOBAL_SAMPLE_DATA_BINDING_URI_PARAMETER_PATH) ||
+            yamlPath.matches(RestSdkPaths.GLOBAL_SAMPLE_DATA_BINDING_HEADER_PATH)
+    ) {
+      suggestOnSampleData(completionParameters, project, result, yamlPath);
     }
     return result;
+  }
+
+  private void suggestOnSampleData(CompletionParameters completionParameters, Project project, ArrayList<LookupElement> result, SelectionPath yamlPath) {
+    final PsiFile yamlFile = completionParameters.getOriginalFile();
+    final WebApiDocument webApiDocument = parseWebApi(yamlFile);
+    if (webApiDocument != null) {
+      WebApi webApi = (WebApi) webApiDocument.encodes();
+      if (yamlPath.matches(RestSdkPaths.GLOBAL_SAMPLE_DATA_PATH)) {
+        suggestSampleDataTemplate(project, result, yamlFile, webApi);
+      } else if (yamlPath.matches(RestSdkPaths.GLOBAL_SAMPLE_DATA_PATH_PATH)) {
+        webApi.endPoints().forEach((endpoint) -> {
+          LookupElementBuilder elementBuilder = LookupElementBuilder.create(endpoint.path().value());
+          elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.Property);
+          result.add(elementBuilder);
+        });
+      } else {
+        final PsiElement path = RestSdkPaths.RELATIVE_TRIGGER_PATH_FROM_BINDING_PATH.selectYaml(completionParameters.getPosition());
+        final PsiElement method = RestSdkPaths.RELATIVE_TRIGGER_METHOD_FROM_BINDING_PATH.selectYaml(completionParameters.getPosition());
+        if (path instanceof YAMLScalar && method instanceof YAMLScalar) {
+          final String pathText = ((YAMLScalar) path).getTextValue();
+          final String methodText = ((YAMLScalar) method).getTextValue();
+          final Operation operation = RestSdkHelper.operationByMethodPath((WebApi) webApiDocument.encodes(), methodText, pathText);
+          if (operation != null) {
+            if (yamlPath.matches(RestSdkPaths.GLOBAL_SAMPLE_DATA_BINDING_QUERY_PARAMS_PATH)) {
+              suggestQueryParams(result, operation);
+            } else if (yamlPath.matches(RestSdkPaths.GLOBAL_SAMPLE_DATA_BINDING_HEADER_PATH)) {
+              suggestHeaders(result, operation);
+            } else if (yamlPath.matches(RestSdkPaths.GLOBAL_SAMPLE_DATA_BINDING_URI_PARAMETER_PATH)) {
+              suggestUriParams(result, operation);
+            }
+          }
+        }
+      }
+    }
   }
 
   private void suggestOnTriggers(CompletionParameters completionParameters, Project project, ArrayList<LookupElement> result, SelectionPath yamlPath) {
@@ -119,6 +159,63 @@ public class RestSdkCompletionService {
     }
   }
 
+  private void suggestSampleDataTemplate(Project project, ArrayList<LookupElement> result, PsiFile yamlFile, WebApi webApi) {
+    final List<EndPoint> endPoints = webApi.endPoints();
+    endPoints.forEach((endpoint) -> {
+      endpoint.operations().forEach((operation) -> {
+        LookupElementBuilder elementBuilder = LookupElementBuilder.create(operation.name() + " (Scaffold New SampleData)");
+        elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.Property);
+        elementBuilder = elementBuilder.withTypeText(operationType(operation, endpoint), true);
+        final List<Resource> resources = new ArrayList<>();
+        final StringBuilder template = new StringBuilder();
+        template.append("$name$:\n");
+
+        final Request request = operation.request();
+        if (request != null) {
+          template.append("  ").append("parameters: ").append("\n");
+        }
+        template.append("  ").append("definition: ").append("\n");
+        template.append("    ").append("type: ").append("http").append("\n");
+        template.append("    ").append("request: ").append("\n");
+        template.append("      ").append("method: ").append(operation.method()).append("\n");
+        template.append("      ").append("path: \"").append(endpoint.path()).append("\"\n");
+
+        if (request != null) {
+          template.append("      ").append("binding: ").append("\n");
+          final List<Parameter> queryParameters = operation.request().queryParameters();
+          if (!queryParameters.isEmpty()) {
+            template.append("        ").append("queryParameter: ").append("\n");
+          }
+          final List<Parameter> uriParameters = operation.request().uriParameters();
+          if (!uriParameters.isEmpty()) {
+            template.append("        ").append("uriParameter: ").append("\n");
+            for (Parameter uriParameter : uriParameters) {
+              template.append("        ").append(uriParameter.name().value()).append(":").append("\n");
+              template.append("          ").append("value").append(": \"#[]\"").append("\n");
+            }
+          }
+        }
+        template.append("    ").append("transform: ").append("\n");
+        template.append("      ").append("expression: \"#[payload]\"").append("\n");
+
+        final Template myTemplate = TemplateManager.getInstance(project).createTemplate("template", "rest_sdk_suggest", template.toString());
+        myTemplate.addVariable("name", new TextExpression(StringUtils.capitalize(operation.name().value()) + "SampleData"), true);
+
+        elementBuilder = elementBuilder.withInsertHandler((context, item1) -> {
+          final int selectionStart = context.getEditor().getCaretModel().getOffset();
+          final int startOffset = context.getStartOffset();
+          final int tailOffset = context.getTailOffset();
+          context.getDocument().deleteString(startOffset, tailOffset);
+          context.setAddCompletionChar(false);
+          TemplateManager.getInstance(context.getProject()).startTemplate(context.getEditor(), myTemplate);
+          generateResources(yamlFile, resources);
+        });
+
+        result.add(elementBuilder);
+      });
+    });
+  }
+
   private void suggestTriggerTemplate(Project project, ArrayList<LookupElement> result, PsiFile yamlFile, WebApi webApi) {
     final List<EndPoint> endPoints = webApi.endPoints();
     endPoints.forEach((endpoint) -> {
@@ -138,20 +235,33 @@ public class RestSdkCompletionService {
         }
 
         template.append("  ").append("method: ").append(operation.method()).append("\n");
-        template.append("  ").append("path: \"").append(endpoint.path()).append("\"\n");
+        template.append("  ").append("path: ").append(endpoint.path()).append("\n");
+
+        if (!operation.responses().isEmpty()) {
+          List<Payload> payloads = operation.responses().get(0).payloads();
+          if (!payloads.isEmpty()) {
+            template.append("  ").append(toOutputSchema(payloads.get(0).schema(), resources)).append("\n");
+            template.append("  ").append("outputMediaType: application/json").append("\n");
+          }
+        }
         if (request != null) {
           template.append("  ").append("binding: ").append("\n");
-          template.append(buildOperationRequestTemplate(resources, request));
+          template.append(buildOperationRequestTemplate(resources, request, "    "));
         }
         template.append("#").append("Extract the items the collection of items form the http response").append("\n");
-        template.append("   ").append("items:").append("\n");
-        template.append("     ").append("extraction:").append("\n");
-        template.append("       ").append("expression:").append("\"#[payload]\"").append("\n");
+        template.append("  ").append("items:").append("\n");
+        template.append("    ").append("extraction:").append("\n");
+        template.append("      ").append("expression:").append(" \"#[payload]\"").append("\n");
 
         template.append("#").append("Extract the Watermark expression from each item.").append("\n");
-        template.append("   ").append("watermark:").append("\n");
-        template.append("     ").append("extraction:").append("\n");
-        template.append("       ").append("expression:").append("\"#[]\"").append("\n");
+        template.append("  ").append("watermark:").append("\n");
+        template.append("    ").append("extraction:").append("\n");
+        template.append("      ").append("expression:").append(" \"#[item]\"").append("\n");
+
+        template.append("#").append("Specify the expression to identify the elements.").append("\n");
+        template.append("  ").append("identity:").append("\n");
+        template.append("    ").append("extraction:").append("\n");
+        template.append("      ").append("expression:").append(" \"#[item]\"").append("\n");
 
         final Template myTemplate = TemplateManager.getInstance(project).createTemplate("template", "rest_sdk_suggest", template.toString());
         myTemplate.addVariable("name", new TextExpression("On" + StringUtils.capitalize(operation.name().value())), true);
@@ -277,7 +387,7 @@ public class RestSdkCompletionService {
         if (request != null) {
           template.append(parametersTemplate(resources, request));
           template.append("  ").append("request: ").append("\n");
-          template.append(buildOperationRequestTemplate(resources, request));
+          template.append(buildOperationRequestTemplate(resources, request, "    "));
         }
 
         List<Response> responses = operation.responses();
@@ -312,7 +422,7 @@ public class RestSdkCompletionService {
     });
   }
 
-  private String buildOperationRequestTemplate(List<Resource> resources, Request request) {
+  private String buildOperationRequestTemplate(List<Resource> resources, Request request, String indentation) {
     final List<Payload> payloads = request.payloads();
     final List<Parameter> headers = request.headers();
     final List<Parameter> uriParameters = request.uriParameters();
@@ -411,6 +521,18 @@ public class RestSdkCompletionService {
       final String fileName = schema.name().value() + ".json";
       resources.add(new Resource(fileName, toJsonSchema));
       return result.append("typeSchema").append(": ").append("./").append(SCHEMAS_FOLDER).append("/").append(fileName).toString();
+    } else {
+      return "";
+    }
+  }
+
+  private String toOutputSchema(Shape schema, List<Resource> resources) {
+    StringBuilder result = new StringBuilder();
+    if (schema instanceof AnyShape) {
+      final String toJsonSchema = ((AnyShape) schema).toJsonSchema();
+      final String fileName = schema.name().value() + ".json";
+      resources.add(new Resource(fileName, toJsonSchema));
+      return result.append("outputType").append(": ").append("./").append(SCHEMAS_FOLDER).append("/").append(fileName).toString();
     } else {
       return "";
     }

@@ -32,9 +32,18 @@ public class RestSdkPaths {
   public static final SelectionPath RELATIVE_TRIGGER_METHOD_FROM_BINDING_BODY_PATH = SelectionPath.PARENT.parent().parent().child("method");
   public static final SelectionPath RELATIVE_TRIGGER_PATH_FROM_BINDING_BODY_PATH = SelectionPath.PARENT.parent().parent().child("path");
 
-  public static final SelectionPath GLOBAL_SAMPLE_DATA_BINDING_REQUEST_EXPRESSION_PATH = SelectionPath.DOCUMENT.child("sampleData").any().child("definition").child("request").child("binding").any().any().child("value");
+
+
+
+  public static final SelectionPath GLOBAL_SAMPLE_DATA_PATH = SelectionPath.DOCUMENT.child("sampleData");
+  public static final SelectionPath GLOBAL_SAMPLE_DATA_BINDING_BODY_EXPRESSION = GLOBAL_SAMPLE_DATA_PATH.any().child("definition").child("request").child("binding").child("body").child("expression");
+  public static final SelectionPath GLOBAL_SAMPLE_DATA_BINDING_QUERY_PARAMS_PATH = GLOBAL_SAMPLE_DATA_PATH.any().child("definition").child("request").child("binding").child("queryParameter");
+  public static final SelectionPath GLOBAL_SAMPLE_DATA_BINDING_URI_PARAMETER_PATH = GLOBAL_SAMPLE_DATA_PATH.any().child("definition").child("request").child("binding").child("uriParameter");
+  public static final SelectionPath GLOBAL_SAMPLE_DATA_BINDING_HEADER_PATH = GLOBAL_SAMPLE_DATA_PATH.any().child("definition").child("request").child("binding").child("header");
+  public static final SelectionPath GLOBAL_SAMPLE_DATA_PATH_PATH = GLOBAL_SAMPLE_DATA_PATH.any().child("definition").child("request").child("definition").child("request").child("path");
+  public static final SelectionPath GLOBAL_SAMPLE_DATA_BINDING_REQUEST_EXPRESSION_PATH = GLOBAL_SAMPLE_DATA_PATH.any().child("definition").child("request").child("binding").any().any().child("value");
   public static final SelectionPath RELATIVE_GLOBAL_SAMPLE_DATA_BINDING_REQUEST_EXPRESSION_PARAMETERS_PATH = SelectionPath.PARENT.parent().parent().parent().parent().parent().child("parameters");
-  public static final SelectionPath GLOBAL_SAMPLE_DATA_TRANSFORM_EXPRESSION_PATH = SelectionPath.DOCUMENT.child("sampleData").any().child("definition").child("transform").child("expression");
+  public static final SelectionPath GLOBAL_SAMPLE_DATA_TRANSFORM_EXPRESSION_PATH = GLOBAL_SAMPLE_DATA_PATH.any().child("definition").child("transform").child("expression");
   public static final SelectionPath RELATIVE_GLOBAL_SAMPLE_DATA_TRANSFORM_EXPRESSION_PARAMETERS_PATH = SelectionPath.PARENT.parent().parent().child("parameters");
 
 
