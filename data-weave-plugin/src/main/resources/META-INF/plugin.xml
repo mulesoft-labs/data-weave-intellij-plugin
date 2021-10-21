@@ -285,6 +285,17 @@
           </ul>
         </li>
       </ul>
+      <h1>v2.0.71</h1>
+      <ul>
+       <li>
+          <p>RestSDK Support</p>
+          <ul>
+            <li>Better DataSense base on the api spec for all expression in triggers operations and sample data</li>
+            <li>Completion based on the api spec and scaffolding.</li>
+            <li>Navigation on the resources.</li>
+          </ul>
+        </li>
+      </ul>
     ]]>
     </change-notes>
 
