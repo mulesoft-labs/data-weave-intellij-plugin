@@ -76,9 +76,10 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
         createTriggersWatermarkExtractionBinding(implicitInput, context, RestSdkPaths.PARAMETERS_SELECTOR_FROM_ITEMS_PATH);
       } else if (path.matches(RestSdkPaths.TRIGGERS_ITEMS_PATH)) {
         createTriggersItemsBinding(implicitInput, context, RestSdkPaths.PARAMETERS_SELECTOR_FROM_ITEMS_PATH);
-      } else if (path.matches(RestSdkPaths.SAMPLE_DATA_URI_PARAMETER_PATH)) {
-        //
-
+      } else if (path.matches(RestSdkPaths.GLOBAL_SAMPLE_DATA_BINDING_REQUEST_EXPRESSION_PATH)) {
+        createSampleDataRequestBinding(implicitInput, context, RestSdkPaths.RELATIVE_GLOBAL_SAMPLE_DATA_BINDING_REQUEST_EXPRESSION_PARAMETERS_PATH);
+      } else if (path.matches(RestSdkPaths.GLOBAL_SAMPLE_DATA_TRANSFORM_EXPRESSION_PATH)) {
+        createSampleDataTransformBinding(implicitInput, context, RestSdkPaths.RELATIVE_GLOBAL_SAMPLE_DATA_TRANSFORM_EXPRESSION_PARAMETERS_PATH);
       } else if (path.matches(RestSdkPaths.OPERATION_VALUE_PROVIDERS_PATH)) {
         createValueProvider(implicitInput);
       } else if (path.matches(RestSdkPaths.PAGINATION_PARAMETERS)) {
@@ -212,6 +213,23 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
       }
     }
     return null;
+  }
+
+  private void createSampleDataRequestBinding(ImplicitInput implicitInput, PsiElement context, SelectionPath parametersSelector) {
+    final ObjectType parametersType = loadParametersType(context, parametersSelector);
+    implicitInput.addInput(PARAMETERS_KEY, parametersType);
+  }
+
+
+  private void createSampleDataTransformBinding(ImplicitInput implicitInput, PsiElement context, SelectionPath parametersSelector) {
+    assert parametersSelector.getParent() != null;
+    final SelectionPath path = parametersSelector.getParent().child("definition").child("request").child(PATH_KEY);
+    final SelectionPath method = parametersSelector.getParent().child("definition").child("request").child(METHOD_KEY);
+
+    final WeaveType payloadType = resolveOperationResponseType(context, path, method).orElse(new AnyType());
+    final ObjectType parametersType = loadParametersType(context, parametersSelector);
+    implicitInput.addInput(PAYLOAD_KEY, payloadType);
+    implicitInput.addInput(PARAMETERS_KEY, parametersType);
   }
 
   private void createTriggersItemsBinding(ImplicitInput implicitInput, PsiElement context, SelectionPath parametersSelector) {

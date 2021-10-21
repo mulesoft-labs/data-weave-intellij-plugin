@@ -32,7 +32,11 @@ public class RestSdkPaths {
   public static final SelectionPath RELATIVE_TRIGGER_METHOD_FROM_BINDING_BODY_PATH = SelectionPath.PARENT.parent().parent().child("method");
   public static final SelectionPath RELATIVE_TRIGGER_PATH_FROM_BINDING_BODY_PATH = SelectionPath.PARENT.parent().parent().child("path");
 
-  public static final SelectionPath SAMPLE_DATA_URI_PARAMETER_PATH = SelectionPath.DOCUMENT.child("sampleData").any().child("definition").child("request").child("binding").any().any().child("value");
+  public static final SelectionPath GLOBAL_SAMPLE_DATA_BINDING_REQUEST_EXPRESSION_PATH = SelectionPath.DOCUMENT.child("sampleData").any().child("definition").child("request").child("binding").any().any().child("value");
+  public static final SelectionPath RELATIVE_GLOBAL_SAMPLE_DATA_BINDING_REQUEST_EXPRESSION_PARAMETERS_PATH = SelectionPath.PARENT.parent().parent().parent().parent().parent().child("parameters");
+  public static final SelectionPath GLOBAL_SAMPLE_DATA_TRANSFORM_EXPRESSION_PATH = SelectionPath.DOCUMENT.child("sampleData").any().child("definition").child("transform").child("expression");
+  public static final SelectionPath RELATIVE_GLOBAL_SAMPLE_DATA_TRANSFORM_EXPRESSION_PARAMETERS_PATH = SelectionPath.PARENT.parent().parent().child("parameters");
+
 
   public static final SelectionPath OPERATION_VALUE_PROVIDERS_PATH = SelectionPath.DOCUMENT.child("endpoints").any().child("operations").any().child("expects").child("body").any().any().child("valueProvider").child("items").any().any().child("expression");
   public static final SelectionPath OPERATION_REQUEST_BODY_PATH = SelectionPath.DOCUMENT.child("operations").any().child("request").child("body").child("expression");
