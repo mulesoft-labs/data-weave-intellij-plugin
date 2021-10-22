@@ -21,7 +21,6 @@ import webapi.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 public class RestSdkHelper {
@@ -131,16 +130,31 @@ public class RestSdkHelper {
     } else if (shape instanceof ArrayShape) {
       return new ArrayType(toWeaveType(((ArrayShape) shape).items(), referenceTypeResolver));
     } else if (shape instanceof ScalarShape) {
-      String value = ((ScalarShape) shape).dataType().value();
+      final String value = ((ScalarShape) shape).dataType().value();
+      final List<DataNode> values = shape.values();
       if (DataType.String().equals(value)) {
-        return new StringType(Option.empty());
+        if (!values.isEmpty()) {
+          final WeaveType[] stringValues = values.stream()
+                  .map((node) -> new StringType(Option.apply(node.name().value())))
+                  .toArray(WeaveType[]::new);
+          return new UnionType(ScalaUtils.toSeq(stringValues));
+        } else {
+          return new StringType(Option.empty());
+        }
       } else if (
               DataType.Number().equals(value)
                       || DataType.Decimal().equals(value)
                       || DataType.Long().equals(value)
                       || DataType.Float().equals(value)
       ) {
-        return new NumberType(Option.empty());
+        if (!values.isEmpty()) {
+          final WeaveType[] numberValues = values.stream()
+                  .map((node) -> new NumberType(Option.apply(node.name().value())))
+                  .toArray(WeaveType[]::new);
+          return new UnionType(ScalaUtils.toSeq(numberValues));
+        } else {
+          return new NumberType(Option.empty());
+        }
       } else if (DataType.DateTime().equals(value)) {
         return new DateTimeType();
       } else if (DataType.Date().equals(value)) {
