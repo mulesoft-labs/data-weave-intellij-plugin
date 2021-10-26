@@ -1,7 +1,9 @@
 package org.mule.tooling.restsdk.datasense;
 
-import amf.client.model.domain.Operation;
-import amf.client.model.domain.WebApi;
+
+import amf.apicontract.client.platform.model.domain.Operation;
+import amf.apicontract.client.platform.model.domain.api.WebApi;
+import amf.core.client.platform.model.document.Document;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
@@ -29,7 +31,6 @@ import scala.collection.JavaConverters;
 import scala.collection.Seq;
 import scala.collection.Seq$;
 import scala.collection.mutable.Builder;
-import webapi.WebApiDocument;
 
 import java.util.Optional;
 
@@ -317,12 +318,14 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
       } else if (path.matches(RestSdkPaths.OPERATION_REQUEST_BODY_PATH)) {
         final PsiElement operationId = RestSdkPaths.RELATIVE_OPERATION_BASE_FROM_BODY_EXPRESSION_PATH.selectYaml(context);
         if (operationId instanceof YAMLScalar) {
-          WebApiDocument webApiDocument = RestSdkHelper.parseWebApi(context.getContainingFile());
-          String opIdValue = ((YAMLScalar) operationId).getTextValue();
-          Operation operation = RestSdkHelper.operationById((WebApi) webApiDocument.encodes(), opIdValue);
-          if (operation != null && operation.request() != null && !operation.request().payloads().isEmpty()) {
-            final WeaveType weaveType = RestSdkHelper.toWeaveType(operation.request().payloads().get(0).schema(), webApiDocument);
-            return Optional.of(weaveType);
+          Document webApiDocument = RestSdkHelper.parseWebApi(context.getContainingFile());
+          if (webApiDocument != null) {
+            String opIdValue = ((YAMLScalar) operationId).getTextValue();
+            Operation operation = RestSdkHelper.operationById((WebApi) webApiDocument.encodes(), opIdValue);
+            if (operation != null && operation.request() != null && !operation.request().payloads().isEmpty()) {
+              final WeaveType weaveType = RestSdkHelper.toWeaveType(operation.request().payloads().get(0).schema(), webApiDocument);
+              return Optional.of(weaveType);
+            }
           }
         }
       } else if (path.matches(RestSdkPaths.TRIGGERS_BINDING_BODY_EXPRESSION)) {
@@ -342,7 +345,7 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
     if (pathElement instanceof YAMLScalar && method instanceof YAMLScalar) {
       final String pathText = ((YAMLScalar) pathElement).getTextValue();
       final String methodText = ((YAMLScalar) method).getTextValue();
-      WebApiDocument webApiDocument = RestSdkHelper.parseWebApi(context.getContainingFile());
+      Document webApiDocument = RestSdkHelper.parseWebApi(context.getContainingFile());
       final Operation operation = RestSdkHelper.operationByMethodPath((WebApi) webApiDocument.encodes(), methodText, pathText);
       if (operation != null && operation.request() != null && !operation.request().payloads().isEmpty()) {
         final WeaveType weaveType = RestSdkHelper.toWeaveType(operation.request().payloads().get(0).schema(), webApiDocument);
@@ -358,7 +361,7 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
     if (pathElement instanceof YAMLScalar && method instanceof YAMLScalar) {
       final String pathText = ((YAMLScalar) pathElement).getTextValue();
       final String methodText = ((YAMLScalar) method).getTextValue();
-      WebApiDocument webApiDocument = RestSdkHelper.parseWebApi(context.getContainingFile());
+      Document webApiDocument = RestSdkHelper.parseWebApi(context.getContainingFile());
       final Operation operation = RestSdkHelper.operationByMethodPath((WebApi) webApiDocument.encodes(), methodText, pathText);
       if (operation != null && !operation.responses().isEmpty() && !operation.responses().get(0).payloads().isEmpty()) {
         final WeaveType weaveType = RestSdkHelper.toWeaveType(operation.responses().get(0).payloads().get(0).schema(), webApiDocument);

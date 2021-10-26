@@ -31,6 +31,15 @@ public class ScalaUtils {
     }
   }
 
+  @NotNull
+  public static <T> Optional<T> toOptional(Option<T> optional) {
+    if (optional.isDefined()) {
+      return Optional.of(optional.get());
+    } else {
+      return Optional.empty();
+    }
+  }
+
   public static <T> Seq<T> toSeq(T... values) {
     Builder<T, Seq<T>> fieldsBuilder = Seq$.MODULE$.<T>newBuilder();
     for (T value : values) {

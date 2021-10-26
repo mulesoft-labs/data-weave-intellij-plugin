@@ -1,22 +1,30 @@
 package org.mule.tooling.restsdk.utils;
 
-import amf.client.model.domain.*;
-import amf.core.model.DataType;
-import com.intellij.json.JsonFileType;
+import amf.apicontract.client.platform.AMFBaseUnitClient;
+import amf.apicontract.client.platform.WebAPIConfiguration;
+import amf.apicontract.client.platform.model.domain.EndPoint;
+import amf.apicontract.client.platform.model.domain.Operation;
+import amf.apicontract.client.platform.model.domain.api.WebApi;
+import amf.core.client.platform.AMFParseResult;
+import amf.core.client.platform.model.document.BaseUnit;
+import amf.core.client.platform.model.document.Document;
+import amf.core.client.platform.model.domain.DataNode;
+import amf.core.client.platform.model.domain.DomainElement;
+import amf.core.client.platform.model.domain.RecursiveShape;
+import amf.core.client.platform.model.domain.Shape;
+import amf.core.client.scala.model.DataType;
+import amf.shapes.client.platform.model.domain.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.yaml.YAMLFileType;
 import org.jetbrains.yaml.psi.YAMLScalar;
 import org.mule.tooling.lang.dw.util.ScalaUtils;
 import org.mule.weave.v2.parser.ast.QName;
 import org.mule.weave.v2.parser.ast.variables.NameIdentifier;
 import org.mule.weave.v2.ts.*;
 import scala.Option;
-import webapi.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -48,9 +56,9 @@ public class RestSdkHelper {
     return text.contains("#% Rest Connector Descriptor 1.0");
   }
 
-
-  public static WebApiDocument parseWebApi(PsiFile restSdkFile) {
-    WebApiDocument result = null;
+  @Nullable
+  public static Document parseWebApi(PsiFile restSdkFile) {
+    Document result = null;
     final PsiElement select = RestSdkPaths.API_PATH.selectYaml(restSdkFile);
     if (select instanceof YAMLScalar) {
       String apiPath = ((YAMLScalar) select).getTextValue();
@@ -64,40 +72,20 @@ public class RestSdkHelper {
     return result;
   }
 
-  public static @Nullable WebApiDocument parseWebApi(Project project, VirtualFile child) {
-    WebApiDocument result = null;
-    final PsiFile psiFile = PsiManager.getInstance(project).findFile(child);
-    if (psiFile != null) {
-      WebApiBaseUnit parse;
-      try {
-        if (psiFile.getFileType() instanceof YAMLFileType) {
-          if (swaggerVersion.selectYaml(psiFile) != null) {
-            parse = Oas20.resolve(Oas20.parseYaml(child.getUrl()).get()).get();
-          } else if (openApiVersion.selectYaml(psiFile) != null) {
-            parse = Oas30.resolve(Oas30.parseYaml(child.getUrl()).get()).get();
-          } else {
-            parse = Raml10.resolve(Raml10.parse(child.getUrl()).get()).get();
-          }
-        } else if (psiFile.getFileType() instanceof JsonFileType) {
-          if (swaggerVersion.selectJson(psiFile) != null) {
-            parse = Oas20.resolve(Oas20.parse(child.getUrl()).get()).get();
-          } else if (openApiVersion.selectJson(psiFile) != null) {
-            parse = Oas30.resolve(Oas30.parse(child.getUrl()).get()).get();
-          } else {
-            parse = Oas20.resolve(Oas20.parse(child.getUrl()).get()).get();
-          }
-        } else {
-          return null;
-        }
-        result = (WebApiDocument) parse;
+  public static Document parseWebApi(Project project, VirtualFile child) {
+    final AMFBaseUnitClient client = WebAPIConfiguration.WebAPI().baseUnitClient();
 
-      } catch (InterruptedException | ExecutionException e) {
-        e.printStackTrace();
-      }
+    final AMFParseResult parseResult;
+    try {
+      parseResult = client.parse(child.getUrl()).get();
+      final AMFBaseUnitClient newClient = WebAPIConfiguration.fromSpec(parseResult.sourceSpec()).baseUnitClient();
+      final BaseUnit resolvedModel = newClient.transform(parseResult.baseUnit()).baseUnit();
+      return (Document) resolvedModel;
+    } catch (InterruptedException | ExecutionException e) {
+      e.printStackTrace();
     }
-    return result;
+    return null;
   }
-
 
   public static @Nullable Operation operationById(@Nullable WebApi webApi, String id) {
     if (webApi == null) {
@@ -116,7 +104,7 @@ public class RestSdkHelper {
     return null;
   }
 
-  public static WeaveType toWeaveType(Shape shape, WebApiDocument webApi) {
+  public static WeaveType toWeaveType(Shape shape, Document webApi) {
     return toWeaveType(shape, new WeaveReferenceTypeResolver(webApi));
   }
 
@@ -220,9 +208,9 @@ public class RestSdkHelper {
   static class WeaveReferenceTypeResolver {
 
     private Map<String, WeaveType> types = new HashMap<>();
-    private WebApiDocument webApi;
+    private Document webApi;
 
-    public WeaveReferenceTypeResolver(WebApiDocument webApi) {
+    public WeaveReferenceTypeResolver(Document webApi) {
       this.webApi = webApi;
     }
 

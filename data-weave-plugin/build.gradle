@@ -7,14 +7,13 @@ sourceSets {
 }
 
 dependencies {
-    compile group: 'com.atlassian.commonmark', name: 'commonmark', version: '0.14.0'
-    compile group: 'com.atlassian.commonmark', name: 'commonmark-ext-gfm-tables', version: '0.14.0'
-
+    compile(group: 'com.atlassian.commonmark', name: 'commonmark', version: '0.14.0')
+    compile(group: 'com.atlassian.commonmark', name: 'commonmark-ext-gfm-tables', version: '0.14.0')
     compile(group: 'org.mule.weave', name: 'debugger', version: weaveVersion)
-    compile(group: 'org.raml', name: 'webapi-parser', version: "0.5.0")
-//    compile(group: 'org.mule.weave', name: 'raml-module', version: "0.4.0")
     compile(group: 'org.mule.weave', name: 'parser', version: weaveVersion)
     compile(group: 'org.mule.weave', name: 'migrant', version: migrantVersion)
+    compile(group: 'org.mule.als', name: 'als-server_2.12', version: '4.2.0')
+    compile(group: 'com.mulesoft.connectivity', name: 'rest-sdk-aml', version: '0.8.0-SNAPSHOT')
 }
 
 

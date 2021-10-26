@@ -1,8 +1,17 @@
 package org.mule.tooling.restsdk.completion;
 
 
-import amf.client.model.domain.*;
-import amf.core.model.DataType;
+
+import amf.apicontract.client.platform.AMFElementClient;
+import amf.apicontract.client.platform.OASConfiguration;
+import amf.apicontract.client.platform.model.domain.*;
+import amf.apicontract.client.platform.model.domain.api.WebApi;
+import amf.core.client.platform.model.document.Document;
+import amf.core.client.platform.model.domain.*;
+import amf.core.client.scala.model.DataType;
+import amf.shapes.client.platform.model.domain.AnyShape;
+import amf.shapes.client.platform.model.domain.NodeShape;
+import amf.shapes.client.platform.model.domain.ScalarShape;
 import com.intellij.codeInsight.completion.CompletionParameters;
 import com.intellij.codeInsight.daemon.impl.quickfix.EmptyExpression;
 import com.intellij.codeInsight.lookup.LookupElement;
@@ -22,7 +31,7 @@ import org.jetbrains.yaml.psi.YAMLScalar;
 import org.mule.tooling.restsdk.utils.RestSdkHelper;
 import org.mule.tooling.restsdk.utils.RestSdkPaths;
 import org.mule.tooling.restsdk.utils.SelectionPath;
-import webapi.WebApiDocument;
+
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -82,6 +91,7 @@ public class RestSdkCompletionService {
             || yamlPath.matches(RestSdkPaths.TRIGGERS_BINDING_URI_PARAMETER_PATH)) {
       suggestOnTriggers(completionParameters, project, result, yamlPath);
     } else if (yamlPath.matches(RestSdkPaths.GLOBAL_SAMPLE_DATA_PATH) ||
+            yamlPath.matches(RestSdkPaths.GLOBAL_SAMPLE_DATA_PATH_PATH) ||
             yamlPath.matches(RestSdkPaths.GLOBAL_SAMPLE_DATA_BINDING_QUERY_PARAMS_PATH) ||
             yamlPath.matches(RestSdkPaths.GLOBAL_SAMPLE_DATA_BINDING_URI_PARAMETER_PATH) ||
             yamlPath.matches(RestSdkPaths.GLOBAL_SAMPLE_DATA_BINDING_HEADER_PATH)
@@ -93,7 +103,7 @@ public class RestSdkCompletionService {
 
   private void suggestOnSampleData(CompletionParameters completionParameters, Project project, ArrayList<LookupElement> result, SelectionPath yamlPath) {
     final PsiFile yamlFile = completionParameters.getOriginalFile();
-    final WebApiDocument webApiDocument = parseWebApi(yamlFile);
+    final Document webApiDocument = parseWebApi(yamlFile);
     if (webApiDocument != null) {
       WebApi webApi = (WebApi) webApiDocument.encodes();
       if (yamlPath.matches(RestSdkPaths.GLOBAL_SAMPLE_DATA_PATH)) {
@@ -127,7 +137,7 @@ public class RestSdkCompletionService {
 
   private void suggestOnTriggers(CompletionParameters completionParameters, Project project, ArrayList<LookupElement> result, SelectionPath yamlPath) {
     final PsiFile yamlFile = completionParameters.getOriginalFile();
-    final WebApiDocument webApiDocument = parseWebApi(yamlFile);
+    final Document webApiDocument = parseWebApi(yamlFile);
     if (webApiDocument != null) {
       WebApi webApi = (WebApi) webApiDocument.encodes();
       if (yamlPath.matches(TRIGGERS_PATH)) {
@@ -178,7 +188,7 @@ public class RestSdkCompletionService {
         template.append("    ").append("type: ").append("http").append("\n");
         template.append("    ").append("request: ").append("\n");
         template.append("      ").append("method: ").append(operation.method()).append("\n");
-        template.append("      ").append("path: \"").append(endpoint.path()).append("\"\n");
+        template.append("      ").append("path: ").append(endpoint.path()).append("\n");
 
         if (request != null) {
           template.append("      ").append("binding: ").append("\n");
@@ -190,8 +200,8 @@ public class RestSdkCompletionService {
           if (!uriParameters.isEmpty()) {
             template.append("        ").append("uriParameter: ").append("\n");
             for (Parameter uriParameter : uriParameters) {
-              template.append("        ").append(uriParameter.name().value()).append(":").append("\n");
-              template.append("          ").append("value").append(": \"#[]\"").append("\n");
+              template.append("          ").append(uriParameter.name().value()).append(":").append("\n");
+              template.append("            ").append("value").append(": \"#[]\"").append("\n");
             }
           }
         }
@@ -315,7 +325,7 @@ public class RestSdkCompletionService {
   }
 
   private void suggestOnOperations(CompletionParameters completionParameters, Project project, ArrayList<LookupElement> result, SelectionPath yamlPath) {
-    final WebApiDocument webApiDocument = parseWebApi(completionParameters.getOriginalFile());
+    final Document webApiDocument = parseWebApi(completionParameters.getOriginalFile());
     if (webApiDocument != null) {
       WebApi webApi = (WebApi) webApiDocument.encodes();
       if (yamlPath.matches(RestSdkPaths.OPERATION_BASE_PATH)) {
@@ -517,7 +527,8 @@ public class RestSdkCompletionService {
     if (schema instanceof ScalarShape) {
       return result.append("type").append(": ").append(SIMPLE_TYPE_MAP.get(((ScalarShape) schema).dataType().value())).toString();
     } else if (schema instanceof AnyShape) {
-      final String toJsonSchema = ((AnyShape) schema).toJsonSchema();
+      final AMFElementClient client = OASConfiguration.OAS20().elementClient();
+      final String toJsonSchema = client.toJsonSchema((AnyShape) schema);
       final String fileName = schema.name().value() + ".json";
       resources.add(new Resource(fileName, toJsonSchema));
       return result.append("typeSchema").append(": ").append("./").append(SCHEMAS_FOLDER).append("/").append(fileName).toString();
@@ -529,7 +540,8 @@ public class RestSdkCompletionService {
   private String toOutputSchema(Shape schema, List<Resource> resources) {
     StringBuilder result = new StringBuilder();
     if (schema instanceof AnyShape) {
-      final String toJsonSchema = ((AnyShape) schema).toJsonSchema();
+      final AMFElementClient client = OASConfiguration.OAS20().elementClient();
+      final String toJsonSchema = client.toJsonSchema((AnyShape) schema);
       final String fileName = schema.name().value() + ".json";
       resources.add(new Resource(fileName, toJsonSchema));
       return result.append("outputType").append(": ").append("./").append(SCHEMAS_FOLDER).append("/").append(fileName).toString();

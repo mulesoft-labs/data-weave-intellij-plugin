@@ -316,9 +316,9 @@
         <inputOutputTypesProvider implementation="org.mule.tooling.restsdk.datasense.RestSdkInputOutputTypesProvider"/>
         <nameIdentifierProvider implementation="org.mule.tooling.restsdk.nameidentifier.RestSdkNameIdentifierProvider"/>
     </extensions>
-    <extensions defaultExtensionNs="JavaScript.JsonSchema">
-        <ProviderFactory implementation="org.mule.tooling.restsdk.schema.RestSdkDescriptorJsonSchemaProviderFactory"/>
-    </extensions>
+<!--    <extensions defaultExtensionNs="JavaScript.JsonSchema">-->
+<!--        <ProviderFactory implementation="org.mule.tooling.restsdk.schema.RestSdkDescriptorJsonSchemaProviderFactory"/>-->
+<!--    </extensions>-->
     <!-- FINISH REST SDK Extensions -->
 
     <extensions defaultExtensionNs="com.intellij">
@@ -439,6 +439,8 @@
         <completion.contributor language="yaml"
                                 implementationClass="org.mule.tooling.restsdk.completion.RestSdkCompletionContributor"/>
 
+        <projectService  id="Als Service" serviceImplementation="org.mule.tooling.restsdk.component.ALSLanguageService"/>
+        <externalAnnotator language="yaml" implementationClass="org.mule.tooling.restsdk.component.ALSAnnotator"/>
     </extensions>
     <actions>
         <action id="org.mule.tooling.lang.dw.actions.WeaveFmtAction"
