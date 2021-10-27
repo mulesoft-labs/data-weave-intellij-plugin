@@ -454,6 +454,8 @@
         <completion.contributor language="JSON"
                                 implementationClass="org.mule.tooling.als.completion.ALSCompletionContributor"/>
 
+        <lang.documentationProvider language="yaml" order="first" implementationClass="org.mule.tooling.als.documentation.ALSDocumentationProvider"/>
+
     </extensions>
     <actions>
         <action id="org.mule.tooling.lang.dw.actions.WeaveFmtAction"

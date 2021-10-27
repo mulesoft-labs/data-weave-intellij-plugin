@@ -39,4 +39,16 @@ public class ALSDocumentationProvider implements CodeDocumentationProvider {
   }
 
 
+  @Nullable
+  @Override
+  public String generateDoc(PsiElement element, @Nullable PsiElement originalElement) {
+    final ALSLanguageService instance = ALSLanguageService.getInstance(element.getProject());
+    if (instance.isSupportedFile(element.getContainingFile())) {
+      return instance.hover(element);
+    } else {
+      return null;
+    }
+  }
+
+
 }
