@@ -296,6 +296,17 @@
           </ul>
         </li>
       </ul>
+       <h1>v2.0.73</h1>
+      <ul>
+       <li>
+          <p>RestSDK Support</p>
+          <ul>
+            <li>Documentation support</li>
+            <li>Better completion on any path key.</li>
+            <li>Improved Completion support.</li>
+          </ul>
+        </li>
+      </ul>
     ]]>
     </change-notes>
 
