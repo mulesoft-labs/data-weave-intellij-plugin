@@ -68,7 +68,7 @@ public class RestSdkHelper {
     if (select instanceof YAMLScalar) {
       String apiPath = ((YAMLScalar) select).getTextValue();
       //
-      final VirtualFile parent = restSdkFile.getVirtualFile().getParent();
+      final VirtualFile parent = restSdkFile.getOriginalFile().getVirtualFile().getParent();
       final VirtualFile child = parent.findFileByRelativePath(apiPath);
       if (child != null) {
         result = parseWebApi(restSdkFile.getProject(), child);

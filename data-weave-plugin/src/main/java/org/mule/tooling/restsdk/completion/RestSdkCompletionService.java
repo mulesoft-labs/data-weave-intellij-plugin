@@ -489,7 +489,7 @@ public class RestSdkCompletionService {
   }
 
   private void generateResources(PsiFile file, List<Resource> resources) {
-    final VirtualFile containerFolder = file.getVirtualFile().getParent();
+    final VirtualFile containerFolder = file.getOriginalFile().getVirtualFile().getParent();
     if (!resources.isEmpty()) {
       try {
         final VirtualFile resourcesFolder;

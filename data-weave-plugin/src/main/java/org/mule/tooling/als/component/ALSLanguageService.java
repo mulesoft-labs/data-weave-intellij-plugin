@@ -259,16 +259,22 @@ public class ALSLanguageService implements Disposable {
 
 
   public void openEditor(PsiFile file) {
-    String url = file.getVirtualFile().getUrl();
-    String text = file.getText();
-    DocumentState documentState = getDocumentState(url);
-    DidOpenTextDocumentParams didOpenTextDocumentParams = new DidOpenTextDocumentParams(new TextDocumentItem(url, file.getLanguage().getID(), documentState.version(), text));
+    final String url = getUrl(file);
+    if (url == null) {
+      return;
+    }
+    final String text = file.getText();
+    final DocumentState documentState = getDocumentState(url);
+    final DidOpenTextDocumentParams didOpenTextDocumentParams = new DidOpenTextDocumentParams(new TextDocumentItem(url, file.getLanguage().getID(), documentState.version(), text));
     languageServer.textDocumentSyncConsumer().didOpen(didOpenTextDocumentParams);
   }
 
   public void onChanged(PsiFile file) {
-    String url = file.getVirtualFile().getUrl();
-    String text = file.getText();
+    final String url = getUrl(file);
+    if (url == null) {
+      return;
+    }
+    final String text = file.getText();
     DocumentState documentState = getDocumentState(url);
     TextDocumentContentChangeEvent textDocumentContentChangeEvent = new TextDocumentContentChangeEvent(file.getText(), Option.<Range>empty(), Option.empty());
 
@@ -277,15 +283,22 @@ public class ALSLanguageService implements Disposable {
   }
 
   public void onClose(PsiFile file) {
-    String url = file.getVirtualFile().getUrl();
-    String text = file.getText();
-    DocumentState documentState = getDocumentState(url);
-    DidCloseTextDocumentParams didOpenTextDocumentParams = new DidCloseTextDocumentParams(documentIdentifierOf(file));
+    final String url = getUrl(file);
+    if (url == null) {
+      return;
+    }
+    final String text = file.getText();
+    final DocumentState documentState = getDocumentState(url);
+    final DidCloseTextDocumentParams didOpenTextDocumentParams = new DidCloseTextDocumentParams(documentIdentifierOf(file));
     languageServer.textDocumentSyncConsumer().didClose(didOpenTextDocumentParams);
   }
 
-  public List<LookupElement> completion(PsiElement position) {
-    final PsiFile file = position.getContainingFile();
+  @NotNull
+  public List<LookupElement> completion(@NotNull PsiElement position) {
+    final PsiFile file = position.getContainingFile().getOriginalFile();
+    if (file.getVirtualFile() == null) {
+      return Collections.emptyList();
+    }
     ensureFileOpened(file);
     final RequestHandler<CompletionParams, Either<Seq<CompletionItem>, CompletionList>> completionParamsEitherRequestHandler = languageServer.resolveHandler(CompletionRequestType$.MODULE$).get();
     final Future<Either<Seq<CompletionItem>, CompletionList>> apply = completionParamsEitherRequestHandler.apply(new CompletionParams(documentIdentifierOf(file), positionOf(position), Option.empty()));
@@ -436,7 +449,12 @@ public class ALSLanguageService implements Disposable {
   }
 
   private boolean wasFileOpened(PsiFile file) {
-    return documents.containsKey(file.getVirtualFile().getUrl());
+    final VirtualFile virtualFile = file.getOriginalFile().getVirtualFile();
+    if (virtualFile != null) {
+      return documents.containsKey(virtualFile.getUrl());
+    } else {
+      return false;
+    }
   }
 
   @Override
@@ -463,11 +481,14 @@ public class ALSLanguageService implements Disposable {
   }
 
   public List<Diagnostic> diagnosticsOf(PsiFile collectedInfo) {
-    ensureFileOpened(collectedInfo);
+    final String url = getUrl(collectedInfo);
     final List<Diagnostic> result = new ArrayList<>();
-    final DocumentState documentState = documents.get(collectedInfo.getVirtualFile().getUrl());
-    if (documentState != null) {
-      result.addAll(documentState.diagnostics());
+    if (url != null) {
+      ensureFileOpened(collectedInfo);
+      final DocumentState documentState = documents.get(url);
+      if (documentState != null) {
+        result.addAll(documentState.diagnostics());
+      }
     }
     return result;
   }

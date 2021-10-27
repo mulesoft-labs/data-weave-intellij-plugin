@@ -7,6 +7,7 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import org.jetbrains.annotations.Nullable;
 import org.mulesoft.lsp.feature.common.Position;
 import org.mulesoft.lsp.feature.common.TextDocumentIdentifier;
 import scala.concurrent.Await;
@@ -27,7 +28,7 @@ public class LSPUtils {
   }
 
   public static TextDocumentIdentifier documentIdentifierOf(PsiFile element) {
-    return new TextDocumentIdentifier(element.getVirtualFile().getUrl());
+    return new TextDocumentIdentifier(getUrl(element));
   }
 
   public static <T> T resultOf(Future<T> objectFuture) {
@@ -39,4 +40,12 @@ public class LSPUtils {
   }
 
 
+  @Nullable
+  public static String getUrl(PsiFile file) {
+    final VirtualFile virtualFile = file.getOriginalFile().getVirtualFile();
+    if (virtualFile == null) {
+      return null;
+    }
+    return virtualFile.getUrl();
+  }
 }

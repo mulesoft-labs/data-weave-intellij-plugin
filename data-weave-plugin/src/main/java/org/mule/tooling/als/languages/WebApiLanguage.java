@@ -22,7 +22,7 @@ public class WebApiLanguage implements ALSLanguageExtension {
     } else if (psiFile.getFileType() instanceof JsonFileType) {
       return (swaggerVersion.selectJson(psiFile) != null) || openApiVersion.selectJson(psiFile) != null;
     } else {
-      return Objects.equals(psiFile.getVirtualFile().getExtension(), "raml");
+      return Objects.equals(psiFile.getOriginalFile().getVirtualFile().getExtension(), "raml");
     }
   }
 
