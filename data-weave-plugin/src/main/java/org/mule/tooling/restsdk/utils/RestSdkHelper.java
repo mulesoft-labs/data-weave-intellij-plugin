@@ -19,6 +19,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.yaml.YAMLFileType;
 import org.jetbrains.yaml.psi.YAMLScalar;
 import org.mule.tooling.lang.dw.util.ScalaUtils;
 import org.mule.weave.v2.parser.ast.QName;
@@ -48,8 +49,12 @@ public class RestSdkHelper {
   }
 
   public static boolean isRestSdkDescriptorFile(PsiFile containingFile) {
-    String text = containingFile.getText();
-    return isRestSdkDescriptor(text);
+    if (containingFile.getFileType() instanceof YAMLFileType) {
+      String text = containingFile.getText();
+      return isRestSdkDescriptor(text);
+    } else {
+      return false;
+    }
   }
 
   public static boolean isRestSdkDescriptor(String text) {

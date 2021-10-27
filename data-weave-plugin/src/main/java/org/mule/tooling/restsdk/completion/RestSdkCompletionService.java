@@ -1,13 +1,13 @@
 package org.mule.tooling.restsdk.completion;
 
 
-
 import amf.apicontract.client.platform.AMFElementClient;
 import amf.apicontract.client.platform.OASConfiguration;
 import amf.apicontract.client.platform.model.domain.*;
 import amf.apicontract.client.platform.model.domain.api.WebApi;
 import amf.core.client.platform.model.document.Document;
-import amf.core.client.platform.model.domain.*;
+import amf.core.client.platform.model.domain.PropertyShape;
+import amf.core.client.platform.model.domain.Shape;
 import amf.core.client.scala.model.DataType;
 import amf.shapes.client.platform.model.domain.AnyShape;
 import amf.shapes.client.platform.model.domain.NodeShape;
@@ -31,7 +31,6 @@ import org.jetbrains.yaml.psi.YAMLScalar;
 import org.mule.tooling.restsdk.utils.RestSdkHelper;
 import org.mule.tooling.restsdk.utils.RestSdkPaths;
 import org.mule.tooling.restsdk.utils.SelectionPath;
-
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -97,6 +96,13 @@ public class RestSdkCompletionService {
             yamlPath.matches(RestSdkPaths.GLOBAL_SAMPLE_DATA_BINDING_HEADER_PATH)
     ) {
       suggestOnSampleData(completionParameters, project, result, yamlPath);
+    } else if (yamlPath.getName().equals("path")) {
+      final PsiFile yamlFile = completionParameters.getOriginalFile();
+      final Document webApiDocument = parseWebApi(yamlFile);
+      if (webApiDocument != null) {
+        WebApi webApi = (WebApi) webApiDocument.encodes();
+        suggestPaths(result, webApi);
+      }
     }
     return result;
   }
@@ -109,11 +115,7 @@ public class RestSdkCompletionService {
       if (yamlPath.matches(RestSdkPaths.GLOBAL_SAMPLE_DATA_PATH)) {
         suggestSampleDataTemplate(project, result, yamlFile, webApi);
       } else if (yamlPath.matches(RestSdkPaths.GLOBAL_SAMPLE_DATA_PATH_PATH)) {
-        webApi.endPoints().forEach((endpoint) -> {
-          LookupElementBuilder elementBuilder = LookupElementBuilder.create(endpoint.path().value());
-          elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.Property);
-          result.add(elementBuilder);
-        });
+        suggestPaths(result, webApi);
       } else {
         final PsiElement path = RestSdkPaths.RELATIVE_TRIGGER_PATH_FROM_BINDING_PATH.selectYaml(completionParameters.getPosition());
         final PsiElement method = RestSdkPaths.RELATIVE_TRIGGER_METHOD_FROM_BINDING_PATH.selectYaml(completionParameters.getPosition());
@@ -135,6 +137,14 @@ public class RestSdkCompletionService {
     }
   }
 
+  private void suggestPaths(ArrayList<LookupElement> result, WebApi webApi) {
+    webApi.endPoints().forEach((endpoint) -> {
+      LookupElementBuilder elementBuilder = LookupElementBuilder.create(endpoint.path().value());
+      elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.Property);
+      result.add(elementBuilder);
+    });
+  }
+
   private void suggestOnTriggers(CompletionParameters completionParameters, Project project, ArrayList<LookupElement> result, SelectionPath yamlPath) {
     final PsiFile yamlFile = completionParameters.getOriginalFile();
     final Document webApiDocument = parseWebApi(yamlFile);
@@ -143,11 +153,7 @@ public class RestSdkCompletionService {
       if (yamlPath.matches(TRIGGERS_PATH)) {
         suggestTriggerTemplate(project, result, yamlFile, webApi);
       } else if (yamlPath.matches(RestSdkPaths.TRIGGERS_PATH_PATH)) {
-        webApi.endPoints().forEach((endpoint) -> {
-          LookupElementBuilder elementBuilder = LookupElementBuilder.create(endpoint.path().value());
-          elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.Property);
-          result.add(elementBuilder);
-        });
+        suggestPaths(result, webApi);
       } else {
         final PsiElement path = RestSdkPaths.RELATIVE_TRIGGER_PATH_FROM_BINDING_PATH.selectYaml(completionParameters.getPosition());
         final PsiElement method = RestSdkPaths.RELATIVE_TRIGGER_METHOD_FROM_BINDING_PATH.selectYaml(completionParameters.getPosition());

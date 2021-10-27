@@ -1,4 +1,4 @@
-package org.mule.tooling.restsdk.component;
+package org.mule.tooling.als.annotator;
 
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.ExternalAnnotator;
@@ -8,21 +8,19 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.yaml.YAMLFileType;
+import org.mule.tooling.als.component.ALSLanguageService;
 import org.mulesoft.lsp.feature.common.Range;
 import org.mulesoft.lsp.feature.diagnostic.Diagnostic;
 import org.mulesoft.lsp.feature.diagnostic.DiagnosticSeverity;
 
 import java.util.List;
 
-public class ALSAnnotator extends ExternalAnnotator<PsiFile, List<Diagnostic>> {
+public class ALSDiagnosticsAnnotator extends ExternalAnnotator<PsiFile, List<Diagnostic>> {
 
   @Override
   public @Nullable PsiFile collectInformation(@NotNull PsiFile file) {
-    if (file.getFileType() == YAMLFileType.YML) {
-      if (ALSLanguageService.getInstance(file.getProject()).isSupportedFile(file)) {
-        return file;
-      }
+    if (ALSLanguageService.getInstance(file.getProject()).isSupportedFile(file)) {
+      return file;
     }
     return null;
   }

@@ -1,4 +1,4 @@
-package org.mule.tooling.restsdk.component;
+package org.mule.tooling.als.component;
 
 import org.mulesoft.lsp.feature.diagnostic.Diagnostic;
 

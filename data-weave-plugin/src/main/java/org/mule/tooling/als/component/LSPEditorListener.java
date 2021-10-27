@@ -1,4 +1,4 @@
-package org.mule.tooling.restsdk.component;
+package org.mule.tooling.als.component;
 
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorKind;
@@ -7,7 +7,6 @@ import com.intellij.openapi.editor.event.EditorFactoryListener;
 import org.jetbrains.annotations.NotNull;
 
 public class LSPEditorListener implements EditorFactoryListener {
-
 
   private ALSLanguageService languageService;
 
