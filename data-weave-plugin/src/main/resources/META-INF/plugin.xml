@@ -307,6 +307,15 @@
           </ul>
         </li>
       </ul>
+      <h1>v2.0.74</h1>
+      <ul>
+       <li>
+          <p>RestSDK Support</p>
+          <ul>
+            <li>Fix NPE</li>
+          </ul>
+        </li>
+      </ul>
     ]]>
     </change-notes>
 
