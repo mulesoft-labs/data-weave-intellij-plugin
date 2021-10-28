@@ -445,6 +445,9 @@ public class ALSLanguageService implements Disposable {
   }
 
   public boolean isSupportedFile(PsiFile file) {
+    if (file == null) {
+      return false;
+    }
     return Arrays.stream(supportedLanguages).anyMatch((l) -> l.supports(file));
   }
 

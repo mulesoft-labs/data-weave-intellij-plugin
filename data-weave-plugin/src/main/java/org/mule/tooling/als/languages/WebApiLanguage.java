@@ -18,11 +18,14 @@ public class WebApiLanguage implements ALSLanguageExtension {
   @Override
   public boolean supports(PsiFile psiFile) {
     if (psiFile.getFileType() instanceof YAMLFileType) {
-      return (swaggerVersion.selectYaml(psiFile) != null) || openApiVersion.selectYaml(psiFile) != null;
+      return (swaggerVersion.selectYaml(psiFile) != null) ||
+              openApiVersion.selectYaml(psiFile) != null ||
+              Objects.equals(psiFile.getOriginalFile().getVirtualFile().getExtension(), "raml");
+
     } else if (psiFile.getFileType() instanceof JsonFileType) {
       return (swaggerVersion.selectJson(psiFile) != null) || openApiVersion.selectJson(psiFile) != null;
     } else {
-      return Objects.equals(psiFile.getOriginalFile().getVirtualFile().getExtension(), "raml");
+      return false;
     }
   }
 

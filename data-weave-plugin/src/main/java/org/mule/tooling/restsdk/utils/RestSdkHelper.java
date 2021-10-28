@@ -65,7 +65,9 @@ public class RestSdkHelper {
 
   @Nullable
   public static Document parseWebApi(PsiFile restSdkFile) {
-    return CachedValuesManager.getCachedValue(restSdkFile, () -> CachedValueProvider.Result.create(doParseWebApi(restSdkFile)));
+    return CachedValuesManager.getCachedValue(restSdkFile, () -> {
+      return CachedValueProvider.Result.create(doParseWebApi(restSdkFile), restSdkFile);
+    });
   }
 
   private static Document doParseWebApi(PsiFile restSdkFile) {
