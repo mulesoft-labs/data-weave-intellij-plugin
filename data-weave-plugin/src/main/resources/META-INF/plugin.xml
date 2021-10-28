@@ -316,6 +316,16 @@
           </ul>
         </li>
       </ul>
+      <h1>v2.0.77</h1>
+      <ul>
+       <li>
+          <p>RestSDK Support</p>
+          <ul>
+            <li>Improve performance on big apis</li>
+            <li>Improve template for new parameters and query params</li>
+          </ul>
+        </li>
+      </ul>
     ]]>
     </change-notes>
 
