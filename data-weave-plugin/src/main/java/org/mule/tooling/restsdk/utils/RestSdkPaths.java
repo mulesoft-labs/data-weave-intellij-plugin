@@ -16,6 +16,7 @@ public class RestSdkPaths {
 
   public static final SelectionPath TRIGGERS_PATH = SelectionPath.DOCUMENT.child("triggers");
   public static final SelectionPath TRIGGERS_PATH_PATH = TRIGGERS_PATH.any().child("path");
+  public static final SelectionPath TRIGGERS_PARAMETER = TRIGGERS_PATH.any().child("parameters");
   public static final SelectionPath TRIGGERS_BINDING_BODY_EXPRESSION = TRIGGERS_PATH.any().child("binding").child("body").child("expression");
   public static final SelectionPath TRIGGERS_BINDING_QUERY_PARAMS_PATH = TRIGGERS_PATH.any().child("binding").child("queryParameter");
   public static final SelectionPath TRIGGERS_BINDING_URI_PARAMETER_PATH = TRIGGERS_PATH.any().child("binding").child("header");
@@ -50,6 +51,8 @@ public class RestSdkPaths {
   public static final SelectionPath OPERATION_VALUE_PROVIDERS_PATH = SelectionPath.DOCUMENT.child("endpoints").any().child("operations").any().child("expects").child("body").any().any().child("valueProvider").child("items").any().any().child("expression");
   public static final SelectionPath OPERATION_REQUEST_BODY_PATH = SelectionPath.DOCUMENT.child("operations").any().child("request").child("body").child("expression");
   public static final SelectionPath OPERATION_PATH = SelectionPath.DOCUMENT.child("operations");
+  public static final SelectionPath OPERATION_PARAMETER = OPERATION_PATH.any().child("parameters");
+
   public static final SelectionPath OPERATION_URI_PARAMS_PATH = OPERATION_PATH.any().child("request").child("uriParameter");
   public static final SelectionPath OPERATION_REQUEST_HEADER_PATH = OPERATION_PATH.any().child("request").child("header");
   public static final SelectionPath OPERATION_QUERY_PARAMS_PATH = OPERATION_PATH.any().child("request").child("queryParameter");

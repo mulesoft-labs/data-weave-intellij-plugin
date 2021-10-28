@@ -96,6 +96,8 @@ public class RestSdkCompletionService {
             yamlPath.matches(RestSdkPaths.GLOBAL_SAMPLE_DATA_BINDING_HEADER_PATH)
     ) {
       suggestOnSampleData(completionParameters, project, result, yamlPath);
+    } else if (yamlPath.matches(RestSdkPaths.TRIGGERS_PARAMETER) || yamlPath.matches(RestSdkPaths.OPERATION_PARAMETER)) {
+      suggestParameterTemplate(project, completionParameters.getOriginalFile(), result);
     } else if (yamlPath.getName().equals("path")) {
       final PsiFile yamlFile = completionParameters.getOriginalFile();
       final Document webApiDocument = parseWebApi(yamlFile);
@@ -125,11 +127,11 @@ public class RestSdkCompletionService {
           final Operation operation = RestSdkHelper.operationByMethodPath((WebApi) webApiDocument.encodes(), methodText, pathText);
           if (operation != null) {
             if (yamlPath.matches(RestSdkPaths.GLOBAL_SAMPLE_DATA_BINDING_QUERY_PARAMS_PATH)) {
-              suggestQueryParams(result, operation);
+              suggestQueryParams(project, result, operation);
             } else if (yamlPath.matches(RestSdkPaths.GLOBAL_SAMPLE_DATA_BINDING_HEADER_PATH)) {
-              suggestHeaders(result, operation);
+              suggestHeaders(project, result, operation);
             } else if (yamlPath.matches(RestSdkPaths.GLOBAL_SAMPLE_DATA_BINDING_URI_PARAMETER_PATH)) {
-              suggestUriParams(result, operation);
+              suggestUriParams(project, result, operation);
             }
           }
         }
@@ -163,11 +165,11 @@ public class RestSdkCompletionService {
           final Operation operation = RestSdkHelper.operationByMethodPath((WebApi) webApiDocument.encodes(), methodText, pathText);
           if (operation != null) {
             if (yamlPath.matches(RestSdkPaths.TRIGGERS_BINDING_QUERY_PARAMS_PATH)) {
-              suggestQueryParams(result, operation);
+              suggestQueryParams(project, result, operation);
             } else if (yamlPath.matches(RestSdkPaths.TRIGGERS_BINDING_HEADER_PATH)) {
-              suggestHeaders(result, operation);
+              suggestHeaders(project, result, operation);
             } else if (yamlPath.matches(RestSdkPaths.TRIGGERS_BINDING_URI_PARAMETER_PATH)) {
-              suggestUriParams(result, operation);
+              suggestUriParams(project, result, operation);
             }
           }
         }
@@ -180,7 +182,7 @@ public class RestSdkCompletionService {
     endPoints.forEach((endpoint) -> {
       endpoint.operations().forEach((operation) -> {
         LookupElementBuilder elementBuilder = LookupElementBuilder.create(operation.name() + " (Scaffold New SampleData)");
-        elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.Property);
+        elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.AbstractMethod);
         elementBuilder = elementBuilder.withTypeText(operationType(operation, endpoint), true);
         final List<Resource> resources = new ArrayList<>();
         final StringBuilder template = new StringBuilder();
@@ -237,7 +239,7 @@ public class RestSdkCompletionService {
     endPoints.forEach((endpoint) -> {
       endpoint.operations().forEach((operation) -> {
         LookupElementBuilder elementBuilder = LookupElementBuilder.create(operation.name() + " (Scaffold New Trigger)");
-        elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.Property);
+        elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.AbstractMethod);
         elementBuilder = elementBuilder.withTypeText(operationType(operation, endpoint), true);
         final List<Resource> resources = new ArrayList<>();
         final StringBuilder template = new StringBuilder();
@@ -345,11 +347,11 @@ public class RestSdkCompletionService {
           final Operation operation = RestSdkHelper.operationById((WebApi) webApiDocument.encodes(), baseOperation);
           if (operation != null) {
             if (yamlPath.matches(RestSdkPaths.OPERATION_QUERY_PARAMS_PATH)) {
-              suggestQueryParams(result, operation);
+              suggestQueryParams(project, result, operation);
             } else if (yamlPath.matches(RestSdkPaths.OPERATION_REQUEST_HEADER_PATH)) {
-              suggestHeaders(result, operation);
+              suggestHeaders(project, result, operation);
             } else if (yamlPath.matches(RestSdkPaths.OPERATION_URI_PARAMS_PATH)) {
-              suggestUriParams(result, operation);
+              suggestUriParams(project, result, operation);
             }
           }
         }
@@ -357,31 +359,70 @@ public class RestSdkCompletionService {
     }
   }
 
-  private void suggestUriParams(ArrayList<LookupElement> result, Operation maybeOperation) {
+  private void suggestUriParams(Project project, ArrayList<LookupElement> result, Operation maybeOperation) {
     List<Parameter> queryParameters = maybeOperation.request().uriParameters();
     queryParameters.forEach((queryParam) -> {
-      LookupElementBuilder elementBuilder = LookupElementBuilder.create(queryParam.name() + ":");
-      elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.Property);
-      result.add(elementBuilder);
+      buildParameterTemplate(project, result, queryParam);
     });
   }
 
-  private void suggestHeaders(ArrayList<LookupElement> result, Operation maybeOperation) {
+  private void suggestHeaders(Project project, ArrayList<LookupElement> result, Operation maybeOperation) {
     List<Parameter> queryParameters = maybeOperation.request().headers();
     queryParameters.forEach((queryParam) -> {
-      LookupElementBuilder elementBuilder = LookupElementBuilder.create(queryParam.name() + ":");
-      elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.Property);
-      result.add(elementBuilder);
+      buildParameterTemplate(project, result, queryParam);
     });
   }
 
-  private void suggestQueryParams(ArrayList<LookupElement> result, Operation operation) {
+  private void suggestQueryParams(Project project, ArrayList<LookupElement> result, Operation operation) {
     List<Parameter> queryParameters = operation.request().queryParameters();
     queryParameters.forEach((queryParam) -> {
-      LookupElementBuilder elementBuilder = LookupElementBuilder.create(queryParam.name() + ":" + "\n");
-      elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.Property);
-      result.add(elementBuilder);
+      buildParameterTemplate(project, result, queryParam);
     });
+  }
+
+  private void buildParameterTemplate(Project project, ArrayList<LookupElement> result, Parameter queryParam) {
+    LookupElementBuilder elementBuilder = LookupElementBuilder.create(queryParam.name() + ":");
+    elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.Property);
+    final String text =
+            queryParam.name() + ":\n" +
+                    "  value: \"#[ $value$ ]\"";
+    elementBuilder = elementBuilder.withInsertHandler((context, item1) -> {
+      final int selectionStart = context.getEditor().getCaretModel().getOffset();
+      final int startOffset = context.getStartOffset();
+      final int tailOffset = context.getTailOffset();
+      context.getDocument().deleteString(startOffset, tailOffset);
+      context.setAddCompletionChar(false);
+      final Template myTemplate = TemplateManager.getInstance(project).createTemplate("template", "rest_sdk_suggest", text);
+      myTemplate.addVariable("value", "completion()", "", true);
+      TemplateManager.getInstance(context.getProject()).startTemplate(context.getEditor(), myTemplate);
+    });
+    result.add(elementBuilder);
+  }
+
+
+  private void suggestParameterTemplate(Project project, PsiFile file, ArrayList<LookupElement> result) {
+
+    LookupElementBuilder elementBuilder = LookupElementBuilder.create("New Parameter");
+    elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.AbstractMethod);
+    final String template = "$name$:\n" +
+            "  " + "description: $description$\n" +
+            "  " + "displayName: $name$\n" +
+            "  " + "type: " + "" + "$type$";
+
+
+    final Template myTemplate = TemplateManager.getInstance(project).createTemplate("template", "rest_sdk_suggest", template);
+    myTemplate.addVariable("name", new EmptyExpression(), true);
+    myTemplate.addVariable("description", new EmptyExpression(), true);
+    myTemplate.addVariable("type", "complete()", "", true);
+    elementBuilder = elementBuilder.withInsertHandler((context, item1) -> {
+      final int selectionStart = context.getEditor().getCaretModel().getOffset();
+      final int startOffset = context.getStartOffset();
+      final int tailOffset = context.getTailOffset();
+      context.getDocument().deleteString(startOffset, tailOffset);
+      context.setAddCompletionChar(false);
+      TemplateManager.getInstance(context.getProject()).startTemplate(context.getEditor(), myTemplate);
+    });
+    result.add(elementBuilder);
   }
 
   private void suggestOperationTemplate(Project project, PsiFile file, ArrayList<LookupElement> result, WebApi webApi) {
@@ -389,7 +430,7 @@ public class RestSdkCompletionService {
     endPoints.forEach((endpoint) -> {
       endpoint.operations().forEach((operation) -> {
         LookupElementBuilder elementBuilder = LookupElementBuilder.create(operation.name() + " (Scaffold New Operation)");
-        elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.Property);
+        elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.AbstractMethod);
         elementBuilder = elementBuilder.withTypeText(operationType(operation, endpoint), true);
         final List<Resource> resources = new ArrayList<>();
         final StringBuilder template = new StringBuilder();

@@ -18,6 +18,8 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.util.CachedValueProvider;
+import com.intellij.psi.util.CachedValuesManager;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.yaml.YAMLFileType;
 import org.jetbrains.yaml.psi.YAMLScalar;
@@ -63,6 +65,10 @@ public class RestSdkHelper {
 
   @Nullable
   public static Document parseWebApi(PsiFile restSdkFile) {
+    return CachedValuesManager.getCachedValue(restSdkFile, () -> CachedValueProvider.Result.create(doParseWebApi(restSdkFile)));
+  }
+
+  private static Document doParseWebApi(PsiFile restSdkFile) {
     Document result = null;
     final PsiElement select = RestSdkPaths.API_PATH.selectYaml(restSdkFile);
     if (select instanceof YAMLScalar) {
@@ -75,6 +81,7 @@ public class RestSdkHelper {
       }
     }
     return result;
+
   }
 
   public static Document parseWebApi(Project project, VirtualFile child) {
