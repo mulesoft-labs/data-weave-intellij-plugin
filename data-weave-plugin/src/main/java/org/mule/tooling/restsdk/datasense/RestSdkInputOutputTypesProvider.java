@@ -71,6 +71,10 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
         createPayloadWithAttributesInputs(implicitInput);
       } else if (path.matches(RestSdkPaths.TRIGGERS_BINDING_BODY_EXPRESSION)) {
         createTriggersBinding(implicitInput, context, RestSdkPaths.RELATIVE_TRIGGER_PARAMETERS_SELECTOR_FROM_BINDING_BODY_PATH);
+      } else if (path.matches(RestSdkPaths.TRIGGERS_BINDING_QUERY_PARAMS_EXPRESSION_PATH)
+              || path.matches(RestSdkPaths.TRIGGERS_BINDING_URI_PARAMETER_EXPRESSION_PATH)
+              || path.matches(RestSdkPaths.TRIGGERS_BINDING_HEADER_EXPRESSION_PATH)) {
+        createTriggersBinding(implicitInput, context, RestSdkPaths.PARAMETERS_SELECTOR_FROM_QUERY_PARAMETER_PATH);
       } else if (path.matches(RestSdkPaths.TRIGGERS_WATERMARK_PATH)
               || path.matches(RestSdkPaths.TRIGGERS_IDENTITY_EXTRACTION_PATH)
               || path.matches(RestSdkPaths.TRIGGERS_EVENT_PATH)) {
@@ -87,7 +91,9 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
         createPaginationParametersInputs(implicitInput);
       } else if (path.matches(RestSdkPaths.OPERATION_REQUEST_BODY_PATH)) {
         createOperationRequest(implicitInput, context, RestSdkPaths.PARAMETERS_SELECTOR_FROM_BODY_REQUEST_PATH);
-      } else if (path.matches(RestSdkPaths.OPERATION_REQUEST_QUERY_PARAM)) {
+      } else if (path.matches(RestSdkPaths.OPERATION_REQUEST_HEADER_EXPRESSION_PATH)
+              || path.matches(RestSdkPaths.OPERATION_URI_PARAMS_EXPRESSION_PATH)
+              || path.matches(RestSdkPaths.OPERATION_REQUEST_HEADER_EXPRESSION_PATH)) {
         createOperationRequest(implicitInput, context, RestSdkPaths.PARAMETERS_SELECTOR_FROM_QUERY_PARAMETER_PATH);
       } else if (path.matches(RestSdkPaths.OPERATION_DISPLAY_NAME_PATH)) {
         implicitInput.addInput(OPERATION_ID_KEY, new StringType(Option.empty()));

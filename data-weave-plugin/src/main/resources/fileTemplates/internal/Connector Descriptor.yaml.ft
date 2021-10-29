@@ -1,5 +1,8 @@
 #% Rest Connector Descriptor 1.0
 
+apiSpec:
+  url: ../api/api.yaml
+
 connectorName: ${ARTIFACT_ID}
 connectorDescription:
 

@@ -326,6 +326,18 @@
           </ul>
         </li>
       </ul>
+      <h1>v2.0.78</h1>
+      <ul>
+       <li>
+          <p>RestSDK Support</p>
+          <ul>
+            <li>Fix support for RAML</li>
+            <li>Fix navigation on folders</li>
+            <li>Fix cached values </li>
+            <li>Fix DataSense on QueryParams Uri Params and Headers</li>
+          </ul>
+        </li>
+      </ul>
     ]]>
     </change-notes>
 
