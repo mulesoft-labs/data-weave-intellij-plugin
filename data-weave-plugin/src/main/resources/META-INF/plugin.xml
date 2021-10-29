@@ -338,6 +338,15 @@
           </ul>
         </li>
       </ul>
+      <h1>v2.0.79</h1>
+      <ul>
+       <li>
+          <p>RestSDK Support</p>
+          <ul>
+            <li>Value Providers Better completion and IntellijSense</li>
+          </ul>
+        </li>
+      </ul>
     ]]>
     </change-notes>
 
@@ -497,6 +506,7 @@
                                 implementationClass="org.mule.tooling.als.completion.ALSCompletionContributor"/>
 
         <lang.documentationProvider language="yaml" order="first" implementationClass="org.mule.tooling.als.documentation.ALSDocumentationProvider"/>
+        <fileType name="YAML" extensions="raml" language="yaml"/>
 
     </extensions>
     <actions>
@@ -517,6 +527,12 @@
                 class="org.mule.tooling.lang.dw.actions.ShowTypeOfSelectionAction" text="Type Of Selection"
                 description="Shows the weave type of the selection">
             <keyboard-shortcut keymap="$default" first-keystroke="alt shift T"/>
+        </action>
+        <action id="RAML.CreateNewFileAction"
+                class="org.mule.tooling.restsdk.actions.CreateNewApiFileAction" text="RAML File"
+                description="Create New RAML File">
+            <add-to-group group-id="NewGroup" anchor="first"/>
+            <!--<keyboard-shortcut keymap="$default" first-keystroke="shift ctrl W"/>-->
         </action>
     </actions>
 
