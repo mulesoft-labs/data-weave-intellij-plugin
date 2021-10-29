@@ -40,14 +40,17 @@ import java.util.Map;
 
 import static org.mule.tooling.restsdk.utils.MapUtils.map;
 import static org.mule.tooling.restsdk.utils.RestSdkHelper.parseWebApi;
-import static org.mule.tooling.restsdk.utils.RestSdkPaths.OPERATION_PATH;
-import static org.mule.tooling.restsdk.utils.RestSdkPaths.TRIGGERS_PATH;
+import static org.mule.tooling.restsdk.utils.RestSdkPaths.*;
 
 public class RestSdkCompletionService {
 
 
   public static final String SCHEMAS_FOLDER = "schemas";
   public static final String OK_STATUS = "200";
+  public static final String TRIGGER = "trigger";
+  public static final String OPERATION = "operation";
+  public static final String PATH = "path";
+  public static final String VALUE_PROVIDER = "valueProvider";
   Map<String, String> SIMPLE_TYPE_MAP = map(
           DataType.String(), "string",
           DataType.Boolean(), "boolean",
@@ -98,7 +101,11 @@ public class RestSdkCompletionService {
       suggestOnSampleData(completionParameters, project, result, yamlPath);
     } else if (yamlPath.matches(RestSdkPaths.TRIGGERS_PARAMETER) || yamlPath.matches(RestSdkPaths.OPERATION_PARAMETER)) {
       suggestParameterTemplate(project, completionParameters.getOriginalFile(), result);
-    } else if (yamlPath.getName().equals("path")) {
+    } else if (yamlPath.matches(RestSdkPaths.GLOBAL_SAMPLE_DATA_PARAMETER) || yamlPath.matches(VALUE_PROVIDERS_PARAMETERS_PATH)) {
+      suggestSampleDataParameterTemplate(project, completionParameters.getOriginalFile(), result);
+    } else if (yamlPath.matches(VALUE_PROVIDERS_PATH)) {
+      suggestValueProviders(completionParameters, project, result, yamlPath);
+    } else if (yamlPath.getName().equals(PATH)) {
       final PsiFile yamlFile = completionParameters.getOriginalFile();
       final Document webApiDocument = parseWebApi(yamlFile);
       if (webApiDocument != null) {
@@ -177,6 +184,17 @@ public class RestSdkCompletionService {
     }
   }
 
+  private void suggestValueProviders(CompletionParameters completionParameters, Project project, ArrayList<LookupElement> result, SelectionPath yamlPath) {
+    final PsiFile yamlFile = completionParameters.getOriginalFile();
+    final Document webApiDocument = parseWebApi(yamlFile);
+    if (webApiDocument != null) {
+      WebApi webApi = (WebApi) webApiDocument.encodes();
+      if (yamlPath.matches(VALUE_PROVIDERS_PATH)) {
+        suggestValueProvidersTemplate(project, result, yamlFile, webApi);
+      }
+    }
+  }
+
   private void suggestSampleDataTemplate(Project project, ArrayList<LookupElement> result, PsiFile yamlFile, WebApi webApi) {
     final List<EndPoint> endPoints = webApi.endPoints();
     endPoints.forEach((endpoint) -> {
@@ -234,6 +252,47 @@ public class RestSdkCompletionService {
     });
   }
 
+  private void suggestValueProvidersTemplate(Project project, ArrayList<LookupElement> result, PsiFile yamlFile, WebApi webApi) {
+    final List<EndPoint> endPoints = webApi.endPoints();
+    endPoints.forEach((endpoint) -> {
+      endpoint.operations().forEach((operation) -> {
+        LookupElementBuilder elementBuilder = LookupElementBuilder.create(operation.name() + " (Scaffold New Value Provider)");
+        elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.AbstractMethod);
+        elementBuilder = elementBuilder.withTypeText(operationType(operation, endpoint), true);
+        final List<Resource> resources = new ArrayList<>();
+        final StringBuilder template = new StringBuilder();
+        template.append("$name$:\n");
+        final Request request = operation.request();
+        template.append("  ").append("definition:\n");
+        template.append("    ").append("request:\n");
+        template.append("      ").append("method: ").append(operation.method()).append("\n");
+        template.append("      ").append("path: ").append(endpoint.path()).append("\n");
+        template.append("    ").append("items:").append("\n");
+        template.append("      #").append("Extract the items the collection of items form the http response").append("\n");
+        template.append("      ").append("extraction:").append("\n");
+        template.append("        ").append("expression:").append(" \"#[payload]\"").append("\n");
+        template.append("      #").append("Specify the value to extract from each item.").append("\n");
+        template.append("      ").append("value:").append("\n");
+        template.append("        ").append("expression:").append(" \"#[item]\"").append("\n");
+
+        final Template myTemplate = TemplateManager.getInstance(project).createTemplate("template", "rest_sdk_suggest", template.toString());
+        myTemplate.addVariable("name", new TextExpression("SampleFor" + StringUtils.capitalize(operation.name().value())), true);
+
+        elementBuilder = elementBuilder.withInsertHandler((context, item1) -> {
+          final int selectionStart = context.getEditor().getCaretModel().getOffset();
+          final int startOffset = context.getStartOffset();
+          final int tailOffset = context.getTailOffset();
+          context.getDocument().deleteString(startOffset, tailOffset);
+          context.setAddCompletionChar(false);
+          TemplateManager.getInstance(context.getProject()).startTemplate(context.getEditor(), myTemplate);
+          generateResources(yamlFile, resources);
+        });
+
+        result.add(elementBuilder);
+      });
+    });
+  }
+
   private void suggestTriggerTemplate(Project project, ArrayList<LookupElement> result, PsiFile yamlFile, WebApi webApi) {
     final List<EndPoint> endPoints = webApi.endPoints();
     endPoints.forEach((endpoint) -> {
@@ -249,7 +308,7 @@ public class RestSdkCompletionService {
 
         final Request request = operation.request();
         if (request != null) {
-          template.append(parametersTemplate(resources, request));
+          template.append(parametersTemplate(resources, request, TRIGGER));
         }
 
         template.append("  ").append("method: ").append(operation.method()).append("\n");
@@ -258,7 +317,7 @@ public class RestSdkCompletionService {
         if (!operation.responses().isEmpty()) {
           List<Payload> payloads = operation.responses().get(0).payloads();
           if (!payloads.isEmpty()) {
-            template.append("  ").append(toOutputSchema(payloads.get(0).schema(), resources)).append("\n");
+            template.append("  ").append(toOutputSchema(payloads.get(0).schema(), resources, TRIGGER)).append("\n");
             template.append("  ").append("outputMediaType: application/json").append("\n");
           }
         }
@@ -300,7 +359,7 @@ public class RestSdkCompletionService {
     });
   }
 
-  private String parametersTemplate(List<Resource> resources, Request request) {
+  private String parametersTemplate(List<Resource> resources, Request request, String kind) {
     final List<Payload> payloads = request.payloads();
     final List<Parameter> headers = request.headers();
     final List<Parameter> uriParameters = request.uriParameters();
@@ -313,7 +372,7 @@ public class RestSdkCompletionService {
         List<PropertyShape> properties = ((NodeShape) schema).properties();
         for (PropertyShape property : properties) {
           template.append("    ").append(property.name().value()).append(": \n");
-          template.append("      ").append(toSchemaName(property.range(), resources)).append("\n");
+          template.append("      ").append(toSchemaName(property.range(), resources, kind)).append("\n");
           template.append("      ").append("displayName").append(": ").append(property.name().value()).append("\n");
           template.append("      ").append("required").append(": ").append(property.minCount().value() == 0).append("\n");
           if (!property.description().isNullOrEmpty()) {
@@ -322,13 +381,13 @@ public class RestSdkCompletionService {
         }
       } else {
         template.append("    ").append("body").append(": ");
-        template.append("      ").append(toSchemaName(schema, resources)).append("\n");
+        template.append("      ").append(toSchemaName(schema, resources, kind)).append("\n");
       }
     }
 
-    template.append(buildParams(headers, resources));
-    template.append(buildParams(uriParameters, resources));
-    template.append(buildParams(queryParameters, resources));
+    template.append(buildParams(headers, resources, kind));
+    template.append(buildParams(uriParameters, resources, kind));
+    template.append(buildParams(queryParameters, resources, kind));
     return template.toString();
   }
 
@@ -425,6 +484,25 @@ public class RestSdkCompletionService {
     result.add(elementBuilder);
   }
 
+  private void suggestSampleDataParameterTemplate(Project project, PsiFile file, ArrayList<LookupElement> result) {
+    LookupElementBuilder elementBuilder = LookupElementBuilder.create("New Parameter");
+    elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.AbstractMethod);
+    final String template = "$name$:\n" +
+            "  " + "type: " + "" + "$type$";
+    final Template myTemplate = TemplateManager.getInstance(project).createTemplate("template", "rest_sdk_suggest", template);
+    myTemplate.addVariable("name", new EmptyExpression(), true);
+    myTemplate.addVariable("type", "complete()", "", true);
+    elementBuilder = elementBuilder.withInsertHandler((context, item1) -> {
+      final int selectionStart = context.getEditor().getCaretModel().getOffset();
+      final int startOffset = context.getStartOffset();
+      final int tailOffset = context.getTailOffset();
+      context.getDocument().deleteString(startOffset, tailOffset);
+      context.setAddCompletionChar(false);
+      TemplateManager.getInstance(context.getProject()).startTemplate(context.getEditor(), myTemplate);
+    });
+    result.add(elementBuilder);
+  }
+
   private void suggestOperationTemplate(Project project, PsiFile file, ArrayList<LookupElement> result, WebApi webApi) {
     final List<EndPoint> endPoints = webApi.endPoints();
     endPoints.forEach((endpoint) -> {
@@ -442,7 +520,7 @@ public class RestSdkCompletionService {
 
         final Request request = operation.request();
         if (request != null) {
-          template.append(parametersTemplate(resources, request));
+          template.append(parametersTemplate(resources, request, OPERATION));
           template.append("  ").append("request: ").append("\n");
           template.append(buildOperationRequestTemplate(resources, request, "    "));
         }
@@ -455,7 +533,7 @@ public class RestSdkCompletionService {
             template.append("  ").append("response: ").append("\n");
             template.append("    ").append("body:").append("\n");
             template.append("      ").append("value: \"#[payload]\"").append("\n");
-            template.append("      ").append(toSchemaName(payload.schema(), resources)).append("\n");
+            template.append("      ").append(toSchemaName(payload.schema(), resources, OPERATION)).append("\n");
           }
         }
 
@@ -498,7 +576,7 @@ public class RestSdkCompletionService {
         template.append("        ").append("}").append("\n");
       } else {
         template.append("    ").append("body").append(": ").append("\n");
-        template.append("      ").append(toSchemaName(schema, resources)).append("\n");
+        template.append("      ").append(toSchemaName(schema, resources, OPERATION)).append("\n");
       }
       template.append("      ").append("]\"").append("\n");
     }
@@ -554,12 +632,12 @@ public class RestSdkCompletionService {
   }
 
   @NotNull
-  private String buildParams(List<Parameter> queryParameters, List<Resource> resources) {
+  private String buildParams(List<Parameter> queryParameters, List<Resource> resources, String kind) {
     final StringBuilder queryParams = new StringBuilder();
     for (Parameter queryParam : queryParameters) {
       final Shape schema = queryParam.schema();
       queryParams.append("    ").append(queryParam.name().value()).append(" : ").append("\n");
-      queryParams.append("      ").append(toSchemaName(schema, resources)).append("\n");
+      queryParams.append("      ").append(toSchemaName(schema, resources, kind)).append("\n");
       queryParams.append("      ").append("displayName").append(": ").append(queryParam.name().value()).append("\n");
       queryParams.append("      ").append("required").append(": ").append(queryParam.required()).append("\n");
       if (!queryParam.description().isNullOrEmpty()) {
@@ -569,7 +647,7 @@ public class RestSdkCompletionService {
     return queryParams.toString();
   }
 
-  private String toSchemaName(Shape schema, List<Resource> resources) {
+  private String toSchemaName(Shape schema, List<Resource> resources, String kind) {
     StringBuilder result = new StringBuilder();
     if (schema instanceof ScalarShape) {
       return result.append("type").append(": ").append(SIMPLE_TYPE_MAP.get(((ScalarShape) schema).dataType().value())).toString();
@@ -578,20 +656,20 @@ public class RestSdkCompletionService {
       final String toJsonSchema = client.toJsonSchema((AnyShape) schema);
       final String fileName = schema.name().value() + ".json";
       resources.add(new Resource(fileName, toJsonSchema));
-      return result.append("typeSchema").append(": ").append("./").append(SCHEMAS_FOLDER).append("/").append(fileName).toString();
+      return result.append("typeSchema").append(": ").append("./").append(SCHEMAS_FOLDER).append("/").append(kind).append("/").append(fileName).toString();
     } else {
       return "";
     }
   }
 
-  private String toOutputSchema(Shape schema, List<Resource> resources) {
+  private String toOutputSchema(Shape schema, List<Resource> resources, String kind) {
     StringBuilder result = new StringBuilder();
     if (schema instanceof AnyShape) {
       final AMFElementClient client = OASConfiguration.OAS20().elementClient();
       final String toJsonSchema = client.toJsonSchema((AnyShape) schema);
       final String fileName = schema.name().value() + ".json";
       resources.add(new Resource(fileName, toJsonSchema));
-      return result.append("outputType").append(": ").append("./").append(SCHEMAS_FOLDER).append("/").append(fileName).toString();
+      return result.append("outputType").append(": ").append("./").append(SCHEMAS_FOLDER).append("/").append(kind).append("/").append("output").append("/").append(fileName).toString();
     } else {
       return "";
     }

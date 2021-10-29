@@ -100,10 +100,15 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
         implicitInput.addInput(METHOD_KEY, new StringType(Option.empty()));
         implicitInput.addInput(PATH_KEY, new StringType(Option.empty()));
         implicitInput.addInput(SUMMARY_KEY, new StringType(Option.empty()));
-      } else if (path.matches(RestSdkPaths.VALUE_PROVIDER_PATH)) {
-        createValueProviderInputs(implicitInput, context);
       } else if (path.matches(RestSdkPaths.SECURITY_TEST_CONNECTION_PATH)) {
         createTestConnectionInputs(implicitInput, context);
+      } else if (path.matches(RestSdkPaths.VALUE_PROVIDERS_ITEMS_EXTRACTION_EXPRESSION_PATH)) {
+        createValueProviderExtraction(implicitInput, context);
+      } else if (path.matches(RestSdkPaths.VALUE_PROVIDERS_ITEMS_DISPLAY_NAME_EXPRESSION_PATH)
+              || path.matches(RestSdkPaths.VALUE_PROVIDERS_ITEMS_VALUE_EXPRESSION_PATH)) {
+        createValueProviderWithItems(implicitInput, context);
+      } else if (path.matches(RestSdkPaths.VALUE_PROVIDERS_REQUEST)) {
+        createValueProviderRequest(implicitInput, context);
       } else {
         createPayloadWithAttributesInputs(implicitInput);
       }
@@ -119,6 +124,46 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
       }
     }
     return implicitInput;
+  }
+
+  private void createValueProviderExtraction(ImplicitInput implicitInput, PsiElement context) {
+    final SelectionPath request = SelectionPath.PARENT.parent().parent().child("request");
+    final WeaveType payloadType = resolveOperationResponseType(context, request.child("path"), request.child("method")).orElse(new AnyType());
+    final SelectionPath parametersSelector = SelectionPath.PARENT.parent().parent().parent().child("parameters");
+    final ObjectType parametersType = loadParametersType(context, parametersSelector);
+    implicitInput.addInput(PAYLOAD_KEY, payloadType);
+    implicitInput.addInput(PARAMETERS_KEY, parametersType);
+  }
+
+  private void createValueProviderRequest(ImplicitInput implicitInput, PsiElement context) {
+    final SelectionPath parametersSelector = SelectionPath.PARENT.parent().parent().parent().parent().parent().child("parameters");
+    final ObjectType parametersType = loadParametersType(context, parametersSelector);
+    implicitInput.addInput(PARAMETERS_KEY, parametersType);
+  }
+
+  private void createValueProviderWithItems(ImplicitInput implicitInput, PsiElement context) {
+    final SelectionPath request = SelectionPath.PARENT.parent().parent().child("request");
+    final WeaveType payloadType = resolveOperationResponseType(context, request.child("path"), request.child("method")).orElse(new AnyType());
+    final SelectionPath parametersSelector = SelectionPath.PARENT.parent().parent().parent().child("parameters");
+    final ObjectType parametersType = loadParametersType(context, parametersSelector);
+    implicitInput.addInput(PAYLOAD_KEY, payloadType);
+    implicitInput.addInput(PARAMETERS_KEY, parametersType);
+    final SelectionPath itemsExtractionExpression = SelectionPath.PARENT.parent().child("items").child("extraction").child("expression");
+    final PsiElement itemsExtractionElement = itemsExtractionExpression.selectYaml(context);
+    WeaveType itemType = new AnyType();
+    if (itemsExtractionElement instanceof YAMLScalar) {
+      final String itemsExtractionTextExpression = ((YAMLScalar) itemsExtractionElement).getTextValue();
+      final Project project = context.getProject();
+      final String weaveItemsExpression = YamlLanguageInjector.extractWeaveExpression(itemsExtractionTextExpression);
+      final ImplicitInput itemImplicitInput = new ImplicitInput();
+      itemImplicitInput.addInput(PAYLOAD_KEY, payloadType);
+      itemImplicitInput.addInput(PARAMETERS_KEY, parametersType);
+      WeaveType weaveType = WeaveToolingService.getInstance(project).typeOf(weaveItemsExpression, itemImplicitInput);
+      if (weaveType != null) {
+        itemType = arrayTypeOf(weaveType);
+      }
+    }
+    implicitInput.addInput(ITEM_KEY, itemType);
   }
 
   private void createTriggersBinding(ImplicitInput implicitInput, PsiElement context, SelectionPath parameterSelector) {
@@ -196,7 +241,11 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
       final String itemsExtractionTextExpression = ((YAMLScalar) itemsExtractionElement).getTextValue();
       final Project project = context.getProject();
       final String weaveItemsExpression = YamlLanguageInjector.extractWeaveExpression(itemsExtractionTextExpression);
-      WeaveType weaveType = WeaveToolingService.getInstance(project).typeOf(weaveItemsExpression, implicitInput);
+      final ImplicitInput itemImplicitInput = new ImplicitInput();
+      itemImplicitInput.addInput(WATERMARK_KEY, new UnionType(ScalaUtils.toSeq(new NullType(), new DateTimeType())));
+      itemImplicitInput.addInput(PAYLOAD_KEY, payloadType);
+      itemImplicitInput.addInput(PARAMETERS_KEY, parametersType);
+      WeaveType weaveType = WeaveToolingService.getInstance(project).typeOf(weaveItemsExpression, itemImplicitInput);
       if (weaveType != null) {
         itemType = arrayTypeOf(weaveType);
       }

@@ -40,6 +40,7 @@ public class RestSdkPaths {
 
 
   public static final SelectionPath GLOBAL_SAMPLE_DATA_PATH = SelectionPath.DOCUMENT.child("sampleData");
+  public static final SelectionPath GLOBAL_SAMPLE_DATA_PARAMETER = GLOBAL_SAMPLE_DATA_PATH.any().child("parameters");
   public static final SelectionPath GLOBAL_SAMPLE_DATA_BINDING_BODY_EXPRESSION = GLOBAL_SAMPLE_DATA_PATH.any().child("definition").child("request").child("binding").child("body").child("expression");
   public static final SelectionPath GLOBAL_SAMPLE_DATA_BINDING_QUERY_PARAMS_PATH = GLOBAL_SAMPLE_DATA_PATH.any().child("definition").child("request").child("binding").child("queryParameter");
   public static final SelectionPath GLOBAL_SAMPLE_DATA_BINDING_URI_PARAMETER_PATH = GLOBAL_SAMPLE_DATA_PATH.any().child("definition").child("request").child("binding").child("uriParameter");
@@ -68,8 +69,14 @@ public class RestSdkPaths {
   public static final SelectionPath OPERATION_BASE_PATH = OPERATION_PATH.any().child("base");
 
 
+  public static final SelectionPath VALUE_PROVIDERS_PATH = SelectionPath.DOCUMENT.child("valueProviders");
+  public static final SelectionPath VALUE_PROVIDERS_DEFINITION = VALUE_PROVIDERS_PATH.any().child("definition");
+  public static final SelectionPath VALUE_PROVIDERS_ITEMS_EXTRACTION_EXPRESSION_PATH = VALUE_PROVIDERS_DEFINITION.child("items").child("extraction").child("expression");
+  public static final SelectionPath VALUE_PROVIDERS_ITEMS_DISPLAY_NAME_EXPRESSION_PATH = VALUE_PROVIDERS_DEFINITION.child("items").child("displayName").child("expression");
+  public static final SelectionPath VALUE_PROVIDERS_ITEMS_VALUE_EXPRESSION_PATH = VALUE_PROVIDERS_DEFINITION.child("items").child("value").child("expression");
+  public static final SelectionPath VALUE_PROVIDERS_PARAMETERS_PATH = VALUE_PROVIDERS_PATH.any().child("parameters");
+  public static final SelectionPath VALUE_PROVIDERS_REQUEST = VALUE_PROVIDERS_DEFINITION.child("request").child("binding").any().any().child("value");
 
-  public static final SelectionPath VALUE_PROVIDER_PATH = SelectionPath.DOCUMENT.child("valueProviders").child("*").child("items").any().child("expression");
 
   public static final SelectionPath API_PATH = SelectionPath.DOCUMENT.child("apiSpec").child("url");
 

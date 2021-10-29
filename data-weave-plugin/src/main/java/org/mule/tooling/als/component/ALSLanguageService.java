@@ -4,7 +4,6 @@ import amf.core.client.common.remote.Content;
 import amf.core.client.platform.resource.ClientResourceLoader;
 import amf.core.client.platform.resource.ResourceNotFound;
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
-import com.intellij.codeInsight.daemon.impl.quickfix.EmptyExpression;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.codeInsight.template.Template;
@@ -333,7 +332,7 @@ public class ALSLanguageService implements Disposable {
         });
         final Template myTemplate = TemplateManager.getInstance(file.getProject()).createTemplate("template", "als_suggest", insertText);
         for (String variable : variables) {
-          myTemplate.addVariable(variable, new EmptyExpression(), true);
+          myTemplate.addVariable(variable, "complete()", "", true);
         }
         lookupElementBuilder = lookupElementBuilder.withInsertHandler((context, item1) -> {
           final int selectionStart = context.getEditor().getCaretModel().getOffset();

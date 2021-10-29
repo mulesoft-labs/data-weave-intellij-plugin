@@ -91,7 +91,8 @@ public final class WeaveToolingService implements Disposable {
         final RemoteResourceResolver javaRemoteResolver = new RemoteResourceResolver(myProject);
         final RemoteResourceResolver ramlRemoteResolver = new RemoteResourceResolver(myProject);
         final ModuleLoaderFactory[] moduleResourceResolvers = {
-                SpecificModuleResourceResolver.apply(JAVA, javaRemoteResolver)
+                SpecificModuleResourceResolver.apply(JAVA, javaRemoteResolver),
+                SpecificModuleResourceResolver.apply(RAML, ramlRemoteResolver)
         };
 
         final AsyncDataFormatProvider dataFormatProvider = new AsyncDataFormatProvider(myProject);
@@ -227,7 +228,7 @@ public final class WeaveToolingService implements Disposable {
         final WeaveRuntimeService instance = WeaveRuntimeService.getInstance(myProject);
         final ImplicitInput currentImplicitTypes;
         final WeaveType expectedOutput;
-        if (!inputOutputTypesProvider.isPresent()) {
+        if (inputOutputTypesProvider.isEmpty()) {
             final WeaveDocument weaveDocument = ReadAction.compute(() -> WeavePsiUtils.getWeaveDocument(psiFile));
             currentImplicitTypes = weaveDocument != null ? instance.getImplicitInputTypes(weaveDocument) : null;
             expectedOutput = useExpectedOutput && weaveDocument != null ? instance.getExpectedOutput(weaveDocument) : null;
@@ -239,16 +240,12 @@ public final class WeaveToolingService implements Disposable {
         return ReadAction.compute(() -> {
             com.intellij.openapi.vfs.VirtualFile virtualFile = psiFile.getVirtualFile();
             final VirtualFile file;
-            if (virtualFile == null) {
+            if (virtualFile == null || !virtualFile.isInLocalFileSystem()) {
                 file = new IJVirtualFileSystemAdaptor.IJInMemoryFileAdaptor(psiFile.getText(), projectVirtualFileSystem);
-            } else if (!virtualFile.isInLocalFileSystem()) {
-                //We create a dummy virtual file
-                file = new IJVirtualFileSystemAdaptor.IJVirtualFileAdaptor(projectVirtualFileSystem, virtualFile, myProject, NameIdentifier.ANONYMOUS_NAME());
             } else {
                 final String url = virtualFile.getUrl();
                 file = projectVirtualFileSystem.file(url);
             }
-
             final Option<WeaveType> apply = Option.apply(expectedOutput);
             if (virtualFile != null && virtualFile.isInLocalFileSystem()) {
                 ImplicitInput implicitInput = currentImplicitTypes != null ? currentImplicitTypes : new ImplicitInput();
