@@ -158,7 +158,7 @@ public class RestSdkCompletionService {
     final PsiFile yamlFile = completionParameters.getOriginalFile();
     final Document webApiDocument = parseWebApi(yamlFile);
     if (webApiDocument != null) {
-      WebApi webApi = (WebApi) webApiDocument.encodes();
+      final WebApi webApi = (WebApi) webApiDocument.encodes();
       if (yamlPath.matches(TRIGGERS_PATH)) {
         suggestTriggerTemplate(project, result, yamlFile, webApi);
       } else if (yamlPath.matches(RestSdkPaths.TRIGGERS_PATH_PATH)) {
@@ -188,7 +188,7 @@ public class RestSdkCompletionService {
     final PsiFile yamlFile = completionParameters.getOriginalFile();
     final Document webApiDocument = parseWebApi(yamlFile);
     if (webApiDocument != null) {
-      WebApi webApi = (WebApi) webApiDocument.encodes();
+      final WebApi webApi = (WebApi) webApiDocument.encodes();
       if (yamlPath.matches(VALUE_PROVIDERS_PATH)) {
         suggestValueProvidersTemplate(project, result, yamlFile, webApi);
       }
@@ -394,7 +394,7 @@ public class RestSdkCompletionService {
   private void suggestOnOperations(CompletionParameters completionParameters, Project project, ArrayList<LookupElement> result, SelectionPath yamlPath) {
     final Document webApiDocument = parseWebApi(completionParameters.getOriginalFile());
     if (webApiDocument != null) {
-      WebApi webApi = (WebApi) webApiDocument.encodes();
+      final WebApi webApi = (WebApi) webApiDocument.encodes();
       if (yamlPath.matches(RestSdkPaths.OPERATION_BASE_PATH)) {
         suggestOperationBase(result, webApi);
       } else if (yamlPath.matches(OPERATION_PATH)) {

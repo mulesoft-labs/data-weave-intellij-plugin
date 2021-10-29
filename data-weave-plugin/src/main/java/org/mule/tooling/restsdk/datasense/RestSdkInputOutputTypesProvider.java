@@ -62,9 +62,9 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
     if (context != null) {
       final SelectionPath path = pathOfYaml(context);
       if (path.matches(RestSdkPaths.OPERATION_IDENTIFIER_PATH)) {
-        implicitInput.addInput(OPERATION_ID_KEY, new StringType(Option.<String>empty()));
-        implicitInput.addInput(METHOD_KEY, new StringType(Option.<String>empty()));
-        implicitInput.addInput(PATH_KEY, new StringType(Option.<String>empty()));
+        implicitInput.addInput(OPERATION_ID_KEY, new StringType(Option.empty()));
+        implicitInput.addInput(METHOD_KEY, new StringType(Option.empty()));
+        implicitInput.addInput(PATH_KEY, new StringType(Option.empty()));
       } else if (path.matches(RestSdkPaths.PAGINATION_PATH) || path.matches(RestSdkPaths.SECURITY_VALIDATION_PATH)
               || path.matches(RestSdkPaths.SECURITY_ERROR_TEMPLATE_PATH) || path.matches(RestSdkPaths.SECURITY_REFRESH_PATH)
               || path.matches(RestSdkPaths.TRIGGERS_SAMPLE_DATA_PATH)) {
@@ -176,12 +176,6 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
     implicitInput.addInput(PAYLOAD_KEY, new AnyType()); //TODO can be inferred from the response of the requests being hit after?
     implicitInput.addInput(ATTRIBUTES_KEY, createHttpAttributes());
   }
-
-  private void createValueProviderInputs(ImplicitInput implicitInput, PsiElement context) {
-    implicitInput.addInput(PAYLOAD_KEY, new AnyType()); //TODO can be inferred from the response of the requests being hit after?
-    implicitInput.addInput(ITEM_KEY, new AnyType()); //TODO can be inferred from the response of the requests being hit after applying the `extraction` expression on it?
-  }
-
 
   private ImplicitInput loadSampleImplicits(PsiFile psiFile) {
     final WeaveRuntimeService instance = WeaveRuntimeService.getInstance(psiFile.getProject());
@@ -347,7 +341,7 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
 
   @NotNull
   private ObjectType createHttpAttributes() {
-    Builder<KeyValuePairType, Seq<KeyValuePairType>> fieldsBuilder = Seq$.MODULE$.<KeyValuePairType>newBuilder();
+    Builder<KeyValuePairType, Seq<KeyValuePairType>> fieldsBuilder = Seq$.MODULE$.newBuilder();
     fieldsBuilder.$plus$eq(createKVPair("statusCode", new NumberType(Option.empty())));
     fieldsBuilder.$plus$eq(createKVPair("headers", createEmptyObject()));
     fieldsBuilder.$plus$eq(createKVPair("reasonPhrase", new StringType(Option.empty())));
@@ -373,7 +367,7 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
       } else if (path.matches(RestSdkPaths.OPERATION_REQUEST_BODY_PATH)) {
         final PsiElement operationId = RestSdkPaths.RELATIVE_OPERATION_BASE_FROM_BODY_EXPRESSION_PATH.selectYaml(context);
         if (operationId instanceof YAMLScalar) {
-          Document webApiDocument = RestSdkHelper.parseWebApi(context.getContainingFile());
+          final Document webApiDocument = RestSdkHelper.parseWebApi(context.getContainingFile());
           if (webApiDocument != null) {
             String opIdValue = ((YAMLScalar) operationId).getTextValue();
             Operation operation = RestSdkHelper.operationById((WebApi) webApiDocument.encodes(), opIdValue);
@@ -400,11 +394,13 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
     if (pathElement instanceof YAMLScalar && method instanceof YAMLScalar) {
       final String pathText = ((YAMLScalar) pathElement).getTextValue();
       final String methodText = ((YAMLScalar) method).getTextValue();
-      Document webApiDocument = RestSdkHelper.parseWebApi(context.getContainingFile());
-      final Operation operation = RestSdkHelper.operationByMethodPath((WebApi) webApiDocument.encodes(), methodText, pathText);
-      if (operation != null && operation.request() != null && !operation.request().payloads().isEmpty()) {
-        final WeaveType weaveType = RestSdkHelper.toWeaveType(operation.request().payloads().get(0).schema(), webApiDocument);
-        return Optional.of(weaveType);
+      final Document webApiDocument = RestSdkHelper.parseWebApi(context.getContainingFile());
+      if (webApiDocument != null) {
+        final Operation operation = RestSdkHelper.operationByMethodPath((WebApi) webApiDocument.encodes(), methodText, pathText);
+        if (operation != null && operation.request() != null && !operation.request().payloads().isEmpty()) {
+          final WeaveType weaveType = RestSdkHelper.toWeaveType(operation.request().payloads().get(0).schema(), webApiDocument);
+          return Optional.of(weaveType);
+        }
       }
     }
     return Optional.empty();
@@ -416,11 +412,13 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
     if (pathElement instanceof YAMLScalar && method instanceof YAMLScalar) {
       final String pathText = ((YAMLScalar) pathElement).getTextValue();
       final String methodText = ((YAMLScalar) method).getTextValue();
-      Document webApiDocument = RestSdkHelper.parseWebApi(context.getContainingFile());
-      final Operation operation = RestSdkHelper.operationByMethodPath((WebApi) webApiDocument.encodes(), methodText, pathText);
-      if (operation != null && !operation.responses().isEmpty() && !operation.responses().get(0).payloads().isEmpty()) {
-        final WeaveType weaveType = RestSdkHelper.toWeaveType(operation.responses().get(0).payloads().get(0).schema(), webApiDocument);
-        return Optional.of(weaveType);
+      final Document webApiDocument = RestSdkHelper.parseWebApi(context.getContainingFile());
+      if (webApiDocument != null) {
+        final Operation operation = RestSdkHelper.operationByMethodPath((WebApi) webApiDocument.encodes(), methodText, pathText);
+        if (operation != null && !operation.responses().isEmpty() && !operation.responses().get(0).payloads().isEmpty()) {
+          final WeaveType weaveType = RestSdkHelper.toWeaveType(operation.responses().get(0).payloads().get(0).schema(), webApiDocument);
+          return Optional.of(weaveType);
+        }
       }
     }
     return Optional.empty();

@@ -88,7 +88,6 @@ public class RestSdkHelper {
 
   public static Document parseWebApi(Project project, VirtualFile child) {
     final AMFBaseUnitClient client = WebAPIConfiguration.WebAPI().baseUnitClient();
-
     final AMFParseResult parseResult;
     try {
       parseResult = client.parse(child.getUrl()).get();
