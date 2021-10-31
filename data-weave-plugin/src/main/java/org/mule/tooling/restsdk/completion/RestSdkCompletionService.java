@@ -414,6 +414,23 @@ public class RestSdkCompletionService {
               suggestUriParams(project, result, operation);
             }
           }
+        } else {
+          final PsiElement path = RELATIVE_OPERATION_BASE_PATH_FROM_REQUEST_PATH.selectYaml(completionParameters.getPosition());
+          final PsiElement method = RELATIVE_OPERATION_BASE_METHOD_FROM_REQUEST_PATH.selectYaml(completionParameters.getPosition());
+          if (path instanceof YAMLScalar && method instanceof YAMLScalar) {
+            final String methodText = ((YAMLScalar) method).getTextValue();
+            final String pathText = ((YAMLScalar) path).getTextValue();
+            final Operation operation = RestSdkHelper.operationByMethodPath((WebApi) webApiDocument.encodes(), methodText, pathText);
+            if (operation != null) {
+              if (yamlPath.matches(RestSdkPaths.OPERATION_QUERY_PARAMS_PATH)) {
+                suggestQueryParams(project, result, operation);
+              } else if (yamlPath.matches(RestSdkPaths.OPERATION_REQUEST_HEADER_PATH)) {
+                suggestHeaders(project, result, operation);
+              } else if (yamlPath.matches(RestSdkPaths.OPERATION_URI_PARAMS_PATH)) {
+                suggestUriParams(project, result, operation);
+              }
+            }
+          }
         }
       }
     }

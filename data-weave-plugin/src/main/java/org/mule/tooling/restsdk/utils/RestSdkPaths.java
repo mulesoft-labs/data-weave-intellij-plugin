@@ -87,5 +87,7 @@ public class RestSdkPaths {
   public static final SelectionPath PARAMETERS_SELECTOR_FROM_ITEMS_PATH = SelectionPath.PARENT.parent().parent().child(RestSdkInputOutputTypesProvider.PARAMETERS_KEY);
   public static final SelectionPath PARAMETERS_SELECTOR_FROM_ROOT_SAMPLE_DATA_PATH = SelectionPath.PARENT.parent().parent().parent().parent().parent().child(RestSdkInputOutputTypesProvider.PARAMETERS_KEY);
   public static final SelectionPath RELATIVE_OPERATION_BASE_FROM_REQUEST_PATH = SelectionPath.PARENT.parent().child("base").child("operationId");
+  public static final SelectionPath RELATIVE_OPERATION_BASE_PATH_FROM_REQUEST_PATH = SelectionPath.PARENT.parent().child("base").child("path");
+  public static final SelectionPath RELATIVE_OPERATION_BASE_METHOD_FROM_REQUEST_PATH = SelectionPath.PARENT.parent().child("base").child("method");
   public static final SelectionPath RELATIVE_OPERATION_BASE_FROM_BODY_EXPRESSION_PATH = SelectionPath.PARENT.parent().parent().child("base").child("operationId");
 }
