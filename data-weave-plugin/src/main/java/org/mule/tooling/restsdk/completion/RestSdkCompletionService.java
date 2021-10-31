@@ -27,6 +27,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.yaml.psi.YAMLScalar;
 import org.mule.tooling.restsdk.utils.RestSdkHelper;
 import org.mule.tooling.restsdk.utils.RestSdkPaths;
@@ -400,7 +401,7 @@ public class RestSdkCompletionService {
       } else if (yamlPath.matches(OPERATION_PATH)) {
         suggestOperationTemplate(project, completionParameters.getOriginalFile(), result, webApi);
       } else {
-        PsiElement base = RestSdkPaths.RELATIVE_OPERATION_BASE_FROM_REQUEST_PATH.selectYaml(completionParameters.getPosition());
+        final PsiElement base = RestSdkPaths.RELATIVE_OPERATION_BASE_FROM_REQUEST_PATH.selectYaml(completionParameters.getPosition());
         if (base instanceof YAMLScalar) {
           final String baseOperation = ((YAMLScalar) base).getTextValue();
           final Operation operation = RestSdkHelper.operationById((WebApi) webApiDocument.encodes(), baseOperation);
@@ -515,7 +516,8 @@ public class RestSdkCompletionService {
         template.append("$name$:\n")
                 .append("  ").append("description: $description$\n")
                 .append("  ").append("displayName: $name$\n")
-                .append("  ").append("base: ").append(operation.name().value()).append("\n");
+                .append("  ").append("base: \n")
+                .append("    ").append("operationId: ").append(operation.name().value()).append("\n");
 
 
         final Request request = operation.request();
@@ -610,25 +612,31 @@ public class RestSdkCompletionService {
   private void generateResources(PsiFile file, List<Resource> resources) {
     final VirtualFile containerFolder = file.getOriginalFile().getVirtualFile().getParent();
     if (!resources.isEmpty()) {
-      try {
-        final VirtualFile resourcesFolder;
-        if (containerFolder.findChild(SCHEMAS_FOLDER) == null) {
-          resourcesFolder = containerFolder.createChildDirectory(this, SCHEMAS_FOLDER);
-        } else {
-          resourcesFolder = containerFolder.findChild(SCHEMAS_FOLDER);
-        }
-        resources.forEach((resource) -> {
-          try {
-            assert resourcesFolder != null;
+      resources.forEach((resource) -> {
+        try {
+          final VirtualFile resourcesFolder = getOrCreateFolder(getOrCreateFolder(containerFolder, SCHEMAS_FOLDER), resource.kind);
+          if (resourcesFolder != null) {
             resourcesFolder.createChildData(this, resource.name).setBinaryContent(resource.content.getBytes(StandardCharsets.UTF_8));
-          } catch (IOException e) {
-            throw new RuntimeException(e);
           }
-        });
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
+        } catch (IOException e) {
+          throw new RuntimeException(e);
+        }
+      });
     }
+  }
+
+  @Nullable
+  private VirtualFile getOrCreateFolder(VirtualFile containerFolder, String folder) throws IOException {
+    final VirtualFile resourcesFolder;
+    if (containerFolder == null) {
+      return null;
+    }
+    if (containerFolder.findChild(folder) == null) {
+      resourcesFolder = containerFolder.createChildDirectory(this, folder);
+    } else {
+      resourcesFolder = containerFolder.findChild(folder);
+    }
+    return resourcesFolder;
   }
 
   @NotNull
@@ -655,7 +663,7 @@ public class RestSdkCompletionService {
       final AMFElementClient client = OASConfiguration.OAS20().elementClient();
       final String toJsonSchema = client.toJsonSchema((AnyShape) schema);
       final String fileName = schema.name().value() + ".json";
-      resources.add(new Resource(fileName, toJsonSchema));
+      resources.add(new Resource(fileName, toJsonSchema, kind));
       return result.append("typeSchema").append(": ").append("./").append(SCHEMAS_FOLDER).append("/").append(kind).append("/").append(fileName).toString();
     } else {
       return "";
@@ -668,7 +676,7 @@ public class RestSdkCompletionService {
       final AMFElementClient client = OASConfiguration.OAS20().elementClient();
       final String toJsonSchema = client.toJsonSchema((AnyShape) schema);
       final String fileName = schema.name().value() + ".json";
-      resources.add(new Resource(fileName, toJsonSchema));
+      resources.add(new Resource(fileName, toJsonSchema, kind));
       return result.append("outputType").append(": ").append("./").append(SCHEMAS_FOLDER).append("/").append(kind).append("/").append("output").append("/").append(fileName).toString();
     } else {
       return "";
@@ -694,10 +702,16 @@ public class RestSdkCompletionService {
   static class Resource {
     String name;
     String content;
+    String kind;
 
-    public Resource(String name, String content) {
+    public Resource(String name, String content, String kind) {
       this.name = name;
       this.content = content;
+      this.kind = kind;
+    }
+
+    public String getKind() {
+      return kind;
     }
 
     public String getName() {

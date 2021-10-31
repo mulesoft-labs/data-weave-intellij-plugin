@@ -66,7 +66,7 @@ public class RestSdkPaths {
   public static final SelectionPath OPERATION_QUERY_PARAMS_PATH = OPERATION_PATH.any().child("request").child("queryParameter");
   public static final SelectionPath OPERATION_QUERY_PARAMS_EXPRESSION_PATH = OPERATION_QUERY_PARAMS_PATH.any().child("value");
 
-  public static final SelectionPath OPERATION_BASE_PATH = OPERATION_PATH.any().child("base");
+  public static final SelectionPath OPERATION_BASE_PATH = OPERATION_PATH.any().child("base").child("operationId");
 
 
   public static final SelectionPath VALUE_PROVIDERS_PATH = SelectionPath.DOCUMENT.child("valueProviders");
@@ -86,6 +86,6 @@ public class RestSdkPaths {
   public static final SelectionPath RELATIVE_TRIGGER_PARAMETERS_SELECTOR_FROM_BINDING_BODY_PATH = SelectionPath.PARENT.parent().parent().child(RestSdkInputOutputTypesProvider.PARAMETERS_KEY);
   public static final SelectionPath PARAMETERS_SELECTOR_FROM_ITEMS_PATH = SelectionPath.PARENT.parent().parent().child(RestSdkInputOutputTypesProvider.PARAMETERS_KEY);
   public static final SelectionPath PARAMETERS_SELECTOR_FROM_ROOT_SAMPLE_DATA_PATH = SelectionPath.PARENT.parent().parent().parent().parent().parent().child(RestSdkInputOutputTypesProvider.PARAMETERS_KEY);
-  public static final SelectionPath RELATIVE_OPERATION_BASE_FROM_REQUEST_PATH = SelectionPath.PARENT.parent().child("base");
-  public static final SelectionPath RELATIVE_OPERATION_BASE_FROM_BODY_EXPRESSION_PATH = SelectionPath.PARENT.parent().parent().child("base");
+  public static final SelectionPath RELATIVE_OPERATION_BASE_FROM_REQUEST_PATH = SelectionPath.PARENT.parent().child("base").child("operationId");
+  public static final SelectionPath RELATIVE_OPERATION_BASE_FROM_BODY_EXPRESSION_PATH = SelectionPath.PARENT.parent().parent().child("base").child("operationId");
 }
