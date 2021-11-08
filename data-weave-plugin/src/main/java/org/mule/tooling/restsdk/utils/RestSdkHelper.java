@@ -18,6 +18,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
 import org.jetbrains.annotations.Nullable;
@@ -65,28 +66,34 @@ public class RestSdkHelper {
 
   @Nullable
   public static Document parseWebApi(PsiFile restSdkFile) {
-    return CachedValuesManager.getCachedValue(restSdkFile, () -> {
-      return CachedValueProvider.Result.create(doParseWebApi(restSdkFile), restSdkFile);
-    });
+    return doParseWebApi(restSdkFile);
   }
 
   private static Document doParseWebApi(PsiFile restSdkFile) {
     Document result = null;
     final PsiElement select = RestSdkPaths.API_PATH.selectYaml(restSdkFile);
     if (select instanceof YAMLScalar) {
-      String apiPath = ((YAMLScalar) select).getTextValue();
+      final String apiPath = ((YAMLScalar) select).getTextValue();
       //
       final VirtualFile parent = restSdkFile.getOriginalFile().getVirtualFile().getParent();
       final VirtualFile child = parent.findFileByRelativePath(apiPath);
       if (child != null) {
-        result = parseWebApi(restSdkFile.getProject(), child);
+        final Project project = restSdkFile.getProject();
+        final PsiFile psiFile = PsiManager.getInstance(project).findFile(child);
+        if (psiFile != null) {
+          result = CachedValuesManager.getCachedValue(restSdkFile, () -> {
+            return CachedValueProvider.Result.create(parseWebApi(project, child), psiFile);
+          });
+        }
       }
     }
     return result;
 
   }
 
+  @Nullable
   public static Document parseWebApi(Project project, VirtualFile child) {
+
     final AMFBaseUnitClient client = WebAPIConfiguration.WebAPI().baseUnitClient();
     final AMFParseResult parseResult;
     try {
@@ -97,6 +104,7 @@ public class RestSdkHelper {
     } catch (InterruptedException | ExecutionException e) {
       e.printStackTrace();
     }
+
     return null;
   }
 

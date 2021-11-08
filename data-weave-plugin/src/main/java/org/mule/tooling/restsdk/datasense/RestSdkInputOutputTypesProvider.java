@@ -6,8 +6,10 @@ import amf.apicontract.client.platform.model.domain.api.WebApi;
 import amf.core.client.platform.model.document.Document;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
 import org.jetbrains.yaml.psi.YAMLMapping;
@@ -19,6 +21,7 @@ import org.mule.tooling.lang.dw.service.InputOutputTypesProvider;
 import org.mule.tooling.lang.dw.service.WeaveRuntimeService;
 import org.mule.tooling.lang.dw.service.WeaveToolingService;
 import org.mule.tooling.lang.dw.util.ScalaUtils;
+import org.mule.tooling.restsdk.utils.JsonSchemaConverter;
 import org.mule.tooling.restsdk.utils.RestSdkHelper;
 import org.mule.tooling.restsdk.utils.RestSdkPaths;
 import org.mule.tooling.restsdk.utils.SelectionPath;
@@ -302,7 +305,8 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
       for (YAMLKeyValue keyValue : ((YAMLMapping) parameters).getKeyValues()) {
         WeaveType value = new AnyType();
         if (keyValue.getValue() instanceof YAMLMapping) {
-          YAMLKeyValue type = ((YAMLMapping) keyValue.getValue()).getKeyValueByKey("type");
+          YAMLMapping parameterMapping = (YAMLMapping) keyValue.getValue();
+          YAMLKeyValue type = parameterMapping.getKeyValueByKey("type");
           if (type != null && type.getValue() != null) {
             String text = type.getValue().getText().trim();
             switch (text) {
@@ -322,6 +326,20 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
               case "string":
                 value = new StringType(Option.empty());
                 break;
+            }
+          } else {
+            final YAMLKeyValue typeSchema = parameterMapping.getKeyValueByKey("typeSchema");
+            if (typeSchema != null && typeSchema.getValue() != null) {
+              final String path = typeSchema.getValue().getText().trim();
+              final PsiFile restSdkFile = context.getContainingFile().getOriginalFile();
+              final VirtualFile parent = restSdkFile.getOriginalFile().getVirtualFile().getParent();
+              final VirtualFile child = parent.findFileByRelativePath(path);
+              if (child != null) {
+                PsiFile jsonSchemaFile = PsiManager.getInstance(context.getProject()).findFile(child);
+                if (jsonSchemaFile != null) {
+                  value = JsonSchemaConverter.toWeaveType(jsonSchemaFile);
+                }
+              }
             }
           }
         }
@@ -374,6 +392,20 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
             if (operation != null && operation.request() != null && !operation.request().payloads().isEmpty()) {
               final WeaveType weaveType = RestSdkHelper.toWeaveType(operation.request().payloads().get(0).schema(), webApiDocument);
               return Optional.of(weaveType);
+            }
+          }
+        }
+      } else if (path.matches(RestSdkPaths.OPERATION_RESPONSE_BODY_PATH)) {
+        PsiElement typeSchema = SelectionPath.PARENT.child("typeSchema").selectYaml(context);
+        if (typeSchema != null && !typeSchema.getText().isBlank()) {
+          String typeSchemaPath = typeSchema.getText();
+          final PsiFile restSdkFile = context.getContainingFile().getOriginalFile();
+          final VirtualFile parent = restSdkFile.getOriginalFile().getVirtualFile().getParent();
+          final VirtualFile child = parent.findFileByRelativePath(typeSchemaPath);
+          if (child != null) {
+            PsiFile jsonSchemaFile = PsiManager.getInstance(context.getProject()).findFile(child);
+            if (jsonSchemaFile != null) {
+              return Optional.of(JsonSchemaConverter.toWeaveType(jsonSchemaFile));
             }
           }
         }

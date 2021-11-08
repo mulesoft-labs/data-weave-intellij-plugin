@@ -63,6 +63,8 @@ public class RestSdkPaths {
   public static final SelectionPath OPERATION_REQUEST_HEADER_PATH = OPERATION_PATH.any().child("request").child("header");
   public static final SelectionPath OPERATION_REQUEST_HEADER_EXPRESSION_PATH = OPERATION_REQUEST_HEADER_PATH.any().child("value");
 
+  public static final SelectionPath OPERATION_RESPONSE_BODY_PATH = OPERATION_PATH.any().child("response").child("body").child("value");
+
   public static final SelectionPath OPERATION_QUERY_PARAMS_PATH = OPERATION_PATH.any().child("request").child("queryParameter");
   public static final SelectionPath OPERATION_QUERY_PARAMS_EXPRESSION_PATH = OPERATION_QUERY_PARAMS_PATH.any().child("value");
 
