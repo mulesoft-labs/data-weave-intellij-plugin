@@ -694,7 +694,7 @@ public class RestSdkCompletionService {
       final String toJsonSchema = client.toJsonSchema((AnyShape) schema);
       final String fileName = schema.name().value() + ".json";
       resources.add(new Resource(fileName, toJsonSchema, kind));
-      return result.append("outputType").append(": ").append("./").append(SCHEMAS_FOLDER).append("/").append(kind).append("/").append("output").append("/").append(fileName).toString();
+      return result.append("outputType").append(": ").append("./").append(SCHEMAS_FOLDER).append("/").append(kind).append("/").append(fileName).toString();
     } else {
       return "";
     }
