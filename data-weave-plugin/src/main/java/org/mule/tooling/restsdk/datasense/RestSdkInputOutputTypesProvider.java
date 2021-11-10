@@ -112,6 +112,8 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
         createValueProviderWithItems(implicitInput, context);
       } else if (path.matches(RestSdkPaths.VALUE_PROVIDERS_REQUEST)) {
         createValueProviderRequest(implicitInput, context);
+      } else if (path.matches(RestSdkPaths.OPERATION_RESPONSE_BODY_PATH)) {
+        createOperationResponse(implicitInput, context);
       } else {
         createPayloadWithAttributesInputs(implicitInput);
       }
@@ -193,7 +195,6 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
     return weaveDocument != null ? instance.getExpectedOutput(weaveDocument) : null;
   }
 
-
   private void createValueProvider(ImplicitInput implicitInput) {
     implicitInput.addInput(PAYLOAD_KEY, new AnyType());
     implicitInput.addInput(ITEM_KEY, new AnyType());
@@ -204,8 +205,14 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
     implicitInput.addInput(PARAMETERS_KEY, weaveType);
   }
 
-  private void createOperationResponse(ImplicitInput implicitInput) {
-    implicitInput.addInput(PAYLOAD_KEY, new AnyType());
+  private void createOperationResponse(ImplicitInput implicitInput, PsiElement context) {
+    SelectionPath path = SelectionPath.PARENT.parent().parent().child("base").child("path");
+    SelectionPath method = SelectionPath.PARENT.parent().parent().child("base").child("method");
+    SelectionPath operationId = SelectionPath.PARENT.parent().parent().child("base").child("operationId");
+    final WeaveType payloadType = resolveOperationResponseType(context, path, method)
+            .orElse(resolveOperationResponseType(context, operationId)
+                    .orElse(new AnyType()));
+    implicitInput.addInput(PAYLOAD_KEY, payloadType);
     implicitInput.addInput(ATTRIBUTES_KEY, createHttpAttributes());
   }
 
@@ -447,6 +454,22 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
       final Document webApiDocument = RestSdkHelper.parseWebApi(context.getContainingFile());
       if (webApiDocument != null) {
         final Operation operation = RestSdkHelper.operationByMethodPath((WebApi) webApiDocument.encodes(), methodText, pathText);
+        if (operation != null && !operation.responses().isEmpty() && !operation.responses().get(0).payloads().isEmpty()) {
+          final WeaveType weaveType = RestSdkHelper.toWeaveType(operation.responses().get(0).payloads().get(0).schema(), webApiDocument);
+          return Optional.of(weaveType);
+        }
+      }
+    }
+    return Optional.empty();
+  }
+
+  private Optional<WeaveType> resolveOperationResponseType(PsiElement context, SelectionPath operationIdPath) {
+    final PsiElement operationID = operationIdPath.selectYaml(context);
+    if (operationID instanceof YAMLScalar) {
+      final String operationIDValue = ((YAMLScalar) operationID).getTextValue();
+      final Document webApiDocument = RestSdkHelper.parseWebApi(context.getContainingFile());
+      if (webApiDocument != null) {
+        final Operation operation = RestSdkHelper.operationById((WebApi) webApiDocument.encodes(), operationIDValue);
         if (operation != null && !operation.responses().isEmpty() && !operation.responses().get(0).payloads().isEmpty()) {
           final WeaveType weaveType = RestSdkHelper.toWeaveType(operation.responses().get(0).payloads().get(0).schema(), webApiDocument);
           return Optional.of(weaveType);
