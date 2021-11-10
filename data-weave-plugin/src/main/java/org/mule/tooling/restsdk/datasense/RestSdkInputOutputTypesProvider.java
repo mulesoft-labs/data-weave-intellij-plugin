@@ -103,7 +103,7 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
         implicitInput.addInput(METHOD_KEY, new StringType(Option.empty()));
         implicitInput.addInput(PATH_KEY, new StringType(Option.empty()));
         implicitInput.addInput(SUMMARY_KEY, new StringType(Option.empty()));
-      } else if (path.matches(RestSdkPaths.SECURITY_TEST_CONNECTION_PATH)) {
+      } else if (path.matches(RestSdkPaths.TEST_CONNECTION_PATH)) {
         createTestConnectionInputs(implicitInput, context);
       } else if (path.matches(RestSdkPaths.VALUE_PROVIDERS_ITEMS_EXTRACTION_EXPRESSION_PATH)) {
         createValueProviderExtraction(implicitInput, context);
@@ -178,7 +178,10 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
   }
 
   private void createTestConnectionInputs(ImplicitInput implicitInput, PsiElement context) {
-    implicitInput.addInput(PAYLOAD_KEY, new AnyType()); //TODO can be inferred from the response of the requests being hit after?
+    final SelectionPath path = SelectionPath.PARENT.parent().parent().child("path");
+    final SelectionPath method = SelectionPath.PARENT.parent().parent().child("method");
+    final WeaveType payloadType = resolveOperationResponseType(context, path, method).orElse(new AnyType());
+    implicitInput.addInput(PAYLOAD_KEY, payloadType);
     implicitInput.addInput(ATTRIBUTES_KEY, createHttpAttributes());
   }
 

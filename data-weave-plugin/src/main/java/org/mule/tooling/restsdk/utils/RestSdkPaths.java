@@ -12,7 +12,7 @@ public class RestSdkPaths {
   public static final SelectionPath SECURITY_VALIDATION_PATH = SelectionPath.DOCUMENT.child("security").any().child("responseValidation").any().child("validation").child("expression");
   public static final SelectionPath SECURITY_ERROR_TEMPLATE_PATH = SelectionPath.DOCUMENT.child("security").any().child("responseValidation").any().child("validation").child("errorTemplate");
   public static final SelectionPath SECURITY_REFRESH_PATH = SelectionPath.DOCUMENT.child("security").any().child("refreshTokenCondition");
-  public static final SelectionPath SECURITY_TEST_CONNECTION_PATH = SelectionPath.DOCUMENT.child("security").child("*").child("testConnection").child("responseValidation").any().child("expression");
+  public static final SelectionPath TEST_CONNECTION_PATH = SelectionPath.DOCUMENT.child("testConnection").child("responseValidation").any().child("validation").child("expression");
 
   public static final SelectionPath TRIGGERS_PATH = SelectionPath.DOCUMENT.child("triggers");
   public static final SelectionPath TRIGGERS_PATH_PATH = TRIGGERS_PATH.any().child("path");
