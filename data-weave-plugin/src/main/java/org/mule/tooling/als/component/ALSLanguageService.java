@@ -273,11 +273,13 @@ public class ALSLanguageService implements Disposable {
     if (url == null) {
       return;
     }
-    final String text = file.getText();
-    DocumentState documentState = getDocumentState(url);
-    TextDocumentContentChangeEvent textDocumentContentChangeEvent = new TextDocumentContentChangeEvent(file.getText(), Option.<Range>empty(), Option.empty());
 
-    DidChangeTextDocumentParams didOpenTextDocumentParams = new DidChangeTextDocumentParams(new VersionedTextDocumentIdentifier(url, Option.apply(documentState.changed())), ScalaUtils.toSeq(textDocumentContentChangeEvent));
+    DidChangeTextDocumentParams didOpenTextDocumentParams = ReadAction.compute(() -> {
+      final String text = file.getText();
+      DocumentState documentState = getDocumentState(url);
+      TextDocumentContentChangeEvent textDocumentContentChangeEvent = new TextDocumentContentChangeEvent(file.getText(), Option.<Range>empty(), Option.empty());
+      return new DidChangeTextDocumentParams(new VersionedTextDocumentIdentifier(url, Option.apply(documentState.changed())), ScalaUtils.toSeq(textDocumentContentChangeEvent));
+    });
     languageServer.textDocumentSyncConsumer().didChange(didOpenTextDocumentParams);
   }
 
