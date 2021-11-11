@@ -494,18 +494,22 @@
         <moduleBuilder builderClass="org.mule.tooling.restsdk.wizzard.RestSdkModuleBuilder"/>
         <completion.contributor language="yaml"
                                 implementationClass="org.mule.tooling.restsdk.completion.RestSdkCompletionContributor"/>
+        <annotator language="yaml" implementationClass="org.mule.tooling.restsdk.annotator.RestSdkAnnotator"/>
 
         <!--        ALS -->
 
         <projectService id="Als Service" serviceImplementation="org.mule.tooling.als.component.ALSLanguageService"/>
-        <externalAnnotator language="yaml" implementationClass="org.mule.tooling.als.annotator.ALSDiagnosticsAnnotator"/>
-        <externalAnnotator language="JSON" implementationClass="org.mule.tooling.als.annotator.ALSDiagnosticsAnnotator"/>
+        <externalAnnotator language="yaml"
+                           implementationClass="org.mule.tooling.als.annotator.ALSDiagnosticsAnnotator"/>
+        <externalAnnotator language="JSON"
+                           implementationClass="org.mule.tooling.als.annotator.ALSDiagnosticsAnnotator"/>
         <completion.contributor language="yaml"
                                 implementationClass="org.mule.tooling.als.completion.ALSCompletionContributor"/>
         <completion.contributor language="JSON"
                                 implementationClass="org.mule.tooling.als.completion.ALSCompletionContributor"/>
 
-        <lang.documentationProvider language="yaml" order="first" implementationClass="org.mule.tooling.als.documentation.ALSDocumentationProvider"/>
+        <lang.documentationProvider language="yaml" order="first"
+                                    implementationClass="org.mule.tooling.als.documentation.ALSDocumentationProvider"/>
         <fileType name="YAML" extensions="raml" language="yaml"/>
 
     </extensions>
