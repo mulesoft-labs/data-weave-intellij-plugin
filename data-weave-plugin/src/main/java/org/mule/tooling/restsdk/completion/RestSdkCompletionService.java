@@ -36,6 +36,7 @@ import org.mule.tooling.restsdk.utils.SelectionPath;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -51,7 +52,11 @@ public class RestSdkCompletionService {
   public static final String TRIGGER = "trigger";
   public static final String OPERATION = "operation";
   public static final String PATH = "path";
+  public static final String MEDIA_TYPE = "mediaType";
   public static final String VALUE_PROVIDER = "valueProvider";
+
+  public static final List<String> mediaTypes = Arrays.asList("application/json", "application/xml", "application/csv");
+
   Map<String, String> SIMPLE_TYPE_MAP = map(
           DataType.String(), "string",
           DataType.Boolean(), "boolean",
@@ -113,6 +118,13 @@ public class RestSdkCompletionService {
         WebApi webApi = (WebApi) webApiDocument.encodes();
         suggestPaths(result, webApi);
       }
+    } else if (yamlPath.getName().equals(MEDIA_TYPE)) {
+      mediaTypes.forEach((mt) -> {
+        LookupElementBuilder lookupElementBuilder = LookupElementBuilder.create(mt);
+        lookupElementBuilder = lookupElementBuilder.withTypeText("Media Type");
+        lookupElementBuilder = lookupElementBuilder.withIcon(AllIcons.Nodes.Type);
+        result.add(lookupElementBuilder);
+      });
     }
     return result;
   }

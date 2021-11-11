@@ -52,7 +52,7 @@ public class RestSdkPaths {
   public static final SelectionPath RELATIVE_GLOBAL_SAMPLE_DATA_TRANSFORM_EXPRESSION_PARAMETERS_PATH = SelectionPath.PARENT.parent().parent().child("parameters");
 
 
-  public static final SelectionPath OPERATION_VALUE_PROVIDERS_PATH = SelectionPath.DOCUMENT.child("endpoints").any().child("operations").any().child("expects").child("body").any().any().child("valueProvider").child("items").any().any().child("expression");
+
   public static final SelectionPath OPERATION_REQUEST_BODY_PATH = SelectionPath.DOCUMENT.child("operations").any().child("request").child("body").child("expression");
   public static final SelectionPath OPERATION_PATH = SelectionPath.DOCUMENT.child("operations");
   public static final SelectionPath OPERATION_PARAMETER = OPERATION_PATH.any().child("parameters");
@@ -78,6 +78,9 @@ public class RestSdkPaths {
   public static final SelectionPath VALUE_PROVIDERS_ITEMS_VALUE_EXPRESSION_PATH = VALUE_PROVIDERS_DEFINITION.child("items").child("value").child("expression");
   public static final SelectionPath VALUE_PROVIDERS_PARAMETERS_PATH = VALUE_PROVIDERS_PATH.any().child("parameters");
   public static final SelectionPath VALUE_PROVIDERS_REQUEST = VALUE_PROVIDERS_DEFINITION.child("request").child("binding").any().any().child("value");
+
+
+
 
 
   public static final SelectionPath API_PATH = SelectionPath.DOCUMENT.child("apiSpec").child("url");

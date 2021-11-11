@@ -88,8 +88,6 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
         createSampleDataRequestBinding(implicitInput, context, RestSdkPaths.RELATIVE_GLOBAL_SAMPLE_DATA_BINDING_REQUEST_EXPRESSION_PARAMETERS_PATH);
       } else if (path.matches(RestSdkPaths.GLOBAL_SAMPLE_DATA_TRANSFORM_EXPRESSION_PATH)) {
         createSampleDataTransformBinding(implicitInput, context, RestSdkPaths.RELATIVE_GLOBAL_SAMPLE_DATA_TRANSFORM_EXPRESSION_PARAMETERS_PATH);
-      } else if (path.matches(RestSdkPaths.OPERATION_VALUE_PROVIDERS_PATH)) {
-        createValueProvider(implicitInput);
       } else if (path.matches(RestSdkPaths.PAGINATION_PARAMETERS)) {
         createPaginationParametersInputs(implicitInput);
       } else if (path.matches(RestSdkPaths.OPERATION_REQUEST_BODY_PATH)) {
@@ -196,11 +194,6 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
     final WeaveRuntimeService instance = WeaveRuntimeService.getInstance(psiFile.getProject());
     final WeaveDocument weaveDocument = ReadAction.compute(() -> WeavePsiUtils.getWeaveDocument(psiFile));
     return weaveDocument != null ? instance.getExpectedOutput(weaveDocument) : null;
-  }
-
-  private void createValueProvider(ImplicitInput implicitInput) {
-    implicitInput.addInput(PAYLOAD_KEY, new AnyType());
-    implicitInput.addInput(ITEM_KEY, new AnyType());
   }
 
   private void createOperationRequest(ImplicitInput implicitInput, PsiElement context, SelectionPath parameters_selector) {
