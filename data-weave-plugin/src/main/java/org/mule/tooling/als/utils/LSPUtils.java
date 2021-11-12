@@ -14,6 +14,7 @@ import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 public class LSPUtils {
@@ -33,7 +34,7 @@ public class LSPUtils {
 
   public static <T> T resultOf(Future<T> objectFuture) {
     try {
-      return Await.result(objectFuture, Duration.Inf());
+      return Await.result(objectFuture, Duration.apply(10, TimeUnit.SECONDS));
     } catch (InterruptedException | TimeoutException e) {
       throw new RuntimeException(e);
     }
