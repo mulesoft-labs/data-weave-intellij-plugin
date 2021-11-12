@@ -71,6 +71,17 @@ public class RestSdkHelper {
 
   private static Document doParseWebApi(PsiFile restSdkFile) {
     Document result = null;
+    final PsiFile psiFile = apiFile(restSdkFile);
+    if (psiFile != null) {
+      result = CachedValuesManager.getCachedValue(restSdkFile, () -> {
+        return CachedValueProvider.Result.create(parseWebApi(restSdkFile.getProject(), psiFile.getVirtualFile()), psiFile);
+      });
+    }
+    return result;
+  }
+
+  public static PsiFile apiFile(PsiFile restSdkFile) {
+    PsiFile psiFile = null;
     final PsiElement select = RestSdkPaths.API_PATH.selectYaml(restSdkFile);
     if (select instanceof YAMLScalar) {
       final String apiPath = ((YAMLScalar) select).getTextValue();
@@ -79,16 +90,10 @@ public class RestSdkHelper {
       final VirtualFile child = parent.findFileByRelativePath(apiPath);
       if (child != null) {
         final Project project = restSdkFile.getProject();
-        final PsiFile psiFile = PsiManager.getInstance(project).findFile(child);
-        if (psiFile != null) {
-          result = CachedValuesManager.getCachedValue(restSdkFile, () -> {
-            return CachedValueProvider.Result.create(parseWebApi(project, child), psiFile);
-          });
-        }
+        psiFile = PsiManager.getInstance(project).findFile(child);
       }
     }
-    return result;
-
+    return psiFile;
   }
 
   @Nullable
@@ -214,7 +219,11 @@ public class RestSdkHelper {
     }
   }
 
-  public static Operation operationByMethodPath(WebApi webApi, String methodText, String pathText) {
+  @Nullable
+  public static Operation operationByMethodPath(@Nullable WebApi webApi, String methodText, String pathText) {
+    if (webApi == null) {
+      return null;
+    }
     return
             webApi.endPoints().stream()
                     .filter((endpoint) -> {
@@ -222,6 +231,18 @@ public class RestSdkHelper {
                     })
                     .flatMap((endpoint) -> {
                       return endpoint.operations().stream().filter((operation) -> operation.method().value().equals(methodText));
+                    })
+                    .findFirst().orElse(null);
+  }
+
+  public static EndPoint endpointByPath(@Nullable WebApi webApi, String pathText) {
+    if (webApi == null) {
+      return null;
+    }
+    return
+            webApi.endPoints().stream()
+                    .filter((endpoint) -> {
+                      return endpoint.path().value().equals(pathText);
                     })
                     .findFirst().orElse(null);
   }

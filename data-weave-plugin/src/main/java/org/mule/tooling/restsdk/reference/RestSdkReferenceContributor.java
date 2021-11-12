@@ -36,6 +36,20 @@ public class RestSdkReferenceContributor extends PsiReferenceContributor {
 
     registrar.registerReferenceProvider(apiRef(), new FilePathReferenceProvider());
 
+    registrar.registerReferenceProvider(path(), new PsiReferenceProvider() {
+      @Override
+      public PsiReference @NotNull [] getReferencesByElement(@NotNull PsiElement element, @NotNull ProcessingContext context) {
+        return new PsiReference[]{new ApiPathReference((YAMLScalar) element)};
+      }
+    });
+
+    registrar.registerReferenceProvider(operationId(), new PsiReferenceProvider() {
+      @Override
+      public PsiReference @NotNull [] getReferencesByElement(@NotNull PsiElement element, @NotNull ProcessingContext context) {
+        return new PsiReference[]{new OperationIDPathReference((YAMLScalar) element)};
+      }
+    });
+
     registrar.registerReferenceProvider(typeSchemaRef(), new FilePathReferenceProvider());
 
     registrar.registerReferenceProvider(outputTypeRef(), new FilePathReferenceProvider());
@@ -64,6 +78,18 @@ public class RestSdkReferenceContributor extends PsiReferenceContributor {
   private PsiElementPattern.Capture<YAMLScalar> apiRef() {
     return psiElement(YAMLScalar.class)
             .and(psiElement().withParent(psiElement(YAMLKeyValue.class).withName("url")))
+            .withLanguage(YAMLLanguage.INSTANCE);
+  }
+
+  private PsiElementPattern.Capture<YAMLScalar> path() {
+    return psiElement(YAMLScalar.class)
+            .and(psiElement().withParent(psiElement(YAMLKeyValue.class).withName("path")))
+            .withLanguage(YAMLLanguage.INSTANCE);
+  }
+
+  private PsiElementPattern.Capture<YAMLScalar> operationId() {
+    return psiElement(YAMLScalar.class)
+            .and(psiElement().withParent(psiElement(YAMLKeyValue.class).withName("operationId")))
             .withLanguage(YAMLLanguage.INSTANCE);
   }
 
