@@ -347,6 +347,17 @@
           </ul>
         </li>
       </ul>
+      <h1>v2.0.83</h1>
+      <ul>
+       <li>
+          <p>RestSDK Support</p>
+          <ul>
+            <li>Links to paths operation id</li>
+            <li>More IntellijSense</li>
+            <li>Validations</li>
+          </ul>
+        </li>
+      </ul>
     ]]>
     </change-notes>
 
