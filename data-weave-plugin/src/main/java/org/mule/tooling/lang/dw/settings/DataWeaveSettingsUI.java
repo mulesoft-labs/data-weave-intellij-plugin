@@ -10,6 +10,7 @@ public class DataWeaveSettingsUI {
     private JCheckBox showParametersName;
     private JSpinner maxLineNumbers;
     private JSpinner maxTime;
+    private JTextField heapMemory;
     private DataWeaveSettingsState settingsState;
 
     public DataWeaveSettingsUI(DataWeaveSettingsState settingsState) {
@@ -31,6 +32,7 @@ public class DataWeaveSettingsUI {
 
     public void apply() {
         this.settingsState.setCmdPath(dotPathTextField.getText());
+        this.settingsState.setJvmParameters(heapMemory.getText());
         this.settingsState.setShowParametersName(showParametersName.isSelected());
         this.settingsState.setShowTypeInference(showTypeInference.isSelected());
         this.settingsState.setMaxAmountOfCharsForSemanticAnalysis((Integer) maxLineNumbers.getValue());
@@ -38,6 +40,7 @@ public class DataWeaveSettingsUI {
     }
 
     public void reset() {
+        this.heapMemory.setText(settingsState.getJvmParameters());
         this.dotPathTextField.setText(settingsState.getCmdPath());
         this.showTypeInference.setSelected(settingsState.getShowTypeInference());
         this.showParametersName.setSelected(settingsState.getShowParametersName());

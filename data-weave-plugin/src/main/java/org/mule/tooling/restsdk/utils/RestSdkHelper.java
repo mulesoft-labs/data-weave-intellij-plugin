@@ -193,13 +193,14 @@ public class RestSdkHelper {
     } else if (shape instanceof NilShape) {
       return new NullType();
     } else if (shape instanceof RecursiveShape) {
-      return new ReferenceType(NameIdentifier.apply(shape.name().value(), Option.empty()), Option.empty(), new ReferenceTypeResolver() {
+      final String value = shape.name().value();
+      return new ReferenceType(NameIdentifier.apply(value, Option.empty()), Option.empty(), new ReferenceTypeResolver() {
         WeaveType result = null;
 
         @Override
         public WeaveType resolveType() {
           if (result == null) {
-            result = referenceTypeResolver.resolve(shape.name().value());
+            result = referenceTypeResolver.resolve(value);
           }
           if (result == null) {
             //This shouldn't happen but just in case

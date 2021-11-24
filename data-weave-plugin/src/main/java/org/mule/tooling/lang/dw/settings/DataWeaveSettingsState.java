@@ -9,12 +9,12 @@ import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@State(name = "DataWeave", storages = @Storage(file = "Anypoint/DataWeave.xml"))
+@State(name = "DataWeave", storages = @Storage("Anypoint/DataWeave.xml"))
 public class DataWeaveSettingsState implements PersistentStateComponent<DataWeaveSettingsState> {
 
     public static final String DOT_PATH = "/usr/local/bin/dot";
-    public static final int MAX_AMOUNT_OF_CHARACTERS = 40000;
-    public static final int MAX_TIME_PREVIEW = 40000;
+    public static final int MAX_AMOUNT_OF_CHARACTERS = 80000;
+    public static final int MAX_TIME_PREVIEW = 30000;
 
     private String cmdPath = DOT_PATH;
 
@@ -22,12 +22,21 @@ public class DataWeaveSettingsState implements PersistentStateComponent<DataWeav
     private Boolean showTypeInference = true;
     private int maxAmountOfCharsForSemanticAnalysis = MAX_AMOUNT_OF_CHARACTERS;
     private int maxTimePreview = MAX_TIME_PREVIEW;
+    private String jvmParameters = "-Xms64m -Xmx2G -XX:+HeapDumpOnOutOfMemoryError";
 
     public DataWeaveSettingsState() {
     }
 
     public static DataWeaveSettingsState getInstance() {
         return ServiceManager.getService(DataWeaveSettingsState.class);
+    }
+
+    public String getJvmParameters() {
+        return jvmParameters;
+    }
+
+    public void setJvmParameters(String jvmParameters) {
+        this.jvmParameters = jvmParameters;
     }
 
     public String getCmdPath() {
@@ -67,7 +76,6 @@ public class DataWeaveSettingsState implements PersistentStateComponent<DataWeav
     }
 
     public boolean isBigFileForSemanticAnalysis(PsiFile file){
-
         return file.getText().length() > getMaxAmountOfCharsForSemanticAnalysis();
     }
 

@@ -8,36 +8,40 @@ import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectRootManager;
 import org.jetbrains.annotations.NotNull;
+import org.mule.tooling.lang.dw.settings.DataWeaveSettingsState;
 
 public class WeaveRunnerHelper {
-    public static final String WEAVE_RUNNER_MAIN_CLASS = "org.mule.weave.v2.runtime.utils.WeaveRunner";
+  public static final String WEAVE_RUNNER_MAIN_CLASS = "org.mule.weave.v2.runtime.utils.WeaveRunner";
 
-    @NotNull
-    public static JavaParameters createJavaParameters(Project project) {
-        final JavaParameters javaParams = new JavaParameters();
-        final ProjectRootManager manager = ProjectRootManager.getInstance(project);
-        javaParams.setJdk(manager.getProjectSdk());
-        // All modules to use the same things
-        final Module[] modules = ModuleManager.getInstance(project).getModules();
-        if (modules.length > 0) {
-            for (Module module : modules) {
-                ApplicationManager.getApplication().runReadAction(() -> {
-                    try {
-                        javaParams.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS);
-                    } catch (CantRunException e) {
-                    }
-                });
-            }
-        }
-        javaParams.setMainClass(WEAVE_RUNNER_MAIN_CLASS);
-        setupDefaultVMParams(javaParams);
-        return javaParams;
+  @NotNull
+  public static JavaParameters createJavaParameters(Project project) {
+    final JavaParameters javaParams = new JavaParameters();
+    final ProjectRootManager manager = ProjectRootManager.getInstance(project);
+    javaParams.setJdk(manager.getProjectSdk());
+    // All modules to use the same things
+    final Module[] modules = ModuleManager.getInstance(project).getModules();
+    if (modules.length > 0) {
+      for (Module module : modules) {
+        ApplicationManager.getApplication().runReadAction(() -> {
+          try {
+            javaParams.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS);
+          } catch (CantRunException ignored) {
+          }
+        });
+      }
+    }
+    javaParams.setMainClass(WEAVE_RUNNER_MAIN_CLASS);
+    setupDefaultVMParams(javaParams);
+    return javaParams;
+  }
+
+  public static void setupDefaultVMParams(JavaParameters javaParams) {
+    //Add default vm parameters
+    String jvmParameters = DataWeaveSettingsState.getInstance().getJvmParameters();
+    String[] args = jvmParameters.split("\\s+");
+    for (String arg : args) {
+      javaParams.getVMParametersList().add(arg);
     }
 
-    public static void setupDefaultVMParams(JavaParameters javaParams) {
-        //Add default vm parameters
-        javaParams.getVMParametersList().add("-Xms64m");
-        javaParams.getVMParametersList().add("-Xmx2G");
-        javaParams.getVMParametersList().add("-XX:+HeapDumpOnOutOfMemoryError");
-    }
+  }
 }

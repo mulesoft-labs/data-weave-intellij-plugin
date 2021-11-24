@@ -17,15 +17,24 @@ import java.util.*;
 public class JsonSchemaConverter {
 
   public static WeaveType toWeaveType(PsiFile schemaContent) {
-    final JSONObject rawSchema = new JSONObject(new JSONTokener(schemaContent.getText()));
+    String schemaContentText = schemaContent.getText();
+    return toWeaveType(schemaContentText);
+
+  }
+
+  @NotNull
+  public static WeaveType toWeaveType(String schemaContentText) {
+    final JSONObject rawSchema = new JSONObject(new JSONTokener(schemaContentText));
     final SchemaLoader.SchemaLoaderBuilder schemaLoaderBuilder = new SchemaLoader.SchemaLoaderBuilder();
     schemaLoaderBuilder.schemaJson(rawSchema);
     final SchemaLoader schemaLoader = schemaLoaderBuilder.build();
     Schema build = schemaLoader.load().build();
     return toWeaveType(build, new HashMap<>());
-
   }
 
+  public static WeaveType toWeaveType(Schema build) {
+    return toWeaveType(build, new HashMap<>());
+  }
   private static WeaveType toWeaveType(Schema build, Map<String, WeaveType> references) {
     final WeaveType weaveType = mapToWeaveType(build, references);
     weaveType.withDocumentation(Option.apply(build.getDescription()));
@@ -61,6 +70,10 @@ public class JsonSchemaConverter {
           return new ArrayType(new AnyType());
         }
       }
+    } else if (build instanceof EnumSchema) {
+      List<Object> possibleValuesAsList = ((EnumSchema) build).getPossibleValuesAsList();
+      StringType[] options = possibleValuesAsList.stream().map((v) -> new StringType(Option.apply(v.toString()))).toArray(StringType[]::new);
+      return new UnionType(ScalaUtils.toSeq(options));
     } else if (build instanceof StringSchema) {
       return new StringType(Option.empty());
     } else if (build instanceof NumberSchema) {
