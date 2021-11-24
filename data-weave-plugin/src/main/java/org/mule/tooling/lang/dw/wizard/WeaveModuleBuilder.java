@@ -28,7 +28,7 @@ public class WeaveModuleBuilder extends AbstractMavenModuleBuilder implements So
     private DataWeaveConfigurationModel dwModel;
 
     public WeaveModuleBuilder() {
-        dwModel = new DataWeaveConfigurationModel("2.4.0-SNAPSHOT", "2.4.0-SNAPSHOT" , "1.0.3-SNAPSHOT");
+        dwModel = new DataWeaveConfigurationModel("2.4.0", "2.4.0" , "1.0.6");
         setProjectId(new MavenId("org.mule.weave.module", "my-weave-module", "1.0.0-SNAPSHOT"));
     }
 
