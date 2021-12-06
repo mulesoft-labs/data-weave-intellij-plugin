@@ -4,9 +4,10 @@ import com.intellij.execution.configurations.ConfigurationFactory;
 import com.intellij.execution.configurations.ConfigurationType;
 import com.intellij.execution.configurations.RunConfiguration;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
-public class WeaveTestConfigurationFactory extends ConfigurationFactory{
+public class WeaveTestConfigurationFactory extends ConfigurationFactory {
     protected WeaveTestConfigurationFactory(@NotNull ConfigurationType type) {
         super(type);
     }
@@ -15,5 +16,10 @@ public class WeaveTestConfigurationFactory extends ConfigurationFactory{
     @Override
     public RunConfiguration createTemplateConfiguration(@NotNull Project project) {
         return new WeaveTestConfiguration("Weave Test", this, project);
+    }
+
+    @Override
+    public @NotNull @NonNls String getId() {
+        return "WeaveTestExec";
     }
 }
