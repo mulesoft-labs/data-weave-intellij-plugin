@@ -1,7 +1,7 @@
 <idea-plugin>
     <idea-version since-build="203.8084.24"/>
     <id>org.mule.tooling.intellij.dataweave.v2</id>
-    <name>Mulesoft DataWeave 2.0 And RestSdk.</name>
+    <name>Mulesoft: DataWeave RAML RestSdk</name>
     <version>2.0.6</version>
     <vendor email="mariano.achaval@mulesoft.com" url="https://github.com/mulesoft-labs/data-weave-intellij-plugin">
         Mulesoft
@@ -23,6 +23,12 @@
         <li> Navigation</li>
         <li> Basic Validation</li>
         <li> DataWeave injection</li>
+       </ul>
+      <h1>RAML/OAS:</h1>
+      <ul>
+        <li> Completion</li>
+        <li> Templates</li>
+        <li> Basic Validation</li>
        </ul>
     ]]></description>
 
@@ -355,6 +361,23 @@
             <li>Links to paths operation id</li>
             <li>More IntellijSense</li>
             <li>Validations</li>
+          </ul>
+        </li>
+      </ul>
+      <h1>v2.0.85</h1>
+      <ul>
+       <li>
+          <p>RestSDK Support</p>
+          <ul>
+            <li>Update to latest version of grammar</li>
+          </ul>
+        </li>
+        <li>
+          <p>DW Plugin</p>
+          <ul>
+            <li>Fix indexer causing plugin to hang</li>
+            <li>Options to customize the agent parameters</li>
+            <li>Fix to support latest version of IJ</li>
           </ul>
         </li>
       </ul>
