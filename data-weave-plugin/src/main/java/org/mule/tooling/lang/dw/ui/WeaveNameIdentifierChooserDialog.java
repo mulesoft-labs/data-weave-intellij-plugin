@@ -29,7 +29,6 @@ public class WeaveNameIdentifierChooserDialog extends DialogWrapper {
     this.dummyPanel = new BorderLayoutPanel();
     chooseByNamePanel = new WeaveChooseByNamePanel(module, initialValue);
     chooseByNamePanel.invoke(new MyCallback(), ModalityState.defaultModalityState(), false);
-    setButtonsMargin(null);
     setOKButtonText("Ok");
     setTitle("Select Weave File");
     init();
