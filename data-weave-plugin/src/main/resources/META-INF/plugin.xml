@@ -381,6 +381,10 @@
           </ul>
         </li>
       </ul>
+      <h1>v2.0.87</h1>
+      <ul>
+        <li>Fix compatibilities with 2021.3</li>
+      </ul>
     ]]>
     </change-notes>
 
