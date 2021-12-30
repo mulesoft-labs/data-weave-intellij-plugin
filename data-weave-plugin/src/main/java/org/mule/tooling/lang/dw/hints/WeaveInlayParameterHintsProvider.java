@@ -57,7 +57,7 @@ public class WeaveInlayParameterHintsProvider implements InlayParameterHintsProv
                                 shift = optionalParams;
                             }
                             final int index = currentParameterIndex + shift;
-                            name = index < functionTypeParameters.size() ? functionTypeParameters.get(index).name() : "";
+                            name = index >= 0 && index < functionTypeParameters.size() ? functionTypeParameters.get(index).name() : "";
 
                         } else {
                             name = functionTypeParameters.get(currentParameterIndex).name();
