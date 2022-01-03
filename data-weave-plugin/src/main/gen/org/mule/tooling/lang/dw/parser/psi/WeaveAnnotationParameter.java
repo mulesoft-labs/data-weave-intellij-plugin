@@ -7,6 +7,9 @@ import com.intellij.psi.PsiElement;
 
 public interface WeaveAnnotationParameter extends PsiElement {
 
+  @Nullable
+  WeaveExpression getExpression();
+
   @NotNull
   WeaveIdentifier getIdentifier();
 

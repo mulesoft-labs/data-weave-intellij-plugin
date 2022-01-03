@@ -28,6 +28,12 @@ public class WeaveAnnotationParameterImpl extends ASTWrapperPsiElement implement
   }
 
   @Override
+  @Nullable
+  public WeaveExpression getExpression() {
+    return findChildByClass(WeaveExpression.class);
+  }
+
+  @Override
   @NotNull
   public WeaveIdentifier getIdentifier() {
     return findNotNullChildByClass(WeaveIdentifier.class);

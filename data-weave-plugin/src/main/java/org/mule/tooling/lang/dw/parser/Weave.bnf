@@ -144,7 +144,7 @@ AnnotationDefinition ::= Identifier '('( AnnotationParameter ( ',' AnnotationPar
      pin=1
 }
 
-AnnotationParameter::= (Identifier) ':' TypeLiteral
+AnnotationParameter::= ((Identifier) ':' TypeLiteral) ('=' Expression)?
 
 private HeaderRecover::= !('---'|OUTPUT_DIRECTIVE_KEYWORD|'type'|'fun'|'ns'|'var'|'%dw'|'input'|IMPORT_DIRECTIVE_KEYWORD | '@' | 'annotation')
 

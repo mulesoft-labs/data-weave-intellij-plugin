@@ -3,6 +3,7 @@
 annotation Memorize ()
 
 annotation Stream(force: Boolean)
+annotation Stream(force: Boolean = true)
 
 annotation DataFormat()
 
