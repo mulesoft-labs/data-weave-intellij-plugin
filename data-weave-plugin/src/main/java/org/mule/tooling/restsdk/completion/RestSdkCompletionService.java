@@ -40,6 +40,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.Optional.ofNullable;
 import static org.mule.tooling.restsdk.utils.MapUtils.map;
 import static org.mule.tooling.restsdk.utils.RestSdkHelper.parseWebApi;
 import static org.mule.tooling.restsdk.utils.RestSdkPaths.*;
@@ -212,7 +213,7 @@ public class RestSdkCompletionService {
     final List<EndPoint> endPoints = webApi.endPoints();
     endPoints.forEach((endpoint) -> {
       endpoint.operations().forEach((operation) -> {
-        LookupElementBuilder elementBuilder = LookupElementBuilder.create(operation.name() + " (Scaffold New SampleData)");
+        LookupElementBuilder elementBuilder = LookupElementBuilder.create(operationName(operation) + " (Scaffold New SampleData)");
         elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.AbstractMethod);
         elementBuilder = elementBuilder.withTypeText(operationType(operation, endpoint), true);
         final List<Resource> resources = new ArrayList<>();
@@ -248,7 +249,7 @@ public class RestSdkCompletionService {
         template.append("      ").append("expression: \"#[payload]\"").append("\n");
 
         final Template myTemplate = TemplateManager.getInstance(project).createTemplate("template", "rest_sdk_suggest", template.toString());
-        myTemplate.addVariable("name", new TextExpression(StringUtils.capitalize(operation.name().value()) + "SampleData"), true);
+        myTemplate.addVariable("name", new TextExpression(StringUtils.capitalize(operationName(operation)) + "SampleData"), true);
 
         elementBuilder = elementBuilder.withInsertHandler((context, item1) -> {
           final int selectionStart = context.getEditor().getCaretModel().getOffset();
@@ -269,7 +270,7 @@ public class RestSdkCompletionService {
     final List<EndPoint> endPoints = webApi.endPoints();
     endPoints.forEach((endpoint) -> {
       endpoint.operations().forEach((operation) -> {
-        LookupElementBuilder elementBuilder = LookupElementBuilder.create(operation.name() + " (Scaffold New Value Provider)");
+        LookupElementBuilder elementBuilder = LookupElementBuilder.create(operationName(operation) + " (Scaffold New Value Provider)");
         elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.AbstractMethod);
         elementBuilder = elementBuilder.withTypeText(operationType(operation, endpoint), true);
         final List<Resource> resources = new ArrayList<>();
@@ -289,7 +290,7 @@ public class RestSdkCompletionService {
         template.append("        ").append("expression:").append(" \"#[item]\"").append("\n");
 
         final Template myTemplate = TemplateManager.getInstance(project).createTemplate("template", "rest_sdk_suggest", template.toString());
-        myTemplate.addVariable("name", new TextExpression("SampleFor" + StringUtils.capitalize(operation.name().value())), true);
+        myTemplate.addVariable("name", new TextExpression("SampleFor" + StringUtils.capitalize(operationName(operation))), true);
 
         elementBuilder = elementBuilder.withInsertHandler((context, item1) -> {
           final int selectionStart = context.getEditor().getCaretModel().getOffset();
@@ -310,7 +311,7 @@ public class RestSdkCompletionService {
     final List<EndPoint> endPoints = webApi.endPoints();
     endPoints.forEach((endpoint) -> {
       endpoint.operations().forEach((operation) -> {
-        LookupElementBuilder elementBuilder = LookupElementBuilder.create(operation.name() + " (Scaffold New Trigger)");
+        LookupElementBuilder elementBuilder = LookupElementBuilder.create(operationName(operation) + " (Scaffold New Trigger)");
         elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.AbstractMethod);
         elementBuilder = elementBuilder.withTypeText(operationType(operation, endpoint), true);
         final List<Resource> resources = new ArrayList<>();
@@ -354,7 +355,7 @@ public class RestSdkCompletionService {
         template.append("      ").append("expression:").append(" \"#[item]\"").append("\n");
 
         final Template myTemplate = TemplateManager.getInstance(project).createTemplate("template", "rest_sdk_suggest", template.toString());
-        myTemplate.addVariable("name", new TextExpression("On" + StringUtils.capitalize(operation.name().value())), true);
+        myTemplate.addVariable("name", new TextExpression("On" + StringUtils.capitalize(operationName(operation))), true);
         myTemplate.addVariable("description", operation.description().isNullOrEmpty() ? new EmptyExpression() : new ConstantNode(operation.description().value()), true);
 
         elementBuilder = elementBuilder.withInsertHandler((context, item1) -> {
@@ -537,7 +538,7 @@ public class RestSdkCompletionService {
     final List<EndPoint> endPoints = webApi.endPoints();
     endPoints.forEach((endpoint) -> {
       endpoint.operations().forEach((operation) -> {
-        LookupElementBuilder elementBuilder = LookupElementBuilder.create(operation.name() + " (Scaffold New Operation)");
+        LookupElementBuilder elementBuilder = LookupElementBuilder.create(operationName(operation) + " (Scaffold New Operation)");
         elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.AbstractMethod);
         elementBuilder = elementBuilder.withTypeText(operationType(operation, endpoint), true);
         final List<Resource> resources = new ArrayList<>();
@@ -570,7 +571,7 @@ public class RestSdkCompletionService {
 
 
         final Template myTemplate = TemplateManager.getInstance(project).createTemplate("template", "rest_sdk_suggest", template.toString());
-        myTemplate.addVariable("name", new TextExpression("My" + StringUtils.capitalize(operation.name().value())), true);
+        myTemplate.addVariable("name", new TextExpression("My" + StringUtils.capitalize(operationName(operation))), true);
         myTemplate.addVariable("description", operation.description().isNullOrEmpty() ? new EmptyExpression() : new ConstantNode(operation.description().value()), true);
 
         elementBuilder = elementBuilder.withInsertHandler((context, item1) -> {
@@ -716,12 +717,24 @@ public class RestSdkCompletionService {
     final List<EndPoint> endPoints = webApi.endPoints();
     endPoints.forEach((endpoint) -> {
       endpoint.operations().forEach((operation) -> {
-        LookupElementBuilder elementBuilder = LookupElementBuilder.create(operation.name());
+        String name = operationName(operation);
+        LookupElementBuilder elementBuilder = LookupElementBuilder.create(name);
         elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.Property);
         elementBuilder = elementBuilder.withTypeText(operationType(operation, endpoint), true);
         result.add(elementBuilder);
       });
     });
+  }
+
+  private String operationName(Operation operation) {
+    return ofNullable(operation.name().value())
+            .orElse(
+                    ofNullable(operation.description().value())
+                            .orElse(
+                                    ofNullable(operation.operationId().value())
+                                            .orElse(operation.id())
+                            )
+            );
   }
 
   private String operationType(Operation operation, EndPoint endpoint) {

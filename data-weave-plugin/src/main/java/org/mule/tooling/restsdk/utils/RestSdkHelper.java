@@ -6,6 +6,7 @@ import amf.apicontract.client.platform.model.domain.EndPoint;
 import amf.apicontract.client.platform.model.domain.Operation;
 import amf.apicontract.client.platform.model.domain.api.WebApi;
 import amf.core.client.platform.AMFParseResult;
+import amf.core.client.platform.model.StrField;
 import amf.core.client.platform.model.document.BaseUnit;
 import amf.core.client.platform.model.document.Document;
 import amf.core.client.platform.model.domain.DataNode;
@@ -118,12 +119,16 @@ public class RestSdkHelper {
       return null;
     }
 
-    List<EndPoint> endPoints = webApi.endPoints();
+    final List<EndPoint> endPoints = webApi.endPoints();
     for (EndPoint endPoint : endPoints) {
-      List<Operation> operations = endPoint.operations();
+      final List<Operation> operations = endPoint.operations();
       for (Operation operation : operations) {
-        if (operation.name().value().equals(id)) {
-          return operation;
+        final StrField name = operation.name();
+        if (name != null) {
+          final String value = name.value();
+          if (value != null && value.equals(id)) {
+            return operation;
+          }
         }
       }
     }
