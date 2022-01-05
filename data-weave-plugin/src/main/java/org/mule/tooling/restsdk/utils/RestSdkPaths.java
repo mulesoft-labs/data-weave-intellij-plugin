@@ -45,6 +45,8 @@ public class RestSdkPaths {
   public static final String ENDPOINT = "endpoint";
   public static final String URL = "url";
 
+  public static final SelectionPath CONNECTOR_NAME_PATH = SelectionPath.DOCUMENT.child("connectorName");
+
 
   public static final SelectionPath OPERATION_IDENTIFIER_PATH = SelectionPath.DOCUMENT.child(OPERATION_IDENTIFIER).child(EXPRESSION);
   public static final SelectionPath OPERATION_DISPLAY_NAME_PATH = SelectionPath.DOCUMENT.child(OPERATION_DISPLAY_NAME).child(EXPRESSION);

@@ -527,6 +527,8 @@
 
         <!--  REST-SDK      -->
 
+        <codeInsight.lineMarkerProvider language="yaml" implementationClass="org.mule.tooling.restsdk.linemarker.RestSdkLineMarkerProvider"/>
+
         <psi.referenceContributor language="yaml"
                                   implementation="org.mule.tooling.restsdk.reference.RestSdkReferenceContributor"/>
         <moduleBuilder builderClass="org.mule.tooling.restsdk.wizzard.RestSdkModuleBuilder"/>
