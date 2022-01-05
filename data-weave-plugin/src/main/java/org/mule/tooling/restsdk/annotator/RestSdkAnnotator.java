@@ -23,10 +23,12 @@ public class RestSdkAnnotator implements Annotator {
         PsiElement parent = element.getParent();
         if (parent instanceof YAMLKeyValue && URL_KEY_NAMES.contains(((YAMLKeyValue) parent).getKeyText())) {
           VirtualFile virtualFile = element.getContainingFile().getVirtualFile();
-          String path = ((YAMLScalar) element).getTextValue();
-          final VirtualFile child = virtualFile.getParent().findFileByRelativePath(path);
-          if (child == null) {
-            holder.newAnnotation(HighlightSeverity.ERROR, "Unable to resolve path to : " + path).range(element).create();
+          if (virtualFile != null) {
+            String path = ((YAMLScalar) element).getTextValue();
+            final VirtualFile child = virtualFile.getParent().findFileByRelativePath(path);
+            if (child == null) {
+              holder.newAnnotation(HighlightSeverity.ERROR, "Unable to resolve path to : " + path).range(element).create();
+            }
           }
         }
       }

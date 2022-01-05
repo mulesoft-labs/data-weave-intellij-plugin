@@ -50,11 +50,6 @@ public class RestSdkCompletionService {
 
   public static final String SCHEMAS_FOLDER = "schemas";
   public static final String OK_STATUS = "200";
-  public static final String TRIGGER = "trigger";
-  public static final String OPERATION = "operation";
-  public static final String PATH = "path";
-  public static final String MEDIA_TYPE = "mediaType";
-  public static final String VALUE_PROVIDER = "valueProvider";
 
   public static final List<String> mediaTypes = Arrays.asList("application/json", "application/xml", "application/csv");
 
@@ -222,31 +217,31 @@ public class RestSdkCompletionService {
 
         final Request request = operation.request();
         if (request != null) {
-          template.append("  ").append("parameters: ").append("\n");
+          template.append("  ").append(PARAMETERS).append(": ").append("\n");
         }
-        template.append("  ").append("definition: ").append("\n");
+        template.append("  ").append(DEFINITION).append(": ").append("\n");
         template.append("    ").append("type: ").append("http").append("\n");
-        template.append("    ").append("request: ").append("\n");
-        template.append("      ").append("method: ").append(operation.method()).append("\n");
-        template.append("      ").append("path: ").append(endpoint.path()).append("\n");
+        template.append("    ").append(REQUEST).append(": ").append("\n");
+        template.append("      ").append(METHOD).append(": ").append(operation.method()).append("\n");
+        template.append("      ").append(PATH).append(": ").append(endpoint.path()).append("\n");
 
         if (request != null) {
           template.append("      ").append("binding: ").append("\n");
           final List<Parameter> queryParameters = operation.request().queryParameters();
           if (!queryParameters.isEmpty()) {
-            template.append("        ").append("queryParameter: ").append("\n");
+            template.append("        ").append(QUERY_PARAMETERS).append(": ").append("\n");
           }
           final List<Parameter> uriParameters = operation.request().uriParameters();
           if (!uriParameters.isEmpty()) {
-            template.append("        ").append("uriParameter: ").append("\n");
+            template.append("        ").append(URI_PARAMETERS).append(": ").append("\n");
             for (Parameter uriParameter : uriParameters) {
               template.append("          ").append(uriParameter.name().value()).append(":").append("\n");
               template.append("            ").append("value").append(": \"#[]\"").append("\n");
             }
           }
         }
-        template.append("    ").append("transform: ").append("\n");
-        template.append("      ").append("expression: \"#[payload]\"").append("\n");
+        template.append("    ").append(TRANSFORM).append(": ").append("\n");
+        template.append("      ").append(EXPRESSION).append(": \"#[payload]\"").append("\n");
 
         final Template myTemplate = TemplateManager.getInstance(project).createTemplate("template", "rest_sdk_suggest", template.toString());
         myTemplate.addVariable("name", new TextExpression(StringUtils.capitalize(operationName(operation)) + "SampleData"), true);
@@ -277,17 +272,17 @@ public class RestSdkCompletionService {
         final StringBuilder template = new StringBuilder();
         template.append("$name$:\n");
         final Request request = operation.request();
-        template.append("  ").append("definition:\n");
-        template.append("    ").append("request:\n");
-        template.append("      ").append("method: ").append(operation.method()).append("\n");
-        template.append("      ").append("path: ").append(endpoint.path()).append("\n");
-        template.append("    ").append("items:").append("\n");
+        template.append("  ").append(DEFINITION).append(":\n");
+        template.append("    ").append(REQUEST).append(":\n");
+        template.append("      ").append(METHOD).append(": ").append(operation.method()).append("\n");
+        template.append("      ").append(PATH).append(": ").append(endpoint.path()).append("\n");
+        template.append("    ").append(ITEMS).append(":").append("\n");
         template.append("      #").append("Extract the items the collection of items form the http response").append("\n");
-        template.append("      ").append("extraction:").append("\n");
-        template.append("        ").append("expression:").append(" \"#[payload]\"").append("\n");
+        template.append("      ").append(EXTRACTION).append(":").append("\n");
+        template.append("        ").append(EXPRESSION).append(":").append(" \"#[payload]\"").append("\n");
         template.append("      #").append("Specify the value to extract from each item.").append("\n");
-        template.append("      ").append("value:").append("\n");
-        template.append("        ").append("expression:").append(" \"#[item]\"").append("\n");
+        template.append("      ").append(VALUE).append(":").append("\n");
+        template.append("        ").append(EXPRESSION).append(":").append(" \"#[item]\"").append("\n");
 
         final Template myTemplate = TemplateManager.getInstance(project).createTemplate("template", "rest_sdk_suggest", template.toString());
         myTemplate.addVariable("name", new TextExpression("SampleFor" + StringUtils.capitalize(operationName(operation))), true);
@@ -317,21 +312,21 @@ public class RestSdkCompletionService {
         final List<Resource> resources = new ArrayList<>();
         final StringBuilder template = new StringBuilder();
         template.append("$name$:\n")
-                .append("  ").append("description: $description$\n")
-                .append("  ").append("displayName: $name$\n");
+                .append("  ").append(DESCRIPTION).append(": $description$\n")
+                .append("  ").append(DISPLAY_NAME).append(": $name$\n");
 
         final Request request = operation.request();
         if (request != null) {
-          template.append(parametersTemplate(resources, request, TRIGGER));
+          template.append(parametersTemplate(resources, request, TRIGGERS));
         }
 
-        template.append("  ").append("method: ").append(operation.method()).append("\n");
-        template.append("  ").append("path: ").append(endpoint.path()).append("\n");
+        template.append("  ").append(METHOD).append(": ").append(operation.method()).append("\n");
+        template.append("  ").append(PATH).append(": ").append(endpoint.path()).append("\n");
 
         if (!operation.responses().isEmpty()) {
           List<Payload> payloads = operation.responses().get(0).payloads();
           if (!payloads.isEmpty()) {
-            template.append("  ").append(toOutputSchema(payloads.get(0).schema(), resources, TRIGGER)).append("\n");
+            template.append("  ").append(toOutputSchema(payloads.get(0).schema(), resources, TRIGGERS)).append("\n");
             template.append("  ").append("outputMediaType: application/json").append("\n");
           }
         }
@@ -356,7 +351,7 @@ public class RestSdkCompletionService {
 
         final Template myTemplate = TemplateManager.getInstance(project).createTemplate("template", "rest_sdk_suggest", template.toString());
         myTemplate.addVariable("name", new TextExpression("On" + StringUtils.capitalize(operationName(operation))), true);
-        myTemplate.addVariable("description", operation.description().isNullOrEmpty() ? new EmptyExpression() : new ConstantNode(operation.description().value()), true);
+        myTemplate.addVariable(DESCRIPTION, operation.description().isNullOrEmpty() ? new EmptyExpression() : new ConstantNode(operation.description().value()), true);
 
         elementBuilder = elementBuilder.withInsertHandler((context, item1) -> {
           final int selectionStart = context.getEditor().getCaretModel().getOffset();
@@ -387,14 +382,14 @@ public class RestSdkCompletionService {
         for (PropertyShape property : properties) {
           template.append("    ").append(property.name().value()).append(": \n");
           template.append("      ").append(toSchemaName(property.range(), resources, kind)).append("\n");
-          template.append("      ").append("displayName").append(": ").append(property.name().value()).append("\n");
+          template.append("      ").append(DISPLAY_NAME).append(": ").append(property.name().value()).append("\n");
           template.append("      ").append("required").append(": ").append(property.minCount().value() == 0).append("\n");
           if (!property.description().isNullOrEmpty()) {
-            template.append("      ").append("description").append(": ").append(property.description().value()).append("\n");
+            template.append("      ").append(DESCRIPTION).append(": ").append(property.description().value()).append("\n");
           }
         }
       } else {
-        template.append("    ").append("body").append(": ");
+        template.append("    ").append(BODY).append(": ");
         template.append("      ").append(toSchemaName(schema, resources, kind)).append("\n");
       }
     }
@@ -495,14 +490,14 @@ public class RestSdkCompletionService {
     LookupElementBuilder elementBuilder = LookupElementBuilder.create("New Parameter");
     elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.AbstractMethod);
     final String template = "$name$:\n" +
-            "  " + "description: $description$\n" +
-            "  " + "displayName: $name$\n" +
+            "  " + DESCRIPTION + ": $description$\n" +
+            "  " + DISPLAY_NAME + ": $name$\n" +
             "  " + "type: " + "" + "$type$";
 
 
     final Template myTemplate = TemplateManager.getInstance(project).createTemplate("template", "rest_sdk_suggest", template);
     myTemplate.addVariable("name", new EmptyExpression(), true);
-    myTemplate.addVariable("description", new EmptyExpression(), true);
+    myTemplate.addVariable(DESCRIPTION, new EmptyExpression(), true);
     myTemplate.addVariable("type", "complete()", "", true);
     elementBuilder = elementBuilder.withInsertHandler((context, item1) -> {
       final int selectionStart = context.getEditor().getCaretModel().getOffset();
@@ -544,16 +539,16 @@ public class RestSdkCompletionService {
         final List<Resource> resources = new ArrayList<>();
         final StringBuilder template = new StringBuilder();
         template.append("$name$:\n")
-                .append("  ").append("description: $description$\n")
-                .append("  ").append("displayName: $name$\n")
-                .append("  ").append("base: \n")
-                .append("    ").append("operationId: ").append(operation.name().value()).append("\n");
+                .append("  ").append(DESCRIPTION).append(": $description$\n")
+                .append("  ").append(DISPLAY_NAME).append(": $name$\n")
+                .append("  ").append(BASE).append(": \n")
+                .append("    ").append(OPERATION_ID).append(": ").append(operation.name().value()).append("\n");
 
 
         final Request request = operation.request();
         if (request != null) {
-          template.append(parametersTemplate(resources, request, OPERATION));
-          template.append("  ").append("request: ").append("\n");
+          template.append(parametersTemplate(resources, request, OPERATIONS));
+          template.append("  ").append(REQUEST).append(": ").append("\n");
           template.append(buildOperationRequestTemplate(resources, request, "    "));
         }
 
@@ -562,17 +557,17 @@ public class RestSdkCompletionService {
           Response response = responses.stream().filter((r) -> OK_STATUS.equals(r.statusCode().value())).findFirst().orElse(null);
           if (response != null && !response.payloads().isEmpty()) {
             Payload payload = response.payloads().get(0);
-            template.append("  ").append("response: ").append("\n");
-            template.append("    ").append("body:").append("\n");
-            template.append("      ").append("value: \"#[payload]\"").append("\n");
-            template.append("      ").append(toSchemaName(payload.schema(), resources, OPERATION)).append("\n");
+            template.append("  ").append(RESPONSE).append(": ").append("\n");
+            template.append("    ").append(BODY).append(":").append("\n");
+            template.append("      ").append(VALUE).append(": \"#[payload]\"").append("\n");
+            template.append("      ").append(toSchemaName(payload.schema(), resources, OPERATIONS)).append("\n");
           }
         }
 
 
         final Template myTemplate = TemplateManager.getInstance(project).createTemplate("template", "rest_sdk_suggest", template.toString());
         myTemplate.addVariable("name", new TextExpression("My" + StringUtils.capitalize(operationName(operation))), true);
-        myTemplate.addVariable("description", operation.description().isNullOrEmpty() ? new EmptyExpression() : new ConstantNode(operation.description().value()), true);
+        myTemplate.addVariable(DESCRIPTION, operation.description().isNullOrEmpty() ? new EmptyExpression() : new ConstantNode(operation.description().value()), true);
 
         elementBuilder = elementBuilder.withInsertHandler((context, item1) -> {
           final int selectionStart = context.getEditor().getCaretModel().getOffset();
@@ -596,8 +591,8 @@ public class RestSdkCompletionService {
     final List<Parameter> queryParameters = request.queryParameters();
     StringBuilder template = new StringBuilder();
     if (!payloads.isEmpty()) {
-      template.append("    ").append("body: ").append("\n");
-      template.append("      ").append("expression: \"#[").append("\n");
+      template.append("    ").append(BODY).append(": ").append("\n");
+      template.append("      ").append(EXPRESSION).append(": \"#[").append("\n");
       final Shape schema = payloads.get(0).schema();
       if (schema instanceof NodeShape) {
         template.append("        ").append("{\n");
@@ -607,14 +602,14 @@ public class RestSdkCompletionService {
         }
         template.append("        ").append("}").append("\n");
       } else {
-        template.append("    ").append("body").append(": ").append("\n");
-        template.append("      ").append(toSchemaName(schema, resources, OPERATION)).append("\n");
+        template.append("    ").append(BODY).append(": ").append("\n");
+        template.append("      ").append(toSchemaName(schema, resources, OPERATIONS)).append("\n");
       }
       template.append("      ").append("]\"").append("\n");
     }
 
     if (!headers.isEmpty()) {
-      template.append("    ").append("header: ").append("\n");
+      template.append("    ").append(HEADERS).append(": ").append("\n");
       for (Parameter header : headers) {
         template.append("      ").append(header.name().value()).append(":").append("\n");
         template.append("        ").append("value").append(": \"#[parameters['").append(header.name().value()).append("']]\"").append("\n");
@@ -622,7 +617,7 @@ public class RestSdkCompletionService {
     }
 
     if (!queryParameters.isEmpty()) {
-      template.append("    ").append("queryParameter: ").append("\n");
+      template.append("    ").append(QUERY_PARAMETERS).append(": ").append("\n");
       for (Parameter queryParam : queryParameters) {
         template.append("      ").append(queryParam.name().value()).append(": ").append("\n");
         template.append("        ").append("value").append(": \"#[parameters['").append(queryParam.name().value()).append("']]\"").append("\n");
@@ -630,7 +625,7 @@ public class RestSdkCompletionService {
     }
 
     if (!uriParameters.isEmpty()) {
-      template.append("    ").append("uriParameter: ").append("\n");
+      template.append("    ").append(URI_PARAMETERS).append(": ").append("\n");
       for (Parameter uriParameter : uriParameters) {
         template.append("      ").append(uriParameter.name().value()).append(":").append("\n");
         template.append("        ").append("value").append(": \"#[parameters['").append(uriParameter.name().value()).append("']]\"").append("\n");
@@ -676,10 +671,10 @@ public class RestSdkCompletionService {
       final Shape schema = queryParam.schema();
       queryParams.append("    ").append(queryParam.name().value()).append(" : ").append("\n");
       queryParams.append("      ").append(toSchemaName(schema, resources, kind)).append("\n");
-      queryParams.append("      ").append("displayName").append(": ").append(queryParam.name().value()).append("\n");
+      queryParams.append("      ").append(DISPLAY_NAME).append(": ").append(queryParam.name().value()).append("\n");
       queryParams.append("      ").append("required").append(": ").append(queryParam.required()).append("\n");
       if (!queryParam.description().isNullOrEmpty()) {
-        queryParams.append("      ").append("description").append(": ").append("\"").append(queryParam.description().value()).append("\"").append("\n");
+        queryParams.append("      ").append(DESCRIPTION).append(": ").append("\"").append(queryParam.description().value()).append("\"").append("\n");
       }
     }
     return queryParams.toString();

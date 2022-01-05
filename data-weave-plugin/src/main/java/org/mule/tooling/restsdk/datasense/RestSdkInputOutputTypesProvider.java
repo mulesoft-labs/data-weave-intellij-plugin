@@ -10,6 +10,8 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
+import com.mulesoft.connectivity.rest.commons.api.dw.DWBindings;
+import com.mulesoft.connectivity.rest.commons.internal.RestConstants;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
 import org.jetbrains.yaml.psi.YAMLMapping;
@@ -42,12 +44,17 @@ import static org.mule.tooling.restsdk.utils.SelectionPath.pathOfYaml;
 
 public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider {
   // Bindings
-  public static final String PARAMETERS_KEY = "parameters";
-  public static final String WATERMARK_KEY = "watermark";
-  public static final String PAYLOAD_KEY = "payload";
+  public static final String PARAMETERS_KEY = DWBindings.PARAMETERS.getBinding();
+  public static final String WATERMARK_KEY = DWBindings.WATERMARK.getBinding();
+  public static final String BODY = DWBindings.BODY.getBinding();
+  public static final String HEADERS = DWBindings.HEADERS.getBinding();
+  public static final String PAYLOAD_KEY = RestConstants.PAYLOAD_VAR;
   public static final String ITEM_KEY = "item";
-  public static final String ATTRIBUTES_KEY = "attributes";
-  public static final String LINK_KEY = "link";
+  public static final String ATTRIBUTES_KEY = RestConstants.ATTRIBUTES_VAR;
+  public static final String LINK_KEY = RestConstants.LINK;
+  public static final String CONFIG = RestConstants.CONFIG;
+  public static final String CONNECTION = RestConstants.CONNECTION;
+
   public static final String OPERATION_ID_KEY = "operationId";
   public static final String METHOD_KEY = "method";
   public static final String PATH_KEY = "path";
@@ -64,10 +71,16 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
     final PsiElement context = psiFile.getContext();
     if (context != null) {
       final SelectionPath path = pathOfYaml(context);
-      if (path.matches(RestSdkPaths.OPERATION_IDENTIFIER_PATH)) {
-        implicitInput.addInput(OPERATION_ID_KEY, new StringType(Option.empty()));
-        implicitInput.addInput(METHOD_KEY, new StringType(Option.empty()));
-        implicitInput.addInput(PATH_KEY, new StringType(Option.empty()));
+      if (RestSdkPaths.ENDPOINT.equals(path.root().getName())) {
+        implicitInput.addInput("request", buildInterceptionHttpRequestObject());
+        implicitInput.addInput("statusCode", createNumberType());
+        implicitInput.addInput("reasonPhrase", createStringType());
+        implicitInput.addInput(HEADERS, createEmptyObjectType());
+        implicitInput.addInput(BODY, createAnyType());
+      } else if (path.matches(RestSdkPaths.OPERATION_IDENTIFIER_PATH)) {
+        implicitInput.addInput(OPERATION_ID_KEY, createStringType());
+        implicitInput.addInput(METHOD_KEY, createStringType());
+        implicitInput.addInput(PATH_KEY, createStringType());
       } else if (path.matches(RestSdkPaths.PAGINATION_PATH) || path.matches(RestSdkPaths.SECURITY_VALIDATION_PATH)
               || path.matches(RestSdkPaths.SECURITY_ERROR_TEMPLATE_PATH) || path.matches(RestSdkPaths.SECURITY_REFRESH_PATH)
               || path.matches(RestSdkPaths.TRIGGERS_SAMPLE_DATA_PATH)) {
@@ -97,10 +110,10 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
               || path.matches(RestSdkPaths.OPERATION_REQUEST_HEADER_EXPRESSION_PATH)) {
         createOperationRequest(implicitInput, context, RestSdkPaths.PARAMETERS_SELECTOR_FROM_QUERY_PARAMETER_PATH);
       } else if (path.matches(RestSdkPaths.OPERATION_DISPLAY_NAME_PATH)) {
-        implicitInput.addInput(OPERATION_ID_KEY, new StringType(Option.empty()));
-        implicitInput.addInput(METHOD_KEY, new StringType(Option.empty()));
-        implicitInput.addInput(PATH_KEY, new StringType(Option.empty()));
-        implicitInput.addInput(SUMMARY_KEY, new StringType(Option.empty()));
+        implicitInput.addInput(OPERATION_ID_KEY, createStringType());
+        implicitInput.addInput(METHOD_KEY, createStringType());
+        implicitInput.addInput(PATH_KEY, createStringType());
+        implicitInput.addInput(SUMMARY_KEY, createStringType());
       } else if (path.matches(RestSdkPaths.TEST_CONNECTION_PATH)) {
         createTestConnectionInputs(implicitInput, context);
       } else if (path.matches(RestSdkPaths.VALUE_PROVIDERS_ITEMS_EXTRACTION_EXPRESSION_PATH)) {
@@ -129,9 +142,33 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
     return implicitInput;
   }
 
+  @NotNull
+  private AnyType createAnyType() {
+    return new AnyType();
+  }
+
+  private WeaveType buildInterceptionHttpRequestObject() {
+    Builder<KeyValuePairType, Seq<KeyValuePairType>> fieldsBuilder = Seq$.MODULE$.newBuilder();
+    fieldsBuilder.$plus$eq(createKVPair("uriParameters", createEmptyObjectType()));
+    fieldsBuilder.$plus$eq(createKVPair("headers", createEmptyObjectType()));
+    fieldsBuilder.$plus$eq(createKVPair("path", createStringType()));
+    fieldsBuilder.$plus$eq(createKVPair("uri", createStringType()));
+    fieldsBuilder.$plus$eq(createKVPair("queryParameters", createStringType()));
+    fieldsBuilder.$plus$eq(createKVPair("headers", createStringType()));
+    fieldsBuilder.$plus$eq(createKVPair("entity", createEntityObject()));
+    return new ObjectType(fieldsBuilder.result(), false, false);
+  }
+
+  private WeaveType createEntityObject() {
+    Builder<KeyValuePairType, Seq<KeyValuePairType>> fieldsBuilder = Seq$.MODULE$.newBuilder();
+    fieldsBuilder.$plus$eq(createKVPair("streaming", createBooleanType()));
+    fieldsBuilder.$plus$eq(createKVPair("composed", createBooleanType()));
+    return new ObjectType(fieldsBuilder.result(), false, false);
+  }
+
   private void createValueProviderExtraction(ImplicitInput implicitInput, PsiElement context) {
     final SelectionPath request = SelectionPath.PARENT.parent().parent().child("request");
-    final WeaveType payloadType = resolveOperationResponseType(context, request.child("path"), request.child("method")).orElse(new AnyType());
+    final WeaveType payloadType = resolveOperationResponseType(context, request.child("path"), request.child("method")).orElse(createAnyType());
     final SelectionPath parametersSelector = SelectionPath.PARENT.parent().parent().parent().child("parameters");
     final ObjectType parametersType = loadParametersType(context, parametersSelector);
     implicitInput.addInput(PAYLOAD_KEY, payloadType);
@@ -146,14 +183,14 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
 
   private void createValueProviderWithItems(ImplicitInput implicitInput, PsiElement context) {
     final SelectionPath request = SelectionPath.PARENT.parent().parent().child("request");
-    final WeaveType payloadType = resolveOperationResponseType(context, request.child("path"), request.child("method")).orElse(new AnyType());
+    final WeaveType payloadType = resolveOperationResponseType(context, request.child("path"), request.child("method")).orElse(createAnyType());
     final SelectionPath parametersSelector = SelectionPath.PARENT.parent().parent().parent().child("parameters");
     final ObjectType parametersType = loadParametersType(context, parametersSelector);
     implicitInput.addInput(PAYLOAD_KEY, payloadType);
     implicitInput.addInput(PARAMETERS_KEY, parametersType);
     final SelectionPath itemsExtractionExpression = SelectionPath.PARENT.parent().child("items").child("extraction").child("expression");
     final PsiElement itemsExtractionElement = itemsExtractionExpression.selectYaml(context);
-    WeaveType itemType = new AnyType();
+    WeaveType itemType = createAnyType();
     if (itemsExtractionElement instanceof YAMLScalar) {
       final String itemsExtractionTextExpression = ((YAMLScalar) itemsExtractionElement).getTextValue();
       final Project project = context.getProject();
@@ -173,12 +210,14 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
     ObjectType weaveType = loadParametersType(context, parameterSelector);
     implicitInput.addInput(WATERMARK_KEY, new DateTimeType());
     implicitInput.addInput(PARAMETERS_KEY, weaveType);
+    implicitInput.addInput(CONFIG, createEmptyObjectType());
+    implicitInput.addInput(CONNECTION, createEmptyObjectType());
   }
 
   private void createTestConnectionInputs(ImplicitInput implicitInput, PsiElement context) {
     final SelectionPath path = SelectionPath.PARENT.parent().parent().child("path");
     final SelectionPath method = SelectionPath.PARENT.parent().parent().child("method");
-    final WeaveType payloadType = resolveOperationResponseType(context, path, method).orElse(new AnyType());
+    final WeaveType payloadType = resolveOperationResponseType(context, path, method).orElse(createAnyType());
     implicitInput.addInput(PAYLOAD_KEY, payloadType);
     implicitInput.addInput(ATTRIBUTES_KEY, createHttpAttributes());
   }
@@ -199,7 +238,11 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
   private void createOperationRequest(ImplicitInput implicitInput, PsiElement context, SelectionPath parameters_selector) {
     ObjectType weaveType = loadParametersType(context, parameters_selector);
     implicitInput.addInput(PARAMETERS_KEY, weaveType);
+    implicitInput.addInput(CONFIG, createEmptyObjectType());
+    implicitInput.addInput(CONNECTION, createEmptyObjectType());
   }
+
+
 
   private void createOperationResponse(ImplicitInput implicitInput, PsiElement context) {
     SelectionPath path = SelectionPath.PARENT.parent().parent().child("base").child("path");
@@ -207,19 +250,19 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
     SelectionPath operationId = SelectionPath.PARENT.parent().parent().child("base").child("operationId");
     final WeaveType payloadType = resolveOperationResponseType(context, path, method)
             .orElse(resolveOperationResponseType(context, operationId)
-                    .orElse(new AnyType()));
+                    .orElse(createAnyType()));
     implicitInput.addInput(PAYLOAD_KEY, payloadType);
     implicitInput.addInput(ATTRIBUTES_KEY, createHttpAttributes());
   }
 
   private void createPayloadWithAttributesInputs(ImplicitInput implicitInput) {
-    implicitInput.addInput(PAYLOAD_KEY, new AnyType());
+    implicitInput.addInput(PAYLOAD_KEY, createAnyType());
     implicitInput.addInput(ATTRIBUTES_KEY, createHttpAttributes());
   }
 
   private void createPaginationParametersInputs(ImplicitInput implicitInput) {
-    implicitInput.addInput(PAYLOAD_KEY, new AnyType());
-    implicitInput.addInput(LINK_KEY, createEmptyObject());
+    implicitInput.addInput(PAYLOAD_KEY, createAnyType());
+    implicitInput.addInput(LINK_KEY, createEmptyObjectType());
     implicitInput.addInput(ATTRIBUTES_KEY, createHttpAttributes());
   }
 
@@ -228,7 +271,7 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
     final SelectionPath path = parametersSelector.getParent().child(PATH_KEY);
     final SelectionPath method = parametersSelector.getParent().child(METHOD_KEY);
 
-    final WeaveType payloadType = resolveOperationResponseType(context, path, method).orElse(new AnyType());
+    final WeaveType payloadType = resolveOperationResponseType(context, path, method).orElse(createAnyType());
     final ObjectType parametersType = loadParametersType(context, parametersSelector);
     implicitInput.addInput(PAYLOAD_KEY, payloadType);
     implicitInput.addInput(WATERMARK_KEY, new UnionType(ScalaUtils.toSeq(new NullType(), new DateTimeType())));
@@ -236,7 +279,7 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
 
     final SelectionPath itemsExtractionExpression = parametersSelector.getParent().child("items").child("extraction").child("expression");
     final PsiElement itemsExtractionElement = itemsExtractionExpression.selectYaml(context);
-    WeaveType itemType = new AnyType();
+    WeaveType itemType = createAnyType();
     if (itemsExtractionElement instanceof YAMLScalar) {
       final String itemsExtractionTextExpression = ((YAMLScalar) itemsExtractionElement).getTextValue();
       final Project project = context.getProject();
@@ -282,7 +325,7 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
     final SelectionPath path = parametersSelector.getParent().child("definition").child("request").child(PATH_KEY);
     final SelectionPath method = parametersSelector.getParent().child("definition").child("request").child(METHOD_KEY);
 
-    final WeaveType payloadType = resolveOperationResponseType(context, path, method).orElse(new AnyType());
+    final WeaveType payloadType = resolveOperationResponseType(context, path, method).orElse(createAnyType());
     final ObjectType parametersType = loadParametersType(context, parametersSelector);
     implicitInput.addInput(PAYLOAD_KEY, payloadType);
     implicitInput.addInput(PARAMETERS_KEY, parametersType);
@@ -293,7 +336,7 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
     final SelectionPath path = parametersSelector.getParent().child(PATH_KEY);
     final SelectionPath method = parametersSelector.getParent().child(METHOD_KEY);
 
-    final WeaveType payloadType = resolveOperationResponseType(context, path, method).orElse(new AnyType());
+    final WeaveType payloadType = resolveOperationResponseType(context, path, method).orElse(createAnyType());
     final ObjectType parametersType = loadParametersType(context, parametersSelector);
     implicitInput.addInput(PAYLOAD_KEY, payloadType);
     implicitInput.addInput(WATERMARK_KEY, new UnionType(ScalaUtils.toSeq(new NullType(), new DateTimeType())));
@@ -306,7 +349,7 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
     Builder<KeyValuePairType, Seq<KeyValuePairType>> objectSeqBuilder = Seq$.MODULE$.newBuilder();
     if (parameters instanceof YAMLMapping) {
       for (YAMLKeyValue keyValue : ((YAMLMapping) parameters).getKeyValues()) {
-        WeaveType value = new AnyType();
+        WeaveType value = createAnyType();
         if (keyValue.getValue() instanceof YAMLMapping) {
           YAMLMapping parameterMapping = (YAMLMapping) keyValue.getValue();
           YAMLKeyValue type = parameterMapping.getKeyValueByKey("type");
@@ -314,11 +357,11 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
             String text = type.getValue().getText().trim();
             switch (text) {
               case "boolean":
-                value = new BooleanType(Option.empty(), VariableConstraints.emptyConstraints());
+                value = createBooleanType();
                 break;
               case "integer":
               case "number":
-                value = new NumberType(Option.empty());
+                value = createNumberType();
                 break;
               case "localDateTime":
                 value = new LocalDateTimeType();
@@ -327,7 +370,7 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
                 value = new DateTimeType();
                 break;
               case "string":
-                value = new StringType(Option.empty());
+                value = createStringType();
                 break;
             }
           } else {
@@ -355,6 +398,16 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
   }
 
   @NotNull
+  private NumberType createNumberType() {
+    return new NumberType(Option.empty());
+  }
+
+  @NotNull
+  private BooleanType createBooleanType() {
+    return new BooleanType(Option.empty(), VariableConstraints.emptyConstraints());
+  }
+
+  @NotNull
   private KeyValuePairType createKVPair(String fieldName, WeaveType value) {
     NameType name = new NameType(Some.apply(new QName(fieldName, Option.empty())));
     return new KeyValuePairType(new KeyType(name, Seq$.MODULE$.<NameValuePairType>newBuilder().result()), value, false, false);
@@ -363,14 +416,19 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
   @NotNull
   private ObjectType createHttpAttributes() {
     Builder<KeyValuePairType, Seq<KeyValuePairType>> fieldsBuilder = Seq$.MODULE$.newBuilder();
-    fieldsBuilder.$plus$eq(createKVPair("statusCode", new NumberType(Option.empty())));
-    fieldsBuilder.$plus$eq(createKVPair("headers", createEmptyObject()));
-    fieldsBuilder.$plus$eq(createKVPair("reasonPhrase", new StringType(Option.empty())));
+    fieldsBuilder.$plus$eq(createKVPair("statusCode", createNumberType()));
+    fieldsBuilder.$plus$eq(createKVPair("headers", createEmptyObjectType()));
+    fieldsBuilder.$plus$eq(createKVPair("reasonPhrase", createStringType()));
     return new ObjectType(fieldsBuilder.result(), false, false);
   }
 
   @NotNull
-  private ObjectType createEmptyObject() {
+  private StringType createStringType() {
+    return new StringType(Option.empty());
+  }
+
+  @NotNull
+  private ObjectType createEmptyObjectType() {
     return new ObjectType(Seq$.MODULE$.<KeyValuePairType>newBuilder().result(), false, false);
   }
 
@@ -380,11 +438,11 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
     if (context != null) {
       final SelectionPath path = pathOfYaml(context);
       if (path.matches(RestSdkPaths.OPERATION_IDENTIFIER_PATH) || path.matches(RestSdkPaths.SECURITY_ERROR_TEMPLATE_PATH)) {
-        return Optional.of(new StringType(Option.empty()));
+        return Optional.of(createStringType());
       } else if (path.matches(RestSdkPaths.PAGINATION_PATH)) {
-        return Optional.of(new ArrayType(new AnyType()));
+        return Optional.of(new ArrayType(createAnyType()));
       } else if (path.matches(RestSdkPaths.SECURITY_REFRESH_PATH) || path.matches(RestSdkPaths.SECURITY_VALIDATION_PATH)) {
-        return Optional.of(new BooleanType(Option.empty(), VariableConstraints.emptyConstraints()));
+        return Optional.of(createBooleanType());
       } else if (path.matches(RestSdkPaths.OPERATION_REQUEST_BODY_PATH)) {
         final PsiElement operationId = RestSdkPaths.RELATIVE_OPERATION_BASE_FROM_BODY_EXPRESSION_PATH.selectYaml(context);
         if (operationId instanceof YAMLScalar) {

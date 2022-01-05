@@ -47,6 +47,14 @@ public class SelectionPath {
     return name;
   }
 
+  public SelectionPath root() {
+    if(parent == null || parent.kind == Kind.DOCUMENT){
+      return this;
+    }else{
+      return parent.root();
+    }
+  }
+
   public boolean matches(SelectionPath path) {
     boolean matches;
     if (path.parent != null && parent != null) {
