@@ -385,6 +385,23 @@
       <ul>
         <li>Fix compatibilities with 2021.3</li>
       </ul>
+       <h1>v2.0.91</h1>
+      <ul>
+        <li>
+          <p>DW Plugin</p>
+          <ul>
+            <li>Fix support for grammar on default annotation parameters</li>
+          </ul>
+        </li>
+         <li>
+          <p>RestSdk Plugin</p>
+          <ul>
+            <li>Fix several NPE</li>
+            <li>Add support to go to implementation</li>
+            <li>Update to latest grammar</li>
+          </ul>
+        </li>
+      </ul>
     ]]>
     </change-notes>
 

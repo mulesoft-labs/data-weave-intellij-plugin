@@ -31,14 +31,12 @@ public class RestSdkLineMarkerProvider extends RelatedItemLineMarkerProvider {
     if (element instanceof YAMLKeyValue) {
       SelectionPath selectionPath = SelectionPath.pathOfYaml(element);
       SelectionPath parent = selectionPath.getParent();
-      System.out.println("selectionPath = " + selectionPath);
       if (parent != null && parent.getName().equals(RestSdkPaths.OPERATIONS)) {
         // Add the property to a collection of line marker info
 
         PsiFile containingFile = element.getContainingFile();
 
         PsiElement psiElement = RestSdkPaths.CONNECTOR_NAME_PATH.selectYaml(containingFile);
-        System.out.println("psiElement = " + psiElement);
         if (psiElement != null && psiElement.getText() != null) {
           String packageName = "com.mulesoft.connectors." + JavaUtils.removeJavaPackageUnwantedCharacters(psiElement.getText()).toLowerCase() + ".internal.operation";
           String name = selectionPath.getName();
