@@ -478,9 +478,12 @@ public class ALSLanguageService implements Disposable {
   public void openEditor(Editor editor) {
     final VirtualFile file = LSPUtils.virtualFileFromEditor(editor);
     final String url = file.getUrl();
-    final PsiFile psiFile = PsiManager.getInstance(myProject).findFile(file);
-    if (psiFile != null && isSupportedFile(psiFile)) {
-      openEditor(psiFile);
+    final Project project = editor.getProject();
+    if (project != null) {
+      final PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
+      if (psiFile != null && isSupportedFile(psiFile)) {
+        openEditor(psiFile);
+      }
     }
   }
 

@@ -60,6 +60,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @Service(Service.Level.PROJECT)
 public final class WeaveAgentService implements Disposable {
@@ -148,7 +149,7 @@ public final class WeaveAgentService implements Disposable {
                 //We only restart if there is an active connection
                 tearDown();
                 init(new EmptyProgressIndicator());
-            }, 500);
+            }, TimeUnit.SECONDS.toMillis(1));
 
         }
     }
