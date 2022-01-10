@@ -402,6 +402,21 @@
           </ul>
         </li>
       </ul>
+       <h1>v2.0.93</h1>
+      <ul>
+         <li>
+          <p>DW Plugin</p>
+          <ul>
+            <li>Trying to avoid many restarts</li>
+          </ul>
+        </li>
+         <li>
+          <p>RestSdk Plugin</p>
+          <ul>
+            <li>Add support to go to implementation for all elements</li>
+          </ul>
+        </li>
+      </ul>
     ]]>
     </change-notes>
 
