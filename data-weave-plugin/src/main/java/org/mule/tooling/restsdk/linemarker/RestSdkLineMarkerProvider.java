@@ -33,6 +33,7 @@ public class RestSdkLineMarkerProvider extends RelatedItemLineMarkerProvider {
 
   @Override
   protected void collectNavigationMarkers(@NotNull PsiElement element, @NotNull Collection<? super RelatedItemLineMarkerInfo<?>> result) {
+    List<PsiClass> results = new ArrayList<>();
     Project myProject = element.getProject();
     if (element instanceof YAMLKeyValue) {
       final SelectionPath selectionPath = SelectionPath.pathOfYaml(element);
@@ -55,7 +56,7 @@ public class RestSdkLineMarkerProvider extends RelatedItemLineMarkerProvider {
               operationClassName = capitalize(name) + TRIGGER_SUFFIX;
             }
 
-            List<PsiClass> results = new ArrayList<>();
+
             final JavaPsiFacade javaPsiFacade = JavaPsiFacade.getInstance(myProject);
             final PsiClass operationClass = javaPsiFacade.findClass(packageName + "." + operationClassName, ProjectScope.getProjectScope(myProject));
             if (operationClass != null) {
@@ -72,42 +73,42 @@ public class RestSdkLineMarkerProvider extends RelatedItemLineMarkerProvider {
               results.add(operationClassBase);
             }
 
-            if (!results.isEmpty()) {
-              final NavigationGutterIconBuilder<PsiElement> builder =
-                      NavigationGutterIconBuilder.create(AllIcons.Gutter.ImplementedMethod)
-                              .setTargets(results)
-                              .setTooltipText("Click to navigate to Generated Classes.");
-              result.add(builder.createLineMarkerInfo(element));
-            }
           }
         } else if (parent.getName().equals(RestSdkPaths.SAMPLE_DATA)) {
-
           final PsiFile containingFile = element.getContainingFile();
           final PsiElement psiElement = RestSdkPaths.CONNECTOR_NAME_PATH.selectYaml(containingFile);
           if (psiElement != null && psiElement.getText() != null) {
             final String name = selectionPath.getName();
-
-            String packageName;
-            String sampleDataClassName;
-
-            packageName = DEFAULT_BASE_PACKAGE + toValidPackageName(psiElement) + "." + INTERNAL_PACKAGE_NAME + "." + "metadata" + "." + "sample";
-            sampleDataClassName = capitalize(name) + "SampleDataProvider";
-            List<PsiClass> results = new ArrayList<>();
+            final String packageName = DEFAULT_BASE_PACKAGE + toValidPackageName(psiElement) + "." + INTERNAL_PACKAGE_NAME + "." + "metadata" + "." + "sample";
+            final String sampleDataClassName = capitalize(name) + "SampleDataProvider";
             final JavaPsiFacade javaPsiFacade = JavaPsiFacade.getInstance(myProject);
             final PsiClass operationClass = javaPsiFacade.findClass(packageName + "." + sampleDataClassName, ProjectScope.getProjectScope(myProject));
             if (operationClass != null) {
               results.add(operationClass);
             }
-
-            if (!results.isEmpty()) {
-              final NavigationGutterIconBuilder<PsiElement> builder =
-                      NavigationGutterIconBuilder.create(AllIcons.Gutter.ImplementedMethod)
-                              .setTargets(results)
-                              .setTooltipText("Click to navigate to Generated Classes.");
-              result.add(builder.createLineMarkerInfo(element));
+          }
+        } else if (parent.getName().equals(RestSdkPaths.VALUE_PROVIDERS)) {
+          final PsiFile containingFile = element.getContainingFile();
+          final PsiElement psiElement = RestSdkPaths.CONNECTOR_NAME_PATH.selectYaml(containingFile);
+          if (psiElement != null && psiElement.getText() != null) {
+            final String name = selectionPath.getName();
+            final String packageName = DEFAULT_BASE_PACKAGE + toValidPackageName(psiElement) + "." + INTERNAL_PACKAGE_NAME + "." + "metadata" + "." + "values";
+            final String sampleDataClassName = capitalize(name) + "ExtensionsRestValueProvider";
+            final JavaPsiFacade javaPsiFacade = JavaPsiFacade.getInstance(myProject);
+            final PsiClass operationClass = javaPsiFacade.findClass(packageName + "." + sampleDataClassName, ProjectScope.getProjectScope(myProject));
+            if (operationClass != null) {
+              results.add(operationClass);
             }
           }
         }
+      }
+
+      if (!results.isEmpty()) {
+        final NavigationGutterIconBuilder<PsiElement> builder =
+                NavigationGutterIconBuilder.create(AllIcons.Gutter.ImplementedMethod)
+                        .setTargets(results)
+                        .setTooltipText("Click to navigate to Generated Classes.");
+        result.add(builder.createLineMarkerInfo(element));
       }
     }
   }
