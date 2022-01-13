@@ -427,6 +427,15 @@
           </ul>
         </li>
       </ul>
+       <h1>v2.0.97</h1>
+      <ul>
+         <li>
+          <p>RestSdk Plugin</p>
+          <ul>
+            <li>Update pom.xml template to latest</li>
+          </ul>
+        </li>
+      </ul>
     ]]>
     </change-notes>
 
