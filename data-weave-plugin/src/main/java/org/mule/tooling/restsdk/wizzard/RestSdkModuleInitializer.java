@@ -27,7 +27,7 @@ public class RestSdkModuleInitializer {
     public static void configure(final Project project, final MavenId projectId, final RestSdkConfigurationModel model, final VirtualFile root) {
         try {
             VfsUtil.createDirectories(root.getPath() + "/src/main/resources");
-            VfsUtil.createDirectories(root.getPath() + "/src/main/override");
+//            VfsUtil.createDirectories(root.getPath() + "/src/main/override");
             final VirtualFile apiDirectory = VfsUtil.createDirectories(root.getPath() + "/src/main/resources/api");
             final VirtualFile descriptorsDirectory = VfsUtil.createDirectories(root.getPath() + "/src/main/resources/descriptor");
             VfsUtil.createDirectories(root.getPath() + "/src/test/resources");
@@ -76,7 +76,7 @@ public class RestSdkModuleInitializer {
                         model,
                         targetFolder,
                         "Creating Api Spec",
-                        "api.raml",
+                        model.getApiKind().getApiFile(),
                         WeaveFilesTemplateManager.RAML_API_TEMPLATE);
                 break;
             case OPEN_API:
@@ -85,7 +85,7 @@ public class RestSdkModuleInitializer {
                         model,
                         targetFolder,
                         "Creating Api Spec",
-                        "api.yaml",
+                        model.getApiKind().getApiFile(),
                         WeaveFilesTemplateManager.OPEN_API_TEMPLATE);
                 break;
         }
@@ -129,6 +129,7 @@ public class RestSdkModuleInitializer {
                 templateProps.setProperty("VERSION", projectId.getVersion());
                 templateProps.setProperty("REST_SDK_VERSION", model.getRestSdkVersion());
                 templateProps.setProperty("REST_SDK_CONNECTOR_NAME", model.getConnectorName());
+                templateProps.setProperty("API_FILE_NAME", model.getApiKind().getApiFile());
                 templateProps.setProperty("REST_SDK_SHADE_PACKAGE", Objects.requireNonNull(projectId.getArtifactId()).replaceAll("-", ""));
                 final FileTemplateManager manager = FileTemplateManager.getInstance(project);
                 final FileTemplate template = manager.getInternalTemplate(templateName);
