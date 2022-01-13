@@ -417,6 +417,16 @@
           </ul>
         </li>
       </ul>
+       <h1>v2.0.95</h1>
+      <ul>
+         <li>
+          <p>RestSdk Plugin</p>
+          <ul>
+            <li>Use 0.8.0-RC1</li>
+            <li>Fix NPE on annotator</li>
+          </ul>
+        </li>
+      </ul>
     ]]>
     </change-notes>
 
