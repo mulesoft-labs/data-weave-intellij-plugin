@@ -25,9 +25,12 @@ public class RestSdkAnnotator implements Annotator {
           VirtualFile virtualFile = element.getContainingFile().getVirtualFile();
           if (virtualFile != null) {
             String path = ((YAMLScalar) element).getTextValue();
-            final VirtualFile child = virtualFile.getParent().findFileByRelativePath(path);
-            if (child == null) {
-              holder.newAnnotation(HighlightSeverity.ERROR, "Unable to resolve path to : " + path).range(element).create();
+            VirtualFile virtualFileParent = virtualFile.getParent();
+            if (virtualFileParent != null) {
+              final VirtualFile child = virtualFileParent.findFileByRelativePath(path);
+              if (child == null) {
+                holder.newAnnotation(HighlightSeverity.ERROR, "Unable to resolve path to : " + path).range(element).create();
+              }
             }
           }
         }
