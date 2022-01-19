@@ -18,6 +18,7 @@ import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
+import org.apache.commons.lang.StringUtils;
 import org.apache.maven.shared.invoker.DefaultInvocationRequest;
 import org.apache.maven.shared.invoker.DefaultInvoker;
 import org.apache.maven.shared.invoker.InvocationRequest;
@@ -94,7 +95,7 @@ public class RestSdkModuleBuilder extends AbstractMavenBasedProjectBuilder imple
                 @Override
                 public void run(@NotNull ProgressIndicator indicator) {
                     indicator.setText("Generating connector sources");
-                    invokeArchetype(new File(root.getPath()), restSdkModel);
+                    invokeArchetype(new File(root.getPath()), restSdkModel, project);
                     indicator.setText("Initializing maven project");
                     MavenProjectsManager.getInstance(project).forceUpdateAllProjectsOrFindAllAvailablePomFiles();
                     root.refresh(false, true);
@@ -102,18 +103,21 @@ public class RestSdkModuleBuilder extends AbstractMavenBasedProjectBuilder imple
             }));
     }
 
-    private void invokeArchetype(File workingDir, RestSdkConfigurationModel restSdkModel) {
+    private void invokeArchetype(File workingDir, RestSdkConfigurationModel restSdkModel, Project project) {
         LOGGER.debug("Working dir: " + workingDir);
 
         // There is an issue with the IntelliJ bundled maven
         // https://youtrack.jetbrains.com/issue/IDEA-139236
         // Which forces us to use the user installation instead
         // Looks like this happens in mac/linux systems.
-        String m2_home1 = System.getenv(M2_HOME_ENV);
-        LOGGER.debug(M2_HOME_ENV + " : " + m2_home1);
+        String mavenHome = System.getenv(M2_HOME_ENV);
+        File mavenHomeFile = StringUtils.isNotBlank(mavenHome) ?
+            new File(mavenHome) :
+            MavenUtil.getEffectiveMavenHome(project, workingDir.getAbsolutePath()).getMavenHome();
+        LOGGER.debug(M2_HOME_ENV + " : " + mavenHome);
 
         Invoker invoker = new DefaultInvoker();
-        invoker.setMavenHome(new File(m2_home1));
+        invoker.setMavenHome(mavenHomeFile);
 
         invoker.setWorkingDirectory(workingDir);
         invoker.setOutputHandler(System.out::println);

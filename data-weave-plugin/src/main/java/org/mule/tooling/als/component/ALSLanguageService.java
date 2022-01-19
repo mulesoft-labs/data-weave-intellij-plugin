@@ -262,9 +262,15 @@ public class ALSLanguageService implements Disposable {
     if (url == null) {
       return;
     }
+
     final String text = file.getText();
     final DocumentState documentState = getDocumentState(url);
     final DidOpenTextDocumentParams didOpenTextDocumentParams = new DidOpenTextDocumentParams(new TextDocumentItem(url, file.getLanguage().getID(), documentState.version(), text));
+
+    if(languageServer == null || languageServer.textDocumentSyncConsumer() == null){
+      return;
+    }
+
     languageServer.textDocumentSyncConsumer().didOpen(didOpenTextDocumentParams);
   }
 
