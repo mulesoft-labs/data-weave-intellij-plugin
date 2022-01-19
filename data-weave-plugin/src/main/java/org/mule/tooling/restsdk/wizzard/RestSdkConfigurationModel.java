@@ -1,14 +1,14 @@
 package org.mule.tooling.restsdk.wizzard;
 
 public class RestSdkConfigurationModel {
+
     private String restSdkVersion;
     private String connectorName;
     private ApiKind apiKind;
 
-    public RestSdkConfigurationModel(String restSdkVersion, String connectorName, ApiKind apiKind) {
+    public RestSdkConfigurationModel(String restSdkVersion, ApiKind apiKind) {
         this.restSdkVersion = restSdkVersion;
         this.apiKind = apiKind;
-        this.connectorName = connectorName;
     }
 
     public String getConnectorName() {

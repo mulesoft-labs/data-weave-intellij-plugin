@@ -7,6 +7,7 @@ sourceSets {
 }
 
 dependencies {
+    implementation 'org.apache.maven.shared:maven-invoker:3.1.0'
     compile(group: 'com.atlassian.commonmark', name: 'commonmark', version: '0.14.0')
     compile(group: 'com.atlassian.commonmark', name: 'commonmark-ext-gfm-tables', version: '0.14.0')
     compile(group: 'org.mule.weave', name: 'debugger', version: weaveVersion)
@@ -16,6 +17,7 @@ dependencies {
     compile(group: 'com.mulesoft.connectivity', name: 'rest-sdk-aml', version: restSdkVersion)
     compile(group: 'com.mulesoft.connectivity', name: 'rest-sdk-commons', version: restSdkVersion)
     implementation group: 'com.github.everit-org.json-schema', name: 'org.everit.json.schema', version: '1.12.2'
+
 }
 
 

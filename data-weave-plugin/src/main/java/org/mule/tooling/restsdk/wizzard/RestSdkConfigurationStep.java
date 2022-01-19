@@ -1,15 +1,19 @@
 package org.mule.tooling.restsdk.wizzard;
 
+import static java.util.Objects.requireNonNull;
+import static org.apache.commons.lang.WordUtils.capitalizeFully;
+
 import com.intellij.ide.util.projectWizard.ModuleWizardStep;
+
 import org.mule.tooling.commons.wizard.maven.MavenInfoModel;
 
-import javax.swing.*;
+import javax.swing.JComponent;
 
 public class RestSdkConfigurationStep extends ModuleWizardStep {
 
-    private RestSdkConfigurationModel model;
-    private MavenInfoModel mavenModel;
-    private RestSdkModuleConfigurationStep ui = new RestSdkModuleConfigurationStep();
+    private final RestSdkConfigurationModel model;
+    private final MavenInfoModel mavenModel;
+    private final RestSdkModuleConfigurationStep ui = new RestSdkModuleConfigurationStep();
 
     public RestSdkConfigurationStep(RestSdkConfigurationModel model, MavenInfoModel mavenModel) {
         this.model = model;
@@ -20,7 +24,8 @@ public class RestSdkConfigurationStep extends ModuleWizardStep {
     @Override
     public void updateStep() {
         super.updateStep();
-        ui.getName().setText(mavenModel.getMavenId().getArtifactId());
+
+        ui.getName().setText(capitalizeFully(requireNonNull(mavenModel.getMavenId().getArtifactId()).replace("-", " ")));
         ui.getRestSdkVersion().setText(model.getRestSdkVersion());
         ui.getApiKind().setSelectedItem(model.getApiKind());
     }

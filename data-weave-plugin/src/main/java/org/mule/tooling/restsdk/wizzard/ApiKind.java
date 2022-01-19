@@ -1,17 +1,24 @@
 package org.mule.tooling.restsdk.wizzard;
 
 public enum ApiKind {
-  RAML {
-    @Override
-    public String getApiFile() {
-      return "api.raml";
-    }
-  }, OPEN_API {
-    @Override
-    public String getApiFile() {
-      return "api.yaml";
-    }
-  };
+  RAML("api.raml", "RAML"),
+  OAS_JSON("api.json", "OAS (JSON)"),
+  OAS_YAML("api.yaml", "OAS (YAML)");
 
-  public abstract String getApiFile();
+  private final String apiFileName;
+  private final String displayName;
+
+  ApiKind(String apiFileName, String displayName) {
+    this.apiFileName = apiFileName;
+    this.displayName = displayName;
+  }
+
+  public String getApiFileName(){
+    return apiFileName;
+  }
+
+  @Override
+  public String toString() {
+    return displayName;
+  }
 }
