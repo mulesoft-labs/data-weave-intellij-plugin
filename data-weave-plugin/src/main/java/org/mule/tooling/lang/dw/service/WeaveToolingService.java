@@ -56,6 +56,7 @@ import org.mule.weave.v2.parser.ast.AstNode;
 import org.mule.weave.v2.parser.ast.header.directives.FunctionDirectiveNode;
 import org.mule.weave.v2.parser.ast.variables.NameIdentifier;
 import org.mule.weave.v2.scope.Reference;
+import org.mule.weave.v2.scope.VariableDependency;
 import org.mule.weave.v2.scope.VariableScope;
 import org.mule.weave.v2.sdk.WeaveResource;
 import org.mule.weave.v2.sdk.WeaveResource$;

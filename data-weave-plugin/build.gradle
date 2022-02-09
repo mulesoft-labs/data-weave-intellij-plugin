@@ -12,7 +12,7 @@ dependencies {
     compile(group: 'org.mule.weave', name: 'debugger', version: weaveVersion)
     compile(group: 'org.mule.weave', name: 'parser', version: weaveVersion)
     compile(group: 'org.mule.weave', name: 'migrant', version: migrantVersion)
-    compile(group: 'org.mule.als', name: 'als-server_2.12', version: '4.2.0')
+    compile(group: 'org.mule.als', name: 'als-server_2.12', version: alsVersion)
     compile(group: 'com.mulesoft.connectivity', name: 'rest-sdk-aml', version: restSdkVersion)
     compile(group: 'com.mulesoft.connectivity', name: 'rest-sdk-commons', version: restSdkVersion)
     implementation group: 'com.github.everit-org.json-schema', name: 'org.everit.json.schema', version: '1.12.2'

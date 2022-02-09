@@ -229,8 +229,8 @@ public class ALSLanguageService implements Disposable {
             Option.apply(myProject.getPresentableUrl()),
             Option.empty(),
             Option.<AlsConfiguration>empty(),
-            Option.apply(new ProjectConfigurationStyle(ConfigurationStyle.COMMAND()))
-
+            Option.apply(new ProjectConfigurationStyle(ConfigurationStyle.COMMAND())),
+            Option.apply(true)
     );
     Future<AlsInitializeResult> initialize = languageServer.initialize(params);
     resultOf(initialize);

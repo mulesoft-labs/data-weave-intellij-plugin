@@ -1,7 +1,7 @@
 package org.mule.tooling.lang.dw.refactor.utils;
 
 import com.intellij.refactoring.util.AbstractVariableData;
-import org.mule.weave.v2.editor.VariableDependency;
+import org.mule.weave.v2.scope.VariableDependency;
 import org.mule.weave.v2.ts.WeaveType;
 import scala.Option;
 
