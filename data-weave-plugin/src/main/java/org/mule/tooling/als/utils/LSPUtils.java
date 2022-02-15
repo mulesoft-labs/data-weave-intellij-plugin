@@ -14,6 +14,7 @@ import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 
+import java.io.File;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -38,6 +39,14 @@ public class LSPUtils {
     } catch (InterruptedException | TimeoutException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public static String toLSPUrl(File file){
+    return "file://" + file.toURI().getPath();
+  }
+
+  public static String toLSPUrl(String filePath){
+    return toLSPUrl(new File(filePath));
   }
 
 
