@@ -348,8 +348,8 @@ public class ALSLanguageService implements Disposable {
 //            Commands.DID_CHANGE_CONFIGURATION(), JavaConverters.asScalaBuffer(Collections.singletonList(dependencies)).toList());
     final ExecuteCommandParams executeCommandParams = new ExecuteCommandParams(
             Commands.INDEX_DIALECT(), JavaConverters.asScalaBuffer(Collections.singletonList(dialect)).toList());
-    Future<Object> objectFuture = languageServer.workspaceService().executeCommand(executeCommandParams);
     try {
+      Future<Object> objectFuture = languageServer.workspaceService().executeCommand(executeCommandParams);
       resultOf(objectFuture);
     } catch (Exception e) {
       Notifications.Bus.notify(new Notification(Notifications.SYSTEM_MESSAGES_GROUP_ID, "Unable to register dialect", "Unable to register dialect `" + supportedLanguage.getDialectUrl() + "`\nReason:\n" + e.getMessage(), NotificationType.ERROR));
@@ -366,7 +366,15 @@ public class ALSLanguageService implements Disposable {
       UserDialectLanguageExtension userDialectLanguageExtension = new UserDialectLanguageExtension(dialectLocation.getName(), dialectLocation.getDialectFilePath());
       Optional<ALSLanguageExtension.Dialect> dialect = userDialectLanguageExtension.customDialect(myProject);
       if (dialect.isPresent()) {
-        registerDialect(dialect.get());
+        String dialectUrl = dialect.get().getDialectUrl();
+        try {
+          if (new File(new URI(dialectUrl)).exists()) {
+            registerDialect(dialect.get());
+            //If file doesn't exists don't register it
+          }
+        } catch (URISyntaxException e) {
+          //
+        }
       }
     }
   }
