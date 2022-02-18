@@ -448,6 +448,16 @@
           </ul>
         </li>
       </ul>
+        <h1>v2.0.103</h1>
+      <ul>
+         <li>
+          <p>AML Plugin</p>
+          <ul>
+            <li>Add support for asyncapi</li>
+            <li>Fix exception when dialect doesn't exists</li>
+          </ul>
+        </li>
+      </ul>
     ]]>
     </change-notes>
 
