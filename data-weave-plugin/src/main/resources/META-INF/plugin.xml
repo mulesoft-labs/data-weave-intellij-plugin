@@ -436,6 +436,28 @@
           </ul>
         </li>
       </ul>
+      <h1>v2.0.99</h1>
+      <ul>
+         <li>
+          <p>AML Plugin</p>
+          <ul>
+            <li>Update to latest version of ALS</li>
+            <li>Support completion for dialects and vocabularies</li>
+            <li>Support for custom dialects registration</li>
+            <li>Support for hotreload of custom dialects</li>
+          </ul>
+        </li>
+      </ul>
+        <h1>v2.0.103</h1>
+      <ul>
+         <li>
+          <p>AML Plugin</p>
+          <ul>
+            <li>Add support for asyncapi</li>
+            <li>Fix exception when dialect doesn't exists</li>
+          </ul>
+        </li>
+      </ul>
     ]]>
     </change-notes>
 
@@ -460,6 +482,7 @@
         <nameIdentifierProvider implementation="org.mule.tooling.restsdk.nameidentifier.RestSdkNameIdentifierProvider"/>
         <alsLanguage implementation="org.mule.tooling.restsdk.als.RestSdkLanguageExtension"/>
         <alsLanguage implementation="org.mule.tooling.als.languages.WebApiLanguage"/>
+        <alsLanguage implementation="org.mule.tooling.als.component.AMLLanguageExtension"/>
     </extensions>
     <!--    <extensions defaultExtensionNs="JavaScript.JsonSchema">-->
     <!--        <ProviderFactory implementation="org.mule.tooling.restsdk.schema.RestSdkDescriptorJsonSchemaProviderFactory"/>-->
@@ -558,8 +581,8 @@
                     factoryClass="org.mule.tooling.lang.dw.develop_view.DevelopToolingWindowFactory"
                     icon="AllIcons.Actions.Dump"/>
 
-        <applicationConfigurable instance="org.mule.tooling.lang.dw.settings.DataWeaveSettings" id="Anypoint DataWeave"
-                                 displayName="Anypoint DataWeave"
+        <applicationConfigurable instance="org.mule.tooling.lang.dw.settings.DataWeaveSettings" id="DataWeave"
+                                 displayName="DataWeave"
                                  groupId="root"
         />
 
@@ -589,6 +612,12 @@
 
         <!--        ALS -->
 
+        <applicationConfigurable instance="org.mule.tooling.als.settings.ALSSettings" id="ALS"
+                                 displayName="ALS"
+                                 groupId="root"
+        />
+
+        <applicationService serviceImplementation="org.mule.tooling.als.settings.DialectsRegistry"/>
         <projectService id="Als Service" serviceImplementation="org.mule.tooling.als.component.ALSLanguageService"/>
         <externalAnnotator language="yaml"
                            implementationClass="org.mule.tooling.als.annotator.ALSDiagnosticsAnnotator"/>
@@ -625,7 +654,7 @@
         </action>
         <action id="RAML.CreateNewFileAction"
                 class="org.mule.tooling.restsdk.actions.CreateNewApiFileAction" text="RAML File"
-                description="Create New RAML File">
+                description="Create new RAML file">
             <add-to-group group-id="NewGroup" anchor="first"/>
             <!--<keyboard-shortcut keymap="$default" first-keystroke="shift ctrl W"/>-->
         </action>

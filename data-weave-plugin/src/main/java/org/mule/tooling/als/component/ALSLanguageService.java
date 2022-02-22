@@ -9,34 +9,39 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.codeInsight.template.Template;
 import com.intellij.codeInsight.template.TemplateManager;
 import com.intellij.icons.AllIcons;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.openapi.vfs.*;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiTreeAnyChangeAbstractAdapter;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.mule.tooling.als.settings.DialectsRegistry;
 import org.mule.tooling.als.utils.LSPUtils;
 import org.mule.tooling.lang.dw.util.ScalaUtils;
 import org.mulesoft.als.configuration.AlsConfiguration;
-import org.mulesoft.als.configuration.ConfigurationStyle;
-import org.mulesoft.als.configuration.ProjectConfigurationStyle;
 import org.mulesoft.als.logger.PrintLnLogger$;
 import org.mulesoft.als.server.EmptyJvmSerializationProps$;
-import org.mulesoft.als.server.client.ClientNotifier;
+import org.mulesoft.als.server.client.platform.AlsLanguageServerFactory;
+import org.mulesoft.als.server.client.platform.ClientNotifier;
 import org.mulesoft.als.server.feature.diagnostic.CleanDiagnosticTreeClientCapabilities;
 import org.mulesoft.als.server.feature.fileusage.FileUsageClientCapabilities;
 import org.mulesoft.als.server.feature.renamefile.RenameFileActionClientCapabilities;
 import org.mulesoft.als.server.feature.serialization.ConversionClientCapabilities;
 import org.mulesoft.als.server.feature.serialization.SerializationClientCapabilities;
-import org.mulesoft.als.server.lsp4j.LanguageServerFactory;
 import org.mulesoft.als.server.protocol.LanguageServer;
 import org.mulesoft.als.server.protocol.configuration.AlsClientCapabilities;
 import org.mulesoft.als.server.protocol.configuration.AlsInitializeParams;
@@ -82,6 +87,11 @@ import scala.concurrent.Future;
 import scala.util.Either;
 
 import javax.swing.*;
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
@@ -101,7 +111,7 @@ public class ALSLanguageService implements Disposable {
   private LanguageServer languageServer;
   private Map<String, DocumentState> documents = new HashMap<String, DocumentState>();
   private ALSLanguageExtension[] supportedLanguages;
-  private List<ALSLanguageExtension.Dialect> dialects;
+  private List<ALSLanguageExtension.Dialect> dialectByExtensionPoint;
 
   public ALSLanguageService(Project project) {
     myProject = project;
@@ -114,8 +124,14 @@ public class ALSLanguageService implements Disposable {
 
 
   public void init() {
+    ApplicationManager.getApplication().getMessageBus().connect().subscribe(DialectsRegistry.DialectAddedNotifier.CHANGE_ACTION_TOPIC, new DialectsRegistry.DialectAddedNotifier() {
+      @Override
+      public void dialectAdded(List<DialectsRegistry.DialectLocation> context) {
+        registerUserDefinedDialects();
+      }
+    });
     supportedLanguages = ALSLanguageExtensionService.languages();
-    dialects = Arrays.stream(supportedLanguages)
+    dialectByExtensionPoint = Arrays.stream(supportedLanguages)
             .map((l) -> l.customDialect(myProject))
             .filter((l) -> l.isPresent())
             .map((l) -> l.get())
@@ -129,9 +145,52 @@ public class ALSLanguageService implements Disposable {
       }
     }, this);
 
+    VirtualFileManager.getInstance().addVirtualFileListener(new VirtualFileListener() {
+
+      @Override
+      public void contentsChanged(@NotNull VirtualFileEvent event) {
+        updateDialectIfNeeded(event);
+      }
+
+      private void updateDialectIfNeeded(VirtualFileEvent event) {
+        Optional<DialectsRegistry.DialectLocation> first = DialectsRegistry.getInstance().getDialectsRegistry().stream().filter((d) -> {
+          final String fileUrl = LSPUtils.toLSPUrl(d.getDialectFilePath());
+          return event.getFile().getUrl().equals(fileUrl);
+        }).findFirst();
+        if (first.isPresent()) {
+          DialectsRegistry.DialectLocation dialectLocation = first.get();
+          Optional<ALSLanguageExtension.Dialect> dialect = new UserDialectLanguageExtension(dialectLocation.getName(), dialectLocation.getDialectFilePath()).customDialect(myProject);
+          if (dialect.isPresent()) {
+            registerDialect(dialect.get());
+          }
+        }
+      }
+
+      @Override
+      public void fileCreated(@NotNull VirtualFileEvent event) {
+        updateDialectIfNeeded(event);
+      }
+
+      @Override
+      public void fileDeleted(@NotNull VirtualFileEvent event) {
+        updateDialectIfNeeded(event);
+      }
+
+      @Override
+      public void fileMoved(@NotNull VirtualFileMoveEvent event) {
+        updateDialectIfNeeded(event);
+      }
+
+      @Override
+      public void fileCopied(@NotNull VirtualFileCopyEvent event) {
+        updateDialectIfNeeded(event);
+      }
+    });
+
+    //Registers open close projects
     EditorFactory.getInstance().addEditorFactoryListener(new LSPEditorListener(this), this);
 
-    LanguageServerFactory languageServerFactory = new LanguageServerFactory(new ClientNotifier() {
+    AlsLanguageServerFactory languageServerFactory = new AlsLanguageServerFactory(new ClientNotifier() {
       @Override
       public void notifyTelemetry(TelemetryMessage params) {
 
@@ -147,7 +206,7 @@ public class ALSLanguageService implements Disposable {
           documentState.addDiagnostic(diagnostic);
         }
 
-        ReadAction.run(() -> {
+        ReadAction.nonBlocking(() -> {
           VirtualFile fileByUrl = VirtualFileManager.getInstance().findFileByUrl(uri);
           if (fileByUrl != null) {
             PsiFile file = PsiManager.getInstance(myProject).findFile(fileByUrl);
@@ -163,10 +222,25 @@ public class ALSLanguageService implements Disposable {
     ClientResourceLoader clientResourceLoader = new ClientResourceLoader() {
       @Override
       public CompletableFuture<Content> fetch(String resource) {
-        Optional<Content> first = dialects.stream().map((d) -> d.getResources().get(resource)).filter((r) -> r != null).findFirst();
+        Optional<Content> first = dialectByExtensionPoint.stream().map((d) -> d.getResources().get(resource)).filter((r) -> r != null).findFirst();
         if (first.isPresent()) {
           return CompletableFuture.completedFuture(first.get());
         } else {
+          try {
+            final URI uri = new URI(resource);
+            final File file = new File(uri);
+            //Use virtual file system cache here
+            final VirtualFile fileByIoFile = LocalFileSystem.getInstance().findFileByIoFile(file);
+            String content;
+            if (fileByIoFile != null) {
+              content = new String(fileByIoFile.contentsToByteArray(), StandardCharsets.UTF_8);
+            } else {
+              content = IOUtils.toString(uri, StandardCharsets.UTF_8);
+            }
+            return CompletableFuture.completedFuture(new Content(content, resource));
+          } catch (URISyntaxException | IOException e) {
+            e.printStackTrace();
+          }
           return CompletableFuture.failedFuture(new ResourceNotFound("Unable to find " + resource));
         }
 
@@ -223,25 +297,85 @@ public class ALSLanguageService implements Disposable {
             Option.apply(clientCapabilities),
             Option.apply(TraceKind.Off()),
             Option.apply(Locale.ENGLISH.toString()),
-            Option.apply(myProject.getPresentableUrl()),
+            Option.apply(getProjectRoot()),
             Option.empty(),
             Option.<Seq<WorkspaceFolder>>empty(),
-            Option.apply(myProject.getPresentableUrl()),
+            Option.apply(getProjectRoot()),
             Option.empty(),
             Option.<AlsConfiguration>empty(),
-            Option.apply(new ProjectConfigurationStyle(ConfigurationStyle.COMMAND()))
-
+            Option.apply(true)
     );
     Future<AlsInitializeResult> initialize = languageServer.initialize(params);
     resultOf(initialize);
     languageServer.initialized();
 
-    for (ALSLanguageExtension.Dialect supportedLanguage : dialects) {
-      final String dependencies = "{\"mainUri\": \"\", \"dependencies\": [{\"file\": \"" + supportedLanguage.getDialectUrl() + "\", \"scope\": \"" + KnownDependencyScopes.SEMANTIC_EXTENSION() + "\"}]} ";
-      final ExecuteCommandParams executeCommandParams = new ExecuteCommandParams(
-              Commands.DID_CHANGE_CONFIGURATION(), JavaConverters.asScalaBuffer(Collections.singletonList(dependencies)).toList());
+    for (ALSLanguageExtension.Dialect supportedLanguage : dialectByExtensionPoint) {
+      registerDialect(supportedLanguage);
+    }
+    registerUserDefinedDialects();
+  }
+
+  public String getPath(String url) {
+    String path = url;
+    if (url.endsWith("/")) {
+      path = url.substring(0, url.length() - 1);
+    }
+    return StringUtils.substringBeforeLast(path, "/");
+  }
+
+  public String getFile(String url) {
+    String path = url;
+    if (url.endsWith("/")) {
+      path = url.substring(0, url.length() - 1);
+    }
+    return StringUtils.substringAfterLast(path, "/");
+  }
+
+  private void registerDialect(ALSLanguageExtension.Dialect supportedLanguage) {
+//    final String dependencies = "{" +
+//            "\"folder\": \"" + getPath(getProjectRoot()) + "\", " +
+//            "\"mainPath\": \"" + getFile(getProjectRoot()) + "\", " +
+//            "\"dependencies\": [{" +
+//            "\"file\": \"" + supportedLanguage.getDialectUrl() + "\", " +
+//            "\"scope\": \"" + KnownDependencyScopes.DIALECT()
+//            + "\"}]" +
+//            "} ";
+
+
+    final String dialect = "{" + "\"uri\": \"" + supportedLanguage.getDialectUrl() + "\"" + "} ";
+    System.out.println("REGISTERING dialect " + supportedLanguage.getDialectUrl());
+//    final ExecuteCommandParams executeCommandParams = new ExecuteCommandParams(
+//            Commands.DID_CHANGE_CONFIGURATION(), JavaConverters.asScalaBuffer(Collections.singletonList(dependencies)).toList());
+    final ExecuteCommandParams executeCommandParams = new ExecuteCommandParams(
+            Commands.INDEX_DIALECT(), JavaConverters.asScalaBuffer(Collections.singletonList(dialect)).toList());
+    try {
       Future<Object> objectFuture = languageServer.workspaceService().executeCommand(executeCommandParams);
       resultOf(objectFuture);
+    } catch (Exception e) {
+      Notifications.Bus.notify(new Notification(Notifications.SYSTEM_MESSAGES_GROUP_ID, "Unable to register dialect", "Unable to register dialect `" + supportedLanguage.getDialectUrl() + "`\nReason:\n" + e.getMessage(), NotificationType.ERROR));
+    }
+  }
+
+  private @NonNls String getProjectRoot() {
+    return LSPUtils.toLSPUrl(myProject.getPresentableUrl());
+  }
+
+  public void registerUserDefinedDialects() {
+    List<DialectsRegistry.DialectLocation> dialectLocations = DialectsRegistry.getInstance().getDialectsRegistry();
+    for (DialectsRegistry.DialectLocation dialectLocation : dialectLocations) {
+      UserDialectLanguageExtension userDialectLanguageExtension = new UserDialectLanguageExtension(dialectLocation.getName(), dialectLocation.getDialectFilePath());
+      Optional<ALSLanguageExtension.Dialect> dialect = userDialectLanguageExtension.customDialect(myProject);
+      if (dialect.isPresent()) {
+        String dialectUrl = dialect.get().getDialectUrl();
+        try {
+          if (new File(new URI(dialectUrl)).exists()) {
+            registerDialect(dialect.get());
+            //If file doesn't exists don't register it
+          }
+        } catch (URISyntaxException e) {
+          //
+        }
+      }
     }
   }
 
@@ -454,6 +588,13 @@ public class ALSLanguageService implements Disposable {
   public boolean isSupportedFile(PsiFile file) {
     if (file == null) {
       return false;
+    }
+    List<DialectsRegistry.DialectLocation> dialectLocations = DialectsRegistry.getInstance().getDialectsRegistry();
+    for (DialectsRegistry.DialectLocation dialectLocation : dialectLocations) {
+      UserDialectLanguageExtension userDialectLanguageExtension = new UserDialectLanguageExtension(dialectLocation.getName(), dialectLocation.getDialectFilePath());
+      if (userDialectLanguageExtension.supports(file)) {
+        return true;
+      }
     }
     return Arrays.stream(supportedLanguages).anyMatch((l) -> l.supports(file));
   }

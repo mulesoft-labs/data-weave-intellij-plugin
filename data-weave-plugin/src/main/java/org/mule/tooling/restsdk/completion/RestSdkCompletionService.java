@@ -312,7 +312,7 @@ public class RestSdkCompletionService {
         final List<Resource> resources = new ArrayList<>();
         final StringBuilder template = new StringBuilder();
         template.append("$name$:\n")
-                .append("  ").append(DESCRIPTION).append(": $description$\n")
+                .append("  ").append(DESCRIPTION).append(": \"$description$\"\n")
                 .append("  ").append(DISPLAY_NAME).append(": $name$\n");
 
         final Request request = operation.request();
@@ -351,7 +351,7 @@ public class RestSdkCompletionService {
 
         final Template myTemplate = TemplateManager.getInstance(project).createTemplate("template", "rest_sdk_suggest", template.toString());
         myTemplate.addVariable("name", new TextExpression("On" + StringUtils.capitalize(operationName(operation))), true);
-        myTemplate.addVariable(DESCRIPTION, operation.description().isNullOrEmpty() ? new EmptyExpression() : new ConstantNode(operation.description().value()), true);
+        myTemplate.addVariable(DESCRIPTION, operation.description().isNullOrEmpty() ? new EmptyExpression() : new ConstantNode(descriptionText(operation)), true);
 
         elementBuilder = elementBuilder.withInsertHandler((context, item1) -> {
           final int selectionStart = context.getEditor().getCaretModel().getOffset();
@@ -366,6 +366,10 @@ public class RestSdkCompletionService {
         result.add(elementBuilder);
       });
     });
+  }
+
+  private String descriptionText(Operation operation) {
+    return operation.description().value().replaceAll("\n", "\\n").replaceAll("\"", "\\\"");
   }
 
   private String parametersTemplate(List<Resource> resources, Request request, String kind) {
@@ -490,7 +494,7 @@ public class RestSdkCompletionService {
     LookupElementBuilder elementBuilder = LookupElementBuilder.create("New Parameter");
     elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.AbstractMethod);
     final String template = "$name$:\n" +
-            "  " + DESCRIPTION + ": $description$\n" +
+            "  " + DESCRIPTION + ": \"$description$\"\n" +
             "  " + DISPLAY_NAME + ": $name$\n" +
             "  " + "type: " + "" + "$type$";
 
@@ -567,7 +571,7 @@ public class RestSdkCompletionService {
 
         final Template myTemplate = TemplateManager.getInstance(project).createTemplate("template", "rest_sdk_suggest", template.toString());
         myTemplate.addVariable("name", new TextExpression("My" + StringUtils.capitalize(operationName(operation))), true);
-        myTemplate.addVariable(DESCRIPTION, operation.description().isNullOrEmpty() ? new EmptyExpression() : new ConstantNode(operation.description().value()), true);
+        myTemplate.addVariable(DESCRIPTION, operation.description().isNullOrEmpty() ? new EmptyExpression() : new ConstantNode(descriptionText(operation)), true);
 
         elementBuilder = elementBuilder.withInsertHandler((context, item1) -> {
           final int selectionStart = context.getEditor().getCaretModel().getOffset();

@@ -9,7 +9,8 @@ import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.service.WeaveToolingService;
-import org.mule.weave.v2.editor.VariableDependency;
+
+import org.mule.weave.v2.scope.VariableDependency;
 import org.mule.weave.v2.scope.VariableScope;
 
 public class IntroduceConstantHandler extends IntroduceLocalVariableHandler {
