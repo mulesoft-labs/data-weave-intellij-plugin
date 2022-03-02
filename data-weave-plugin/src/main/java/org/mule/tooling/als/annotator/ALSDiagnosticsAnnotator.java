@@ -55,8 +55,17 @@ public class ALSDiagnosticsAnnotator extends ExternalAnnotator<PsiFile, List<Dia
       if (endIndex < 0 || endIndex > file.getText().length()) {
         endIndex = 0;
       }
-      holder.newAnnotation(severity, validationMessage.message())
-              .range(new TextRange(startIndex, endIndex)).create();
+
+      // If the error marker is invalid put it in a valid position
+      if (!TextRange.isProperRange(startIndex, endIndex)) {
+        startIndex = 0;
+        endIndex = 0;
+      }
+
+      if (TextRange.isProperRange(startIndex, endIndex)) {
+        holder.newAnnotation(severity, validationMessage.message())
+                .range(new TextRange(startIndex, endIndex)).create();
+      }
     }
   }
 }
