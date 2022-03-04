@@ -17,6 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
 public class RestSdkLanguageExtension implements ALSLanguageExtension {
@@ -38,10 +39,15 @@ public class RestSdkLanguageExtension implements ALSLanguageExtension {
   @Override
   public Optional<Dialect> customDialect(Project project) {
     final Map<String, Content> resources = new HashMap<>();
+    final AtomicReference<String> dialectUrl = new AtomicReference<>(REST_SDK_DIALECT_URL);
     final Stream<VirtualFile> dialect = FilenameIndex.getVirtualFilesByName(project, REST_SDK_DIALECT_YAML_FILE_NAME, GlobalSearchScope.allScope(project)).stream();
     dialect.findFirst()
             .ifPresentOrElse((vf) -> {
-              contentFrom(vf).ifPresent((c) -> resources.put(REST_SDK_DIALECT_URL, c));
+              //If vf is present in the project dependencies we take that
+              contentFrom(vf).ifPresent((c) -> {
+                dialectUrl.set(vf.getUrl());
+                resources.put(vf.getUrl(), c);
+              });
             }, () -> {
               contentFrom(REST_SDK_DIALECT_YAML_PATH)
                       .ifPresent((c) -> resources.put(REST_SDK_DIALECT_URL, c));
@@ -50,13 +56,14 @@ public class RestSdkLanguageExtension implements ALSLanguageExtension {
     final Stream<VirtualFile> vocabulary = FilenameIndex.getVirtualFilesByName(project, REST_SDK_VOCABULARY_YAML_FILE_NAME, GlobalSearchScope.allScope(project)).stream();
     vocabulary.findFirst()
             .ifPresentOrElse((vf) -> {
-              contentFrom(vf).ifPresent((c) -> resources.put(REST_SDK_VOCABULARY_URL, c));
+              contentFrom(vf)
+                      .ifPresent((c) -> resources.put(vf.getUrl(), c));
             }, () -> {
               contentFrom(REST_SDK_VOCABULARY_YAML_PATH)
                       .ifPresent((c) -> resources.put(REST_SDK_VOCABULARY_URL, c));
             });
 
-    return Optional.of(new Dialect(REST_SDK_DIALECT_URL, resources));
+    return Optional.of(new Dialect(dialectUrl.get(), resources));
   }
 
   private Optional<Content> contentFrom(String path) {

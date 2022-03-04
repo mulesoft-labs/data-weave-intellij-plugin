@@ -1,5 +1,8 @@
 package org.mule.tooling.als.utils;
 
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.util.text.LineColumn;
@@ -15,6 +18,7 @@ import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 
 import java.io.File;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -33,11 +37,12 @@ public class LSPUtils {
     return new TextDocumentIdentifier(getUrl(element));
   }
 
-  public static <T> T resultOf(Future<T> objectFuture) {
+  public static <T> Optional<T> resultOf(Future<T> objectFuture) {
     try {
-      return Await.result(objectFuture, Duration.apply(10, TimeUnit.SECONDS));
+      return Optional.of(Await.result(objectFuture, Duration.apply(30, TimeUnit.SECONDS)));
     } catch (InterruptedException | TimeoutException e) {
-      throw new RuntimeException(e);
+      Notifications.Bus.notify(new Notification(Notifications.SYSTEM_MESSAGES_GROUP_ID, "Error while executing future", "Unable to execute ALS Future. Reason: \n" + e.getMessage(), NotificationType.ERROR));
+      return Optional.empty();
     }
   }
 

@@ -24,6 +24,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiTreeAnyChangeAbstractAdapter;
+import com.intellij.util.Alarm;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NonNls;
@@ -112,6 +113,7 @@ public class ALSLanguageService implements Disposable {
   private Map<String, DocumentState> documents = new HashMap<String, DocumentState>();
   private ALSLanguageExtension[] supportedLanguages;
   private List<ALSLanguageExtension.Dialect> dialectByExtensionPoint;
+  private final Alarm myDocumentAlarm = new Alarm(Alarm.ThreadToUse.POOLED_THREAD, this);
 
   public ALSLanguageService(Project project) {
     myProject = project;
@@ -153,17 +155,33 @@ public class ALSLanguageService implements Disposable {
       }
 
       private void updateDialectIfNeeded(VirtualFileEvent event) {
-        Optional<DialectsRegistry.DialectLocation> first = DialectsRegistry.getInstance().getDialectsRegistry().stream().filter((d) -> {
-          final String fileUrl = LSPUtils.toLSPUrl(d.getDialectFilePath());
-          return event.getFile().getUrl().equals(fileUrl);
-        }).findFirst();
+        //Only yaml files
+        if (!"yaml".equalsIgnoreCase(event.getFile().getExtension())) {
+          return;
+        }
+
+        String url = event.getFile().getUrl();
+        List<DialectsRegistry.DialectLocation> dialectsRegistry = DialectsRegistry.getInstance().getDialectsRegistry();
+        Optional<DialectsRegistry.DialectLocation> first =
+                dialectsRegistry.stream().filter((d) -> {
+                  final String fileUrl = LSPUtils.toLSPUrl(d.getDialectFilePath());
+
+                  return url.equals(fileUrl);
+                }).findFirst();
         if (first.isPresent()) {
           DialectsRegistry.DialectLocation dialectLocation = first.get();
           Optional<ALSLanguageExtension.Dialect> dialect = new UserDialectLanguageExtension(dialectLocation.getName(), dialectLocation.getDialectFilePath()).customDialect(myProject);
-          if (dialect.isPresent()) {
-            registerDialect(dialect.get());
-          }
+          dialect.ifPresent(value -> {
+            scheduleUpdateDialect(event, value);
+          });
         }
+
+        Optional<ALSLanguageExtension.Dialect> extensionDialect = dialectByExtensionPoint.stream().filter((d) -> {
+          return d.getResources().containsKey(url);
+        }).findFirst();
+        extensionDialect.ifPresent(dialect -> {
+          scheduleUpdateDialect(event, dialect);
+        });
       }
 
       @Override
@@ -222,7 +240,11 @@ public class ALSLanguageService implements Disposable {
     ClientResourceLoader clientResourceLoader = new ClientResourceLoader() {
       @Override
       public CompletableFuture<Content> fetch(String resource) {
-        Optional<Content> first = dialectByExtensionPoint.stream().map((d) -> d.getResources().get(resource)).filter((r) -> r != null).findFirst();
+        Optional<Content> first =
+                dialectByExtensionPoint.stream()
+                        .map((d) -> d.getResources().get(resource))
+                        .filter((r) -> r != null)
+                        .findFirst();
         if (first.isPresent()) {
           return CompletableFuture.completedFuture(first.get());
         } else {
@@ -315,6 +337,17 @@ public class ALSLanguageService implements Disposable {
     registerUserDefinedDialects();
   }
 
+  private void scheduleUpdateDialect(VirtualFileEvent event, ALSLanguageExtension.Dialect value) {
+    myDocumentAlarm.cancelAllRequests();
+    myDocumentAlarm.addRequest(() -> {
+      if (myDocumentAlarm.isDisposed()) {
+        return;
+      }
+      registerDialect(value);
+      Notifications.Bus.notify(new Notification(Notifications.SYSTEM_MESSAGES_GROUP_ID, "Updating dialect", "Dialect '" + event.getFileName() + "' was updated as changes where detected.", NotificationType.INFORMATION));
+    }, 1000);
+  }
+
   public String getPath(String url) {
     String path = url;
     if (url.endsWith("/")) {
@@ -332,20 +365,8 @@ public class ALSLanguageService implements Disposable {
   }
 
   private void registerDialect(ALSLanguageExtension.Dialect supportedLanguage) {
-//    final String dependencies = "{" +
-//            "\"folder\": \"" + getPath(getProjectRoot()) + "\", " +
-//            "\"mainPath\": \"" + getFile(getProjectRoot()) + "\", " +
-//            "\"dependencies\": [{" +
-//            "\"file\": \"" + supportedLanguage.getDialectUrl() + "\", " +
-//            "\"scope\": \"" + KnownDependencyScopes.DIALECT()
-//            + "\"}]" +
-//            "} ";
-
-
     final String dialect = "{" + "\"uri\": \"" + supportedLanguage.getDialectUrl() + "\"" + "} ";
     System.out.println("REGISTERING dialect " + supportedLanguage.getDialectUrl());
-//    final ExecuteCommandParams executeCommandParams = new ExecuteCommandParams(
-//            Commands.DID_CHANGE_CONFIGURATION(), JavaConverters.asScalaBuffer(Collections.singletonList(dependencies)).toList());
     final ExecuteCommandParams executeCommandParams = new ExecuteCommandParams(
             Commands.INDEX_DIALECT(), JavaConverters.asScalaBuffer(Collections.singletonList(dialect)).toList());
     try {
@@ -437,7 +458,11 @@ public class ALSLanguageService implements Disposable {
     ensureFileOpened(file);
     final RequestHandler<CompletionParams, Either<Seq<CompletionItem>, CompletionList>> completionParamsEitherRequestHandler = languageServer.resolveHandler(CompletionRequestType$.MODULE$).get();
     final Future<Either<Seq<CompletionItem>, CompletionList>> apply = completionParamsEitherRequestHandler.apply(new CompletionParams(documentIdentifierOf(file), positionOf(position), Option.empty()));
-    final Either<Seq<CompletionItem>, CompletionList> result = resultOf(apply);
+    Optional<Either<Seq<CompletionItem>, CompletionList>> eitherOptional = resultOf(apply);
+    if (eitherOptional.isEmpty()) {
+      return Collections.emptyList();
+    }
+    final Either<Seq<CompletionItem>, CompletionList> result = eitherOptional.get();
     Seq<CompletionItem> completionList;
     if (result.isLeft()) {
       completionList = result.left().get();
@@ -572,9 +597,12 @@ public class ALSLanguageService implements Disposable {
     Option<RequestHandler<HoverParams, Hover>> requestHandlerOption = languageServer.resolveHandler(HoverRequestType$.MODULE$);
     if (requestHandlerOption.isDefined()) {
       Future<Hover> apply = requestHandlerOption.get().apply(new HoverParams(documentIdentifierOf(element.getContainingFile()), positionOf(element)));
-      final Hover hover = resultOf(apply);
-      @NotNull String[] strings = ScalaUtils.toArray(hover.contents(), new String[0]);
-      result = String.join("\n", strings);
+      final Optional<Hover> optionalHover = resultOf(apply);
+      if (optionalHover.isPresent()) {
+        final Hover hover = optionalHover.get();
+        @NotNull String[] strings = ScalaUtils.toArray(hover.contents(), new String[0]);
+        result = String.join("\n", strings);
+      }
     }
     return result;
   }
