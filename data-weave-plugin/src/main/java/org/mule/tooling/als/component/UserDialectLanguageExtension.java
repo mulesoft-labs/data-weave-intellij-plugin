@@ -7,15 +7,19 @@ import org.mule.tooling.als.utils.LSPUtils;
 
 import java.util.HashMap;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 public class UserDialectLanguageExtension implements ALSLanguageExtension {
 
-  private String header;
+
+
   private String filePath;
+  private Pattern regex;
 
   public UserDialectLanguageExtension(String name, String filePath) {
     this.filePath = filePath;
-    this.header = name;
+
+    this.regex = Pattern.compile("#%\\s*" + name);
   }
 
   @Override
@@ -39,6 +43,7 @@ public class UserDialectLanguageExtension implements ALSLanguageExtension {
   }
 
   public boolean isDialectDescriptor(String text) {
-    return text.contains("#%" + header);
+    Optional<String> first = text.lines().filter((s) -> !s.isBlank()).findFirst();
+    return first.stream().anyMatch((s) -> regex.matcher(s).find());
   }
 }
