@@ -345,7 +345,7 @@ public class ALSLanguageService implements Disposable {
       }
       registerDialect(value);
       Notifications.Bus.notify(new Notification(Notifications.SYSTEM_MESSAGES_GROUP_ID, "Updating dialect", "Dialect '" + event.getFileName() + "' was updated as changes where detected.", NotificationType.INFORMATION));
-    }, 1000);
+    }, 500);
   }
 
   public String getPath(String url) {
@@ -365,8 +365,8 @@ public class ALSLanguageService implements Disposable {
   }
 
   private void registerDialect(ALSLanguageExtension.Dialect supportedLanguage) {
+
     final String dialect = "{" + "\"uri\": \"" + supportedLanguage.getDialectUrl() + "\"" + "} ";
-    System.out.println("REGISTERING dialect " + supportedLanguage.getDialectUrl());
     final ExecuteCommandParams executeCommandParams = new ExecuteCommandParams(
             Commands.INDEX_DIALECT(), JavaConverters.asScalaBuffer(Collections.singletonList(dialect)).toList());
     try {
@@ -390,6 +390,7 @@ public class ALSLanguageService implements Disposable {
         String dialectUrl = dialect.get().getDialectUrl();
         try {
           if (new File(new URI(dialectUrl)).exists()) {
+            Notifications.Bus.notify(new Notification(Notifications.SYSTEM_MESSAGES_GROUP_ID, "Registering dialect", "Dialect '" + dialectLocation.getName() + "'.", NotificationType.INFORMATION));
             registerDialect(dialect.get());
             //If file doesn't exists don't register it
           }
