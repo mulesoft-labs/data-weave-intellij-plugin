@@ -33,431 +33,444 @@
     ]]></description>
 
     <change-notes><![CDATA[
-    <h1>v2.0-BETA</h1>
+    <h1>v2.0.109</h1>
+<ul>
+  <li>
+    <p>AML Plugin</p>
+    <ul>
+      <li>Improve hot reload of user defined dialects</li>
+      <li>Fix detection of dialects support whitespaces</li>
+      <li>Update to latest ALS</li>
+      <li>Update to latest DW</li>
+    </ul>
+  </li>
+</ul>
+    <h1>v2.0.103</h1>
+<ul>
+  <li>
+    <p>AML Plugin</p>
+    <ul>
+      <li>Add support for asyncapi</li>
+      <li>Fix exception when dialect doesn't exists</li>
+    </ul>
+  </li>
+</ul>
+<h1>v2.0.99</h1>
+<ul>
+  <li>
+    <p>AML Plugin</p>
+    <ul>
+      <li>Update to latest version of ALS</li>
+      <li>Support completion for dialects and vocabularies</li>
+      <li>Support for custom dialects registration</li>
+      <li>Support for hotreload of custom dialects</li>
+    </ul>
+  </li>
+</ul>
+<h1>v2.0.97</h1>
+<ul>
+  <li>
+    <p>RestSdk Plugin</p>
+    <ul>
+      <li>Update pom.xml template to latest</li>
+    </ul>
+  </li>
+</ul>
+<h1>v2.0.95</h1>
+<ul>
+  <li>
+    <p>RestSdk Plugin</p>
+    <ul>
+      <li>Use 0.8.0-RC1</li>
+      <li>Fix NPE on annotator</li>
+    </ul>
+  </li>
+</ul>
+<h1>v2.0.93</h1>
+<ul>
+  <li>
+    <p>DW Plugin</p>
+    <ul>
+      <li>Trying to avoid many restarts</li>
+    </ul>
+  </li>
+  <li>
+    <p>RestSdk Plugin</p>
+    <ul>
+      <li>Add support to go to implementation for all elements</li>
+    </ul>
+  </li>
+</ul>
+<h1>v2.0.91</h1>
+<ul>
+  <li>
+    <p>DW Plugin</p>
+    <ul>
+      <li>Fix support for grammar on default annotation parameters</li>
+    </ul>
+  </li>
+  <li>
+    <p>RestSdk Plugin</p>
+    <ul>
+      <li>Fix several NPE</li>
+      <li>Add support to go to implementation</li>
+      <li>Update to latest grammar</li>
+    </ul>
+  </li>
+</ul>
+<h1>v2.0.87</h1>
+<ul>
+  <li>Fix compatibilities with 2021.3</li>
+</ul>
+<h1>v2.0.85</h1>
+<ul>
+  <li>
+    <p>RestSDK Support</p>
+    <ul>
+      <li>Update to latest version of grammar</li>
+    </ul>
+  </li>
+  <li>
+    <p>DW Plugin</p>
+    <ul>
+      <li>Fix indexer causing plugin to hang</li>
+      <li>Options to customize the agent parameters</li>
+      <li>Fix to support latest version of IJ</li>
+    </ul>
+  </li>
+</ul>
+<h1>v2.0.83</h1>
+<ul>
+  <li>
+    <p>RestSDK Support</p>
+    <ul>
+      <li>Links to paths operation id</li>
+      <li>More IntellijSense</li>
+      <li>Validations</li>
+    </ul>
+  </li>
+</ul>
+<h1>v2.0.79</h1>
+<ul>
+  <li>
+    <p>RestSDK Support</p>
+    <ul>
+      <li>Value Providers Better completion and IntellijSense</li>
+    </ul>
+  </li>
+</ul>
+<h1>v2.0.78</h1>
+<ul>
+  <li>
+    <p>RestSDK Support</p>
+    <ul>
+      <li>Fix support for RAML</li>
+      <li>Fix navigation on folders</li>
+      <li>Fix cached values </li>
+      <li>Fix DataSense on QueryParams Uri Params and Headers</li>
+    </ul>
+  </li>
+</ul>
+<h1>v2.0.77</h1>
+<ul>
+  <li>
+    <p>RestSDK Support</p>
+    <ul>
+      <li>Improve performance on big apis</li>
+      <li>Improve template for new parameters and query params</li>
+    </ul>
+  </li>
+</ul>
+<h1>v2.0.74</h1>
+<ul>
+  <li>
+    <p>RestSDK Support</p>
+    <ul>
+      <li>Fix NPE</li>
+    </ul>
+  </li>
+</ul>
+<h1>v2.0.73</h1>
+<ul>
+  <li>
+    <p>RestSDK Support</p>
+    <ul>
+      <li>Documentation support</li>
+      <li>Better completion on any path key.</li>
+      <li>Improved Completion support.</li>
+    </ul>
+  </li>
+</ul>
+<h1>v2.0.71</h1>
+<ul>
+  <li>
+    <p>RestSDK Support</p>
+    <ul>
+      <li>Better DataSense base on the api spec for all expression in triggers operations and sample data</li>
+      <li>Completion based on the api spec and scaffolding.</li>
+      <li>Navigation on the resources.</li>
+    </ul>
+  </li>
+</ul>
+<h1>v2.0.62</h1>
+<ul>
+  <li>
+    <p>RestSDK Support</p>
+    <ul>
+      <li>Add autocompletion of DW expressions with DataSense.</li>
+      <li>Allow injected expressions to work with WeavePreview Tool.</li>
+    </ul>
+  </li>
+</ul>
+<h1>v2.0.60</h1>
+<ul>
+  <li>
+    <p>RestSDK Support</p>
+    <ul>
+      <li>Fix validation of missing property.</li>
+    </ul>
+  </li>
+</ul>
+<h1>v2.0.58</h1>
+<ul>
+  <li>
+    <p>RestSDK Support</p>
+    <ul>
+      <li>Basic Completion.</li>
+      <li>Basic Navigation cross References.</li>
+      <li>Wizard support for new RestSdk project.</li>
+    </ul>
+  </li>
+</ul>
+<h1>v2.0.48</h1>
+<ul>
+  <li>
+    <p>DataWeave 2.0 Support</p>
+    <ul>
+      <li>Add support for multilinestring.</li>
+      <li>Improve support for Weave Testing Framework.</li>
+      <li>Add support for Weave Integration Test.</li>
+      <li>Fix classcast.</li>
+    </ul>
+  </li>
+</ul>
+</ul>
+<h1>v2.0.44</h1>
+<ul>
+  <li>
+    <p>DataWeave 2.0 Support</p>
+    <ul>
+      <li>Update to latest Weave Tooling.</li>
+      <li>Improve support for RAML modules.</li>
+      <li>Add dependency graph view.</li>
+      <li>Fix show parameters info.</li>
+      <li>Add new icons.</li>
+      <li>Add support for latest WaveTestingFramework.</li>
+      <li>Use latest tooling api for better go to declaration.</li>
+    </ul>
+  </li>
+</ul>
+<h1>v2.0.42</h1>
+<ul>
+  <li>
+    <p>DataWeave 2.0 Support</p>
+    <ul>
+      <li>Fix build for latest IJ.</li>
+      <li>Fix autocompletion of namespace elements.</li>
+    </ul>
+  </li>
+  <h1>v2.0.40</h1>
+  <ul>
+    <li>
+      <p>DataWeave 2.0 Support</p>
       <ul>
-       <li>
-          <p>DataWeave 2.0 Support</p>
-          <ul>
-            <li>Grammar Parsing</li>
-            <li>Color Highlighting.</li>
-            <li>Local Refactoring.</li>
-            <li>Run/Debug Script.</li>
-            <li>String Interpolation support.</li>
-            <li>Simple mule config language injection.</li>
-          </ul>
-        </li>
+        <li>Add support for optional field on function types.</li>
       </ul>
-    <h1>v2.0.2</h1>
+    </li>
+  </ul>
+  <h1>v2.0.38</h1>
+  <ul>
+    <li>
+      <p>DataWeave 2.0 Support</p>
       <ul>
-       <li>
-          <p>DataWeave 2.0 Support</p>
-          <ul>
-            <li>Initial Testing Framework</li>
-          </ul>
-        </li>
+        <li>Some autocompletion fixes.</li>
+        <li>Small UI teaks.</li>
+        <li>Support for 2.3.0 syntax.</li>
+        <li>Use latest wtf testing.</li>
       </ul>
-    <h1>v2.0.4</h1>
+    </li>
+  </ul>
+  <h1>v2.0.35</h1>
+  <ul>
+    <li>
+      <p>DataWeave 2.0 Support</p>
       <ul>
-       <li>
-          <p>DataWeave 2.0 Support</p>
-          <ul>
-            <li>Autocomplete</li>
-            <li>Introduce Variable</li>
-            <li>Introduce Constant</li>
-            <li>Documentation</li>
-            <li>Show Inferred Type</li>
-            <li>Reformat Weave Document</li>
-            <li>Spell checking</li>
-            <li>Weave Preview support</li>
-            <li>Regex validation</li>
-            <li>Improved language injection in mule configuration and java literals</li>
-            <li>Surround with log and DoBlock</li>
-            <li>Go To Class support</li>
-            <li>Migrate from V1 to V2 of DW</li>
-            <li>Introduce Function</li>
-            <li>Autocompletion of media types with writer properties</li>
-            <li>Introduce Type</li>
-            <li>Debugging tests</li>
-          </ul>
-        </li>
+        <li>Autoescape string on pasting multiline.</li>
+        <li>Add intention for persisting types.</li>
       </ul>
-       <h1>v2.0.5</h1>
+    </li>
+  </ul>
+  <h1>v2.0.33</h1>
+  <ul>
+    <li>
+      <p>DataWeave 2.0 Support</p>
       <ul>
-       <li>
-          <p>DataWeave 2.0 Support</p>
-          <ul>
-            <li>Lots of Bug Fixes</li>
-          </ul>
-        </li>
+        <li>More variaty of versions supported</li>
       </ul>
-      <h1>v2.0.7</h1>
+    </li>
+  </ul>
+  <h1>v2.0.29</h1>
+  <ul>
+    <li>
+      <p>DataWeave 2.0 Support</p>
       <ul>
-       <li>
-          <p>DataWeave 2.0 Support</p>
-          <ul>
-            <li>Fix find usages</li>
-            <li>Fix rename</li>
-            <li>Make Agent tear down when it is not used</li>
-          </ul>
-        </li>
+        <li>Fix New Scenario When DWIT is not present</li>
+        <li>Fix Grammar for multiAttribute selector </li>
       </ul>
-       <h1>v2.0.11</h1>
+    </li>
+  </ul>
+  <h1>v2.0.27</h1>
+  <ul>
+    <li>
+      <p>DataWeave 2.0 Support</p>
       <ul>
-       <li>
-          <p>DataWeave 2.0 Support</p>
-          <ul>
-            <li>Shows type hints and parameters names</li>
-            <li>Fix grammar should support ! and fix issue with + on numbers and addition</li>
-            <li>Improve extract method</li>
-          </ul>
-        </li>
+        <li>Lots of Autocompletion Improvements</li>
+        <li>Better Parsing Error Handling and Error Messages</li>
       </ul>
-      <h1>v2.0.13</h1>
+    </li>
+  </ul>
+  <h1>v2.0.25</h1>
+  <ul>
+    <li>
+      <p>DataWeave 2.0 Support</p>
       <ul>
-       <li>
-          <p>DataWeave 2.0 Support</p>
-          <ul>
-            <li>Performance Improvement</li>
-            <li>Fix error with WordScanner</li>
-            <li>Fix NPE</li>            
-          </ul>
-        </li>
+        <li>Some UX improvements on the Preview Panel</li>
+        <li>Several NPE</li>
+        <li>Deadlock on read lock and DataWeaveService</li>
       </ul>
-      <h1>v2.0.17</h1>
+    </li>
+  </ul>
+  <h1>v2.0.21</h1>
+  <ul>
+    <li>
+      <p>DataWeave 2.0 Support</p>
       <ul>
-       <li>
-          <p>DataWeave 2.0 Support</p>
-          <ul>
-            <li>Performance Improvement</li>
-            <li>Fix error with outline on dynamic scripts</li>
-            <li>Add support for weavedocs generation</li>
-          </ul>
-        </li>
+        <li>Small bug fix on type checker</li>
       </ul>
-      <h1>v2.0.19</h1>
+    </li>
+  </ul>
+  <h1>v2.0.19</h1>
+  <ul>
+    <li>
+      <p>DataWeave 2.0 Support</p>
       <ul>
-       <li>
-          <p>DataWeave 2.0 Support</p>
-          <ul>
-            <li>Navigation/Find Usage of binary function support</li>
-            <li>Fix wrong param name when calling function with default prefix</li>
-          </ul>
-        </li>
+        <li>Navigation/Find Usage of binary function support</li>
+        <li>Fix wrong param name when calling function with default prefix</li>
       </ul>
-      <h1>v2.0.21</h1>
+    </li>
+  </ul>
+  <h1>v2.0.17</h1>
+  <ul>
+    <li>
+      <p>DataWeave 2.0 Support</p>
       <ul>
-       <li>
-          <p>DataWeave 2.0 Support</p>
-          <ul>
-            <li>Small bug fix on type checker</li>
-          </ul>
-        </li>
+        <li>Performance Improvement</li>
+        <li>Fix error with outline on dynamic scripts</li>
+        <li>Add support for weavedocs generation</li>
       </ul>
-      <h1>v2.0.25</h1>
+    </li>
+  </ul>
+  <h1>v2.0.13</h1>
+  <ul>
+    <li>
+      <p>DataWeave 2.0 Support</p>
       <ul>
-       <li>
-          <p>DataWeave 2.0 Support</p>
-          <ul>
-            <li>Some UX improvements on the Preview Panel</li>
-            <li>Several NPE</li>
-            <li>Deadlock on read lock and DataWeaveService</li>
-          </ul>
-        </li>
+        <li>Performance Improvement</li>
+        <li>Fix error with WordScanner</li>
+        <li>Fix NPE</li>
       </ul>
-       <h1>v2.0.27</h1>
+    </li>
+  </ul>
+  <h1>v2.0.11</h1>
+  <ul>
+    <li>
+      <p>DataWeave 2.0 Support</p>
       <ul>
-       <li>
-          <p>DataWeave 2.0 Support</p>
-          <ul>
-            <li>Lots of Autocompletion Improvements</li>
-            <li>Better Parsing Error Handling and Error Messages</li>
-          </ul>
-        </li>
+        <li>Shows type hints and parameters names</li>
+        <li>Fix grammar should support ! and fix issue with + on numbers and addition</li>
+        <li>Improve extract method</li>
       </ul>
-      <h1>v2.0.29</h1>
+    </li>
+  </ul>
+  <h1>v2.0.7</h1>
+  <ul>
+    <li>
+      <p>DataWeave 2.0 Support</p>
       <ul>
-       <li>
-          <p>DataWeave 2.0 Support</p>
-          <ul>
-            <li>Fix New Scenario When DWIT is not present</li>
-            <li>Fix Grammar for multiAttribute selector </li>
-          </ul>
-        </li>
+        <li>Fix find usages</li>
+        <li>Fix rename</li>
+        <li>Make Agent tear down when it is not used</li>
       </ul>
-      <h1>v2.0.33</h1>
+    </li>
+  </ul>
+  <h1>v2.0.5</h1>
+  <ul>
+    <li>
+      <p>DataWeave 2.0 Support</p>
       <ul>
-       <li>
-          <p>DataWeave 2.0 Support</p>
-          <ul>
-            <li>More variaty of versions supported</li>
-          </ul>
-        </li>
+        <li>Lots of Bug Fixes</li>
       </ul>
-      <h1>v2.0.35</h1>
+    </li>
+  </ul>
+
+  <h1>v2.0.4</h1>
+  <ul>
+    <li>
+      <p>DataWeave 2.0 Support</p>
       <ul>
-       <li>
-          <p>DataWeave 2.0 Support</p>
-          <ul>
-            <li>Autoescape string on pasting multiline.</li>
-            <li>Add intention for persisting types.</li>
-          </ul>
-        </li>
+        <li>Autocomplete</li>
+        <li>Introduce Variable</li>
+        <li>Introduce Constant</li>
+        <li>Documentation</li>
+        <li>Show Inferred Type</li>
+        <li>Reformat Weave Document</li>
+        <li>Spell checking</li>
+        <li>Weave Preview support</li>
+        <li>Regex validation</li>
+        <li>Improved language injection in mule configuration and java literals</li>
+        <li>Surround with log and DoBlock</li>
+        <li>Go To Class support</li>
+        <li>Migrate from V1 to V2 of DW</li>
+        <li>Introduce Function</li>
+        <li>Autocompletion of media types with writer properties</li>
+        <li>Introduce Type</li>
+        <li>Debugging tests</li>
       </ul>
-         <h1>v2.0.38</h1>
+    </li>
+  </ul>
+  <h1>v2.0.2</h1>
+  <ul>
+    <li>
+      <p>DataWeave 2.0 Support</p>
       <ul>
-       <li>
-          <p>DataWeave 2.0 Support</p>
-          <ul>
-            <li>Some autocompletion fixes.</li>
-            <li>Small UI teaks.</li>
-            <li>Support for 2.3.0 syntax.</li>
-            <li>Use latest wtf testing.</li>
-          </ul>
-        </li>
+        <li>Initial Testing Framework</li>
       </ul>
-         <h1>v2.0.40</h1>
+    </li>
+  </ul>
+  <h1>v2.0-BETA</h1>
+  <ul>
+    <li>
+      <p>DataWeave 2.0 Support</p>
       <ul>
-       <li>
-          <p>DataWeave 2.0 Support</p>
-          <ul>
-            <li>Add support for optional field on function types.</li>
-          </ul>
-        </li>
+        <li>Grammar Parsing</li>
+        <li>Color Highlighting.</li>
+        <li>Local Refactoring.</li>
+        <li>Run/Debug Script.</li>
+        <li>String Interpolation support.</li>
+        <li>Simple mule config language injection.</li>
       </ul>
-          <h1>v2.0.42</h1>
-      <ul>
-       <li>
-          <p>DataWeave 2.0 Support</p>
-          <ul>
-            <li>Fix build for latest IJ.</li>
-            <li>Fix autocompletion of namespace elements.</li>
-          </ul>
-        </li>
-      </ul>
-          <h1>v2.0.44</h1>
-      <ul>
-       <li>
-          <p>DataWeave 2.0 Support</p>
-          <ul>
-            <li>Update to latest Weave Tooling.</li>
-            <li>Improve support for RAML modules.</li>
-            <li>Add dependency graph view.</li>
-            <li>Fix show parameters info.</li>
-            <li>Add new icons.</li>
-            <li>Add support for latest WaveTestingFramework.</li>
-            <li>Use latest tooling api for better go to declaration.</li>
-          </ul>
-        </li>
-      </ul>
-      <h1>v2.0.48</h1>
-      <ul>
-       <li>
-          <p>DataWeave 2.0 Support</p>
-          <ul>
-            <li>Add support for multilinestring.</li>
-            <li>Improve support for Weave Testing Framework.</li>
-            <li>Add support for Weave Integration Test.</li>
-            <li>Fix classcast.</li>
-          </ul>
-        </li>
-      </ul>
-      <h1>v2.0.58</h1>
-      <ul>
-       <li>
-          <p>RestSDK Support</p>
-          <ul>
-            <li>Basic Completion.</li>
-            <li>Basic Navigation cross References.</li>
-            <li>Wizard support for new RestSdk project.</li>
-          </ul>
-        </li>
-      </ul>
-      <h1>v2.0.60</h1>
-      <ul>
-       <li>
-          <p>RestSDK Support</p>
-          <ul>
-            <li>Fix validation of missing property.</li>
-          </ul>
-        </li>
-      </ul>
-       <h1>v2.0.62</h1>
-      <ul>
-       <li>
-          <p>RestSDK Support</p>
-          <ul>
-            <li>Add autocompletion of DW expressions with DataSense.</li>
-            <li>Allow injected expressions to work with WeavePreview Tool.</li>
-          </ul>
-        </li>
-      </ul>
-      <h1>v2.0.71</h1>
-      <ul>
-       <li>
-          <p>RestSDK Support</p>
-          <ul>
-            <li>Better DataSense base on the api spec for all expression in triggers operations and sample data</li>
-            <li>Completion based on the api spec and scaffolding.</li>
-            <li>Navigation on the resources.</li>
-          </ul>
-        </li>
-      </ul>
-       <h1>v2.0.73</h1>
-      <ul>
-       <li>
-          <p>RestSDK Support</p>
-          <ul>
-            <li>Documentation support</li>
-            <li>Better completion on any path key.</li>
-            <li>Improved Completion support.</li>
-          </ul>
-        </li>
-      </ul>
-      <h1>v2.0.74</h1>
-      <ul>
-       <li>
-          <p>RestSDK Support</p>
-          <ul>
-            <li>Fix NPE</li>
-          </ul>
-        </li>
-      </ul>
-      <h1>v2.0.77</h1>
-      <ul>
-       <li>
-          <p>RestSDK Support</p>
-          <ul>
-            <li>Improve performance on big apis</li>
-            <li>Improve template for new parameters and query params</li>
-          </ul>
-        </li>
-      </ul>
-      <h1>v2.0.78</h1>
-      <ul>
-       <li>
-          <p>RestSDK Support</p>
-          <ul>
-            <li>Fix support for RAML</li>
-            <li>Fix navigation on folders</li>
-            <li>Fix cached values </li>
-            <li>Fix DataSense on QueryParams Uri Params and Headers</li>
-          </ul>
-        </li>
-      </ul>
-      <h1>v2.0.79</h1>
-      <ul>
-       <li>
-          <p>RestSDK Support</p>
-          <ul>
-            <li>Value Providers Better completion and IntellijSense</li>
-          </ul>
-        </li>
-      </ul>
-      <h1>v2.0.83</h1>
-      <ul>
-       <li>
-          <p>RestSDK Support</p>
-          <ul>
-            <li>Links to paths operation id</li>
-            <li>More IntellijSense</li>
-            <li>Validations</li>
-          </ul>
-        </li>
-      </ul>
-      <h1>v2.0.85</h1>
-      <ul>
-       <li>
-          <p>RestSDK Support</p>
-          <ul>
-            <li>Update to latest version of grammar</li>
-          </ul>
-        </li>
-        <li>
-          <p>DW Plugin</p>
-          <ul>
-            <li>Fix indexer causing plugin to hang</li>
-            <li>Options to customize the agent parameters</li>
-            <li>Fix to support latest version of IJ</li>
-          </ul>
-        </li>
-      </ul>
-      <h1>v2.0.87</h1>
-      <ul>
-        <li>Fix compatibilities with 2021.3</li>
-      </ul>
-       <h1>v2.0.91</h1>
-      <ul>
-        <li>
-          <p>DW Plugin</p>
-          <ul>
-            <li>Fix support for grammar on default annotation parameters</li>
-          </ul>
-        </li>
-         <li>
-          <p>RestSdk Plugin</p>
-          <ul>
-            <li>Fix several NPE</li>
-            <li>Add support to go to implementation</li>
-            <li>Update to latest grammar</li>
-          </ul>
-        </li>
-      </ul>
-       <h1>v2.0.93</h1>
-      <ul>
-         <li>
-          <p>DW Plugin</p>
-          <ul>
-            <li>Trying to avoid many restarts</li>
-          </ul>
-        </li>
-         <li>
-          <p>RestSdk Plugin</p>
-          <ul>
-            <li>Add support to go to implementation for all elements</li>
-          </ul>
-        </li>
-      </ul>
-       <h1>v2.0.95</h1>
-      <ul>
-         <li>
-          <p>RestSdk Plugin</p>
-          <ul>
-            <li>Use 0.8.0-RC1</li>
-            <li>Fix NPE on annotator</li>
-          </ul>
-        </li>
-      </ul>
-       <h1>v2.0.97</h1>
-      <ul>
-         <li>
-          <p>RestSdk Plugin</p>
-          <ul>
-            <li>Update pom.xml template to latest</li>
-          </ul>
-        </li>
-      </ul>
-      <h1>v2.0.99</h1>
-      <ul>
-         <li>
-          <p>AML Plugin</p>
-          <ul>
-            <li>Update to latest version of ALS</li>
-            <li>Support completion for dialects and vocabularies</li>
-            <li>Support for custom dialects registration</li>
-            <li>Support for hotreload of custom dialects</li>
-          </ul>
-        </li>
-      </ul>
-        <h1>v2.0.103</h1>
-      <ul>
-         <li>
-          <p>AML Plugin</p>
-          <ul>
-            <li>Add support for asyncapi</li>
-            <li>Fix exception when dialect doesn't exists</li>
-          </ul>
-        </li>
-      </ul>
+    </li>
+  </ul>
     ]]>
     </change-notes>
 
@@ -601,7 +614,8 @@
 
         <!--  REST-SDK      -->
 
-        <codeInsight.lineMarkerProvider language="yaml" implementationClass="org.mule.tooling.restsdk.linemarker.RestSdkLineMarkerProvider"/>
+        <codeInsight.lineMarkerProvider language="yaml"
+                                        implementationClass="org.mule.tooling.restsdk.linemarker.RestSdkLineMarkerProvider"/>
 
         <psi.referenceContributor language="yaml"
                                   implementation="org.mule.tooling.restsdk.reference.RestSdkReferenceContributor"/>
