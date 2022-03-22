@@ -42,7 +42,10 @@ public class RestSdkHelper {
   public static SelectionPath openApiVersion = SelectionPath.DOCUMENT.child("openapi");
 
 
-  public static boolean isInRestSdkContextFile(PsiFile psiFile) {
+  public static boolean isInRestSdkContextFile(@Nullable PsiFile psiFile) {
+    if (psiFile == null) {
+      return false;
+    }
     PsiElement context = psiFile.getContext();
     if (context instanceof YAMLScalar) {
       PsiFile containingFile = context.getContainingFile();
