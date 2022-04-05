@@ -25,6 +25,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiTreeAnyChangeAbstractAdapter;
 import com.intellij.util.Alarm;
+import com.intellij.util.concurrency.AppExecutorUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NonNls;
@@ -272,26 +273,26 @@ public class ALSLanguageService implements Disposable {
     languageServer = languageServerFactory.build();
 
 
-    final CompletionClientCapabilities completionCapabilities = new CompletionClientCapabilities(Option.empty(), Option.<CompletionItemClientCapabilities>empty(), Option.<CompletionItemKindClientCapabilities>empty(), Option.empty());
+    final CompletionClientCapabilities completionCapabilities = new CompletionClientCapabilities(Option.empty(), Option.empty(), Option.empty(), Option.empty());
 
     TextDocumentClientCapabilities textDocumentClientCapabilities = new TextDocumentClientCapabilities(
-            Option.<SynchronizationClientCapabilities>empty(),
+            Option.empty(),
             Option.apply(new DiagnosticClientCapabilities(Option.apply(true))),
             Option.apply(completionCapabilities),
             Option.apply(new ReferenceClientCapabilities(Option.apply(true))),
-            Option.<DocumentSymbolClientCapabilities>empty(),
+            Option.empty(),
             Option.apply(new DefinitionClientCapabilities(Option.apply(true), Option.apply(true))),
-            Option.<ImplementationClientCapabilities>empty(),
-            Option.<TypeDefinitionClientCapabilities>empty(),
-            Option.<RenameClientCapabilities>empty(),
-            Option.<CodeActionCapabilities>empty(),
-            Option.<DocumentLinkClientCapabilities>empty(),
-            Option.<HoverClientCapabilities>empty(),
-            Option.<DocumentHighlightCapabilities>empty(),
-            Option.<FoldingRangeCapabilities>empty(),
-            Option.<SelectionRangeCapabilities>empty(),
-            Option.<DocumentFormattingClientCapabilities>empty(),
-            Option.<DocumentRangeFormattingClientCapabilities>empty()
+            Option.empty(),
+            Option.empty(),
+            Option.empty(),
+            Option.empty(),
+            Option.empty(),
+            Option.empty(),
+            Option.empty(),
+            Option.empty(),
+            Option.empty(),
+            Option.empty(),
+            Option.empty()
     );
 
     WorkspaceClientCapabilities workspaceClientCapabilities = new WorkspaceClientCapabilities(
@@ -306,11 +307,11 @@ public class ALSLanguageService implements Disposable {
             Option.apply(workspaceClientCapabilities),
             Option.apply(textDocumentClientCapabilities),
             Option.empty(),
-            Option.<SerializationClientCapabilities>empty(),
-            Option.<CleanDiagnosticTreeClientCapabilities>empty(),
-            Option.<FileUsageClientCapabilities>empty(),
-            Option.<ConversionClientCapabilities>empty(),
-            Option.<RenameFileActionClientCapabilities>empty(),
+            Option.empty(),
+            Option.empty(),
+            Option.empty(),
+            Option.empty(),
+            Option.empty(),
             Option.empty(),
             Option.empty()
     );
@@ -321,10 +322,10 @@ public class ALSLanguageService implements Disposable {
             Option.apply(Locale.ENGLISH.toString()),
             Option.apply(getProjectRoot()),
             Option.empty(),
-            Option.<Seq<WorkspaceFolder>>empty(),
+            Option.empty(),
             Option.apply(getProjectRoot()),
             Option.empty(),
-            Option.<AlsConfiguration>empty(),
+            Option.empty(),
             Option.apply(true)
     );
     Future<AlsInitializeResult> initialize = languageServer.initialize(params);
@@ -389,12 +390,12 @@ public class ALSLanguageService implements Disposable {
       if (dialect.isPresent()) {
         String dialectUrl = dialect.get().getDialectUrl();
         try {
-          if (new File(new URI(dialectUrl)).exists()) {
+          if (new File(new URI(dialectUrl)).exists() && !dialectUrl.isBlank()) {
             Notifications.Bus.notify(new Notification(Notifications.SYSTEM_MESSAGES_GROUP_ID, "Registering dialect", "Dialect '" + dialectLocation.getName() + "'.", NotificationType.INFORMATION));
             registerDialect(dialect.get());
             //If file doesn't exists don't register it
           }
-        } catch (URISyntaxException e) {
+        } catch (Exception e) {
           //
         }
       }
@@ -430,13 +431,15 @@ public class ALSLanguageService implements Disposable {
       return;
     }
 
-    DidChangeTextDocumentParams didOpenTextDocumentParams = ReadAction.compute(() -> {
+    DidChangeTextDocumentParams compute = ReadAction.compute(() -> {
       final String text = file.getText();
       DocumentState documentState = getDocumentState(url);
-      TextDocumentContentChangeEvent textDocumentContentChangeEvent = new TextDocumentContentChangeEvent(file.getText(), Option.<Range>empty(), Option.empty());
+      TextDocumentContentChangeEvent textDocumentContentChangeEvent = new TextDocumentContentChangeEvent(file.getText(), Option.empty(), Option.empty());
       return new DidChangeTextDocumentParams(new VersionedTextDocumentIdentifier(url, Option.apply(documentState.changed())), ScalaUtils.toSeq(textDocumentContentChangeEvent));
     });
-    languageServer.textDocumentSyncConsumer().didChange(didOpenTextDocumentParams);
+    AppExecutorUtil.getAppExecutorService().execute(() -> {
+      languageServer.textDocumentSyncConsumer().didChange(compute);
+    });
   }
 
   public void onClose(PsiFile file) {

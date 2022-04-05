@@ -11,8 +11,6 @@ import java.util.regex.Pattern;
 
 public class UserDialectLanguageExtension implements ALSLanguageExtension {
 
-
-
   private String filePath;
   private Pattern regex;
 
