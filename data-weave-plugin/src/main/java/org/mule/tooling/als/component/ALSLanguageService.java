@@ -16,6 +16,7 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.project.Project;
@@ -34,27 +35,22 @@ import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.als.settings.DialectsRegistry;
 import org.mule.tooling.als.utils.LSPUtils;
 import org.mule.tooling.lang.dw.util.ScalaUtils;
-import org.mulesoft.als.configuration.AlsConfiguration;
 import org.mulesoft.als.logger.PrintLnLogger$;
 import org.mulesoft.als.server.EmptyJvmSerializationProps$;
 import org.mulesoft.als.server.client.platform.AlsLanguageServerFactory;
 import org.mulesoft.als.server.client.platform.ClientNotifier;
-import org.mulesoft.als.server.feature.diagnostic.CleanDiagnosticTreeClientCapabilities;
-import org.mulesoft.als.server.feature.fileusage.FileUsageClientCapabilities;
-import org.mulesoft.als.server.feature.renamefile.RenameFileActionClientCapabilities;
-import org.mulesoft.als.server.feature.serialization.ConversionClientCapabilities;
-import org.mulesoft.als.server.feature.serialization.SerializationClientCapabilities;
 import org.mulesoft.als.server.protocol.LanguageServer;
 import org.mulesoft.als.server.protocol.configuration.AlsClientCapabilities;
 import org.mulesoft.als.server.protocol.configuration.AlsInitializeParams;
 import org.mulesoft.als.server.protocol.configuration.AlsInitializeResult;
 import org.mulesoft.als.server.workspace.command.Commands;
-import org.mulesoft.lsp.configuration.*;
+import org.mulesoft.lsp.configuration.ExecuteCommandClientCapabilities;
+import org.mulesoft.lsp.configuration.TextDocumentClientCapabilities;
+import org.mulesoft.lsp.configuration.TraceKind;
+import org.mulesoft.lsp.configuration.WorkspaceClientCapabilities;
 import org.mulesoft.lsp.edit.InsertReplaceEdit;
 import org.mulesoft.lsp.edit.TextEdit;
 import org.mulesoft.lsp.feature.RequestHandler;
-import org.mulesoft.lsp.feature.codeactions.CodeActionCapabilities;
-import org.mulesoft.lsp.feature.common.Range;
 import org.mulesoft.lsp.feature.common.TextDocumentIdentifier;
 import org.mulesoft.lsp.feature.common.TextDocumentItem;
 import org.mulesoft.lsp.feature.common.VersionedTextDocumentIdentifier;
@@ -63,23 +59,15 @@ import org.mulesoft.lsp.feature.definition.DefinitionClientCapabilities;
 import org.mulesoft.lsp.feature.diagnostic.Diagnostic;
 import org.mulesoft.lsp.feature.diagnostic.DiagnosticClientCapabilities;
 import org.mulesoft.lsp.feature.diagnostic.PublishDiagnosticsParams;
-import org.mulesoft.lsp.feature.documentFormatting.DocumentFormattingClientCapabilities;
-import org.mulesoft.lsp.feature.documentRangeFormatting.DocumentRangeFormattingClientCapabilities;
-import org.mulesoft.lsp.feature.documentsymbol.DocumentSymbolClientCapabilities;
-import org.mulesoft.lsp.feature.folding.FoldingRangeCapabilities;
-import org.mulesoft.lsp.feature.highlight.DocumentHighlightCapabilities;
 import org.mulesoft.lsp.feature.hover.Hover;
-import org.mulesoft.lsp.feature.hover.HoverClientCapabilities;
 import org.mulesoft.lsp.feature.hover.HoverParams;
 import org.mulesoft.lsp.feature.hover.HoverRequestType$;
-import org.mulesoft.lsp.feature.implementation.ImplementationClientCapabilities;
-import org.mulesoft.lsp.feature.link.DocumentLinkClientCapabilities;
 import org.mulesoft.lsp.feature.reference.ReferenceClientCapabilities;
-import org.mulesoft.lsp.feature.rename.RenameClientCapabilities;
-import org.mulesoft.lsp.feature.selectionRange.SelectionRangeCapabilities;
 import org.mulesoft.lsp.feature.telemetry.TelemetryMessage;
-import org.mulesoft.lsp.feature.typedefinition.TypeDefinitionClientCapabilities;
-import org.mulesoft.lsp.textsync.*;
+import org.mulesoft.lsp.textsync.DidChangeTextDocumentParams;
+import org.mulesoft.lsp.textsync.DidCloseTextDocumentParams;
+import org.mulesoft.lsp.textsync.DidOpenTextDocumentParams;
+import org.mulesoft.lsp.textsync.TextDocumentContentChangeEvent;
 import org.mulesoft.lsp.workspace.ExecuteCommandParams;
 import scala.Enumeration;
 import scala.Option;
@@ -108,6 +96,8 @@ public class ALSLanguageService implements Disposable {
 
   static Pattern VARIABLES = Pattern.compile("\\$([0-9]+)");
 
+  Logger logger = Logger.getInstance(ALSLanguageService.class);
+
 
   private final Project myProject;
   private LanguageServer languageServer;
@@ -115,6 +105,7 @@ public class ALSLanguageService implements Disposable {
   private ALSLanguageExtension[] supportedLanguages;
   private List<ALSLanguageExtension.Dialect> dialectByExtensionPoint;
   private final Alarm myDocumentAlarm = new Alarm(Alarm.ThreadToUse.POOLED_THREAD, this);
+  private AlsLanguageServerFactory languageServerFactory;
 
   public ALSLanguageService(Project project) {
     myProject = project;
@@ -209,10 +200,10 @@ public class ALSLanguageService implements Disposable {
     //Registers open close projects
     EditorFactory.getInstance().addEditorFactoryListener(new LSPEditorListener(this), this);
 
-    AlsLanguageServerFactory languageServerFactory = new AlsLanguageServerFactory(new ClientNotifier() {
+    languageServerFactory = new AlsLanguageServerFactory(new ClientNotifier() {
       @Override
       public void notifyTelemetry(TelemetryMessage params) {
-
+        logger.info(params.messageType() + "\n" + "uri: " + params.uri() + "\nmessage: " + params.message());
       }
 
       @Override
@@ -271,8 +262,20 @@ public class ALSLanguageService implements Disposable {
     };
     languageServerFactory.withResourceLoaders(Collections.singletonList(clientResourceLoader));
     languageServer = languageServerFactory.build();
+    doInit();
+  }
 
+  public void restart() {
+    if (languageServer != null) {
+      languageServer.shutdown();
+      documents.clear();
+    }
 
+    languageServer = languageServerFactory.build();
+    doInit();
+  }
+
+  private void doInit() {
     final CompletionClientCapabilities completionCapabilities = new CompletionClientCapabilities(Option.empty(), Option.empty(), Option.empty(), Option.empty());
 
     TextDocumentClientCapabilities textDocumentClientCapabilities = new TextDocumentClientCapabilities(
@@ -326,7 +329,7 @@ public class ALSLanguageService implements Disposable {
             Option.apply(getProjectRoot()),
             Option.empty(),
             Option.empty(),
-            Option.apply(true)
+            Option.apply(false)
     );
     Future<AlsInitializeResult> initialize = languageServer.initialize(params);
     resultOf(initialize);
@@ -366,13 +369,16 @@ public class ALSLanguageService implements Disposable {
   }
 
   private void registerDialect(ALSLanguageExtension.Dialect supportedLanguage) {
-
     final String dialect = "{" + "\"uri\": \"" + supportedLanguage.getDialectUrl() + "\"" + "} ";
-    final ExecuteCommandParams executeCommandParams = new ExecuteCommandParams(
-            Commands.INDEX_DIALECT(), JavaConverters.asScalaBuffer(Collections.singletonList(dialect)).toList());
+    final ExecuteCommandParams executeCommandParams =
+            new ExecuteCommandParams(
+                    Commands.INDEX_DIALECT(),
+                    JavaConverters.asScalaBuffer(Collections.singletonList(dialect)).toList()
+            );
     try {
       Future<Object> objectFuture = languageServer.workspaceService().executeCommand(executeCommandParams);
       resultOf(objectFuture);
+      Notifications.Bus.notify(new Notification(Notifications.SYSTEM_MESSAGES_GROUP_ID, "Dialect registered successfully", "Dialect '" + supportedLanguage.getDialectUrl() + "' was registered.", NotificationType.INFORMATION));
     } catch (Exception e) {
       Notifications.Bus.notify(new Notification(Notifications.SYSTEM_MESSAGES_GROUP_ID, "Unable to register dialect", "Unable to register dialect `" + supportedLanguage.getDialectUrl() + "`\nReason:\n" + e.getMessage(), NotificationType.ERROR));
     }
@@ -450,6 +456,7 @@ public class ALSLanguageService implements Disposable {
     final String text = file.getText();
     final DocumentState documentState = getDocumentState(url);
     final DidCloseTextDocumentParams didOpenTextDocumentParams = new DidCloseTextDocumentParams(documentIdentifierOf(file));
+    documents.remove(url);
     languageServer.textDocumentSyncConsumer().didClose(didOpenTextDocumentParams);
   }
 

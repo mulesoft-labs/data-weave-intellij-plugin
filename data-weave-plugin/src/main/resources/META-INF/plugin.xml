@@ -672,6 +672,15 @@
             <add-to-group group-id="NewGroup" anchor="first"/>
             <!--<keyboard-shortcut keymap="$default" first-keystroke="shift ctrl W"/>-->
         </action>
+        <action id="org.mule.tooling.als.action.RestartALSServerAction"
+                class="org.mule.tooling.als.action.RestartALSServerAction" text="Restart ALS Server"
+                description="Restart the ALS Server">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+
+            <keyboard-shortcut keymap="$default" first-keystroke="shift alt R" second-keystroke="ctrl alt R"/>
+            <keyboard-shortcut keymap="Mac OS X" first-keystroke="shift meta R" second-keystroke="ctrl meta R"/>
+
+        </action>
     </actions>
 
 </idea-plugin>
