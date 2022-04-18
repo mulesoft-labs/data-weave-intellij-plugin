@@ -343,6 +343,9 @@ public class ALSLanguageService implements Disposable {
 
   private void scheduleUpdateDialect(VirtualFileEvent event, ALSLanguageExtension.Dialect value) {
     myDocumentAlarm.cancelAllRequests();
+    if (myDocumentAlarm.isDisposed()) {
+      return;
+    }
     myDocumentAlarm.addRequest(() -> {
       if (myDocumentAlarm.isDisposed()) {
         return;
