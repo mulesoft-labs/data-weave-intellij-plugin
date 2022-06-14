@@ -48,6 +48,7 @@ import org.mule.tooling.lang.dw.qn.WeaveQualifiedNameProvider;
 import org.mule.tooling.lang.dw.service.agent.WeaveAgentService;
 import org.mule.tooling.lang.dw.util.AsyncCache;
 import org.mule.weave.v2.completion.*;
+import org.mule.weave.v2.completion.DataFormatProperty;
 import org.mule.weave.v2.debugger.event.WeaveDataFormatDescriptor;
 import org.mule.weave.v2.debugger.event.WeaveDataFormatProperty;
 import org.mule.weave.v2.editor.*;
