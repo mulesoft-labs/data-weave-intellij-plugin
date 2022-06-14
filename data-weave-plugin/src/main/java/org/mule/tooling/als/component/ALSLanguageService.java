@@ -203,7 +203,7 @@ public class ALSLanguageService implements Disposable {
     languageServerFactory = new AlsLanguageServerFactory(new ClientNotifier() {
       @Override
       public void notifyTelemetry(TelemetryMessage params) {
-        logger.info(params.messageType() + "\n" + "uri: " + params.uri() + "\nmessage: " + params.message());
+        logger.info("TELEMETRY: MessageType: " + params.messageType() + " - " + "uri: " + params.uri() + "- message: " + params.message() + " - " + "event" + params.event());
       }
 
       @Override

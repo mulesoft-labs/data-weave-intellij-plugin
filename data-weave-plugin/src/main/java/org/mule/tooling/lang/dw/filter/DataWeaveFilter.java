@@ -12,18 +12,12 @@ import scala.Option;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-
 public class DataWeaveFilter implements Filter {
-
     private Project myProject;
-
-    private Pattern ELEMENT_REGEX = Pattern.compile("(?<nameIdentifier>[A-z0-9_:]*)(\\s*\\(line:\\s*(?<lineNumber>[0-9]+), column:\\s*(?<columnNumber>[0-9]+)\\))");
-
+    private static Pattern ELEMENT_REGEX = Pattern.compile("(?<nameIdentifier>[A-z0-9_:]*)(\\s*\\(line:\\s*(?<lineNumber>[0-9]+), column:\\s*(?<columnNumber>[0-9]+)\\))");
     public DataWeaveFilter(Project myProject) {
         this.myProject = myProject;
     }
-
     @Nullable
     @Override
     public Result applyFilter(String textLine, int entireLength) {
@@ -34,10 +28,10 @@ public class DataWeaveFilter implements Filter {
             final String columnNumber = matcher.group("columnNumber");
 
             NameIdentifier nameIdentifierFile = NameIdentifier.apply(nameIdentifierText, Option.empty());
-          VirtualFile virtualFile = VirtualFileSystemUtils.resolve(myProject, nameIdentifierFile);
+            VirtualFile virtualFile = VirtualFileSystemUtils.resolve(myProject, nameIdentifierFile);
             if (virtualFile == null && nameIdentifierFile.parent().isDefined()) {
                 nameIdentifierFile = nameIdentifierFile.parent().get();
-              virtualFile = VirtualFileSystemUtils.resolve(myProject, nameIdentifierFile);
+                virtualFile = VirtualFileSystemUtils.resolve(myProject, nameIdentifierFile);
             }
 
             if (virtualFile == null) {

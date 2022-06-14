@@ -78,7 +78,7 @@ public class RestSdkHelper {
     final PsiFile psiFile = apiFile(restSdkFile);
     if (psiFile != null) {
       result = CachedValuesManager.getCachedValue(restSdkFile, () -> {
-        return CachedValueProvider.Result.create(parseWebApi(restSdkFile.getProject(), psiFile.getVirtualFile()), psiFile);
+        return CachedValueProvider.Result.create(parseWebApi(psiFile.getVirtualFile()), psiFile);
       });
     }
     return result;
@@ -101,8 +101,7 @@ public class RestSdkHelper {
   }
 
   @Nullable
-  public static Document parseWebApi(Project project, VirtualFile child) {
-
+  public static Document parseWebApi(VirtualFile child) {
     final AMFBaseUnitClient client = WebAPIConfiguration.WebAPI().baseUnitClient();
     final AMFParseResult parseResult;
     try {
@@ -113,7 +112,6 @@ public class RestSdkHelper {
     } catch (InterruptedException | ExecutionException e) {
       e.printStackTrace();
     }
-
     return null;
   }
 

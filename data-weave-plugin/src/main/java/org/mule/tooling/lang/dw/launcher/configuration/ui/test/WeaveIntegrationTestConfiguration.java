@@ -135,8 +135,6 @@ public class WeaveIntegrationTestConfiguration extends ModuleBasedConfiguration<
         if (StringUtils.isNotBlank(vmOptions)) {
             javaParams.getVMParametersList().add(vmOptions);
         }
-
-
     }
 
     @Override
