@@ -35,6 +35,18 @@ public class WeaveReferenceTypeImpl extends WeaveTypeImpl implements WeaveRefere
 
   @Override
   @NotNull
+  public List<WeaveIdentifier> getIdentifierList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, WeaveIdentifier.class);
+  }
+
+  @Override
+  @NotNull
+  public List<WeaveStringLiteral> getStringLiteralList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, WeaveStringLiteral.class);
+  }
+
+  @Override
+  @NotNull
   public List<WeaveType> getTypeList() {
     return PsiTreeUtil.getChildrenOfTypeAsList(this, WeaveType.class);
   }

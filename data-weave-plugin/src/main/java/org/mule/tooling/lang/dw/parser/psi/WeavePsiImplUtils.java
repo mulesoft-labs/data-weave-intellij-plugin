@@ -94,7 +94,7 @@ public class WeavePsiImplUtils {
     @Nullable
     private static NameIdentifier getNameIdentifier(WeaveDocument document) {
         final PsiFile containingFile = document.getContainingFile();
-        if (containingFile == null) {
+        if (containingFile == null || containingFile.getVirtualFile() == null) {
             return null;
         }
         return getNameIdentifier(containingFile);

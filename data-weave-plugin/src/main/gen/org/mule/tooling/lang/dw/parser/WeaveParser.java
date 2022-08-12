@@ -1671,7 +1671,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // Annotation* 'input' VariableNameTypeDefinition InputDataFormat Options?
+  // Annotation* 'input' VariableNameTypeDefinition InputDataFormat? Options?
   public static boolean InputDirective(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "InputDirective")) return false;
     if (!nextTokenIs(b, "<input directive>", AT, INPUT_DIRECTIVE_KEYWORD)) return false;
@@ -1681,7 +1681,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     r = r && consumeToken(b, INPUT_DIRECTIVE_KEYWORD);
     p = r; // pin = 2
     r = r && report_error_(b, VariableNameTypeDefinition(b, l + 1));
-    r = p && report_error_(b, InputDataFormat(b, l + 1)) && r;
+    r = p && report_error_(b, InputDirective_3(b, l + 1)) && r;
     r = p && InputDirective_4(b, l + 1) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
@@ -1695,6 +1695,13 @@ public class WeaveParser implements PsiParser, LightPsiParser {
       if (!Annotation(b, l + 1)) break;
       if (!empty_element_parsed_guard_(b, "InputDirective_0", c)) break;
     }
+    return true;
+  }
+
+  // InputDataFormat?
+  private static boolean InputDirective_3(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "InputDirective_3")) return false;
+    InputDataFormat(b, l + 1);
     return true;
   }
 
@@ -2744,15 +2751,17 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // FqnIdentifier ('<' Type (',' Type)* '>')?
+  // FqnIdentifier ('<' Type (',' Type)* '>')? ('.' (StringLiteral|Identifier))*
   public static boolean ReferenceType(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ReferenceType")) return false;
-    boolean r;
+    boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, REFERENCE_TYPE, "<reference type>");
     r = FqnIdentifier(b, l + 1);
     r = r && ReferenceType_1(b, l + 1);
-    exit_section_(b, l, m, r, false, null);
-    return r;
+    p = r; // pin = 2
+    r = r && ReferenceType_2(b, l + 1);
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   // ('<' Type (',' Type)* '>')?
@@ -2794,6 +2803,37 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     r = consumeToken(b, COMMA);
     r = r && Type(b, l + 1);
     exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // ('.' (StringLiteral|Identifier))*
+  private static boolean ReferenceType_2(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ReferenceType_2")) return false;
+    while (true) {
+      int c = current_position_(b);
+      if (!ReferenceType_2_0(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "ReferenceType_2", c)) break;
+    }
+    return true;
+  }
+
+  // '.' (StringLiteral|Identifier)
+  private static boolean ReferenceType_2_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ReferenceType_2_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, ".");
+    r = r && ReferenceType_2_0_1(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // StringLiteral|Identifier
+  private static boolean ReferenceType_2_0_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ReferenceType_2_0_1")) return false;
+    boolean r;
+    r = StringLiteral(b, l + 1);
+    if (!r) r = Identifier(b, l + 1);
     return r;
   }
 

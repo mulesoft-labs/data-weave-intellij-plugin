@@ -205,7 +205,7 @@ SchemaKV::= (Identifier | StringLiteral) ':' Expression {pin = 2}
 
 ConditionalSchemaKV::= "(" (Identifier | StringLiteral) ':' Expression ")" IF "(" Expression ")" {pin = 3}
 
-InputDirective::= Annotation* 'input' VariableNameTypeDefinition InputDataFormat Options? {
+InputDirective::= Annotation* 'input' VariableNameTypeDefinition InputDataFormat? Options? {
     pin=2
     methods=[getName setName getNameIdentifier]
     implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
@@ -349,7 +349,7 @@ IsExpression
 NotExpression ::= ('!' | 'not') ValueExpression {pin=1}
 
 GreaterThanExpression
-         ::= Expression  ( '>' !('>') | '>=' |  '<' !('<') | '<=' ) AdditionSubtractionExpression {pin=2}
+         ::= Expression  ( '>' !('>') | '>=' |  '<' !('<') | '<=' ) AdditionSubtractionExpression
 
 AdditionSubtractionExpression
          ::= Expression  ( '+' | '-' ) Expression {pin=2}
@@ -614,7 +614,7 @@ LambdaTypeParameter ::= NamedLambdaTypeParameter | Type
 
 private NamedLambdaTypeParameter ::= Identifier ('?')? ':' Type {pin=3}
 
-ReferenceType ::= FqnIdentifier ('<' Type (',' Type)* '>')? {pin = 2}
+ReferenceType ::= FqnIdentifier ('<' Type (',' Type)* '>')? ('.' (StringLiteral|Identifier))* {pin = 2}
 
 DataFormat ::= MIME_TYPE_KEYWORD
 

@@ -11,6 +11,12 @@ public interface WeaveReferenceType extends WeaveType {
   WeaveFqnIdentifier getFqnIdentifier();
 
   @NotNull
+  List<WeaveIdentifier> getIdentifierList();
+
+  @NotNull
+  List<WeaveStringLiteral> getStringLiteralList();
+
+  @NotNull
   List<WeaveType> getTypeList();
 
 }
