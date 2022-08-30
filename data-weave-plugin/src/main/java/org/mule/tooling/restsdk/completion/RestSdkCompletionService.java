@@ -25,6 +25,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import io.netty.handler.codec.http.HttpMethod;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -138,11 +139,19 @@ public class RestSdkCompletionService {
         if (path instanceof YAMLMapping) {
           final String pathText = ((YAMLKeyValue) path.getParent()).getKeyText();
           final EndPoint endPoint = RestSdkHelper.endpointByPath((WebApi) webApiDocument.encodes(), pathText);
-          endPoint.operations().forEach((operation) -> {
-            LookupElementBuilder elementBuilder = LookupElementBuilder.create(operation.method().value() + ":\n");
-            elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.Property);
-            result.add(elementBuilder);
-          });
+          if (endPoint != null) {
+            endPoint.operations().forEach((operation) -> {
+              LookupElementBuilder elementBuilder = LookupElementBuilder.create(operation.method().value() + ":\n");
+              elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.Property);
+              result.add(elementBuilder);
+            });
+          } else {
+            Arrays.asList("delete", "get", "put", "post", "patch", "options", "head", "trace").forEach((method) -> {
+              LookupElementBuilder elementBuilder = LookupElementBuilder.create(method + ":\n");
+              elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.Property);
+              result.add(elementBuilder);
+            });
+          }
         }
       }
     }
