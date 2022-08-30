@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Stream;
 
 public class RestSdkHelper {
 
@@ -226,16 +227,27 @@ public class RestSdkHelper {
     }
   }
 
+  public static EndPoint endpointByPath(@Nullable WebApi webApi, String methodText, String pathText) {
+    if (webApi == null) {
+      return null;
+    }
+    return webApi.endPoints().stream()
+            .filter((endpoint) -> {
+              return endpoint.path().value().equals(pathText);
+            }).findFirst().orElse(null);
+  }
+
   @Nullable
   public static Operation operationByMethodPath(@Nullable WebApi webApi, String methodText, String pathText) {
     if (webApi == null) {
       return null;
     }
+    Stream<EndPoint> endPointStream = webApi.endPoints().stream()
+            .filter((endpoint) -> {
+              return endpoint.path().value().equals(pathText);
+            });
     return
-            webApi.endPoints().stream()
-                    .filter((endpoint) -> {
-                      return endpoint.path().value().equals(pathText);
-                    })
+            endPointStream
                     .flatMap((endpoint) -> {
                       return endpoint.operations().stream().filter((operation) -> operation.method().value().equals(methodText));
                     })

@@ -44,6 +44,8 @@ public class RestSdkPaths {
   public static final String ENDPOINT = "endpoint";
   public static final String URL = "url";
 
+  public static final String ENDPOINTS = "endpoints";
+
   public static final SelectionPath CONNECTOR_NAME_PATH = SelectionPath.DOCUMENT.child("connectorName");
 
 
@@ -62,7 +64,6 @@ public class RestSdkPaths {
   public static final SelectionPath TRIGGERS_PATH = SelectionPath.DOCUMENT.child(TRIGGERS);
   public static final SelectionPath TRIGGERS_PATH_PATH = TRIGGERS_PATH.any().child(PATH);
   public static final SelectionPath TRIGGERS_PARAMETER = TRIGGERS_PATH.any().child(PARAMETERS);
-
 
   public static final SelectionPath TRIGGERS_BINDING_BODY_EXPRESSION = TRIGGERS_PATH.any().child(BINDING).child(BODY).child(VALUE).child(EXPRESSION);
   public static final SelectionPath TRIGGERS_BINDING_QUERY_PARAMS_PATH = TRIGGERS_PATH.any().child(BINDING).child(QUERY_PARAMETERS);
@@ -99,7 +100,7 @@ public class RestSdkPaths {
   public static final SelectionPath RELATIVE_GLOBAL_SAMPLE_DATA_TRANSFORM_EXPRESSION_PARAMETERS_PATH = SelectionPath.PARENT.parent().parent().child(PARAMETERS);
 
 
-  public static final SelectionPath OPERATION_REQUEST_BODY_PATH = SelectionPath.DOCUMENT.child(OPERATIONS).any().child(REQUEST).child(BODY).child(EXPRESSION);
+  public static final SelectionPath OPERATION_REQUEST_BODY_PATH = SelectionPath.DOCUMENT.child(OPERATIONS).any().child(REQUEST).child(BODY).child(VALUE).child(EXPRESSION);
   public static final SelectionPath OPERATION_PATH = SelectionPath.DOCUMENT.child(OPERATIONS);
   public static final SelectionPath OPERATION_PARAMETER = OPERATION_PATH.any().child(PARAMETERS);
 
@@ -119,6 +120,11 @@ public class RestSdkPaths {
   public static final SelectionPath OPERATION_BASE_PATH = OPERATION_PATH.any().child(BASE).child(OPERATION_ID);
 
   public static final SelectionPath VALUE_PROVIDERS_PATH = SelectionPath.DOCUMENT.child(VALUE_PROVIDERS);
+
+  public static final SelectionPath ENDPOINTS_PATH = SelectionPath.DOCUMENT.child(ENDPOINTS);
+
+  public static final SelectionPath ENDPOINTS_METHOD_PATH = SelectionPath.DOCUMENT.child(ENDPOINTS).any().child(OPERATIONS);
+
   public static final SelectionPath VALUE_PROVIDERS_DEFINITION = VALUE_PROVIDERS_PATH.any().child(DEFINITION);
   public static final SelectionPath VALUE_PROVIDERS_ITEMS_EXTRACTION_EXPRESSION_PATH = VALUE_PROVIDERS_DEFINITION.child(ITEMS).child(VALUE).child(EXPRESSION);
 
@@ -130,7 +136,7 @@ public class RestSdkPaths {
   public static final SelectionPath API_PATH = SelectionPath.DOCUMENT.child(API_SPEC).child(URL);
 
   //Relative Paths Selectors
-  public static final SelectionPath PARAMETERS_SELECTOR_FROM_BODY_REQUEST_PATH = SelectionPath.PARENT.parent().parent().child(RestSdkInputOutputTypesProvider.PARAMETERS_KEY);
+  public static final SelectionPath PARAMETERS_SELECTOR_FROM_BODY_REQUEST_PATH = SelectionPath.PARENT.parent().parent().parent().child(RestSdkInputOutputTypesProvider.PARAMETERS_KEY);
   public static final SelectionPath PARAMETERS_SELECTOR_FROM_QUERY_PARAMETER_PATH = SelectionPath.PARENT.parent().parent().parent().child(RestSdkInputOutputTypesProvider.PARAMETERS_KEY);
   public static final SelectionPath RELATIVE_TRIGGER_PARAMETERS_SELECTOR_FROM_BINDING_BODY_PATH = SelectionPath.PARENT.parent().parent().child(RestSdkInputOutputTypesProvider.PARAMETERS_KEY);
   public static final SelectionPath PARAMETERS_SELECTOR_FROM_ITEMS_PATH = SelectionPath.PARENT.parent().parent().child(RestSdkInputOutputTypesProvider.PARAMETERS_KEY);
@@ -138,5 +144,5 @@ public class RestSdkPaths {
   public static final SelectionPath RELATIVE_OPERATION_BASE_FROM_REQUEST_PATH = SelectionPath.PARENT.parent().child(BASE).child(OPERATION_ID);
   public static final SelectionPath RELATIVE_OPERATION_BASE_PATH_FROM_REQUEST_PATH = SelectionPath.PARENT.parent().child(BASE).child(PATH);
   public static final SelectionPath RELATIVE_OPERATION_BASE_METHOD_FROM_REQUEST_PATH = SelectionPath.PARENT.parent().child(BASE).child(METHOD);
-  public static final SelectionPath RELATIVE_OPERATION_BASE_FROM_BODY_EXPRESSION_PATH = SelectionPath.PARENT.parent().parent().child(BASE).child(OPERATION_ID);
+  public static final SelectionPath RELATIVE_OPERATION_BASE_FROM_BODY_EXPRESSION_PATH = SelectionPath.PARENT.parent().parent().parent().child(BASE).child(OPERATION_ID);
 }
