@@ -144,5 +144,7 @@ public class RestSdkPaths {
   public static final SelectionPath RELATIVE_OPERATION_BASE_FROM_REQUEST_PATH = SelectionPath.PARENT.parent().child(BASE).child(OPERATION_ID);
   public static final SelectionPath RELATIVE_OPERATION_BASE_PATH_FROM_REQUEST_PATH = SelectionPath.PARENT.parent().child(BASE).child(PATH);
   public static final SelectionPath RELATIVE_OPERATION_BASE_METHOD_FROM_REQUEST_PATH = SelectionPath.PARENT.parent().child(BASE).child(METHOD);
-  public static final SelectionPath RELATIVE_OPERATION_BASE_FROM_BODY_EXPRESSION_PATH = SelectionPath.PARENT.parent().parent().parent().child(BASE).child(OPERATION_ID);
+  public static final SelectionPath RELATIVE_OPERATION_ID_BASE_FROM_BODY_EXPRESSION_PATH = SelectionPath.PARENT.parent().parent().parent().child(BASE).child(OPERATION_ID);
+  public static final SelectionPath RELATIVE_METHOD_BASE_FROM_BODY_EXPRESSION_PATH = SelectionPath.PARENT.parent().parent().parent().child(BASE).child(METHOD);
+  public static final SelectionPath RELATIVE_PATH_BASE_FROM_BODY_EXPRESSION_PATH = SelectionPath.PARENT.parent().parent().parent().child(BASE).child(PATH);
 }
