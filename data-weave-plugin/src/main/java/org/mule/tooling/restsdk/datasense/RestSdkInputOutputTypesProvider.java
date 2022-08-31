@@ -82,7 +82,7 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
         implicitInput.addInput(PATH, createStringType());
       } else if (path.matches(RestSdkPaths.PAGINATION_PATH) || path.matches(RestSdkPaths.SECURITY_VALIDATION_PATH)
               || path.matches(RestSdkPaths.SECURITY_ERROR_TEMPLATE_PATH) || path.matches(RestSdkPaths.SECURITY_REFRESH_PATH)
-              || path.matches(RestSdkPaths.TRIGGERS_SAMPLE_DATA_PATH)) {
+      ) {
         createPayloadWithAttributesInputs(implicitInput);
       } else if (path.matches(RestSdkPaths.TRIGGERS_BINDING_BODY_EXPRESSION)) {
         createTriggersBinding(implicitInput, context, RestSdkPaths.RELATIVE_TRIGGER_PARAMETERS_SELECTOR_FROM_BINDING_BODY_PATH);
@@ -117,9 +117,10 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
         createTestConnectionInputs(implicitInput, context);
       } else if (path.matches(RestSdkPaths.VALUE_PROVIDERS_ITEMS_EXTRACTION_EXPRESSION_PATH)) {
         createValueProviderExtraction(implicitInput, context);
-      } else if (path.matches(RestSdkPaths.VALUE_PROVIDERS_ITEMS_DISPLAY_NAME_EXPRESSION_PATH)
-              || path.matches(RestSdkPaths.VALUE_PROVIDERS_ITEMS_VALUE_EXPRESSION_PATH)) {
-        createValueProviderWithItems(implicitInput, context);
+      } else if (path.matches(RestSdkPaths.VALUE_PROVIDERS_ITEMS_DISPLAY_NAME_EXPRESSION_PATH)) {
+        createValueProviderWithItems(implicitInput, context, SelectionPath.PARENT.parent().parent().parent());
+      } else if (path.matches(RestSdkPaths.VALUE_PROVIDERS_ITEMS_VALUE_EXPRESSION_PATH)) {
+        createValueProviderWithItems(implicitInput, context, SelectionPath.PARENT.parent().parent().parent().parent());
       } else if (path.matches(RestSdkPaths.VALUE_PROVIDERS_REQUEST)) {
         createValueProviderRequest(implicitInput, context);
       } else if (path.matches(RestSdkPaths.OPERATION_RESPONSE_BODY_PATH)) {
@@ -171,11 +172,12 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
   }
 
   private void createValueProviderExtraction(ImplicitInput implicitInput, PsiElement context) {
-    final SelectionPath request = SelectionPath.PARENT.parent().parent().child("request");
-    final WeaveType payloadType = resolveOperationResponseType(context, request.child("path"), request.child("method")).orElse(createAnyType());
-    final SelectionPath parametersSelector = SelectionPath.PARENT.parent().parent().parent().child("parameters");
+    final SelectionPath definitionPath = SelectionPath.PARENT.parent().parent().parent();
+    final SelectionPath request = definitionPath.child(REQUEST);
+    final WeaveType payloadType = resolveOperationResponseType(context, request.child(PATH), request.child(METHOD)).orElse(createAnyType());
+    final SelectionPath parametersSelector = definitionPath.child(PARAMETERS);
     final ObjectType parametersType = loadParametersType(context, parametersSelector);
-    implicitInput.addInput(PAYLOAD_KEY, payloadType);
+    implicitInput.addInput(ITEM_KEY, arrayTypeOf(payloadType));
     implicitInput.addInput(PARAMETERS_KEY, parametersType);
   }
 
@@ -185,10 +187,11 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
     implicitInput.addInput(PARAMETERS_KEY, parametersType);
   }
 
-  private void createValueProviderWithItems(ImplicitInput implicitInput, PsiElement context) {
-    final SelectionPath request = SelectionPath.PARENT.parent().parent().parent().child(REQUEST);
+  private void createValueProviderWithItems(ImplicitInput implicitInput, PsiElement context, SelectionPath pathToDefinition) {
+
+    final SelectionPath request = pathToDefinition.child(REQUEST);
     final WeaveType payloadType = resolveOperationResponseType(context, request.child(PATH), request.child(METHOD)).orElse(createAnyType());
-    final SelectionPath parametersSelector = SelectionPath.PARENT.parent().parent().parent().child(PARAMETERS);
+    final SelectionPath parametersSelector = pathToDefinition.child(PARAMETERS);
     final ObjectType parametersType = loadParametersType(context, parametersSelector);
     implicitInput.addInput(PAYLOAD_KEY, payloadType);
     implicitInput.addInput(PARAMETERS_KEY, parametersType);
@@ -219,8 +222,8 @@ public class RestSdkInputOutputTypesProvider implements InputOutputTypesProvider
   }
 
   private void createTestConnectionInputs(ImplicitInput implicitInput, PsiElement context) {
-    final SelectionPath path = SelectionPath.PARENT.parent().parent().child(PATH);
-    final SelectionPath method = SelectionPath.PARENT.parent().parent().child(METHOD);
+    final SelectionPath path = SelectionPath.PARENT.parent().parent().parent().child(PATH);
+    final SelectionPath method = SelectionPath.PARENT.parent().parent().parent().child(METHOD);
     final WeaveType payloadType = resolveOperationResponseType(context, path, method).orElse(createAnyType());
     implicitInput.addInput(PAYLOAD_KEY, payloadType);
     implicitInput.addInput(ATTRIBUTES_KEY, createHttpAttributes());
