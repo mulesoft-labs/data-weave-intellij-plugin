@@ -252,13 +252,13 @@ public class RestSdkCompletionService {
           template.append("  ").append(PARAMETERS).append(COLON_SEPARATOR).append("\n");
         }
         template.append("  ").append(DEFINITION).append(COLON_SEPARATOR).append("\n");
-        template.append("    ").append("type: ").append("http").append("\n");
+        template.append("    ").append(KIND).append(COLON_SEPARATOR).append("http").append("\n");
         template.append("    ").append(REQUEST).append(COLON_SEPARATOR).append("\n");
         template.append("      ").append(METHOD).append(COLON_SEPARATOR).append(operation.method()).append("\n");
         template.append("      ").append(PATH).append(COLON_SEPARATOR).append(endpoint.path()).append("\n");
 
         if (request != null) {
-          template.append("      ").append("binding: ").append("\n");
+          template.append("      ").append(BINDING).append(COLON_SEPARATOR).append("\n");
           final List<Parameter> queryParameters = operation.request().queryParameters();
           if (!queryParameters.isEmpty()) {
             template.append("        ").append(QUERY_PARAMETERS).append(COLON_SEPARATOR).append("\n");
@@ -268,12 +268,13 @@ public class RestSdkCompletionService {
             template.append("        ").append(URI_PARAMETERS).append(COLON_SEPARATOR).append("\n");
             for (Parameter uriParameter : uriParameters) {
               template.append("          ").append(uriParameter.name().value()).append(COLON_SEPARATOR).append("\n");
-              template.append("            ").append("value").append(": \"#[]\"").append("\n");
+              template.append("            ").append(VALUE).append(COLON_SEPARATOR).append("\"#[]\"").append("\n");
             }
           }
         }
         template.append("    ").append(TRANSFORM).append(COLON_SEPARATOR).append("\n");
-        template.append("      ").append(EXPRESSION).append(": \"#[payload]\"").append("\n");
+        template.append("      ").append(VALUE).append(COLON_SEPARATOR).append("\n");
+        template.append("        ").append(EXPRESSION).append(COLON_SEPARATOR).append("\"#[payload]\"").append("\n");
 
         final Template myTemplate = TemplateManager.getInstance(project).createTemplate("template", "rest_sdk_suggest", template.toString());
         myTemplate.addVariable("name", new TextExpression(StringUtils.capitalize(operationName(operation, endpoint)) + "SampleData"), true);
@@ -313,8 +314,9 @@ public class RestSdkCompletionService {
         template.append("      ").append(VALUE).append(COLON_SEPARATOR).append("\n");
         template.append("        ").append(EXPRESSION).append(COLON_SEPARATOR).append(" \"#[payload]\"").append("\n");
         template.append("      #").append("Specify the value to extract from each item.").append("\n");
-        template.append("      ").append(VALUE).append(COLON_SEPARATOR).append("\n");
-        template.append("        ").append(EXPRESSION).append(COLON_SEPARATOR).append(" \"#[item]\"").append("\n");
+        template.append("      ").append(EXTRACTION).append(COLON_SEPARATOR).append("\n");
+        template.append("        ").append(VALUE).append(COLON_SEPARATOR).append("\n");
+        template.append("          ").append(EXPRESSION).append(COLON_SEPARATOR).append(" \"#[item]\"").append("\n");
 
         final Template myTemplate = TemplateManager.getInstance(project).createTemplate("template", "rest_sdk_suggest", template.toString());
         myTemplate.addVariable("name", new TextExpression("SampleFor" + StringUtils.capitalize(operationName(operation, endpoint))), true);
@@ -363,21 +365,21 @@ public class RestSdkCompletionService {
           }
         }
         if (request != null) {
-          template.append("  ").append("binding: ").append("\n");
+          template.append("  ").append(BINDING).append(COLON_SEPARATOR).append("\n");
           template.append(buildOperationRequestTemplate(resources, request, "    "));
         }
         template.append("# ").append("Extract the items the collection of items form the http response").append("\n");
-        template.append("  ").append("items").append(COLON_SEPARATOR).append("\n");
+        template.append("  ").append(ITEMS).append(COLON_SEPARATOR).append("\n");
         template.append("    ").append(VALUE).append(COLON_SEPARATOR).append("\n");
         template.append("      ").append(EXPRESSION).append(COLON_SEPARATOR).append(" \"#[payload]\"").append("\n");
 
         template.append("# ").append("Extract the Watermark expression from each item.").append("\n");
-        template.append("  ").append("watermark").append(COLON_SEPARATOR).append("\n");
+        template.append("  ").append(WATERMARK).append(COLON_SEPARATOR).append("\n");
         template.append("    ").append(VALUE).append(COLON_SEPARATOR).append("\n");
         template.append("      ").append(EXPRESSION).append(COLON_SEPARATOR).append(" \"#[item]\"").append("\n");
 
         template.append("# ").append("Specify the expression to identify the elements.").append("\n");
-        template.append("  ").append("identity").append(COLON_SEPARATOR).append("\n");
+        template.append("  ").append(IDENTITY).append(COLON_SEPARATOR).append("\n");
         template.append("    ").append(VALUE).append(COLON_SEPARATOR).append("\n");
         template.append("      ").append(EXPRESSION).append(COLON_SEPARATOR).append(" \"#[item]\"").append("\n");
 
@@ -410,7 +412,7 @@ public class RestSdkCompletionService {
     final List<Parameter> uriParameters = request.uriParameters();
     final List<Parameter> queryParameters = request.queryParameters();
     final StringBuilder template = new StringBuilder();
-    template.append("  ").append("parameters").append(COLON_SEPARATOR).append("\n");
+    template.append("  ").append(PARAMETERS).append(COLON_SEPARATOR).append("\n");
     if (!payloads.isEmpty()) {
       final Shape schema = payloads.get(0).schema();
       if (schema instanceof NodeShape) {
@@ -419,7 +421,7 @@ public class RestSdkCompletionService {
           template.append("    ").append(property.name().value()).append(": \n");
           template.append("      ").append(toSchemaName(property.range(), resources, kind)).append("\n");
           template.append("      ").append(DISPLAY_NAME).append(COLON_SEPARATOR).append(property.name().value()).append("\n");
-          template.append("      ").append("required").append(COLON_SEPARATOR).append(property.minCount().value() == 0).append("\n");
+          template.append("      ").append(REQUIRED).append(COLON_SEPARATOR).append(property.minCount().value() == 0).append("\n");
           if (!property.description().isNullOrEmpty()) {
             template.append("      ").append(DESCRIPTION).append(COLON_SEPARATOR).append(property.description().value()).append("\n");
           }

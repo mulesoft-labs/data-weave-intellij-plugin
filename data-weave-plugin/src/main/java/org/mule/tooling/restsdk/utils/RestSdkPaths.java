@@ -20,13 +20,17 @@ public class RestSdkPaths {
   public static final String TEST_CONNECTION = "testConnection";
   public static final String TRIGGERS = "triggers";
   public static final String PATH = "path";
+  public static final String SUMMARY = "summary";
   public static final String BINDING = "binding";
   public static final String EVENT = "event";
   public static final String DEFINITION = "definition";
   public static final String REQUEST = "request";
+  public static final String KIND = "kind";
   public static final String HEADERS = "headers";
   public static final String BODY = "body";
   public static final String VALUE = "value";
+  public static final String WATERMARK = "watermark";
+  public static final String EXTRACTION = "extraction";
   public static final String ITEMS = "items";
   public static final String IDENTITY = "identity";
   public static final String SAMPLE_DATA = "sampleData";
@@ -38,33 +42,25 @@ public class RestSdkPaths {
   public static final String OPERATION_ID = "operationId";
   public static final String VALUE_PROVIDERS = "valueProviders";
   public static final String DISPLAY_NAME = "displayName";
+  public static final String REQUIRED = "required";
   public static final String DESCRIPTION = "description";
   public static final String MEDIA_TYPE = "mediaType";
   public static final String API_SPEC = "apiSpec";
   public static final String ENDPOINT = "endpoint";
   public static final String URL = "url";
-
   public static final String ENDPOINTS = "endpoints";
-
   public static final SelectionPath CONNECTOR_NAME_PATH = SelectionPath.DOCUMENT.child("connectorName");
-
-
   public static final SelectionPath OPERATION_IDENTIFIER_PATH = SelectionPath.DOCUMENT.child(OPERATION_IDENTIFIER).child(EXPRESSION);
   public static final SelectionPath OPERATION_DISPLAY_NAME_PATH = SelectionPath.DOCUMENT.child(OPERATION_DISPLAY_NAME).child(EXPRESSION);
-
   public static final SelectionPath PAGINATION_PATH = SelectionPath.DOCUMENT.child(PAGINATIONS).any().child(PAGING_RESPONSE).child(EXPRESSION);
   public static final SelectionPath PAGINATION_PARAMETERS = SelectionPath.DOCUMENT.child(PAGINATIONS).any().child(RestSdkInputOutputTypesProvider.PARAMETERS_KEY).any().child(EXPRESSION);
-
   public static final SelectionPath SECURITY_VALIDATION_PATH = SelectionPath.DOCUMENT.child(SECURITY).any().child(RESPONSE_VALIDATION).any().child(VALIDATION).child(EXPRESSION);
   public static final SelectionPath SECURITY_ERROR_TEMPLATE_PATH = SelectionPath.DOCUMENT.child(SECURITY).any().child(RESPONSE_VALIDATION).any().child(VALIDATION).child("errorTemplate");
   public static final SelectionPath SECURITY_REFRESH_PATH = SelectionPath.DOCUMENT.child(SECURITY).any().child(REFRESH_TOKEN_CONDITION);
-
   public static final SelectionPath TEST_CONNECTION_PATH = SelectionPath.DOCUMENT.child(TEST_CONNECTION).child(RESPONSE_VALIDATION).any().child(VALIDATION).child(EXPRESSION);
-
   public static final SelectionPath TRIGGERS_PATH = SelectionPath.DOCUMENT.child(TRIGGERS);
   public static final SelectionPath TRIGGERS_PATH_PATH = TRIGGERS_PATH.any().child(PATH);
   public static final SelectionPath TRIGGERS_PARAMETER = TRIGGERS_PATH.any().child(PARAMETERS);
-
   public static final SelectionPath TRIGGERS_BINDING_BODY_EXPRESSION = TRIGGERS_PATH.any().child(BINDING).child(BODY).child(VALUE).child(EXPRESSION);
   public static final SelectionPath TRIGGERS_BINDING_QUERY_PARAMS_PATH = TRIGGERS_PATH.any().child(BINDING).child(QUERY_PARAMETERS);
   public static final SelectionPath TRIGGERS_BINDING_QUERY_PARAMS_EXPRESSION_PATH = TRIGGERS_BINDING_QUERY_PARAMS_PATH.any().child(VALUE).child(EXPRESSION);
@@ -96,9 +92,8 @@ public class RestSdkPaths {
   public static final SelectionPath GLOBAL_SAMPLE_DATA_PATH_PATH = GLOBAL_SAMPLE_DATA_PATH.any().child(DEFINITION).child(REQUEST).child(PATH);
   public static final SelectionPath GLOBAL_SAMPLE_DATA_BINDING_REQUEST_EXPRESSION_PATH = GLOBAL_SAMPLE_DATA_PATH.any().child(DEFINITION).child(REQUEST).child(BINDING).any().any().child(VALUE);
   public static final SelectionPath RELATIVE_GLOBAL_SAMPLE_DATA_BINDING_REQUEST_EXPRESSION_PARAMETERS_PATH = SelectionPath.PARENT.parent().parent().parent().parent().parent().child(PARAMETERS);
-  public static final SelectionPath GLOBAL_SAMPLE_DATA_TRANSFORM_EXPRESSION_PATH = GLOBAL_SAMPLE_DATA_PATH.any().child(DEFINITION).child(TRANSFORM).child(EXPRESSION);
-  public static final SelectionPath RELATIVE_GLOBAL_SAMPLE_DATA_TRANSFORM_EXPRESSION_PARAMETERS_PATH = SelectionPath.PARENT.parent().parent().child(PARAMETERS);
-
+  public static final SelectionPath GLOBAL_SAMPLE_DATA_TRANSFORM_EXPRESSION_PATH = GLOBAL_SAMPLE_DATA_PATH.any().child(DEFINITION).child(TRANSFORM).child(VALUE).child(EXPRESSION);
+  public static final SelectionPath RELATIVE_GLOBAL_SAMPLE_DATA_TRANSFORM_EXPRESSION_PARAMETERS_PATH = SelectionPath.PARENT.parent().parent().parent().child(PARAMETERS);
 
   public static final SelectionPath OPERATION_REQUEST_BODY_PATH = SelectionPath.DOCUMENT.child(OPERATIONS).any().child(REQUEST).child(BODY).child(VALUE).child(EXPRESSION);
   public static final SelectionPath OPERATION_PATH = SelectionPath.DOCUMENT.child(OPERATIONS);
@@ -106,17 +101,12 @@ public class RestSdkPaths {
 
   public static final SelectionPath OPERATION_URI_PARAMS_PATH = OPERATION_PATH.any().child(REQUEST).child(URI_PARAMETERS);
   public static final SelectionPath OPERATION_URI_PARAMS_EXPRESSION_PATH = OPERATION_URI_PARAMS_PATH.any().child(VALUE).child(EXPRESSION);
-
   public static final SelectionPath OPERATION_REQUEST_HEADER_PATH = OPERATION_PATH.any().child(REQUEST).child(HEADERS);
   public static final SelectionPath OPERATION_REQUEST_HEADER_EXPRESSION_PATH = OPERATION_REQUEST_HEADER_PATH.any().child(VALUE).child(EXPRESSION);
-
-
   public static final SelectionPath OPERATION_RESPONSE_BODY_PATH = OPERATION_PATH.any().child(RESPONSE).child(BODY).child(VALUE).child(EXPRESSION);
 
   public static final SelectionPath OPERATION_QUERY_PARAMS_PATH = OPERATION_PATH.any().child(REQUEST).child(QUERY_PARAMETERS);
   public static final SelectionPath OPERATION_QUERY_PARAMS_EXPRESSION_PATH = OPERATION_QUERY_PARAMS_PATH.any().child(VALUE).child(EXPRESSION);
-
-
   public static final SelectionPath OPERATION_BASE_PATH = OPERATION_PATH.any().child(BASE).child(OPERATION_ID);
 
   public static final SelectionPath VALUE_PROVIDERS_PATH = SelectionPath.DOCUMENT.child(VALUE_PROVIDERS);
@@ -140,6 +130,7 @@ public class RestSdkPaths {
   public static final SelectionPath PARAMETERS_SELECTOR_FROM_QUERY_PARAMETER_PATH = SelectionPath.PARENT.parent().parent().parent().child(RestSdkInputOutputTypesProvider.PARAMETERS_KEY);
   public static final SelectionPath RELATIVE_TRIGGER_PARAMETERS_SELECTOR_FROM_BINDING_BODY_PATH = SelectionPath.PARENT.parent().parent().child(RestSdkInputOutputTypesProvider.PARAMETERS_KEY);
   public static final SelectionPath PARAMETERS_SELECTOR_FROM_ITEMS_PATH = SelectionPath.PARENT.parent().parent().child(RestSdkInputOutputTypesProvider.PARAMETERS_KEY);
+
   public static final SelectionPath PARAMETERS_SELECTOR_FROM_ROOT_SAMPLE_DATA_PATH = SelectionPath.PARENT.parent().parent().parent().parent().parent().child(RestSdkInputOutputTypesProvider.PARAMETERS_KEY);
   public static final SelectionPath RELATIVE_OPERATION_BASE_FROM_REQUEST_PATH = SelectionPath.PARENT.parent().child(BASE).child(OPERATION_ID);
   public static final SelectionPath RELATIVE_OPERATION_BASE_PATH_FROM_REQUEST_PATH = SelectionPath.PARENT.parent().child(BASE).child(PATH);
