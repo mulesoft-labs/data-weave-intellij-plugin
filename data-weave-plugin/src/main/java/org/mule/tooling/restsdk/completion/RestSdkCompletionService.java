@@ -268,7 +268,8 @@ public class RestSdkCompletionService {
             template.append("        ").append(URI_PARAMETERS).append(COLON_SEPARATOR).append("\n");
             for (Parameter uriParameter : uriParameters) {
               template.append("          ").append(uriParameter.name().value()).append(COLON_SEPARATOR).append("\n");
-              template.append("            ").append(VALUE).append(COLON_SEPARATOR).append("\"#[]\"").append("\n");
+              template.append("            ").append(VALUE).append(COLON_SEPARATOR).append("\n");
+              template.append("              ").append(EXPRESSION).append(COLON_SEPARATOR).append("\"#[]\"").append("\n");
             }
           }
         }
