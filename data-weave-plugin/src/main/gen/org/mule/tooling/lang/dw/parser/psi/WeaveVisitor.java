@@ -229,6 +229,10 @@ public class WeaveVisitor extends PsiElementVisitor {
     visitExpression(o);
   }
 
+  public void visitFunctionCallTypeParameters(@NotNull WeaveFunctionCallTypeParameters o) {
+    visitPsiElement(o);
+  }
+
   public void visitFunctionDefinition(@NotNull WeaveFunctionDefinition o) {
     visitNamedElement(o);
   }

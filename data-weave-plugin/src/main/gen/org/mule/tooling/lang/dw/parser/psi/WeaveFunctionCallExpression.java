@@ -13,4 +13,7 @@ public interface WeaveFunctionCallExpression extends WeaveExpression {
   @NotNull
   WeaveFunctionCallArguments getFunctionCallArguments();
 
+  @Nullable
+  WeaveFunctionCallTypeParameters getFunctionCallTypeParameters();
+
 }

@@ -64,6 +64,7 @@ public interface WeaveTypes {
   IElementType FQN_IDENTIFIER = new WeaveElementType("FQN_IDENTIFIER");
   IElementType FUNCTION_CALL_ARGUMENTS = new WeaveElementType("FUNCTION_CALL_ARGUMENTS");
   IElementType FUNCTION_CALL_EXPRESSION = new WeaveElementType("FUNCTION_CALL_EXPRESSION");
+  IElementType FUNCTION_CALL_TYPE_PARAMETERS = new WeaveElementType("FUNCTION_CALL_TYPE_PARAMETERS");
   IElementType FUNCTION_DEFINITION = new WeaveElementType("FUNCTION_DEFINITION");
   IElementType FUNCTION_DIRECTIVE = new WeaveElementType("FUNCTION_DIRECTIVE");
   IElementType FUNCTION_PARAMETER = new WeaveElementType("FUNCTION_PARAMETER");
@@ -387,6 +388,9 @@ public interface WeaveTypes {
       }
       else if (type == FUNCTION_CALL_EXPRESSION) {
         return new WeaveFunctionCallExpressionImpl(node);
+      }
+      else if (type == FUNCTION_CALL_TYPE_PARAMETERS) {
+        return new WeaveFunctionCallTypeParametersImpl(node);
       }
       else if (type == FUNCTION_DEFINITION) {
         return new WeaveFunctionDefinitionImpl(node);

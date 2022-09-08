@@ -297,6 +297,7 @@ private SimpleExpression ::=
              OrExpression
             | AndExpression
             | EqualityExpression
+            | FunctionCallExpression
             | GreaterThanExpression
             | AdditionSubtractionExpression
             | RightShiftExpression
@@ -304,7 +305,6 @@ private SimpleExpression ::=
             | MultiplicationDivisionExpression
             | AsExpression
             | IsExpression
-            | FunctionCallExpression
             | DotSelectorExpression
             | BracketSelectorExpression
             | ValueExpression
@@ -362,7 +362,9 @@ LeftShiftExpression
 
 MultiplicationDivisionExpression ::= Expression  ( '*' | '/' ) Expression {pin=2}
 
-FunctionCallExpression ::= Expression FunctionCallArguments
+FunctionCallExpression ::= Expression FunctionCallTypeParameters? FunctionCallArguments
+
+FunctionCallTypeParameters ::= '<' (Type ( ',' Type )*)? '>'
 
 FunctionCallArguments ::= '(' ( Expression ( ',' Expression )* )? (',')? ')' {pin=1}
 

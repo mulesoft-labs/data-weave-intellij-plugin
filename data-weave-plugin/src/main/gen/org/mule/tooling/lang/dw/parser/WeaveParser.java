@@ -1262,6 +1262,60 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
+  // '<' (Type ( ',' Type )*)? '>'
+  public static boolean FunctionCallTypeParameters(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "FunctionCallTypeParameters")) return false;
+    if (!nextTokenIs(b, LESS)) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, LESS);
+    r = r && FunctionCallTypeParameters_1(b, l + 1);
+    r = r && consumeToken(b, GREATER);
+    exit_section_(b, m, FUNCTION_CALL_TYPE_PARAMETERS, r);
+    return r;
+  }
+
+  // (Type ( ',' Type )*)?
+  private static boolean FunctionCallTypeParameters_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "FunctionCallTypeParameters_1")) return false;
+    FunctionCallTypeParameters_1_0(b, l + 1);
+    return true;
+  }
+
+  // Type ( ',' Type )*
+  private static boolean FunctionCallTypeParameters_1_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "FunctionCallTypeParameters_1_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = Type(b, l + 1);
+    r = r && FunctionCallTypeParameters_1_0_1(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // ( ',' Type )*
+  private static boolean FunctionCallTypeParameters_1_0_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "FunctionCallTypeParameters_1_0_1")) return false;
+    while (true) {
+      int c = current_position_(b);
+      if (!FunctionCallTypeParameters_1_0_1_0(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "FunctionCallTypeParameters_1_0_1", c)) break;
+    }
+    return true;
+  }
+
+  // ',' Type
+  private static boolean FunctionCallTypeParameters_1_0_1_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "FunctionCallTypeParameters_1_0_1_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, COMMA);
+    r = r && Type(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  /* ********************************************************** */
   // Identifier TypeParameterDeclaration? L_PARREN ( FunctionParameter ( ',' FunctionParameter )* )? (",")? R_PARREN ( ":" (Type | DynamicReturn)? "=" | "=")? Expression
   public static boolean FunctionDefinition(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "FunctionDefinition")) return false;
@@ -3737,9 +3791,9 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   // 2: ATOM(CustomInterpolatorExpression)
   // 3: BINARY(DefaultValueExpression)
   // 4: BINARY(BinaryExpression)
-  // 5: BINARY(OrExpression) BINARY(AndExpression) BINARY(EqualityExpression) BINARY(GreaterThanExpression)
-  //    BINARY(AdditionSubtractionExpression) BINARY(RightShiftExpression) BINARY(LeftShiftExpression) BINARY(MultiplicationDivisionExpression)
-  //    POSTFIX(AsExpression) POSTFIX(IsExpression) POSTFIX(FunctionCallExpression) POSTFIX(DotSelectorExpression)
+  // 5: BINARY(OrExpression) BINARY(AndExpression) BINARY(EqualityExpression) POSTFIX(FunctionCallExpression)
+  //    BINARY(GreaterThanExpression) BINARY(AdditionSubtractionExpression) BINARY(RightShiftExpression) BINARY(LeftShiftExpression)
+  //    BINARY(MultiplicationDivisionExpression) POSTFIX(AsExpression) POSTFIX(IsExpression) POSTFIX(DotSelectorExpression)
   //    POSTFIX(BracketSelectorExpression) ATOM(UndefinedLiteral) ATOM(UnaryMinusExpression) ATOM(NotExpression)
   //    ATOM(ConditionalExpression) ATOM(UsingExpression) ATOM(DoExpression) ATOM(LambdaLiteral)
   //    ATOM(ObjectDeconstructExpression) ATOM(ObjectExpression) ATOM(ArrayExpression) ATOM(VariableReferenceExpression)
@@ -3802,6 +3856,10 @@ public class WeaveParser implements PsiParser, LightPsiParser {
         r = Expression(b, l, 4);
         exit_section_(b, l, m, EQUALITY_EXPRESSION, r, true, null);
       }
+      else if (g < 5 && FunctionCallExpression_0(b, l + 1)) {
+        r = true;
+        exit_section_(b, l, m, FUNCTION_CALL_EXPRESSION, r, true, null);
+      }
       else if (g < 5 && GreaterThanExpression_0(b, l + 1)) {
         r = Expression(b, l, 4);
         exit_section_(b, l, m, GREATER_THAN_EXPRESSION, r, true, null);
@@ -3829,10 +3887,6 @@ public class WeaveParser implements PsiParser, LightPsiParser {
       else if (g < 5 && IsExpression_0(b, l + 1)) {
         r = true;
         exit_section_(b, l, m, IS_EXPRESSION, r, true, null);
-      }
-      else if (g < 5 && FunctionCallArguments(b, l + 1)) {
-        r = true;
-        exit_section_(b, l, m, FUNCTION_CALL_EXPRESSION, r, true, null);
       }
       else if (g < 5 && DotSelectorExpression_0(b, l + 1)) {
         r = true;
@@ -3911,6 +3965,24 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     if (!r) r = consumeTokenSmart(b, NOT_EQUAL);
     if (!r) r = consumeTokenSmart(b, SIMILAR);
     return r;
+  }
+
+  // FunctionCallTypeParameters? FunctionCallArguments
+  private static boolean FunctionCallExpression_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "FunctionCallExpression_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = FunctionCallExpression_0_0(b, l + 1);
+    r = r && FunctionCallArguments(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // FunctionCallTypeParameters?
+  private static boolean FunctionCallExpression_0_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "FunctionCallExpression_0_0")) return false;
+    FunctionCallTypeParameters(b, l + 1);
+    return true;
   }
 
   // '>' !('>') | '>=' |  '<' !('<') | '<='

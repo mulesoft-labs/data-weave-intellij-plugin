@@ -8,17 +8,17 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import org.mule.tooling.lang.dw.parser.psi.*;
 
-public class WeaveFunctionCallExpressionImpl extends WeaveExpressionImpl implements WeaveFunctionCallExpression {
+public class WeaveFunctionCallTypeParametersImpl extends ASTWrapperPsiElement implements WeaveFunctionCallTypeParameters {
 
-  public WeaveFunctionCallExpressionImpl(@NotNull ASTNode node) {
+  public WeaveFunctionCallTypeParametersImpl(@NotNull ASTNode node) {
     super(node);
   }
 
-  @Override
   public void accept(@NotNull WeaveVisitor visitor) {
-    visitor.visitFunctionCallExpression(this);
+    visitor.visitFunctionCallTypeParameters(this);
   }
 
   @Override
@@ -29,20 +29,8 @@ public class WeaveFunctionCallExpressionImpl extends WeaveExpressionImpl impleme
 
   @Override
   @NotNull
-  public WeaveExpression getExpression() {
-    return findNotNullChildByClass(WeaveExpression.class);
-  }
-
-  @Override
-  @NotNull
-  public WeaveFunctionCallArguments getFunctionCallArguments() {
-    return findNotNullChildByClass(WeaveFunctionCallArguments.class);
-  }
-
-  @Override
-  @Nullable
-  public WeaveFunctionCallTypeParameters getFunctionCallTypeParameters() {
-    return findChildByClass(WeaveFunctionCallTypeParameters.class);
+  public List<WeaveType> getTypeList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, WeaveType.class);
   }
 
 }
