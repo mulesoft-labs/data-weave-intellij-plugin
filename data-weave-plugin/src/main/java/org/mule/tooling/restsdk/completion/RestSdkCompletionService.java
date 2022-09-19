@@ -21,14 +21,16 @@ import com.intellij.codeInsight.template.TemplateManager;
 import com.intellij.codeInsight.template.impl.ConstantNode;
 import com.intellij.codeInsight.template.impl.TextExpression;
 import com.intellij.icons.AllIcons;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import io.netty.handler.codec.http.HttpMethod;
+import com.intellij.psi.util.PsiTreeUtil;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.yaml.YAMLElementGenerator;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
 import org.jetbrains.yaml.psi.YAMLMapping;
 import org.jetbrains.yaml.psi.YAMLScalar;
@@ -47,6 +49,7 @@ import static java.util.Optional.ofNullable;
 import static org.mule.tooling.restsdk.utils.MapUtils.map;
 import static org.mule.tooling.restsdk.utils.RestSdkHelper.parseWebApi;
 import static org.mule.tooling.restsdk.utils.RestSdkPaths.*;
+import static org.mule.tooling.restsdk.utils.YAMLUtils.mergeInto;
 
 public class RestSdkCompletionService {
   public static final String SCHEMAS_FOLDER = "schemas";
@@ -770,21 +773,43 @@ public class RestSdkCompletionService {
         LookupElementBuilder elementBuilder = LookupElementBuilder.create(operationName(operation, endpoint) + " (Scaffold New Endpoint Operation)");
         elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.AbstractMethod);
         elementBuilder = elementBuilder.withTypeText(operationType(operation, endpoint), true);
-        final List<Resource> resources = new ArrayList<>();
-        final StringBuilder template = new StringBuilder();
-        template.append(endpoint.path()).append(COLON_SEPARATOR).append("\n");
-        template.append("  ").append("operations").append(COLON_SEPARATOR).append("\n");
-        template.append("    ").append(operation.method().value()).append(COLON_SEPARATOR).append("\n");
-        template.append("      ").append("ignored").append(COLON_SEPARATOR).append("false");
-        final Template myTemplate = TemplateManager.getInstance(project).createTemplate("template", "rest_sdk_suggest", template.toString());
         elementBuilder = elementBuilder.withInsertHandler((context, item1) -> {
-          final int selectionStart = context.getEditor().getCaretModel().getOffset();
           final int startOffset = context.getStartOffset();
           final int tailOffset = context.getTailOffset();
           context.getDocument().deleteString(startOffset, tailOffset);
           context.setAddCompletionChar(false);
-          TemplateManager.getInstance(context.getProject()).startTemplate(context.getEditor(), myTemplate);
-          generateResources(file, resources);
+
+          var endpoints = (YAMLMapping) ENDPOINTS_PATH.selectYaml(file);
+          if (endpoints == null) {
+            Logger.getInstance(RestSdkCompletionService.class).warn("No endpoints?");
+            return;
+          }
+
+          var existing = endpoints.getKeyValueByKey(endpoint.path().value());
+
+          final Template myTemplate;
+          final StringBuilder template = new StringBuilder();
+          template.append(endpoint.path()).append(COLON_SEPARATOR).append("\n");
+          template.append("  ").append("operations").append(COLON_SEPARATOR).append("\n");
+          template.append("    ").append(operation.method().value()).append(COLON_SEPARATOR).append("\n");
+          template.append("      ").append("ignored").append(COLON_SEPARATOR).append("false");
+          String templateString = template.toString();
+          if (existing == null) {
+            myTemplate = TemplateManager.getInstance(project).createTemplate("template", "rest_sdk_suggest", templateString);
+            TemplateManager.getInstance(context.getProject()).startTemplate(context.getEditor(), myTemplate);
+          } else {
+            context.commitDocument();
+            final YAMLElementGenerator elementGenerator = YAMLElementGenerator.getInstance(project);
+            var dummyFile = elementGenerator.createDummyYamlWithText(templateString);
+            YAMLMapping templateEndpointValue = (YAMLMapping) PsiTreeUtil.collectElementsOfType(dummyFile, YAMLKeyValue.class).iterator().next().getValue();
+            if (templateEndpointValue == null) {
+              Logger.getInstance(RestSdkCompletionService.class).error("Couldn't create YAML from: " + templateString);
+              return;
+            }
+            var added = mergeInto(existing, templateEndpointValue);
+            if (added != null)
+              context.getEditor().getCaretModel().moveToOffset(added.getTextRange().getEndOffset());
+          }
         });
         result.add(elementBuilder);
       });
