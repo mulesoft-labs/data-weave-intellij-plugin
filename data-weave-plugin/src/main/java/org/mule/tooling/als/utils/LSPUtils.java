@@ -24,6 +24,7 @@ import java.util.concurrent.TimeoutException;
 
 public class LSPUtils {
 
+  @Nullable
   public static VirtualFile virtualFileFromEditor(Editor editor) {
     return FileDocumentManager.getInstance().getFile(editor.getDocument());
   }
@@ -46,11 +47,11 @@ public class LSPUtils {
     }
   }
 
-  public static String toLSPUrl(File file){
+  public static String toLSPUrl(File file) {
     return "file://" + file.toURI().getPath();
   }
 
-  public static String toLSPUrl(String filePath){
+  public static String toLSPUrl(String filePath) {
     return toLSPUrl(new File(filePath));
   }
 

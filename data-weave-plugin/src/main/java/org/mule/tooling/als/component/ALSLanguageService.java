@@ -650,8 +650,11 @@ public class ALSLanguageService implements Disposable {
   }
 
   public void closeEditor(Editor editor) {
-    VirtualFile file = LSPUtils.virtualFileFromEditor(editor);
-    String url = file.getUrl();
+    final VirtualFile file = LSPUtils.virtualFileFromEditor(editor);
+    if (file == null) {
+      return;
+    }
+    final String url = file.getUrl();
     if (documents.containsKey(url)) {
       documents.remove(url);
       languageServer.textDocumentSyncConsumer().didClose(new DidCloseTextDocumentParams(new TextDocumentIdentifier(url)));
@@ -660,6 +663,9 @@ public class ALSLanguageService implements Disposable {
 
   public void openEditor(Editor editor) {
     final VirtualFile file = LSPUtils.virtualFileFromEditor(editor);
+    if (file == null) {
+      return;
+    }
     final String url = file.getUrl();
     final Project project = editor.getProject();
     if (project != null) {
