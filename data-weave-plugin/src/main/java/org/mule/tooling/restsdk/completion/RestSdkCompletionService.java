@@ -31,6 +31,7 @@ import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.yaml.YAMLElementGenerator;
+import org.jetbrains.yaml.YAMLUtil;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
 import org.jetbrains.yaml.psi.YAMLMapping;
 import org.jetbrains.yaml.psi.YAMLScalar;
@@ -768,8 +769,19 @@ public class RestSdkCompletionService {
 
   private void suggestEndpointTemplates(ArrayList<LookupElement> result, WebApi webApi, Project project, PsiFile file) {
     final List<EndPoint> endPoints = webApi.endPoints();
-    endPoints.forEach((endpoint) -> {
+    var existingEndpoints = (YAMLMapping) ENDPOINTS_PATH.selectYaml(file);
+    if (existingEndpoints == null) {
+      Logger.getInstance(RestSdkCompletionService.class).warn("No endpoints?");
+      return;
+    }
+    endPoints.forEach(endpoint -> {
+      var existing = existingEndpoints.getKeyValueByKey(endpoint.path().value());
       endpoint.operations().forEach((operation) -> {
+        if (existing != null) {
+          var ops = YAMLUtil.findKeyInProbablyMapping(existing.getValue(), OPERATIONS);
+          if (ops != null && YAMLUtil.findKeyInProbablyMapping(ops.getValue(), operation.method().value()) != null)
+            return;
+        }
         LookupElementBuilder elementBuilder = LookupElementBuilder.create(operationName(operation, endpoint) + " (Scaffold New Endpoint Operation)");
         elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.AbstractMethod);
         elementBuilder = elementBuilder.withTypeText(operationType(operation, endpoint), true);
@@ -778,14 +790,6 @@ public class RestSdkCompletionService {
           final int tailOffset = context.getTailOffset();
           context.getDocument().deleteString(startOffset, tailOffset);
           context.setAddCompletionChar(false);
-
-          var endpoints = (YAMLMapping) ENDPOINTS_PATH.selectYaml(file);
-          if (endpoints == null) {
-            Logger.getInstance(RestSdkCompletionService.class).warn("No endpoints?");
-            return;
-          }
-
-          var existing = endpoints.getKeyValueByKey(endpoint.path().value());
 
           final Template myTemplate;
           final StringBuilder template = new StringBuilder();
