@@ -45,6 +45,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static java.util.Optional.ofNullable;
 import static org.mule.tooling.restsdk.utils.MapUtils.map;
@@ -79,6 +80,8 @@ public class RestSdkCompletionService {
           DataType.Any(), "any",
           DataType.Password(), "string",
           DataType.Link(), "string");
+
+  final private static List<String> ALL_HTTP_METHODS = Arrays.asList("delete", "get", "put", "post", "patch", "options", "head", "trace");
 
   public List<LookupElement> completions(CompletionParameters completionParameters) {
     final Project project = completionParameters.getOriginalFile().getProject();
@@ -134,30 +137,29 @@ public class RestSdkCompletionService {
 
   private void suggestEndpoints(CompletionParameters completionParameters, Project project, ArrayList<LookupElement> result, SelectionPath yamlPath) {
     final Document webApiDocument = parseWebApi(completionParameters.getOriginalFile());
-    if (webApiDocument != null) {
-      final WebApi webApi = (WebApi) webApiDocument.encodes();
-      if (yamlPath.matches(ENDPOINTS_PATH)) {
-        suggestEndpointTemplates(result, webApi, project, completionParameters.getOriginalFile());
-      } else if (yamlPath.matches(ENDPOINTS_METHOD_PATH)) {
-        final PsiElement path = SelectionPath.PARENT.selectYaml(completionParameters.getPosition());
-        if (path instanceof YAMLMapping) {
-          final String pathText = ((YAMLKeyValue) path.getParent()).getKeyText();
-          final EndPoint endPoint = RestSdkHelper.endpointByPath((WebApi) webApiDocument.encodes(), pathText);
-          if (endPoint != null) {
-            endPoint.operations().forEach((operation) -> {
-              LookupElementBuilder elementBuilder = LookupElementBuilder.create(operation.method().value() + ":\n");
-              elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.Property);
-              result.add(elementBuilder);
-            });
-          } else {
-            Arrays.asList("delete", "get", "put", "post", "patch", "options", "head", "trace").forEach((method) -> {
-              LookupElementBuilder elementBuilder = LookupElementBuilder.create(method + ":\n");
-              elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.Property);
-              result.add(elementBuilder);
-            });
+    if (webApiDocument == null)
+      return;
+    final WebApi webApi = (WebApi) webApiDocument.encodes();
+    if (yamlPath.matches(ENDPOINTS_PATH)) {
+      suggestEndpointTemplates(result, webApi, project, completionParameters.getOriginalFile());
+    } else if (yamlPath.matches(ENDPOINTS_METHOD_PATH)) {
+      var operationsKeyValue = PsiTreeUtil.getParentOfType(completionParameters.getPosition(), YAMLKeyValue.class, false);
+      assert operationsKeyValue != null;
+      final EndPoint endPoint = RestSdkHelper.endpointByPath(webApi, ((YAMLKeyValue) operationsKeyValue.getParent().getParent()).getKeyText());
+      List<String> methods = endPoint != null
+              ? endPoint.operations().stream().map(operation -> operation.method().value()).collect(Collectors.toList())
+              : ALL_HTTP_METHODS;
+      var methodsMapping = operationsKeyValue.getValue();
+      methods.forEach(method -> {
+        if (methodsMapping instanceof YAMLMapping) {
+          for (YAMLKeyValue kv : ((YAMLMapping) methodsMapping).getKeyValues()) {
+            if (method.equals(kv.getKeyText()))
+              return;
           }
         }
-      }
+        result.add(LookupElementBuilder.create(method + ":\n")
+                .withIcon(AllIcons.Nodes.Property));
+      });
     }
   }
 
