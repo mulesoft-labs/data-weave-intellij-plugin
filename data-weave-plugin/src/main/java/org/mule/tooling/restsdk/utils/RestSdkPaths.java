@@ -54,6 +54,7 @@ public class RestSdkPaths {
   public static final SelectionPath OPERATION_DISPLAY_NAME_PATH = SelectionPath.DOCUMENT.child(OPERATION_DISPLAY_NAME).child(EXPRESSION);
   public static final SelectionPath PAGINATION_PATH = SelectionPath.DOCUMENT.child(PAGINATIONS).any().child(PAGING_RESPONSE).child(EXPRESSION);
   public static final SelectionPath PAGINATION_PARAMETERS = SelectionPath.DOCUMENT.child(PAGINATIONS).any().child(RestSdkInputOutputTypesProvider.PARAMETERS_KEY).any().child(EXPRESSION);
+  public static final SelectionPath SECURITY_PATH = SelectionPath.DOCUMENT.child(SECURITY);
   public static final SelectionPath SECURITY_VALIDATION_PATH = SelectionPath.DOCUMENT.child(SECURITY).any().child(RESPONSE_VALIDATION).any().child(VALIDATION).child(EXPRESSION);
   public static final SelectionPath SECURITY_ERROR_TEMPLATE_PATH = SelectionPath.DOCUMENT.child(SECURITY).any().child(RESPONSE_VALIDATION).any().child(VALIDATION).child("errorTemplate");
   public static final SelectionPath SECURITY_REFRESH_PATH = SelectionPath.DOCUMENT.child(SECURITY).any().child(REFRESH_TOKEN_CONDITION);
