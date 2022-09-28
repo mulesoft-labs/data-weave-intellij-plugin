@@ -5,6 +5,8 @@ import amf.apicontract.client.platform.WebAPIConfiguration;
 import amf.apicontract.client.platform.model.domain.EndPoint;
 import amf.apicontract.client.platform.model.domain.Operation;
 import amf.apicontract.client.platform.model.domain.api.WebApi;
+import amf.apicontract.client.platform.model.domain.security.ParametrizedSecurityScheme;
+import amf.apicontract.client.platform.model.domain.security.SecurityScheme;
 import amf.core.client.platform.AMFParseResult;
 import amf.core.client.platform.model.StrField;
 import amf.core.client.platform.model.document.BaseUnit;
@@ -22,6 +24,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.yaml.YAMLFileType;
 import org.jetbrains.yaml.psi.YAMLScalar;
@@ -264,6 +267,34 @@ public class RestSdkHelper {
                       return endpoint.path().value().equals(pathText);
                     })
                     .findFirst().orElse(null);
+  }
+
+  /** Returns a stream with every security configuration in use.
+   *
+   * @param webApi the web API
+   * @return a stream of {@link ParametrizedSecurityScheme} objects
+   */
+  public static @NotNull Stream<ParametrizedSecurityScheme> getSecuritySchemes(@NotNull WebApi webApi) {
+    return webApi.endPoints().stream().flatMap(e -> e.operations().stream())
+            .flatMap(o -> o.security().stream().flatMap(r -> r.schemes().stream()))
+            .distinct();
+  }
+
+  /** Gets the Rest SDK "kind" value for an API security scheme.
+   */
+  public static @Nullable String securitySchemeToKind(@NotNull SecurityScheme scheme) {
+    switch (scheme.type().value()) {
+      case "http":
+        return "basic";
+      case "OAuth 2.0":
+        return "oauth2";
+      case "Api Key":
+        return "apiKey";
+      case "Digest Authentication":
+        return "digest";
+      default:
+        return null;
+    }
   }
 
   static class WeaveReferenceTypeResolver {

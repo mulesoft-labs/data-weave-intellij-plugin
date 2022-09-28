@@ -5,6 +5,7 @@ import amf.apicontract.client.platform.AMFElementClient;
 import amf.apicontract.client.platform.OASConfiguration;
 import amf.apicontract.client.platform.model.domain.*;
 import amf.apicontract.client.platform.model.domain.api.WebApi;
+import amf.apicontract.client.platform.model.domain.security.ParametrizedSecurityScheme;
 import amf.core.client.platform.model.document.Document;
 import amf.core.client.platform.model.domain.PropertyShape;
 import amf.core.client.platform.model.domain.Shape;
@@ -43,6 +44,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -131,6 +133,8 @@ public class RestSdkCompletionService {
         lookupElementBuilder = lookupElementBuilder.withIcon(AllIcons.Nodes.Type);
         result.add(lookupElementBuilder);
       });
+    } else if (yamlPath.matches(SECURITY_PATH)) {
+      suggestOnSecurity(completionParameters, result, position);
     }
     return result;
   }
@@ -848,6 +852,35 @@ public class RestSdkCompletionService {
 
   private String operationType(Operation operation, EndPoint endpoint) {
     return operation.method().value().toLowerCase() + " - " + endpoint.path().value();
+  }
+
+  private static void suggestOnSecurity(CompletionParameters completionParameters, ArrayList<LookupElement> result, PsiElement position) {
+    final Document webApiDocument = parseWebApi(completionParameters.getOriginalFile());
+    if (webApiDocument != null) {
+      var kv = PsiTreeUtil.getParentOfType(position, YAMLKeyValue.class, false);
+      List<String> existing;
+      if (kv != null) {
+        var v = kv.getValue();
+        existing = v instanceof YAMLMapping
+                ? ((YAMLMapping) v).getKeyValues().stream().map(YAMLKeyValue::getKeyText).collect(Collectors.toList())
+                : Collections.emptyList();
+      } else {
+        existing = Collections.emptyList();
+      }
+
+      final WebApi webApi = (WebApi) webApiDocument.encodes();
+      RestSdkHelper.getSecuritySchemes(webApi).filter(s -> !existing.contains(s.name().value()))
+              .map(s -> LookupElementBuilder.create(createSecurityTemplate(s))).forEach(result::add);
+    }
+  }
+
+  private static @NotNull String createSecurityTemplate(@NotNull ParametrizedSecurityScheme s) {
+    var sb = new StringBuilder();
+    sb.append(s.name().value()).append(":\n    ");
+    var kind = RestSdkHelper.securitySchemeToKind(s.scheme());
+    if (kind != null)
+      sb.append("kind: ").append(kind).append("\n    ");
+    return sb.toString();
   }
 
   static class Resource {
