@@ -5,6 +5,7 @@ import amf.apicontract.client.platform.WebAPIConfiguration;
 import amf.apicontract.client.platform.model.domain.EndPoint;
 import amf.apicontract.client.platform.model.domain.Operation;
 import amf.apicontract.client.platform.model.domain.api.WebApi;
+import amf.apicontract.client.platform.model.domain.security.HttpSettings;
 import amf.apicontract.client.platform.model.domain.security.ParametrizedSecurityScheme;
 import amf.apicontract.client.platform.model.domain.security.SecurityScheme;
 import amf.core.client.platform.AMFParseResult;
@@ -24,6 +25,8 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
+import com.intellij.util.ObjectUtils;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.yaml.YAMLFileType;
@@ -36,6 +39,7 @@ import scala.Option;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Stream;
@@ -282,19 +286,31 @@ public class RestSdkHelper {
 
   /** Gets the Rest SDK "kind" value for an API security scheme.
    */
+  @Contract(pure = true)
   public static @Nullable String securitySchemeToKind(@NotNull SecurityScheme scheme) {
-    switch (scheme.type().value()) {
+    String type = scheme.type().value().toLowerCase(Locale.ROOT);
+    switch (type) {
       case "http":
+        String httpScheme = getHttpSettingsScheme(scheme);
+        return "bearer".equals(httpScheme) || "basic".equals(httpScheme) ? httpScheme : null;
+      case "basic authentication":
         return "basic";
-      case "OAuth 2.0":
+      case "oauth 2.0":
         return "oauth2";
-      case "Api Key":
+      case "api key":
+      case "apikey":
+      case "x-amf-apikey":
+      case "pass through":
         return "apiKey";
-      case "Digest Authentication":
+      case "digest authentication":
         return "digest";
       default:
-        return null;
+        return type.startsWith("x-") ? "custom" : null;
     }
+  }
+
+  private static String getHttpSettingsScheme(@NotNull SecurityScheme securityScheme) {
+    return ObjectUtils.doIfCast(securityScheme.settings(), HttpSettings.class, s -> s.scheme().value());
   }
 
   static class WeaveReferenceTypeResolver {
