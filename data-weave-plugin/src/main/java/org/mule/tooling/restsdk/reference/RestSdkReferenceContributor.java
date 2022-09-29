@@ -53,6 +53,13 @@ public class RestSdkReferenceContributor extends PsiReferenceContributor {
     registrar.registerReferenceProvider(typeSchemaRef(), new FilePathReferenceProvider());
 
     registrar.registerReferenceProvider(outputTypeRef(), new FilePathReferenceProvider());
+
+    registrar.registerReferenceProvider(fqnRef(), new PsiReferenceProvider() {
+      @Override
+      public PsiReference @NotNull [] getReferencesByElement(@NotNull PsiElement element, @NotNull ProcessingContext context) {
+        return new PsiReference[] { new NativeOperationReference((YAMLScalar) element) };
+      }
+    });
   }
 
   private PsiElementPattern.Capture<YAMLScalar> sampleDataRef() {
@@ -105,5 +112,9 @@ public class RestSdkReferenceContributor extends PsiReferenceContributor {
             .withLanguage(YAMLLanguage.INSTANCE);
   }
 
-
+  private PsiElementPattern.Capture<YAMLScalar> fqnRef() {
+    return psiElement(YAMLScalar.class)
+            .and(psiElement().withParent(psiElement(YAMLKeyValue.class).withName("fqn")))
+            .withLanguage(YAMLLanguage.INSTANCE);
+  }
 }
