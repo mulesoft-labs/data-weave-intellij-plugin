@@ -2,6 +2,7 @@ package org.mule.tooling.restsdk.reference;
 
 import com.intellij.patterns.PsiElementPattern;
 import com.intellij.psi.*;
+import com.intellij.psi.impl.source.resolve.reference.impl.providers.JavaClassReferenceProvider;
 import com.intellij.util.ProcessingContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.yaml.YAMLLanguage;
@@ -11,6 +12,11 @@ import org.jetbrains.yaml.psi.YAMLScalar;
 import static com.intellij.patterns.PlatformPatterns.psiElement;
 
 public class RestSdkReferenceContributor extends PsiReferenceContributor {
+  private static final JavaClassReferenceProvider NATIVE_OPERATIONS_REFERENCE_PROVIDER = new JavaClassReferenceProvider();
+
+  static {
+    NATIVE_OPERATIONS_REFERENCE_PROVIDER.setOption(JavaClassReferenceProvider.INSTANTIATABLE, true);
+  }
 
   @Override
   public void registerReferenceProviders(@NotNull final PsiReferenceRegistrar registrar) {
@@ -57,7 +63,7 @@ public class RestSdkReferenceContributor extends PsiReferenceContributor {
     registrar.registerReferenceProvider(fqnRef(), new PsiReferenceProvider() {
       @Override
       public PsiReference @NotNull [] getReferencesByElement(@NotNull PsiElement element, @NotNull ProcessingContext context) {
-        return new PsiReference[] { new NativeOperationReference((YAMLScalar) element) };
+        return NATIVE_OPERATIONS_REFERENCE_PROVIDER.getReferencesByElement(element);
       }
     });
   }
