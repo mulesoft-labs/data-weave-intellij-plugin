@@ -45,7 +45,23 @@ public class RestSdkReferenceContributor extends PsiReferenceContributor {
     registrar.registerReferenceProvider(path(), new PsiReferenceProvider() {
       @Override
       public PsiReference @NotNull [] getReferencesByElement(@NotNull PsiElement element, @NotNull ProcessingContext context) {
-        return new PsiReference[]{new ApiPathReference((YAMLScalar) element)};
+        return new PsiReference[]{new ApiPathReference(element, ((YAMLScalar) element).getTextValue())};
+      }
+    });
+
+    registrar.registerReferenceProvider(endpointOperationPath(), new PsiReferenceProvider() {
+      @Override
+      public PsiReference @NotNull [] getReferencesByElement(@NotNull PsiElement element, @NotNull ProcessingContext context) {
+        final ApiPathReference reference;
+        if (element instanceof  YAMLKeyValue) {
+          YAMLKeyValue kv = (YAMLKeyValue) element;
+          reference = new ApiPathReference(element, kv.getKeyText());
+          assert kv.getKey() != null;
+          reference.setRangeInElement(kv.getKey().getTextRangeInParent());
+        } else {
+          reference = new ApiPathReference(element, ((YAMLScalar)element).getTextValue());
+        }
+        return new PsiReference[]{reference};
       }
     });
 
@@ -98,6 +114,16 @@ public class RestSdkReferenceContributor extends PsiReferenceContributor {
     return psiElement(YAMLScalar.class)
             .and(psiElement().withParent(psiElement(YAMLKeyValue.class).withName("path")))
             .withLanguage(YAMLLanguage.INSTANCE);
+  }
+
+  private PsiElementPattern.Capture<?> endpointOperationPath() {
+    /* It seems you can't match just a key, because the YAML plugin doesn't ask the "contributor"
+     * machinery for references, so we must match the enclosing YAMLKeyValue.
+     * We also match YAMLScalar to deal with a partially typed key-value that doesn't have a colon yet.
+     */
+    return psiElement()
+            .withSuperParent(2, psiElement(YAMLKeyValue.class).withName("endpoints"))
+            .andOr(psiElement(YAMLKeyValue.class), psiElement(YAMLScalar.class));
   }
 
   private PsiElementPattern.Capture<YAMLScalar> operationId() {
