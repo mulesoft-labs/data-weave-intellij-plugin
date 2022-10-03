@@ -18,6 +18,7 @@ import amf.core.client.platform.model.domain.RecursiveShape;
 import amf.core.client.platform.model.domain.Shape;
 import amf.core.client.scala.model.DataType;
 import amf.shapes.client.platform.model.domain.*;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
@@ -41,14 +42,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 public class RestSdkHelper {
+  public static final Logger LOGGER = Logger.getInstance(RestSdkHelper.class);
 
   public static SelectionPath swaggerVersion = SelectionPath.DOCUMENT.child("swagger");
   public static SelectionPath openApiVersion = SelectionPath.DOCUMENT.child("openapi");
 
+  final private static ConcurrentHashMap<Object, Object> dummyMapForSynchronizingPerKey = new ConcurrentHashMap<>();
 
   public static boolean isInRestSdkContextFile(@Nullable PsiFile psiFile) {
     if (psiFile == null) {
@@ -82,14 +87,17 @@ public class RestSdkHelper {
   }
 
   private static Document doParseWebApi(PsiFile restSdkFile) {
-    Document result = null;
-    final PsiFile psiFile = apiFile(restSdkFile);
-    if (psiFile != null) {
-      result = CachedValuesManager.getCachedValue(restSdkFile, () -> {
-        return CachedValueProvider.Result.create(parseWebApi(psiFile.getVirtualFile()), psiFile);
-      });
-    }
-    return result;
+    Document[] result = new Document[1];
+    dummyMapForSynchronizingPerKey.computeIfAbsent(restSdkFile, z ->  {
+      final PsiFile psiFile = apiFile(restSdkFile);
+      if (psiFile != null) {
+        result[0] = CachedValuesManager.getCachedValue(restSdkFile, () ->
+                CachedValueProvider.Result.create(parseWebApi(psiFile.getVirtualFile()), psiFile));
+      }
+      // We don't store the parsed API in this map, we just use the per-key blocking capability of ConcurrentHashMap.
+      return null;
+    });
+    return result[0];
   }
 
   public static PsiFile apiFile(PsiFile restSdkFile) {
@@ -109,13 +117,15 @@ public class RestSdkHelper {
   }
 
   @Nullable
-  public static Document parseWebApi(VirtualFile child) {
+  private static Document parseWebApi(VirtualFile child) {
+    long before = System.nanoTime();
     final AMFBaseUnitClient client = WebAPIConfiguration.WebAPI().baseUnitClient();
     final AMFParseResult parseResult;
     try {
       parseResult = client.parse(child.getUrl()).get();
       final AMFBaseUnitClient newClient = WebAPIConfiguration.fromSpec(parseResult.sourceSpec()).baseUnitClient();
       final BaseUnit resolvedModel = newClient.transform(parseResult.baseUnit()).baseUnit();
+      LOGGER.debug("Parsed " + child + " in " + TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - before) + "ms");
       return (Document) resolvedModel;
     } catch (InterruptedException | ExecutionException e) {
       e.printStackTrace();
