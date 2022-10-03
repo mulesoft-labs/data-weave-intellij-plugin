@@ -9,13 +9,21 @@ import org.jetbrains.yaml.YAMLLanguage;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
 import org.jetbrains.yaml.psi.YAMLScalar;
 
+import java.util.List;
+
 import static com.intellij.patterns.PlatformPatterns.psiElement;
 
 public class RestSdkReferenceContributor extends PsiReferenceContributor {
   private static final JavaClassReferenceProvider NATIVE_OPERATIONS_REFERENCE_PROVIDER = new JavaClassReferenceProvider();
-
   static {
     NATIVE_OPERATIONS_REFERENCE_PROVIDER.setOption(JavaClassReferenceProvider.INSTANTIATABLE, true);
+  }
+
+  private static final JavaClassReferenceProvider VALUE_PROVIDERS_REFERENCE_PROVIDER = new JavaClassReferenceProvider();
+  static {
+    VALUE_PROVIDERS_REFERENCE_PROVIDER.setOption(JavaClassReferenceProvider.INSTANTIATABLE, true);
+    VALUE_PROVIDERS_REFERENCE_PROVIDER.setOption(JavaClassReferenceProvider.SUPER_CLASSES,
+            List.of("org.mule.runtime.extension.api.values.ValueProvider"));
   }
 
   @Override
@@ -60,10 +68,17 @@ public class RestSdkReferenceContributor extends PsiReferenceContributor {
 
     registrar.registerReferenceProvider(outputTypeRef(), new FilePathReferenceProvider());
 
-    registrar.registerReferenceProvider(fqnRef(), new PsiReferenceProvider() {
+    registrar.registerReferenceProvider(operationFqnRef(), new PsiReferenceProvider() {
       @Override
       public PsiReference @NotNull [] getReferencesByElement(@NotNull PsiElement element, @NotNull ProcessingContext context) {
         return NATIVE_OPERATIONS_REFERENCE_PROVIDER.getReferencesByElement(element);
+      }
+    });
+
+    registrar.registerReferenceProvider(valueProviderFqnRef(), new PsiReferenceProvider() {
+      @Override
+      public PsiReference @NotNull [] getReferencesByElement(@NotNull PsiElement element, @NotNull ProcessingContext context) {
+        return VALUE_PROVIDERS_REFERENCE_PROVIDER.getReferencesByElement(element);
       }
     });
   }
@@ -118,9 +133,20 @@ public class RestSdkReferenceContributor extends PsiReferenceContributor {
             .withLanguage(YAMLLanguage.INSTANCE);
   }
 
-  private PsiElementPattern.Capture<YAMLScalar> fqnRef() {
+  private PsiElementPattern.Capture<YAMLScalar> operationFqnRef() {
+    // matches VALUE in: operations | OPNAME | fqn | VALUE
     return psiElement(YAMLScalar.class)
-            .and(psiElement().withParent(psiElement(YAMLKeyValue.class).withName("fqn")))
+            .withParent(psiElement(YAMLKeyValue.class).withName("fqn"))
+            .withSuperParent(5, psiElement(YAMLKeyValue.class).withName("operations"))
             .withLanguage(YAMLLanguage.INSTANCE);
   }
+
+  private PsiElementPattern.Capture<YAMLScalar> valueProviderFqnRef() {
+    // matches VALUE in: valueProvider | fqn | VALUE
+    return psiElement(YAMLScalar.class)
+            .withParent(psiElement(YAMLKeyValue.class).withName("fqn"))
+            .withSuperParent(3, psiElement(YAMLKeyValue.class).withName("valueProvider"))
+            .withLanguage(YAMLLanguage.INSTANCE);
+  }
+
 }
