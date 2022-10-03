@@ -611,12 +611,9 @@ public class ALSLanguageService implements Disposable {
     Option<RequestHandler<HoverParams, Hover>> requestHandlerOption = languageServer.resolveHandler(HoverRequestType$.MODULE$);
     if (requestHandlerOption.isDefined()) {
       Future<Hover> apply = requestHandlerOption.get().apply(new HoverParams(documentIdentifierOf(element.getContainingFile()), positionOf(element)));
-      final Optional<Hover> optionalHover = resultOf(apply);
-      if (optionalHover.isPresent()) {
-        final Hover hover = optionalHover.get();
-        @NotNull String[] strings = ScalaUtils.toArray(hover.contents(), new String[0]);
-        result = String.join("\n", strings);
-      }
+      result = resultOf(apply)
+              .map(hover -> hover.contents().length() == 0 ? null : String.join("\n", ScalaUtils.toArray(hover.contents(), new String[0])))
+              .orElse(null);
     }
     return result;
   }
