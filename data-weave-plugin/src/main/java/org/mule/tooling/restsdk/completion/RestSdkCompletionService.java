@@ -49,6 +49,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.intellij.util.ObjectUtils.tryCast;
 import static java.util.Optional.ofNullable;
 import static org.mule.tooling.restsdk.utils.MapUtils.map;
 import static org.mule.tooling.restsdk.utils.RestSdkHelper.parseWebApi;
@@ -775,13 +776,9 @@ public class RestSdkCompletionService {
 
   private void suggestEndpointTemplates(ArrayList<LookupElement> result, WebApi webApi, Project project, PsiFile file) {
     final List<EndPoint> endPoints = webApi.endPoints();
-    var existingEndpoints = (YAMLMapping) ENDPOINTS_PATH.selectYaml(file);
-    if (existingEndpoints == null) {
-      Logger.getInstance(RestSdkCompletionService.class).warn("No endpoints?");
-      return;
-    }
+    var existingEndpoints = tryCast(ENDPOINTS_PATH.selectYaml(file), YAMLMapping.class);
     endPoints.forEach(endpoint -> {
-      var existing = existingEndpoints.getKeyValueByKey(endpoint.path().value());
+      var existing = existingEndpoints == null ? null : existingEndpoints.getKeyValueByKey(endpoint.path().value());
       endpoint.operations().forEach((operation) -> {
         if (existing != null) {
           var ops = YAMLUtil.findKeyInProbablyMapping(existing.getValue(), OPERATIONS);
