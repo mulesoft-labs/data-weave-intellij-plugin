@@ -1,12 +1,15 @@
 package org.mule.tooling.restsdk.reference;
 
+import com.intellij.patterns.ElementPattern;
 import com.intellij.patterns.PsiElementPattern;
+import com.intellij.patterns.StandardPatterns;
 import com.intellij.psi.*;
 import com.intellij.psi.impl.source.resolve.reference.impl.providers.JavaClassReferenceProvider;
 import com.intellij.util.ProcessingContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.yaml.YAMLLanguage;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
+import org.jetbrains.yaml.psi.YAMLPsiElement;
 import org.jetbrains.yaml.psi.YAMLScalar;
 
 import java.util.List;
@@ -131,14 +134,15 @@ public class RestSdkReferenceContributor extends PsiReferenceContributor {
             .withLanguage(YAMLLanguage.INSTANCE);
   }
 
-  private PsiElementPattern.Capture<?> endpointOperationPath() {
+  private ElementPattern<YAMLPsiElement> endpointOperationPath() {
     /* It seems you can't match just a key, because the YAML plugin doesn't ask the "contributor"
      * machinery for references, so we must match the enclosing YAMLKeyValue.
      * We also match YAMLScalar to deal with a partially typed key-value that doesn't have a colon yet.
      */
-    return psiElement()
-            .withSuperParent(2, psiElement(YAMLKeyValue.class).withName("endpoints"))
-            .andOr(psiElement(YAMLKeyValue.class), psiElement(YAMLScalar.class));
+    return StandardPatterns.or(
+            psiElement(YAMLKeyValue.class).withSuperParent(2, psiElement(YAMLKeyValue.class).withName("endpoints")),
+            psiElement(YAMLScalar.class).withSuperParent(1, psiElement(YAMLKeyValue.class).withName("endpoints"))
+    );
   }
 
   private PsiElementPattern.Capture<YAMLScalar> operationId() {
