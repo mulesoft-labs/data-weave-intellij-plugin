@@ -19,6 +19,7 @@ import org.mule.tooling.restsdk.utils.RestSdkHelper;
 import org.mule.tooling.restsdk.utils.SelectionPath;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ApiPathReference extends PsiReferenceBase<PsiElement> {
 
@@ -41,10 +42,12 @@ public class ApiPathReference extends PsiReferenceBase<PsiElement> {
     final WebApi webApi = (WebApi) webApiDocument.encodes();
     List<EndPoint> endPoints = webApi.endPoints();
     LookupElementBuilder[] result = new LookupElementBuilder[endPoints.size()];
-    for (int i = 0; i < endPoints.size(); i++)
-      result[i] = LookupElementBuilder.create(endPoints.get(i).path().value())
-              .withTypeText("endpoint", true)
+    for (int i = 0; i < endPoints.size(); i++) {
+      EndPoint endPoint = endPoints.get(i);
+      result[i] = LookupElementBuilder.create(endPoint.path().value())
+              .withTypeText(RestSdkHelper.getEndpointMethods(endPoint).collect(Collectors.joining(", ")), true)
               .withIcon(AllIcons.Vcs.BranchNode);
+    }
     return result;
   }
 

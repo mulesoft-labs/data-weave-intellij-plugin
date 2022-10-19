@@ -152,7 +152,7 @@ public class RestSdkCompletionService {
       assert operationsKeyValue != null;
       final EndPoint endPoint = RestSdkHelper.endpointByPath(webApi, ((YAMLKeyValue) operationsKeyValue.getParent().getParent()).getKeyText());
       List<String> methods = endPoint != null
-              ? endPoint.operations().stream().map(operation -> operation.method().value()).collect(Collectors.toList())
+              ? RestSdkHelper.getEndpointMethods(endPoint).collect(Collectors.toList())
               : ALL_HTTP_METHODS;
       var methodsMapping = operationsKeyValue.getValue();
       methods.forEach(method -> {

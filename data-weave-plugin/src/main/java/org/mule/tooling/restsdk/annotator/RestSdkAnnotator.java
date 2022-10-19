@@ -52,8 +52,8 @@ public class RestSdkAnnotator implements Annotator {
             return;
           WebApi webApi = (WebApi) webApiDocument.encodes();
           var endpoint = RestSdkHelper.endpointByPath(webApi, endpointPath);
-          if (endpoint != null && endpoint.operations().stream().map(o -> o.method().value()).noneMatch(m -> m.equals(httpMethod)))
-            holder.newAnnotation(HighlightSeverity.ERROR, "There no " + httpMethod + " method in endpoint " + endpointPath)
+          if (endpoint != null && RestSdkHelper.getEndpointMethods(endpoint).noneMatch(m -> m.equals(httpMethod)))
+            holder.newAnnotation(HighlightSeverity.ERROR, "There´s no " + httpMethod + " method in endpoint " + endpointPath)
                     .range(element)
                     .create();
         }
