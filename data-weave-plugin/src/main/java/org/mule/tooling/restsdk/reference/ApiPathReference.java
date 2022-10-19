@@ -24,10 +24,18 @@ import java.util.stream.Collectors;
 public class ApiPathReference extends PsiReferenceBase<PsiElement> {
 
   private final String apiPath;
+  private final boolean isKey;
 
-  public ApiPathReference(@NotNull final PsiElement element, String apiPath) {
+  /** Creates a reference to an endpoint path.
+   *
+   * @param element   the underlying element
+   * @param apiPath   the URL (taken from the element)
+   * @param isKey     whether the element represents a YAML key and so a colon should follow
+   */
+  public ApiPathReference(@NotNull final PsiElement element, String apiPath, boolean isKey) {
     super(element);
     this.apiPath = apiPath;
+    this.isKey = isKey;
   }
 
   @Override
@@ -44,11 +52,37 @@ public class ApiPathReference extends PsiReferenceBase<PsiElement> {
     LookupElementBuilder[] result = new LookupElementBuilder[endPoints.size()];
     for (int i = 0; i < endPoints.size(); i++) {
       EndPoint endPoint = endPoints.get(i);
-      result[i] = LookupElementBuilder.create(endPoint.path().value())
+      LookupElementBuilder lookupElement = LookupElementBuilder.create(endPoint.path().value())
               .withTypeText(RestSdkHelper.getEndpointMethods(endPoint).collect(Collectors.joining(", ")), true)
-              .withIcon(AllIcons.Vcs.BranchNode);
+              .withIcon(AllIcons.Nodes.Property);
+      if (isKey) {
+        lookupElement = lookupElement
+                .withTailText(":", true)
+                .withInsertHandler((context, item) -> {
+                  String text = context.getDocument().getText();
+                  int tailOffset = context.getTailOffset();
+                  if (!needsColon(text, tailOffset))
+                    return;
+                  context.getDocument().insertString(tailOffset, ":");
+                  context.getEditor().getCaretModel().moveToOffset(tailOffset + 1);
+                });
+      }
+      result[i] = lookupElement;
     }
     return result;
+  }
+
+  private static boolean needsColon(@NotNull String text, int offset) {
+    for (int pos = offset; pos < text.length(); pos++) {
+      switch (text.charAt(pos)) {
+        case ':':
+          return false;
+        case '\n':
+        case '\r':
+          return true;
+      }
+    }
+    return true;
   }
 
   @Nullable

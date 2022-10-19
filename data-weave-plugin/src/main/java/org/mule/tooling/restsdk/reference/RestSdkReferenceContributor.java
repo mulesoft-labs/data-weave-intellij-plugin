@@ -56,7 +56,7 @@ public class RestSdkReferenceContributor extends PsiReferenceContributor {
     registrar.registerReferenceProvider(path(), new PsiReferenceProvider() {
       @Override
       public PsiReference @NotNull [] getReferencesByElement(@NotNull PsiElement element, @NotNull ProcessingContext context) {
-        return new PsiReference[]{new ApiPathReference(element, ((YAMLScalar) element).getTextValue())};
+        return new PsiReference[]{new ApiPathReference(element, ((YAMLScalar) element).getTextValue(), false)};
       }
     });
 
@@ -66,11 +66,11 @@ public class RestSdkReferenceContributor extends PsiReferenceContributor {
         final ApiPathReference reference;
         if (element instanceof  YAMLKeyValue) {
           YAMLKeyValue kv = (YAMLKeyValue) element;
-          reference = new ApiPathReference(element, kv.getKeyText());
+          reference = new ApiPathReference(element, kv.getKeyText(), true);
           assert kv.getKey() != null;
           reference.setRangeInElement(kv.getKey().getTextRangeInParent());
         } else {
-          reference = new ApiPathReference(element, ((YAMLScalar)element).getTextValue());
+          reference = new ApiPathReference(element, ((YAMLScalar)element).getTextValue(), true);
         }
         return new PsiReference[]{reference};
       }
