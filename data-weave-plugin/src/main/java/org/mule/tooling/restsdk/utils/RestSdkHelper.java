@@ -284,6 +284,16 @@ public class RestSdkHelper {
             .distinct();
   }
 
+  /** Returns a stream with the methods supported by an endpoint.
+   *
+   * @param endPoint the endpoint
+   * @return a stream of method names
+   */
+  @Contract(pure = true)
+  public static @NotNull Stream<String> getEndpointMethods(@NotNull EndPoint endPoint) {
+    return endPoint.operations().stream().map(o -> o.method().value());
+  }
+
   /** Gets the Rest SDK "kind" value for an API security scheme.
    */
   @Contract(pure = true)
