@@ -20,11 +20,13 @@ import amf.core.client.scala.model.DataType;
 import amf.shapes.client.platform.model.domain.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
+import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ObjectUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -63,10 +65,11 @@ public class RestSdkHelper {
     }
   }
 
-  public static boolean isRestSdkDescriptorFile(PsiFile containingFile) {
-    if (containingFile.getFileType() instanceof YAMLFileType) {
-      String text = containingFile.getText();
-      return isRestSdkDescriptor(text);
+  @Contract(pure = true)
+  public static boolean isRestSdkDescriptorFile(@NotNull PsiFile psiFile) {
+    if (psiFile.getFileType() == YAMLFileType.YML) {
+      var comment = PsiTreeUtil.getChildOfType(psiFile, PsiComment.class);
+      return comment != null && isRestSdkDescriptor(comment.getText());
     } else {
       return false;
     }
