@@ -27,6 +27,7 @@ import org.mule.tooling.restsdk.utils.SelectionPath;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -157,9 +158,11 @@ public class RestSdkLineMarkerProvider extends RelatedItemLineMarkerProvider {
       var module = ModuleUtil.findModuleForPsiElement(context);
       final JavaPsiFacade javaPsiFacade = JavaPsiFacade.getInstance(context.getProject());
       var outputResolverAnnotationClass = javaPsiFacade.findClass("org.mule.runtime.extension.api.annotation.metadata.OutputResolver", ProjectScope.getLibrariesScope(context.getProject()));
+      Collection<PsiMethod> methodList;
       if (outputResolverAnnotationClass == null || module == null)
-        return null;
-      Collection<PsiMethod> methodList = AnnotatedElementsSearch.searchPsiMethods(outputResolverAnnotationClass, module.getModuleWithLibrariesScope()).findAll();
+        methodList = Collections.emptyList();
+      else
+        methodList = AnnotatedElementsSearch.searchPsiMethods(outputResolverAnnotationClass, module.getModuleWithLibrariesScope()).findAll();
       return CachedValueProvider.Result.create(methodList, PsiModificationTracker.MODIFICATION_COUNT);
     });
     psiMethods.forEach(m -> {
