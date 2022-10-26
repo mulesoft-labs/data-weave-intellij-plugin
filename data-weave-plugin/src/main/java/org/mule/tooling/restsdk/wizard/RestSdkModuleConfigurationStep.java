@@ -1,4 +1,4 @@
-package org.mule.tooling.restsdk.wizzard;
+package org.mule.tooling.restsdk.wizard;
 
 import com.intellij.ui.EnumComboBoxModel;
 
