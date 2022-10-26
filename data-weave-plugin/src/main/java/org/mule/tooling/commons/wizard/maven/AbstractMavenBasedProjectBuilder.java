@@ -29,7 +29,7 @@ import static icons.OpenapiIcons.RepositoryLibraryLogo;
 
 public abstract class AbstractMavenBasedProjectBuilder extends ModuleBuilder implements SourcePathsBuilder {
 
-    private MavenInfoModel myModel;
+    private final MavenInfoModel myModel;
 
     public AbstractMavenBasedProjectBuilder() {
         this.myModel = new MavenInfoModel(new MavenId("", "", ""));

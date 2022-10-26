@@ -7,9 +7,9 @@ import javax.swing.*;
 
 public class RestSdkConfigurationStep extends ModuleWizardStep {
 
-    private RestSdkConfigurationModel model;
-    private MavenInfoModel mavenModel;
-    private RestSdkModuleConfigurationStep ui = new RestSdkModuleConfigurationStep();
+    private final RestSdkConfigurationModel model;
+    private final MavenInfoModel mavenModel;
+    private final RestSdkModuleConfigurationStep ui = new RestSdkModuleConfigurationStep();
 
     public RestSdkConfigurationStep(RestSdkConfigurationModel model, MavenInfoModel mavenModel) {
         this.model = model;
