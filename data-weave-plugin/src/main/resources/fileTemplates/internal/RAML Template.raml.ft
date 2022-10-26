@@ -1,6 +1,0 @@
-#%RAML 1.0
-title: ${restSdk-connectorName} API
-version: v1
-protocols: [HTTP, HTTPS]
-mediaType: application/json
-

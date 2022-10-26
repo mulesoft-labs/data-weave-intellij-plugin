@@ -28,14 +28,14 @@ public class RestSdkModuleBuilder extends AbstractMavenBasedProjectBuilder imple
     private final RestSdkConfigurationModel restSdkModel;
 
     public RestSdkModuleBuilder() {
-        this.restSdkModel = new RestSdkConfigurationModel(REST_SDK_DEFAULT_VERSION, "", ApiKind.OPEN_API);
+        this.restSdkModel = new RestSdkConfigurationModel(REST_SDK_DEFAULT_VERSION, "", "");
         setProjectId(new MavenId("com.mulesoft.connectors", "mule4-connector-connector", "1.0.0-SNAPSHOT"));
     }
 
     public ModuleWizardStep[] createWizardSteps(@NotNull WizardContext wizardContext, @NotNull ModulesProvider modulesProvider) {
         return new ModuleWizardStep[]{
-                createMavenStep(),
-                new RestSdkConfigurationStep(this.restSdkModel, getMavenModel())
+                new RestSdkConfigurationStep(this.restSdkModel, getMavenModel()),
+                createMavenStep()
         };
     }
 
@@ -74,7 +74,7 @@ public class RestSdkModuleBuilder extends AbstractMavenBasedProjectBuilder imple
 
     @Override
     public String getName() {
-        return "RestSdk Project";
+        return "REST SDK Project";
     }
 
     @Override
@@ -84,7 +84,7 @@ public class RestSdkModuleBuilder extends AbstractMavenBasedProjectBuilder imple
 
     @Override
     public String getPresentableName() {
-        return "RestSdk Project";
+        return "REST SDK Project";
     }
 
     @Override
@@ -94,7 +94,7 @@ public class RestSdkModuleBuilder extends AbstractMavenBasedProjectBuilder imple
 
     @Override
     public String getDescription() {
-        return "Create a RestSdk project.";
+        return "Create a REST SDK project.";
     }
 
 }

@@ -126,7 +126,7 @@ public class RestSdkHelper {
   }
 
   @Nullable
-  private static Document parseWebApi(VirtualFile child) {
+  public static Document parseWebApi(VirtualFile child) {
     long before = System.nanoTime();
     AMFConfiguration amfConfiguration = WebAPIConfiguration.WebAPI();
     ResourceLoader rl = new IntellijResourceLoader(amfConfiguration.getExecutionContext());
