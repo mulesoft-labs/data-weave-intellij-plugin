@@ -1,4 +1,4 @@
-package org.mule.tooling.restsdk.wizzard;
+package org.mule.tooling.restsdk.wizard;
 
 import com.intellij.ide.util.projectWizard.ModuleWizardStep;
 import com.intellij.ide.util.projectWizard.SourcePathsBuilder;
@@ -25,7 +25,7 @@ import java.util.Objects;
 public class RestSdkModuleBuilder extends AbstractMavenBasedProjectBuilder implements SourcePathsBuilder {
 
     public static final String REST_SDK_DEFAULT_VERSION = "0.8.0-SNAPSHOT";
-    private RestSdkConfigurationModel restSdkModel;
+    private final RestSdkConfigurationModel restSdkModel;
 
     public RestSdkModuleBuilder() {
         this.restSdkModel = new RestSdkConfigurationModel(REST_SDK_DEFAULT_VERSION, "", ApiKind.OPEN_API);

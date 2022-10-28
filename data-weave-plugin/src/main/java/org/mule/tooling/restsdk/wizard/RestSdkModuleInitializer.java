@@ -1,4 +1,4 @@
-package org.mule.tooling.restsdk.wizzard;
+package org.mule.tooling.restsdk.wizard;
 
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;

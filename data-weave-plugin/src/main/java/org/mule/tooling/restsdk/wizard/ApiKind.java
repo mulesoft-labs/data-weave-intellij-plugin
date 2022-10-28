@@ -1,4 +1,4 @@
-package org.mule.tooling.restsdk.wizzard;
+package org.mule.tooling.restsdk.wizard;
 
 public enum ApiKind {
   RAML {

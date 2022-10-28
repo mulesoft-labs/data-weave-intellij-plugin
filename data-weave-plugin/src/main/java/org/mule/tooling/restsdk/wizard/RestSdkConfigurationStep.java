@@ -1,4 +1,4 @@
-package org.mule.tooling.restsdk.wizzard;
+package org.mule.tooling.restsdk.wizard;
 
 import com.intellij.ide.util.projectWizard.ModuleWizardStep;
 import org.mule.tooling.commons.wizard.maven.MavenInfoModel;
@@ -7,9 +7,9 @@ import javax.swing.*;
 
 public class RestSdkConfigurationStep extends ModuleWizardStep {
 
-    private RestSdkConfigurationModel model;
-    private MavenInfoModel mavenModel;
-    private RestSdkModuleConfigurationStep ui = new RestSdkModuleConfigurationStep();
+    private final RestSdkConfigurationModel model;
+    private final MavenInfoModel mavenModel;
+    private final RestSdkModuleConfigurationStep ui = new RestSdkModuleConfigurationStep();
 
     public RestSdkConfigurationStep(RestSdkConfigurationModel model, MavenInfoModel mavenModel) {
         this.model = model;

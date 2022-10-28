@@ -12,8 +12,8 @@ public class MavenModuleWizardStep extends ModuleWizardStep {
     private static final Icon WIZARD_ICON = null;
 
 
-    private MavenCoordsConfigurationStep ui = new MavenCoordsConfigurationStep();
-    private MavenInfoModel model;
+    private final MavenCoordsConfigurationStep ui = new MavenCoordsConfigurationStep();
+    private final MavenInfoModel model;
 
 
     public MavenModuleWizardStep(MavenInfoModel model) {
