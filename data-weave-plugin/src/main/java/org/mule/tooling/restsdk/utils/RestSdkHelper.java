@@ -21,6 +21,8 @@ import amf.core.client.platform.resource.ResourceLoader;
 import amf.core.client.scala.model.DataType;
 import amf.shapes.client.platform.model.domain.*;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiElement;
@@ -324,6 +326,17 @@ public class RestSdkHelper {
   private static String getHttpSettingsScheme(@NotNull SecurityScheme securityScheme) {
     return ObjectUtils.doIfCast(securityScheme.settings(), HttpSettings.class, s -> s.scheme().value());
   }
+
+    @Contract(pure = true)
+    public static @Nullable VirtualFile findDescriptorFile(@NotNull Module module) {
+        VirtualFile[] contentRoots = ModuleRootManager.getInstance(module).getContentRoots();
+        for (VirtualFile contentRoot : contentRoots) {
+            VirtualFile vf = contentRoot.findFileByRelativePath("src/main/resources/descriptor/descriptor.yaml");
+            if (vf != null)
+                return vf;
+        }
+        return null;
+    }
 
   static class WeaveReferenceTypeResolver {
     private final Map<String, WeaveType> types = new HashMap<>();
