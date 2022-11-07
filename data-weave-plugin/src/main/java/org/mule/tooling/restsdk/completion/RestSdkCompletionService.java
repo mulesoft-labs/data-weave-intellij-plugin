@@ -28,6 +28,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.util.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -50,7 +51,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.intellij.util.ObjectUtils.tryCast;
-import static java.util.Optional.ofNullable;
 import static org.mule.tooling.restsdk.utils.MapUtils.map;
 import static org.mule.tooling.restsdk.utils.RestSdkHelper.parseWebApi;
 import static org.mule.tooling.restsdk.utils.RestSdkPaths.*;
@@ -837,14 +837,9 @@ public class RestSdkCompletionService {
   }
 
   private String operationName(Operation operation, EndPoint endPoint) {
-    return ofNullable(operation.name().value())
-            .orElse(
-                    ofNullable(operation.description().value())
-                            .orElse(
-                                    ofNullable(operation.operationId().value())
-                                            .orElse(operationType(operation, endPoint))
-                            )
-            );
+    String name = ObjectUtils.coalesce(operation.name().value(), operation.summary().value(),
+            operation.operationId().value());
+    return name != null ? name : operationType(operation, endPoint);
   }
 
   private String operationType(Operation operation, EndPoint endpoint) {
