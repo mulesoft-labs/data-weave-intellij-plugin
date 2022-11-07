@@ -32,10 +32,14 @@ import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ObjectUtils;
+import com.intellij.util.net.HTTPMethod;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.yaml.YAMLFileType;
+import org.jetbrains.yaml.YAMLUtil;
+import org.jetbrains.yaml.psi.YAMLKeyValue;
+import org.jetbrains.yaml.psi.YAMLMapping;
 import org.jetbrains.yaml.psi.YAMLScalar;
 import org.mule.tooling.lang.dw.util.ScalaUtils;
 import org.mule.weave.v2.parser.ast.QName;
@@ -43,10 +47,7 @@ import org.mule.weave.v2.parser.ast.variables.NameIdentifier;
 import org.mule.weave.v2.ts.*;
 import scala.Option;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -336,6 +337,32 @@ public class RestSdkHelper {
                 return vf;
         }
         return null;
+    }
+
+  /** Returns a summary of every endpoint operation implemented in a given descriptor.
+   *
+   * @param descriptorPsiFile the input file
+   * @return a map with the methods that are implemented for each path
+   */
+  @Contract(pure = true)
+  public static @NotNull Map<String, Set<HTTPMethod>> getAlreadyImplementedEndpointOperations(@NotNull PsiFile descriptorPsiFile) {
+        var res = ObjectUtils.doIfCast(RestSdkPaths.ENDPOINTS_PATH.selectYaml(descriptorPsiFile), YAMLMapping.class, m -> {
+          var existing = new HashMap<String, Set<HTTPMethod>>();
+            for (YAMLKeyValue kv : m.getKeyValues()) {
+                String path = kv.getKeyText();
+                var ops = YAMLUtil.findKeyInProbablyMapping(kv.getValue(), RestSdkPaths.OPERATIONS);
+                if (ops == null)
+                    continue;
+                var opsMapping = ObjectUtils.tryCast(ops.getValue(), YAMLMapping.class);
+                if (opsMapping == null)
+                    continue;
+                for (YAMLKeyValue opKv : opsMapping.getKeyValues())
+                  existing.computeIfAbsent(path, x -> EnumSet.noneOf(HTTPMethod.class))
+                          .add(HTTPMethod.valueOf(opKv.getKeyText().toUpperCase(Locale.ROOT)));
+            }
+            return existing;
+        });
+        return ObjectUtils.notNull(res, Collections::emptyMap);
     }
 
   static class WeaveReferenceTypeResolver {

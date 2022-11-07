@@ -13,9 +13,15 @@ class EndpointNode extends DefaultMutableTreeNode {
     private final String path;
     private final EnumSet<HTTPMethod> selectedMethods = EnumSet.noneOf(HTTPMethod.class);
 
+    private final EnumSet<HTTPMethod> alreadyImplementedMethods = EnumSet.noneOf(HTTPMethod.class);
+
     EndpointNode(@NotNull String path, @Nullable EndPoint endPoint) {
         super(endPoint);
         this.path = path;
+    }
+
+    public EndPoint getEndpoint() {
+        return (EndPoint) getUserObject();
     }
 
     @Override
@@ -27,7 +33,16 @@ class EndpointNode extends DefaultMutableTreeNode {
         return selectedMethods;
     }
 
-    public EndPoint getEndpoint() {
-        return (EndPoint) getUserObject();
+    public EnumSet<HTTPMethod> getAlreadyImplementedMethods() {
+        return alreadyImplementedMethods;
+    }
+
+    public boolean alreadyImplemented(HTTPMethod method) {
+        return alreadyImplementedMethods.contains(method);
+    }
+
+
+    boolean selectedForGeneration(HTTPMethod method) {
+        return selectedMethods.contains(method);
     }
 }

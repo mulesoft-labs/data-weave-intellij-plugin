@@ -28,7 +28,7 @@ class MethodColumnInfo extends ColumnInfo<Object, Boolean> {
         if (ep != null) {
             for (Operation operation : ep.operations()) {
                 if (operation.method().value().equalsIgnoreCase(method.name()))
-                    return epn.getSelectedMethods().contains(method);
+                    return epn.selectedForGeneration(method) || epn.alreadyImplemented(method);
             }
         }
         return null;
@@ -41,7 +41,10 @@ class MethodColumnInfo extends ColumnInfo<Object, Boolean> {
 
     @Override
     public boolean isCellEditable(Object o) {
-        return valueOf(o) != null;
+        if (!(o instanceof EndpointNode))
+            return false;
+        EndpointNode epn = (EndpointNode) o;
+        return valueOf(epn) != null && !epn.alreadyImplemented(method);
     }
 
     @Override

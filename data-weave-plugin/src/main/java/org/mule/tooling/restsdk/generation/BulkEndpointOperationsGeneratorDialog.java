@@ -36,10 +36,8 @@ import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.intellij.util.ObjectUtils.tryCast;
@@ -90,10 +88,12 @@ public class BulkEndpointOperationsGeneratorDialog extends DialogWrapper {
         descriptorFile = RestSdkHelper.findDescriptorFile(module);
         if (descriptorFile == null)
             return;
-        WebApi webApi = getWebApi(descriptorFile);
+        PsiFile descriptorPsiFile = PsiManager.getInstance(project).findFile(descriptorFile);
+        WebApi webApi = getWebApi(descriptorPsiFile);
         if (webApi == null)
             return;
-        EndpointNode top = createEndpointTreeModel(webApi);
+        EndpointNode top = createEndpointTreeModel(webApi,
+                RestSdkHelper.getAlreadyImplementedEndpointOperations(descriptorPsiFile));
 
         var columns = new ArrayList<ColumnInfo<?, ?>>();
         columns.add(ENDPOINT);
@@ -144,25 +144,24 @@ public class BulkEndpointOperationsGeneratorDialog extends DialogWrapper {
     }
 
     @NotNull
-    @Contract(value = "_ -> new", pure = true)
-    private static EndpointNode createEndpointTreeModel(@NotNull WebApi webApi) {
+    @Contract(value = "_, _ -> new", pure = true)
+    private static EndpointNode createEndpointTreeModel(@NotNull WebApi webApi, Map<String, @NotNull Set<HTTPMethod>> existing) {
         var top = new EndpointNode("", null);
         List<EndPoint> endPoints = new ArrayList<>(webApi.endPoints());
         endPoints.sort(Comparator.comparing(ep -> ep.path().value()));
-        fillTree(endPoints, "", top);
+        fillTree(endPoints, "", top, existing);
         return top;
     }
 
     @Nullable
-    private WebApi getWebApi(VirtualFile vf) {
-        PsiFile descriptorPsiFile = PsiManager.getInstance(project).findFile(vf);
+    private static WebApi getWebApi(PsiFile descriptorPsiFile) {
         Document webApiDocument = RestSdkHelper.parseWebApi(descriptorPsiFile);
         if (webApiDocument == null)
             return null;
         return (WebApi) webApiDocument.encodes();
     }
 
-    private static void fillTree(List<EndPoint> endPoints, String prefix, EndpointNode node) {
+    private static void fillTree(@NotNull List<EndPoint> endPoints, @NotNull String prefix, @NotNull EndpointNode node, Map<String, @NotNull Set<HTTPMethod>> existing) {
         Map<String, List<EndPoint>> m = endPoints.stream().collect(Collectors.groupingBy(ep -> {
             String path = ep.path().value();
             int start = prefix.length() + 1;
@@ -171,6 +170,8 @@ public class BulkEndpointOperationsGeneratorDialog extends DialogWrapper {
                 end = path.length();
             if (start>=path.length()) {
                 node.setUserObject(ep);
+                Set<HTTPMethod> s = existing.getOrDefault(path, Collections.emptySet());
+                node.getAlreadyImplementedMethods().addAll(s);
                 return "";
             }
             return path.substring(start, end);
@@ -179,7 +180,7 @@ public class BulkEndpointOperationsGeneratorDialog extends DialogWrapper {
             String k = m.keySet().iterator().next();
             if (!k.isBlank()) {
                 node.setUserObject(node.getUserObject() + "/" + k);
-                fillTree(m.values().iterator().next(), prefix + "/" + k, node);
+                fillTree(m.values().iterator().next(), prefix + "/" + k, node, existing);
             }
             return;
         }
@@ -190,7 +191,7 @@ public class BulkEndpointOperationsGeneratorDialog extends DialogWrapper {
                 continue;
             var child = new EndpointNode(next, null);
             node.add(child);
-            fillTree(eps, prefix + "/" + next, child);
+            fillTree(eps, prefix + "/" + next, child, existing);
         }
     }
 
