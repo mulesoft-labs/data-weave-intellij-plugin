@@ -10,7 +10,6 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.ui.BooleanTableCellEditor;
@@ -25,6 +24,9 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.yaml.YAMLElementGenerator;
+import org.jetbrains.yaml.YAMLUtil;
+import org.jetbrains.yaml.psi.YAMLFile;
+import org.jetbrains.yaml.psi.YAMLKeyValue;
 import org.jetbrains.yaml.psi.YAMLMapping;
 import org.mule.tooling.restsdk.completion.RestSdkCompletionService;
 import org.mule.tooling.restsdk.utils.RestSdkHelper;
@@ -69,6 +71,8 @@ public class BulkEndpointOperationsGeneratorDialog extends DialogWrapper {
     private JLabel selectionLabel;
     private ListTreeTableModel treeTableModel;
     private VirtualFile descriptorFile;
+
+    private static final Logger LOG = Logger.getInstance(BulkEndpointOperationsGeneratorDialog.class);
 
     protected BulkEndpointOperationsGeneratorDialog(@Nullable Project project, Module module) {
         super(project);
@@ -223,16 +227,27 @@ public class BulkEndpointOperationsGeneratorDialog extends DialogWrapper {
     }
 
     private void generate(EndPoint endpoint, Operation operation) {
-        PsiElement psiFile = PsiManager.getInstance(project).findFile(descriptorFile);
+        YAMLFile psiFile = (YAMLFile) PsiManager.getInstance(project).findFile(descriptorFile);
         assert psiFile != null;
         var existingEndpoints = tryCast(ENDPOINTS_PATH.selectYaml(psiFile), YAMLMapping.class);
+        if (existingEndpoints == null) {
+            YAMLUtil.createI18nRecord(psiFile, new String[] {"endpoints", "dummy"}, "");
+            existingEndpoints = (YAMLMapping) ENDPOINTS_PATH.selectYaml(psiFile);
+            assert existingEndpoints != null;
+            YAMLKeyValue dummyKv = existingEndpoints.getKeyValueByKey("dummy");
+            assert dummyKv != null;
+            existingEndpoints.deleteKeyValue(dummyKv);
+            // remove an extra EOL
+            existingEndpoints.getPrevSibling().delete();
+            existingEndpoints.getPrevSibling().delete();
+        }
 
         String templateString = RestSdkCompletionService.createEndpointOperationTemplate(endpoint, operation);
         final YAMLElementGenerator elementGenerator = YAMLElementGenerator.getInstance(project);
         var dummyFile = elementGenerator.createDummyYamlWithText(templateString);
         YAMLMapping templateEndpointMapping = (YAMLMapping) dummyFile.getFirstChild().getFirstChild();
         if (templateEndpointMapping == null) {
-            Logger.getInstance(RestSdkCompletionService.class).error("Couldn't create YAML from: " + templateString);
+            LOG.error("Couldn't create YAML from: " + templateString);
             return;
         }
         mergeInto(existingEndpoints, templateEndpointMapping);
