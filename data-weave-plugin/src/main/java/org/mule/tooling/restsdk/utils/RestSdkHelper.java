@@ -19,7 +19,6 @@ import amf.core.client.platform.model.domain.Shape;
 import amf.core.client.scala.model.DataType;
 import amf.shapes.client.platform.model.domain.*;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiElement;
@@ -92,10 +91,10 @@ public class RestSdkHelper {
   private static Document doParseWebApi(PsiFile restSdkFile) {
     Document[] result = new Document[1];
     dummyMapForSynchronizingPerKey.computeIfAbsent(restSdkFile, z ->  {
-      final PsiFile psiFile = apiFile(restSdkFile);
-      if (psiFile != null) {
+      final var virtualFile = apiVirtualFile(restSdkFile);
+      if (virtualFile != null) {
         result[0] = CachedValuesManager.getCachedValue(restSdkFile, () ->
-                CachedValueProvider.Result.create(parseWebApi(psiFile.getVirtualFile()), psiFile));
+                CachedValueProvider.Result.create(parseWebApi(virtualFile), virtualFile));
       }
       // We don't store the parsed API in this map, we just use the per-key blocking capability of ConcurrentHashMap.
       return null;
@@ -104,19 +103,16 @@ public class RestSdkHelper {
   }
 
   public static PsiFile apiFile(PsiFile restSdkFile) {
-    PsiFile psiFile = null;
+    return ObjectUtils.doIfNotNull(apiVirtualFile(restSdkFile), vf -> PsiManager.getInstance(restSdkFile.getProject()).findFile(vf));
+  }
+
+  public static VirtualFile apiVirtualFile(PsiFile restSdkFile) {
     final PsiElement select = RestSdkPaths.API_PATH.selectYaml(restSdkFile);
-    if (select instanceof YAMLScalar) {
-      final String apiPath = ((YAMLScalar) select).getTextValue();
-      //
-      final VirtualFile parent = restSdkFile.getOriginalFile().getVirtualFile().getParent();
-      final VirtualFile child = parent.findFileByRelativePath(apiPath);
-      if (child != null) {
-        final Project project = restSdkFile.getProject();
-        psiFile = PsiManager.getInstance(project).findFile(child);
-      }
-    }
-    return psiFile;
+    if (!(select instanceof YAMLScalar))
+      return null;
+    final String apiPath = ((YAMLScalar) select).getTextValue();
+    final VirtualFile parent = restSdkFile.getOriginalFile().getVirtualFile().getParent();
+    return parent.findFileByRelativePath(apiPath);
   }
 
   @Nullable
