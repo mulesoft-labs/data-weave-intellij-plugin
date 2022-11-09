@@ -1,6 +1,7 @@
 package org.mule.tooling.restsdk.utils;
 
 import amf.apicontract.client.platform.AMFBaseUnitClient;
+import amf.apicontract.client.platform.AMFConfiguration;
 import amf.apicontract.client.platform.WebAPIConfiguration;
 import amf.apicontract.client.platform.model.domain.EndPoint;
 import amf.apicontract.client.platform.model.domain.Operation;
@@ -16,6 +17,7 @@ import amf.core.client.platform.model.domain.DataNode;
 import amf.core.client.platform.model.domain.DomainElement;
 import amf.core.client.platform.model.domain.RecursiveShape;
 import amf.core.client.platform.model.domain.Shape;
+import amf.core.client.platform.resource.ResourceLoader;
 import amf.core.client.scala.model.DataType;
 import amf.shapes.client.platform.model.domain.*;
 import com.intellij.openapi.diagnostic.Logger;
@@ -118,7 +120,9 @@ public class RestSdkHelper {
   @Nullable
   private static Document parseWebApi(VirtualFile child) {
     long before = System.nanoTime();
-    final AMFBaseUnitClient client = WebAPIConfiguration.WebAPI().baseUnitClient();
+    AMFConfiguration amfConfiguration = WebAPIConfiguration.WebAPI();
+    ResourceLoader rl = new IntellijResourceLoader(amfConfiguration.getExecutionContext());
+    final AMFBaseUnitClient client = amfConfiguration.withResourceLoader(rl).baseUnitClient();
     final AMFParseResult parseResult;
     try {
       parseResult = client.parse(child.getUrl()).get();
