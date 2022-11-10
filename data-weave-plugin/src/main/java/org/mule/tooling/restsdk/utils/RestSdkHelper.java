@@ -72,25 +72,27 @@ public class RestSdkHelper {
   }
 
   @Contract(pure = true)
-  public static boolean isRestSdkDescriptorFile(@NotNull PsiFile psiFile) {
+  public static boolean isRestSdkDescriptorFile(@Nullable PsiFile psiFile) {
+    if (psiFile == null)
+      return false;
     if (psiFile.getFileType() == YAMLFileType.YML) {
       var comment = PsiTreeUtil.getChildOfType(psiFile, PsiComment.class);
       return comment != null && isRestSdkDescriptor(comment.getText());
-    } else {
-      return false;
     }
+    return false;
   }
 
-  public static boolean isRestSdkDescriptor(String text) {
+  @Contract(pure = true)
+  public static boolean isRestSdkDescriptor(@NotNull String text) {
     return text.contains("#% Rest Connector Descriptor 1.0");
   }
 
-  @Nullable
-  public static Document parseWebApi(PsiFile restSdkFile) {
+  @Contract(pure = true)
+  public static @Nullable Document parseWebApi(PsiFile restSdkFile) {
     return doParseWebApi(restSdkFile);
   }
 
-  private static Document doParseWebApi(PsiFile restSdkFile) {
+  private static Document doParseWebApi(@NotNull PsiFile restSdkFile) {
     Document[] result = new Document[1];
     dummyMapForSynchronizingPerKey.computeIfAbsent(restSdkFile, z ->  {
       final var virtualFile = apiVirtualFile(restSdkFile);
@@ -104,16 +106,18 @@ public class RestSdkHelper {
     return result[0];
   }
 
-  public static PsiFile apiFile(PsiFile restSdkFile) {
+  public static @Nullable PsiFile apiFile(@NotNull PsiFile restSdkFile) {
     return ObjectUtils.doIfNotNull(apiVirtualFile(restSdkFile), vf -> PsiManager.getInstance(restSdkFile.getProject()).findFile(vf));
   }
 
-  public static VirtualFile apiVirtualFile(PsiFile restSdkFile) {
+  public static @Nullable VirtualFile apiVirtualFile(@NotNull PsiFile restSdkFile) {
     final PsiElement select = RestSdkPaths.API_PATH.selectYaml(restSdkFile);
     if (!(select instanceof YAMLScalar))
       return null;
     final String apiPath = ((YAMLScalar) select).getTextValue();
     final VirtualFile parent = restSdkFile.getOriginalFile().getVirtualFile().getParent();
+    if (parent == null)
+      return null;
     return parent.findFileByRelativePath(apiPath);
   }
 
@@ -257,8 +261,8 @@ public class RestSdkHelper {
             }).findFirst().orElse(null);
   }
 
-  @Nullable
-  public static Operation operationByMethodPath(@Nullable WebApi webApi, String methodText, String pathText) {
+  @Contract(value = "null, _, _ -> null", pure = true)
+  public static @Nullable Operation operationByMethodPath(@Nullable WebApi webApi, @NotNull String methodText, @NotNull String pathText) {
     if (webApi == null) {
       return null;
     }
@@ -274,7 +278,8 @@ public class RestSdkHelper {
                     .findFirst().orElse(null);
   }
 
-  public static EndPoint endpointByPath(@Nullable WebApi webApi, String pathText) {
+  @Contract(value = "null, _ -> null", pure = true)
+  public static @Nullable EndPoint endpointByPath(@Nullable WebApi webApi, @NotNull String pathText) {
     if (webApi == null) {
       return null;
     }
@@ -337,9 +342,8 @@ public class RestSdkHelper {
   }
 
   static class WeaveReferenceTypeResolver {
-
-    private Map<String, WeaveType> types = new HashMap<>();
-    private Document webApi;
+    private final Map<String, WeaveType> types = new HashMap<>();
+    private final Document webApi;
 
     public WeaveReferenceTypeResolver(Document webApi) {
       this.webApi = webApi;
