@@ -79,6 +79,7 @@ public class RestSdkPaths {
 
   public static final SelectionPath RELATIVE_TRIGGER_METHOD_FROM_BINDING_BODY_PATH = SelectionPath.PARENT.parent().parent().parent().child(METHOD);
   public static final SelectionPath RELATIVE_TRIGGER_PATH_FROM_BINDING_BODY_PATH = SelectionPath.PARENT.parent().parent().parent().child(PATH);
+  public static final SelectionPath RELATIVE_TRIGGER_PATH_FROM_BINDING_URIPARAMETER_PATH = SelectionPath.PARENT.parent().parent().child(PATH);
 
 
   public static final SelectionPath
