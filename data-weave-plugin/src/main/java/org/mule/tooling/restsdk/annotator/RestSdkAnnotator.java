@@ -18,7 +18,7 @@ import org.mule.tooling.restsdk.utils.RestSdkHelper;
 import org.mule.tooling.restsdk.utils.RestSdkPaths;
 import org.mule.tooling.restsdk.utils.SelectionPath;
 
-import static com.intellij.util.ObjectUtils.doIfNotNull;
+import static com.intellij.util.ObjectUtils.*;
 
 public class RestSdkAnnotator implements Annotator {
   @Override
@@ -62,8 +62,21 @@ public class RestSdkAnnotator implements Annotator {
           checkHttpMethod(holder, psiFile, ((YAMLKeyValue) mapping.getParent().getParent().getParent()).getKeyText(), key);
         else if (yamlPath.matches(RestSdkPaths.ENDPOINTS_PATH))
           checkEndpointPath(holder, psiFile, key);
+        else if (doIfCast(mapping.getParent(), YAMLKeyValue.class, kv -> kv.getKeyText().equals(RestSdkPaths.URI_PARAMETERS)) == Boolean.TRUE) {
+          checkUriParameter(holder, element);
+        }
       }
     }
+  }
+
+  private static void checkUriParameter(@NotNull AnnotationHolder holder, @NotNull PsiElement element) {
+    String path = doIfCast(RestSdkPaths.RELATIVE_TRIGGER_PATH_FROM_BINDING_URIPARAMETER_PATH.selectYaml(element), YAMLScalar.class, YAMLScalar::getTextValue);
+    if (path == null)
+      return;
+    String parameterName = ((YAMLKeyValue) element.getParent()).getKeyText();
+    if(!path.contains("{" + parameterName + "}"))
+      holder.newAnnotation(HighlightSeverity.ERROR,"URI parameter '" + parameterName + "' not in path '" + path + "'")
+              .create();
   }
 
   private static void checkHttpMethod(@NotNull AnnotationHolder holder, @NotNull PsiFile psiFile, @NotNull String endpointPath, @NotNull String httpMethod) {
