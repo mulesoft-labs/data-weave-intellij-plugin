@@ -5,6 +5,7 @@ import com.intellij.ide.actions.CreateFileFromTemplateDialog;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiDirectory;
+import org.jetbrains.annotations.NotNull;
 import org.mule.tooling.restsdk.templates.RamlFilesTemplateManager;
 import org.mule.tooling.restsdk.utils.RestSdkIcons;
 
@@ -15,7 +16,7 @@ public class CreateNewApiFileAction extends CreateFileFromTemplateAction impleme
   }
 
   @Override
-  protected void buildDialog(Project project, PsiDirectory psiDirectory, CreateFileFromTemplateDialog.Builder builder) {
+  protected void buildDialog(@NotNull Project project, @NotNull PsiDirectory psiDirectory, CreateFileFromTemplateDialog.Builder builder) {
     builder.setTitle("API File")
             .addKind("OAS File", RestSdkIcons.OASFileType, RamlFilesTemplateManager.OAS3)
             .addKind("RAML API specification", RestSdkIcons.RamlFileType, RamlFilesTemplateManager.RAML_FILE)
@@ -33,7 +34,7 @@ public class CreateNewApiFileAction extends CreateFileFromTemplateAction impleme
   }
 
   @Override
-  protected String getActionName(PsiDirectory directory, String newName, String templateName) {
+  protected String getActionName(PsiDirectory directory, @NotNull String newName, String templateName) {
     return "Create " + newName;
   }
 

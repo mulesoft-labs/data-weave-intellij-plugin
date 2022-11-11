@@ -86,7 +86,7 @@ public abstract class AbstractMavenBasedProjectBuilder extends ModuleBuilder imp
     }
 
     @Override
-    public ModuleType getModuleType() {
+    public ModuleType<?> getModuleType() {
         return StdModuleTypes.JAVA;
     }
 

@@ -17,7 +17,7 @@ import static org.mule.tooling.restsdk.utils.RestSdkHelper.isRestSdkDescriptor;
 
 public class RestSdkDescriptorFileProvider implements JsonSchemaFileProvider {
 
-    private Project project;
+    private final Project project;
 
     public RestSdkDescriptorFileProvider(@NotNull Project project) {
         this.project = project;
@@ -41,7 +41,7 @@ public class RestSdkDescriptorFileProvider implements JsonSchemaFileProvider {
 
     @Override
     public @Nullable VirtualFile getSchemaFile() {
-        URL resource = getClass().getClassLoader().getResource("schema/RestSdkDescriptor.json");
+        URL resource = RestSdkDescriptorFileProvider.class.getResource("/schema/RestSdkDescriptor.json");
         assert resource != null;
         return VfsUtil.findFileByURL(resource);
     }

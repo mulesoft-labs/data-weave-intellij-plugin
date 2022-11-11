@@ -40,7 +40,7 @@ public class RestSdkModuleBuilder extends AbstractMavenBasedProjectBuilder imple
     }
 
     @Override
-    public void setupRootModel(ModifiableRootModel rootModel) {
+    public void setupRootModel(@NotNull ModifiableRootModel rootModel) {
         super.setupRootModel(rootModel);
         final Project project = rootModel.getProject();
         final VirtualFile root = createAndGetContentEntry();

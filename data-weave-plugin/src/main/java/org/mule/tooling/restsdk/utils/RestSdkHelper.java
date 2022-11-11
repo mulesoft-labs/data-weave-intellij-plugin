@@ -251,30 +251,16 @@ public class RestSdkHelper {
     }
   }
 
-  public static EndPoint endpointByPath(@Nullable WebApi webApi, String methodText, String pathText) {
-    if (webApi == null) {
-      return null;
-    }
-    return webApi.endPoints().stream()
-            .filter((endpoint) -> {
-              return endpoint.path().value().equals(pathText);
-            }).findFirst().orElse(null);
-  }
-
   @Contract(value = "null, _, _ -> null", pure = true)
   public static @Nullable Operation operationByMethodPath(@Nullable WebApi webApi, @NotNull String methodText, @NotNull String pathText) {
     if (webApi == null) {
       return null;
     }
     Stream<EndPoint> endPointStream = webApi.endPoints().stream()
-            .filter((endpoint) -> {
-              return endpoint.path().value().equals(pathText);
-            });
+            .filter((endpoint) -> endpoint.path().value().equals(pathText));
     return
             endPointStream
-                    .flatMap((endpoint) -> {
-                      return endpoint.operations().stream().filter((operation) -> operation.method().value().equals(methodText));
-                    })
+                    .flatMap((endpoint) -> endpoint.operations().stream().filter((operation) -> operation.method().value().equals(methodText)))
                     .findFirst().orElse(null);
   }
 
@@ -285,9 +271,7 @@ public class RestSdkHelper {
     }
     return
             webApi.endPoints().stream()
-                    .filter((endpoint) -> {
-                      return endpoint.path().value().equals(pathText);
-                    })
+                    .filter((endpoint) -> endpoint.path().value().equals(pathText))
                     .findFirst().orElse(null);
   }
 

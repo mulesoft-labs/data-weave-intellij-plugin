@@ -42,26 +42,20 @@ public class RestSdkLanguageExtension implements ALSLanguageExtension {
     final AtomicReference<String> dialectUrl = new AtomicReference<>(REST_SDK_DIALECT_URL);
     final Stream<VirtualFile> dialect = FilenameIndex.getVirtualFilesByName(project, REST_SDK_DIALECT_YAML_FILE_NAME, GlobalSearchScope.allScope(project)).stream();
     dialect.findFirst()
-            .ifPresentOrElse((vf) -> {
+            .ifPresentOrElse(vf -> {
               //If vf is present in the project dependencies we take that
-              contentFrom(vf).ifPresent((c) -> {
+              contentFrom(vf).ifPresent(c -> {
                 dialectUrl.set(vf.getUrl());
                 resources.put(vf.getUrl(), c);
               });
-            }, () -> {
-              contentFrom(REST_SDK_DIALECT_YAML_PATH)
-                      .ifPresent((c) -> resources.put(REST_SDK_DIALECT_URL, c));
-            });
+            }, () -> contentFrom(REST_SDK_DIALECT_YAML_PATH)
+                    .ifPresent(c -> resources.put(REST_SDK_DIALECT_URL, c)));
 
     final Stream<VirtualFile> vocabulary = FilenameIndex.getVirtualFilesByName(project, REST_SDK_VOCABULARY_YAML_FILE_NAME, GlobalSearchScope.allScope(project)).stream();
     vocabulary.findFirst()
-            .ifPresentOrElse((vf) -> {
-              contentFrom(vf)
-                      .ifPresent((c) -> resources.put(vf.getUrl(), c));
-            }, () -> {
-              contentFrom(REST_SDK_VOCABULARY_YAML_PATH)
-                      .ifPresent((c) -> resources.put(REST_SDK_VOCABULARY_URL, c));
-            });
+            .ifPresentOrElse(vf -> contentFrom(vf)
+                    .ifPresent(c -> resources.put(vf.getUrl(), c)), () -> contentFrom(REST_SDK_VOCABULARY_YAML_PATH)
+                    .ifPresent(c -> resources.put(REST_SDK_VOCABULARY_URL, c)));
 
     return Optional.of(new Dialect(dialectUrl.get(), resources));
   }

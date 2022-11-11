@@ -16,6 +16,7 @@ import org.jetbrains.idea.maven.model.MavenId;
 import org.jetbrains.idea.maven.utils.MavenUtil;
 import org.mule.tooling.lang.dw.templates.WeaveFilesTemplateManager;
 
+import java.io.IOException;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -41,7 +42,7 @@ public class RestSdkModuleInitializer {
                     EditorHelper.openInEditor(getPsiFile(project, child));
                 }
             });
-        } catch (Throwable e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -53,7 +54,7 @@ public class RestSdkModuleInitializer {
     private static void createDescriptorFile(final Project project,
                                              final MavenId projectId,
                                              final RestSdkConfigurationModel model,
-                                             final VirtualFile targetFolder) throws Throwable {
+                                             final VirtualFile targetFolder) throws IOException {
         runTemplate(project,
                 projectId,
                 model,
@@ -67,7 +68,7 @@ public class RestSdkModuleInitializer {
     private static void createApiFile(final Project project,
                                       final MavenId projectId,
                                       final RestSdkConfigurationModel model,
-                                      final VirtualFile targetFolder) throws Throwable {
+                                      final VirtualFile targetFolder) throws IOException {
         switch (model.getApiKind()) {
 
             case RAML:
@@ -96,7 +97,7 @@ public class RestSdkModuleInitializer {
     private static void createPomFile(final Project project,
                                       final MavenId projectId,
                                       final RestSdkConfigurationModel model,
-                                      final VirtualFile root) throws Throwable {
+                                      final VirtualFile root) throws IOException {
         runTemplate(project,
                 projectId,
                 model,
@@ -112,11 +113,11 @@ public class RestSdkModuleInitializer {
                                     VirtualFile targetFolder,
                                     String actionDescription,
                                     String targetFileName,
-                                    String templateName) throws Throwable {
+                                    String templateName) throws IOException {
 
-        WriteCommandAction.writeCommandAction(project).withName(actionDescription).run(new ThrowableRunnable<Throwable>() {
+        WriteCommandAction.writeCommandAction(project).withName(actionDescription).run(new ThrowableRunnable<IOException>() {
             @Override
-            public void run() throws Throwable {
+            public void run() throws IOException {
                 VirtualFile pomFile = targetFolder.findChild(targetFileName);
                 if (pomFile != null && pomFile.exists()) {
                     pomFile.delete(this);

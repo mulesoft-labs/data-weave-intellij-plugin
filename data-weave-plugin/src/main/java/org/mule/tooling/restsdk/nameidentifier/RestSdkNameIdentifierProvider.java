@@ -18,7 +18,6 @@ public class RestSdkNameIdentifierProvider implements NameIdentifierProvider {
     public NameIdentifier resolveNameIdentifier(PsiFile file) {
         PsiElement context = file.getContext();
         SelectionPath yamlPath = SelectionPath.pathOfYaml(context);
-        assert context != null;
         return toNameIdentifier(yamlPath, context.getContainingFile());
     }
 

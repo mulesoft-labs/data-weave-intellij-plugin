@@ -10,6 +10,8 @@ import org.jetbrains.yaml.psi.YAMLKeyValue;
 import org.jetbrains.yaml.psi.YAMLMapping;
 import org.jetbrains.yaml.psi.YAMLValue;
 
+import java.util.Objects;
+
 public class LocalReference extends PsiReferenceBase<PsiElement> {
 
 
@@ -26,11 +28,11 @@ public class LocalReference extends PsiReferenceBase<PsiElement> {
         YAMLDocument parentOfType = PsiTreeUtil.getParentOfType(myElement, YAMLDocument.class);
         YAMLMapping rootMapping = PsiTreeUtil.getChildOfType(parentOfType, YAMLMapping.class);
         if (rootMapping != null) {
-            YAMLKeyValue sampleData = rootMapping.getKeyValueByKey(rootElement);
-            if (sampleData != null) {
-                YAMLValue sampleDataValue = sampleData.getValue();
-                if (sampleDataValue instanceof YAMLMapping) {
-                    YAMLKeyValue keyValueByKey = ((YAMLMapping) sampleDataValue).getKeyValueByKey(myElement.getText());
+            YAMLKeyValue kv = rootMapping.getKeyValueByKey(rootElement);
+            if (kv != null) {
+                YAMLValue value = kv.getValue();
+                if (value instanceof YAMLMapping) {
+                    YAMLKeyValue keyValueByKey = ((YAMLMapping) value).getKeyValueByKey(myElement.getText());
                     if (keyValueByKey != null) {
                         return keyValueByKey.getKey();
                     }
@@ -40,9 +42,8 @@ public class LocalReference extends PsiReferenceBase<PsiElement> {
         return null;
     }
 
-    @NotNull
     @Override
-    public Object[] getVariants() {
+    public Object @NotNull [] getVariants() {
         YAMLDocument parentOfType = PsiTreeUtil.getParentOfType(myElement, YAMLDocument.class);
         YAMLMapping rootMapping = PsiTreeUtil.getChildOfType(parentOfType, YAMLMapping.class);
         if (rootMapping != null) {
@@ -53,7 +54,9 @@ public class LocalReference extends PsiReferenceBase<PsiElement> {
                     return ((YAMLMapping) sampleDataValue)
                             .getKeyValues()
                             .stream()
-                            .map((kv) -> kv.getKey().getText())
+                            .map(YAMLKeyValue::getKey)
+                            .filter(Objects::nonNull)
+                            .map(PsiElement::getText)
                             .toArray();
                 }
             }
