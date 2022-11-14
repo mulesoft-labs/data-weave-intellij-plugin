@@ -1,19 +1,10 @@
 package org.mule.tooling.restsdk.utils;
 
-import static com.google.common.base.CaseFormat.LOWER_CAMEL;
-import static com.google.common.base.CaseFormat.LOWER_HYPHEN;
-import static com.google.common.base.CaseFormat.UPPER_CAMEL;
-import static com.google.common.base.CaseFormat.UPPER_UNDERSCORE;
+import java.util.Set;
+
+import static com.google.common.base.CaseFormat.*;
 import static com.intellij.openapi.util.text.StringUtil.pluralize;
-import static org.apache.commons.lang3.StringUtils.EMPTY;
-import static org.apache.commons.lang3.StringUtils.abbreviate;
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static org.apache.commons.lang3.StringUtils.substring;
-
-
-import java.util.Arrays;
-import java.util.List;
+import static org.apache.commons.lang3.StringUtils.*;
 
 public class JavaUtils {
 
@@ -21,7 +12,7 @@ public class JavaUtils {
 
   private JavaUtils() {}
 
-  private static final List<String> reservedJavaWords = Arrays.asList(
+  private static final Set<String> reservedJavaWords = Set.of(
                                                                       "abstract", "assert", "boolean", "break", "byte", "case",
                                                                       "catch", "char", "class", "const", "continue",
                                                                       "default", "do", "double", "else", "extends",
@@ -62,7 +53,7 @@ public class JavaUtils {
       javaName = sanitizeSufix + javaName;
     }
 
-    if (isBlank(javaName)) {
+    if (javaName.isBlank()) {
       return "empty";
     }
 
@@ -79,7 +70,7 @@ public class JavaUtils {
     StringBuilder packageString = new StringBuilder();
     for (int i = 0; i < split.length; i++) {
       String s = removeJavaNameUnwantedCharacters(split[i]);
-      if (isNotBlank(s)) {
+      if (!s.isBlank()) {
         packageString.append(s.toLowerCase());
         if (i < split.length - 1) {
           packageString.append(".");
@@ -95,7 +86,7 @@ public class JavaUtils {
   }
 
   public static String abbreviateText(String text, int maxLength) {
-    if (isBlank(text) || text.length() <= maxLength) {
+    if (text.isBlank() || text.length() <= maxLength) {
       return text;
     }
 

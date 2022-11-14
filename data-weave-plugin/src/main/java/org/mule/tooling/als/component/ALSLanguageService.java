@@ -101,7 +101,7 @@ public class ALSLanguageService implements Disposable {
 
   private final Project myProject;
   private LanguageServer languageServer;
-  private Map<String, DocumentState> documents = new HashMap<String, DocumentState>();
+  private final Map<String, DocumentState> documents = new HashMap<>();
   private ALSLanguageExtension[] supportedLanguages;
   private List<ALSLanguageExtension.Dialect> dialectByExtensionPoint;
   private final Alarm myDocumentAlarm = new Alarm(Alarm.ThreadToUse.POOLED_THREAD, this);

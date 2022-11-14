@@ -27,9 +27,8 @@ public class FilePathReferenceProvider extends PsiReferenceProvider {
     return new FileReferenceSet(text, element, offset, this, true, myEndingSlashNotAllowed).getAllReferences();
   }
 
-  @NotNull
   @Override
-  public PsiReference[] getReferencesByElement(@NotNull PsiElement element, @NotNull ProcessingContext context) {
+  public PsiReference @NotNull [] getReferencesByElement(@NotNull PsiElement element, @NotNull ProcessingContext context) {
     if (element instanceof YAMLScalar) {
       String fileName = ((YAMLScalar) element).getTextValue();
       return getReferencesByElement(element, fileName, element.getText().length() - fileName.length());
