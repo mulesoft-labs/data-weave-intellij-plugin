@@ -4,6 +4,7 @@ import amf.apicontract.client.platform.model.domain.EndPoint;
 import amf.apicontract.client.platform.model.domain.Operation;
 import amf.apicontract.client.platform.model.domain.api.WebApi;
 import amf.core.client.platform.model.document.Document;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
@@ -14,10 +15,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.ui.BooleanTableCellEditor;
 import com.intellij.ui.BooleanTableCellRenderer;
-import com.intellij.ui.treeStructure.treetable.ListTreeTableModel;
-import com.intellij.ui.treeStructure.treetable.TreeTable;
-import com.intellij.ui.treeStructure.treetable.TreeTableModel;
-import com.intellij.ui.treeStructure.treetable.TreeTableModelAdapter;
+import com.intellij.ui.treeStructure.treetable.*;
 import com.intellij.util.net.HTTPMethod;
 import com.intellij.util.ui.ColumnInfo;
 import org.jetbrains.annotations.Contract;
@@ -80,6 +78,7 @@ public class BulkEndpointOperationsGeneratorDialog extends DialogWrapper {
         this.module = module;
         setTitle("Endpoint Operations Generator");
         setOKButtonText("Generate Operations");
+        setSize(800, 600);
         init();
     }
 
@@ -126,7 +125,7 @@ public class BulkEndpointOperationsGeneratorDialog extends DialogWrapper {
                 if (show == showing)
                     return;
                 if (show) {
-                    selectionLabel.setText("<html><a href=\"\">Select all</a></html>");
+                    selectionLabel.setText("<html><a href=\"\">Mark selected for generation</a></html>");
                     selectionLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                     selectionLabel.addMouseListener(mouseListener);
                 } else {
@@ -145,6 +144,20 @@ public class BulkEndpointOperationsGeneratorDialog extends DialogWrapper {
             column.setCellRenderer(OPERATION_RENDERER);
             column.setCellEditor(OPERATION_EDITOR);
         }
+
+        // tree.getRowCount() will return larger and larger values as this loops run,
+        // so it can't be extracted to a variable assigned before the loop
+        TreeTableTree tree = endpointsTree.getTree();
+        for (int i = 0; i < tree.getRowCount(); i++)
+            tree.expandRow(i);
+
+        // Partly taken from JTable.JBTableHeader.packColumn().
+        int columnToPack = 0;
+        TableColumn column = endpointsTree.getColumnModel().getColumn(columnToPack);
+        int newWidth = endpointsTree.getColumnModel().getColumnMargin() + endpointsTree.getExpandedColumnWidth(columnToPack);
+        endpointsTree.getTableHeader().setResizingColumn(column);
+        column.setWidth(newWidth);
+        ApplicationManager.getApplication().invokeLater(() -> endpointsTree.getTableHeader().setResizingColumn(null));
     }
 
     @NotNull
