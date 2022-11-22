@@ -1,6 +1,8 @@
 package org.mule.tooling.restsdk.utils;
 
 import com.intellij.psi.PsiElement;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
 import org.jetbrains.yaml.psi.YAMLMapping;
 import org.jetbrains.yaml.psi.YAMLValue;
@@ -18,15 +20,18 @@ public class YAMLUtils {
      * @param what the YAML value to add
      * @return what has been added
      */
-    public static PsiElement mergeInto(YAMLKeyValue target, YAMLValue what) {
+    @Nullable
+    public static PsiElement mergeInto(@NotNull YAMLKeyValue target, @NotNull YAMLValue what) {
         var targetValue = target.getValue();
         if (!(what instanceof YAMLMapping) || !(targetValue instanceof YAMLMapping))  {
             target.setValue(what);
             return target.getValue();
         }
+        return mergeInto((YAMLMapping) targetValue, (YAMLMapping) what);
+    }
 
-        YAMLMapping targetMapping = (YAMLMapping) targetValue;
-        YAMLMapping sourceMapping = (YAMLMapping) what;
+    @Nullable
+    public static PsiElement mergeInto(@NotNull YAMLMapping targetMapping, @NotNull YAMLMapping sourceMapping) {
         PsiElement added = null;
         Collection<YAMLKeyValue> sourceKeyValues = sourceMapping.getKeyValues();
         for (YAMLKeyValue kv : sourceKeyValues) {
@@ -36,9 +41,11 @@ public class YAMLUtils {
                 targetMapping.putKeyValue(kv);
                 added = targetMapping.getKeyValueByKey(k);
             } else {
-                added = mergeInto(targetKv, kv.getValue());
+                YAMLValue v = kv.getValue();
+                if (v != null)
+                    added = mergeInto(targetKv, v);
             }
         }
-        return sourceKeyValues.size() > 1 ? target : added;
+        return sourceKeyValues.size() > 1 ? targetMapping : added;
     }
 }

@@ -780,12 +780,7 @@ public class RestSdkCompletionService {
           context.setAddCompletionChar(false);
 
           final Template myTemplate;
-          final StringBuilder template = new StringBuilder();
-          template.append(endpoint.path()).append(":\n");
-          template.append("  ").append("operations").append(":\n");
-          template.append("    ").append(operation.method().value()).append(":\n");
-          template.append("      ").append("ignored").append(COLON_SEPARATOR).append("false");
-          String templateString = template.toString();
+          String templateString = createEndpointOperationTemplate(endpoint, operation);
           if (existing == null) {
             myTemplate = TemplateManager.getInstance(project).createTemplate("template", "rest_sdk_suggest", templateString);
             TemplateManager.getInstance(context.getProject()).startTemplate(context.getEditor(), myTemplate);
@@ -806,6 +801,14 @@ public class RestSdkCompletionService {
         result.add(elementBuilder);
       });
     });
+  }
+
+  @NotNull
+  public static String createEndpointOperationTemplate(EndPoint endpoint, Operation operation) {
+    return endpoint.path() + ":\n" +
+            "  operations:\n" +
+            "    " + operation.method().value() + ":\n" +
+            "      ignored: false";
   }
 
   private void suggestOperationBase(ArrayList<LookupElement> result, WebApi webApi) {

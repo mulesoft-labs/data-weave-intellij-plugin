@@ -681,6 +681,15 @@
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="shift meta R" second-keystroke="ctrl meta R"/>
 
         </action>
+
+        <!-- REST SDK actions -->
+
+        <action id="org.mule.tooling.restsdk.generation.BulkEndpointOperationsGeneratorAction"
+                class="org.mule.tooling.restsdk.generation.BulkEndpointOperationsGeneratorAction"
+                text="Endpoint Operations Generator..."
+                description="Tool to generate several endpoint operations at once">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
     </actions>
 
 </idea-plugin>
