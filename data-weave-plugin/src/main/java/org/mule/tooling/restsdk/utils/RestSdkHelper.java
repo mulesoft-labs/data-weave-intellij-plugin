@@ -20,6 +20,7 @@ import amf.core.client.platform.model.domain.Shape;
 import amf.core.client.platform.resource.ResourceLoader;
 import amf.core.client.scala.model.DataType;
 import amf.shapes.client.platform.model.domain.*;
+import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.roots.ModuleRootManager;
@@ -132,13 +133,15 @@ public class RestSdkHelper {
     final AMFBaseUnitClient client = amfConfiguration.withResourceLoader(rl).baseUnitClient();
     final AMFParseResult parseResult;
     try {
-      parseResult = client.parse(child.getUrl()).get();
+      parseResult = ReadAction.compute(() -> client.parse(child.getUrl()).get());
       final AMFBaseUnitClient newClient = WebAPIConfiguration.fromSpec(parseResult.sourceSpec()).baseUnitClient();
       final BaseUnit resolvedModel = newClient.transform(parseResult.baseUnit()).baseUnit();
       LOGGER.debug("Parsed " + child + " in " + TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - before) + "ms");
       return (Document) resolvedModel;
     } catch (InterruptedException | ExecutionException e) {
       e.printStackTrace();
+    } catch (Exception e) {
+      throw (RuntimeException) e;
     }
     return null;
   }
