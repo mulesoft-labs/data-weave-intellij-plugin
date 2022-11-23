@@ -192,7 +192,7 @@ public class BulkEndpointOperationsGeneratorDialog extends DialogWrapper {
                 return "";
             }
             return path.substring(start, end);
-        }));
+        }, LinkedHashMap::new, Collectors.toList()));
         if (m.size() == 1) {
             String k = m.keySet().iterator().next();
             if (!k.isBlank()) {
