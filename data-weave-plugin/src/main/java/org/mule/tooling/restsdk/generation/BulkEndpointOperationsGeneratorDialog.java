@@ -15,6 +15,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.ui.BooleanTableCellEditor;
 import com.intellij.ui.BooleanTableCellRenderer;
+import com.intellij.ui.TreeTableSpeedSearch;
 import com.intellij.ui.treeStructure.treetable.*;
 import com.intellij.util.net.HTTPMethod;
 import com.intellij.util.ui.ColumnInfo;
@@ -106,6 +107,7 @@ public class BulkEndpointOperationsGeneratorDialog extends DialogWrapper {
         treeTableModel = new ListTreeTableModel(top, columns.toArray(new ColumnInfo[0]));
         endpointsTree = new TreeTable(treeTableModel);
         endpointsTree.setRootVisible(false);
+        new TreeTableSpeedSearch(endpointsTree);
         endpointsTree.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             private final MouseAdapter mouseListener = new MouseAdapter() {
                 @Override
