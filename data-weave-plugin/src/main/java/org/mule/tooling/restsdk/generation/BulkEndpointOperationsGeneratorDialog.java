@@ -198,7 +198,7 @@ public class BulkEndpointOperationsGeneratorDialog extends DialogWrapper {
         if (m.size() == 1) {
             String k = m.keySet().iterator().next();
             if (!k.isBlank()) {
-                node.setUserObject(node.getUserObject() + "/" + k);
+                node.setLastPathComponent(node.getLastPathComponent() + "/" + k);
                 fillTree(m.values().iterator().next(), prefix + "/" + k, node, existing);
             }
             return;
