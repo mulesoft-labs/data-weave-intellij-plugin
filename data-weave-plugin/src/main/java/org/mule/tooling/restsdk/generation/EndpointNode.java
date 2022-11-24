@@ -10,14 +10,14 @@ import java.util.EnumSet;
 import java.util.Set;
 
 class EndpointNode extends DefaultMutableTreeNode {
-    private final String path;
+    private String lastPathComponent;
     private final EnumSet<HTTPMethod> selectedMethods = EnumSet.noneOf(HTTPMethod.class);
 
     private final EnumSet<HTTPMethod> alreadyImplementedMethods = EnumSet.noneOf(HTTPMethod.class);
 
-    EndpointNode(@NotNull String path, @Nullable EndPoint endPoint) {
+    EndpointNode(@NotNull String lastPathComponent, @Nullable EndPoint endPoint) {
         super(endPoint);
-        this.path = path;
+        this.lastPathComponent = lastPathComponent;
     }
 
     public EndPoint getEndpoint() {
@@ -25,8 +25,23 @@ class EndpointNode extends DefaultMutableTreeNode {
     }
 
     @Override
+    public void setUserObject(Object userObject) {
+        if (userObject != null && !(userObject instanceof EndPoint))
+            throw new IllegalArgumentException("userObject: " + userObject);
+        super.setUserObject(userObject);
+    }
+
+    @Override
     public String toString() {
-        return path;
+        return lastPathComponent;
+    }
+
+    public String getLastPathComponent() {
+        return lastPathComponent;
+    }
+
+    public void setLastPathComponent(String lastPathComponent) {
+        this.lastPathComponent = lastPathComponent;
     }
 
     public Set<HTTPMethod> getSelectedMethods() {
@@ -40,7 +55,6 @@ class EndpointNode extends DefaultMutableTreeNode {
     public boolean alreadyImplemented(HTTPMethod method) {
         return alreadyImplementedMethods.contains(method);
     }
-
 
     boolean selectedForGeneration(HTTPMethod method) {
         return selectedMethods.contains(method);
