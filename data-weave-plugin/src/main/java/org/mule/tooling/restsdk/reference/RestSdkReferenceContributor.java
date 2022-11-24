@@ -9,6 +9,7 @@ import com.intellij.util.ProcessingContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.yaml.YAMLLanguage;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
+import org.jetbrains.yaml.psi.YAMLMapping;
 import org.jetbrains.yaml.psi.YAMLPsiElement;
 import org.jetbrains.yaml.psi.YAMLScalar;
 
@@ -137,11 +138,13 @@ public class RestSdkReferenceContributor extends PsiReferenceContributor {
   private ElementPattern<YAMLPsiElement> endpointOperationPath() {
     /* It seems you can't match just a key, because the YAML plugin doesn't ask the "contributor"
      * machinery for references, so we must match the enclosing YAMLKeyValue.
-     * We also match YAMLScalar to deal with a partially typed key-value that doesn't have a colon yet.
+     * We also match YAMLScalar to deal with a partially typed key-value that doesn't have a colon yet
+     * (and it can be at two different levels depending on whether there are other values under "endpoints:").
      */
     return StandardPatterns.or(
             psiElement(YAMLKeyValue.class).withSuperParent(2, psiElement(YAMLKeyValue.class).withName("endpoints")),
-            psiElement(YAMLScalar.class).withSuperParent(1, psiElement(YAMLKeyValue.class).withName("endpoints"))
+            psiElement(YAMLScalar.class).withSuperParent(1, psiElement(YAMLKeyValue.class).withName("endpoints")),
+            psiElement(YAMLScalar.class).withSuperParent(1, psiElement(YAMLMapping.class)).withSuperParent(2, psiElement(YAMLKeyValue.class).withName("endpoints"))
     );
   }
 
