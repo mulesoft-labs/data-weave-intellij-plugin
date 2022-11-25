@@ -100,14 +100,12 @@ public class RestSdkCompletionService {
       suggestOnOperations(completionParameters, project, result, yamlPath);
     } else if (yamlPath.matches(TRIGGERS_PATH)
             || yamlPath.matches(RestSdkPaths.TRIGGERS_BINDING_QUERY_PARAMS_PATH)
-            || yamlPath.matches(RestSdkPaths.TRIGGERS_PATH_PATH)
             || yamlPath.matches(RestSdkPaths.TRIGGERS_BINDING_HEADER_PATH)
             || yamlPath.matches(RestSdkPaths.TRIGGERS_BINDING_URI_PARAMETER_PATH)) {
       suggestOnTriggers(completionParameters, project, result, yamlPath);
     } else if (yamlPath.matches(ENDPOINTS_PATH) || yamlPath.matches(ENDPOINTS_METHOD_PATH)) {
       suggestEndpoints(completionParameters, project, result, yamlPath);
     } else if (yamlPath.matches(RestSdkPaths.GLOBAL_SAMPLE_DATA_PATH) ||
-            yamlPath.matches(RestSdkPaths.GLOBAL_SAMPLE_DATA_PATH_PATH) ||
             yamlPath.matches(RestSdkPaths.GLOBAL_SAMPLE_DATA_BINDING_QUERY_PARAMS_PATH) ||
             yamlPath.matches(RestSdkPaths.GLOBAL_SAMPLE_DATA_BINDING_URI_PARAMETER_PATH) ||
             yamlPath.matches(RestSdkPaths.GLOBAL_SAMPLE_DATA_BINDING_HEADER_PATH)
@@ -119,13 +117,6 @@ public class RestSdkCompletionService {
       suggestSampleDataParameterTemplate(project, completionParameters.getOriginalFile(), result);
     } else if (yamlPath.matches(VALUE_PROVIDERS_PATH)) {
       suggestValueProviders(completionParameters, project, result, yamlPath);
-    } else if (yamlPath.getName().equals(PATH)) {
-      final PsiFile yamlFile = completionParameters.getOriginalFile();
-      final Document webApiDocument = parseWebApi(yamlFile);
-      if (webApiDocument != null) {
-        WebApi webApi = (WebApi) webApiDocument.encodes();
-        suggestPaths(result, webApi);
-      }
     } else if (yamlPath.getName().equals(MEDIA_TYPE)) {
       mediaTypes.forEach((mt) -> {
         LookupElementBuilder lookupElementBuilder = LookupElementBuilder.create(mt);
@@ -174,8 +165,6 @@ public class RestSdkCompletionService {
       WebApi webApi = (WebApi) webApiDocument.encodes();
       if (yamlPath.matches(RestSdkPaths.GLOBAL_SAMPLE_DATA_PATH)) {
         suggestSampleDataTemplate(project, result, yamlFile, webApi);
-      } else if (yamlPath.matches(RestSdkPaths.GLOBAL_SAMPLE_DATA_PATH_PATH)) {
-        suggestPaths(result, webApi);
       } else {
         final PsiElement path = RestSdkPaths.RELATIVE_TRIGGER_PATH_FROM_BINDING_PATH.selectYaml(completionParameters.getPosition());
         final PsiElement method = RestSdkPaths.RELATIVE_TRIGGER_METHOD_FROM_BINDING_PATH.selectYaml(completionParameters.getPosition());
@@ -197,14 +186,6 @@ public class RestSdkCompletionService {
     }
   }
 
-  private void suggestPaths(ArrayList<LookupElement> result, WebApi webApi) {
-    webApi.endPoints().forEach((endpoint) -> {
-      LookupElementBuilder elementBuilder = LookupElementBuilder.create(endpoint.path().value());
-      elementBuilder = elementBuilder.withIcon(AllIcons.Nodes.Property);
-      result.add(elementBuilder);
-    });
-  }
-
   private void suggestOnTriggers(CompletionParameters completionParameters, Project project, ArrayList<LookupElement> result, SelectionPath yamlPath) {
     final PsiFile yamlFile = completionParameters.getOriginalFile();
     final Document webApiDocument = parseWebApi(yamlFile);
@@ -212,8 +193,6 @@ public class RestSdkCompletionService {
       final WebApi webApi = (WebApi) webApiDocument.encodes();
       if (yamlPath.matches(TRIGGERS_PATH)) {
         suggestTriggerTemplate(project, result, yamlFile, webApi);
-      } else if (yamlPath.matches(RestSdkPaths.TRIGGERS_PATH_PATH)) {
-        suggestPaths(result, webApi);
       } else {
         final PsiElement path = RestSdkPaths.RELATIVE_TRIGGER_PATH_FROM_BINDING_PATH.selectYaml(completionParameters.getPosition());
         final PsiElement method = RestSdkPaths.RELATIVE_TRIGGER_METHOD_FROM_BINDING_PATH.selectYaml(completionParameters.getPosition());
