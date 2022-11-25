@@ -106,7 +106,7 @@ public class BulkEndpointOperationsGeneratorDialog extends DialogWrapper {
 
         treeTableModel = new ListTreeTableModel(top, columns.toArray(new ColumnInfo[0]));
         endpointsTree = new TreeTable(treeTableModel);
-        endpointsTree.setRootVisible(false);
+        endpointsTree.setRootVisible(!top.getLastPathComponent().isEmpty());
         new TreeTableSpeedSearch(endpointsTree);
         endpointsTree.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             private final MouseAdapter mouseListener = new MouseAdapter() {
