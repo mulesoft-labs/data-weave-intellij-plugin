@@ -12,10 +12,8 @@ public class WeaveFilesTemplateManager implements FileTemplateGroupDescriptorFac
     public static final String DATA_WEAVE_UNIT_FILE = "DataWeave UnitTest";
     public static final String BAT_FILE = "BAT";
     public static final String WEAVE_MAVEN_MODULE = "Weave Maven Module";
-    public static final String REST_SDK_MAVEN_MODULE = "RestSdk Template";
-    public static final String RAML_API_TEMPLATE = "RAML Template";
-    public static final String OPEN_API_TEMPLATE = "OpenApi Template";
-    public static final String CONNECTOR_DESCRIPTOR = "Connector Descriptor";
+    public static final String REST_SDK_MAVEN_MODULE = "REST SDK POM Template";
+    public static final String CONNECTOR_DESCRIPTOR = "REST SDK Connector Descriptor";
 
     @Override
     public FileTemplateGroupDescriptor getFileTemplatesDescriptor() {
@@ -28,8 +26,6 @@ public class WeaveFilesTemplateManager implements FileTemplateGroupDescriptorFac
 
         //RestSDK Templates
         group.addTemplate(new FileTemplateDescriptor(CONNECTOR_DESCRIPTOR, OpenapiIcons.RepositoryLibraryLogo));
-        group.addTemplate(new FileTemplateDescriptor(RAML_API_TEMPLATE, OpenapiIcons.RepositoryLibraryLogo));
-        group.addTemplate(new FileTemplateDescriptor(OPEN_API_TEMPLATE, OpenapiIcons.RepositoryLibraryLogo));
         group.addTemplate(new FileTemplateDescriptor(REST_SDK_MAVEN_MODULE, OpenapiIcons.RepositoryLibraryLogo));
         return group;
     }

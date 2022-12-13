@@ -3,12 +3,12 @@ package org.mule.tooling.restsdk.wizard;
 public class RestSdkConfigurationModel {
     private String restSdkVersion;
     private String connectorName;
-    private ApiKind apiKind;
+    private String apiSpec;
 
-    public RestSdkConfigurationModel(String restSdkVersion, String connectorName, ApiKind apiKind) {
+    public RestSdkConfigurationModel(String restSdkVersion, String connectorName, String apiSpec) {
         this.restSdkVersion = restSdkVersion;
-        this.apiKind = apiKind;
         this.connectorName = connectorName;
+        this.apiSpec = apiSpec;
     }
 
     public String getConnectorName() {
@@ -19,12 +19,12 @@ public class RestSdkConfigurationModel {
         this.connectorName = connectorName;
     }
 
-    public ApiKind getApiKind() {
-        return apiKind;
+    public void setApiSpec(String apiSpec) {
+        this.apiSpec = apiSpec;
     }
 
-    public void setApiKind(ApiKind apiKind) {
-        this.apiKind = apiKind;
+    public String getApiSpec() {
+        return apiSpec;
     }
 
     public String getRestSdkVersion() {
