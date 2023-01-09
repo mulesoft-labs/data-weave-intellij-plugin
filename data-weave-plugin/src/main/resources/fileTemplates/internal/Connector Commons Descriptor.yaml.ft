@@ -6,15 +6,15 @@
 connectorName: rest-sdk-commons-descriptor
 
 
-# This flags forces the generation of the rest-sdk despite having endpoints without 200 typed responses. Bear in mind
+# This flag forces the generation of the rest-sdk despite having endpoints without status code 200 responses. Bear in mind
 #   that generated operations will have ANY as the response type
 skipOutputTypeValidation: true
 
-# This flags forces the rest-sdk to generate operations explicitly written in the ./descriptor.yaml file
+# This flag forces the rest-sdk to generate operations explicitly written in the ./descriptor.yaml file
 #   (it won't generate all operations by default)
 ignoreOperations: true
 
-# This property is leaves more information in the error in scenarios where the HTTP response is different
+# This property leaves more information in the error in scenarios where the HTTP response is different
 #   from status code 200, writing the complete response body in the exception description, example:
 #   '400 Bad Request - {"error": true, "detailFromSaaS": "the field [name] was missing in the request"}'
 endpoint:
