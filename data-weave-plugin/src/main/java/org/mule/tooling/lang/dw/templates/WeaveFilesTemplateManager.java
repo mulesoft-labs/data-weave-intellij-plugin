@@ -14,6 +14,7 @@ public class WeaveFilesTemplateManager implements FileTemplateGroupDescriptorFac
     public static final String WEAVE_MAVEN_MODULE = "Weave Maven Module";
     public static final String REST_SDK_MAVEN_MODULE = "REST SDK POM Template";
     public static final String CONNECTOR_DESCRIPTOR = "REST SDK Connector Descriptor";
+    public static final String COMMONS_CONNECTOR_DESCRIPTOR = "Connector Commons Descriptor";
 
     @Override
     public FileTemplateGroupDescriptor getFileTemplatesDescriptor() {
@@ -26,6 +27,7 @@ public class WeaveFilesTemplateManager implements FileTemplateGroupDescriptorFac
 
         //RestSDK Templates
         group.addTemplate(new FileTemplateDescriptor(CONNECTOR_DESCRIPTOR, OpenapiIcons.RepositoryLibraryLogo));
+        group.addTemplate(new FileTemplateDescriptor(COMMONS_CONNECTOR_DESCRIPTOR, OpenapiIcons.RepositoryLibraryLogo));
         group.addTemplate(new FileTemplateDescriptor(REST_SDK_MAVEN_MODULE, OpenapiIcons.RepositoryLibraryLogo));
         return group;
     }

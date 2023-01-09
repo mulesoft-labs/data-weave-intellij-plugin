@@ -5,5 +5,3 @@ apiSpec:
 
 connectorName: ${ARTIFACT_ID}
 connectorDescription:
-
-ignoreOperations: true

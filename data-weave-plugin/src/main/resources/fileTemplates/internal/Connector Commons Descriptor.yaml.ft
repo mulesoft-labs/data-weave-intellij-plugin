@@ -1,0 +1,43 @@
+#% Rest Connector Descriptor 1.0
+############################################################################
+# DO NOT MODIFY this file, it's for lean connectivity generation purposes. #
+############################################################################
+
+connectorName: rest-sdk-commons-descriptor
+
+
+# This flags forces the generation of the rest-sdk despite having endpoints without 200 typed responses. Bear in mind
+#   that generated operations will have ANY as the response type
+skipOutputTypeValidation: true
+
+# This flags forces the rest-sdk to generate operations explicitly written in the ./descriptor.yaml file
+#   (it won't generate all operations by default)
+ignoreOperations: true
+
+# This property is leaves more information in the error in scenarios where the HTTP response is different
+#   from status code 200, writing the complete response body in the exception description, example:
+#   '400 Bad Request - {"error": true, "detailFromSaaS": "the field [name] was missing in the request"}'
+endpoint:
+  response:
+    onError:
+      default:
+        output:
+          reasonPhrase:
+            value:
+              expression: "#[reasonPhrase ++ ' - ' ++ write(body, mediaType) as String]"
+
+# This property changes the name of the generated bulk operations (it only affects 'endpoints:' elements) to add the
+#   method and path letting the user lookup information about the endpoint in documentation,
+#   example (for an operation which operationId = "CreatePerson", for a POST /person):
+#   'Create Person (POST /person)'
+operationDisplayName:
+  value:
+    expression: |
+      #[%dw 2.0
+      output text/plain
+      import * from connectivity::RestSdk
+      ---
+      (displayNameFromOperationId(operationId)
+        default displayNameFromMethodAndPath(method, path))
+        ++ " (" ++ upper(method) ++ " " ++ path ++")"
+      ]
