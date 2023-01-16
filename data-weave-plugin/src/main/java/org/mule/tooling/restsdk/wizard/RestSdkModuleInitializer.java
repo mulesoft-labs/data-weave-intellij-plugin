@@ -25,6 +25,7 @@ import java.util.Properties;
 public class RestSdkModuleInitializer {
 
     public static final String DESCRIPTOR_YAML = "descriptor.yaml";
+    public static final String COMMONS_DESCRIPTOR_YAML = "rest_sdk_commons_descriptor.yaml";
 
 
     public static void configure(final Project project, final MavenId projectId, final RestSdkConfigurationModel model, final VirtualFile root) {
@@ -35,6 +36,7 @@ public class RestSdkModuleInitializer {
             final VirtualFile descriptorsDirectory = VfsUtil.createDirectories(root.getPath() + "/src/main/resources/descriptor");
             VfsUtil.createDirectories(root.getPath() + "/src/test/resources");
             createDescriptorFile(project, projectId, model, descriptorsDirectory);
+            createCommonsDescriptorFile(project, projectId, model, descriptorsDirectory);
             copyApiFile(project, model, apiDirectory);
             createPomFile(project, projectId, model, root);
             // execute when current dialog is closed (e.g. Project Structure)
@@ -64,6 +66,20 @@ public class RestSdkModuleInitializer {
                 "Create Connector Descriptor",
                 DESCRIPTOR_YAML,
                 WeaveFilesTemplateManager.CONNECTOR_DESCRIPTOR);
+    }
+
+    private static void createCommonsDescriptorFile(final Project project,
+                                                    final MavenId projectId,
+                                                    final RestSdkConfigurationModel model,
+                                                    final VirtualFile targetFolder) throws IOException {
+        runTemplate(project,
+                projectId,
+                model,
+                targetFolder,
+                "Create Connector Commons Descriptor",
+                COMMONS_DESCRIPTOR_YAML,
+                WeaveFilesTemplateManager.COMMONS_CONNECTOR_DESCRIPTOR);
+
     }
 
     private static void copyApiFile(final Project project,
