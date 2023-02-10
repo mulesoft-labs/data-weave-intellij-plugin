@@ -30,7 +30,7 @@ import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.service.Scenario;
 import org.mule.tooling.lang.dw.service.WeaveRuntimeService;
 import org.mule.tooling.lang.dw.ui.MessagePanel;
-import org.mule.weave.v2.debugger.event.PreviewExecutedSuccessfulEvent;
+import org.mule.weave.v2.agent.api.event.PreviewExecutedSuccessfulEvent;
 
 import javax.swing.*;
 import java.awt.*;

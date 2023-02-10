@@ -15,6 +15,10 @@ public class WeaveRunnerHelper {
 
   @NotNull
   public static JavaParameters createJavaParameters(Project project) {
+    return createJavaParameters(project, WEAVE_RUNNER_MAIN_CLASS);
+  }
+
+  public static JavaParameters createJavaParameters(Project project, String mainClass) {
     final JavaParameters javaParams = new JavaParameters();
     final ProjectRootManager manager = ProjectRootManager.getInstance(project);
     javaParams.setJdk(manager.getProjectSdk());
@@ -30,7 +34,7 @@ public class WeaveRunnerHelper {
         });
       }
     }
-    javaParams.setMainClass(WEAVE_RUNNER_MAIN_CLASS);
+    javaParams.setMainClass(mainClass);
     setupDefaultVMParams(javaParams);
     return javaParams;
   }

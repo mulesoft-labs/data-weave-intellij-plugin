@@ -50,11 +50,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.launcher.configuration.runner.WeaveRunnerHelper;
 import org.mule.tooling.lang.dw.settings.DataWeaveSettingsState;
-import org.mule.weave.v2.debugger.client.ConnectionRetriesListener;
-import org.mule.weave.v2.debugger.client.DefaultWeaveAgentClientListener;
-import org.mule.weave.v2.debugger.client.WeaveAgentClient;
-import org.mule.weave.v2.debugger.client.tcp.TcpClientProtocol;
-import org.mule.weave.v2.debugger.event.*;
+import org.mule.weave.v2.agent.api.event.*;
+import org.mule.weave.v2.agent.client.*;
+import org.mule.weave.v2.agent.client.tcp.TcpClientProtocol;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -64,7 +62,7 @@ import java.util.concurrent.TimeUnit;
 
 @Service(Service.Level.PROJECT)
 public final class WeaveAgentService implements Disposable {
-
+    private static final String AGENT_SERVER_LAUNCHER_MAIN_CLASS = "org.mule.weave.v2.agent.server.AgentServerLauncher";
     public static final int MAX_RETRIES = 10;
     public static final long MAX_ALLOWED_WAIT = 10;
 
@@ -80,6 +78,9 @@ public final class WeaveAgentService implements Disposable {
 
     private static final Logger LOG = Logger.getInstance(WeaveAgentService.class);
     private Project myProject;
+
+
+    private final AgentClasspathResolver agentClasspathResolver = new ResourceBasedAgentClasspathResolver();
 
     protected WeaveAgentService(Project project) {
         this.myProject = project;
@@ -224,7 +225,7 @@ public final class WeaveAgentService implements Disposable {
             }
             processHandler.startNotify();
             TcpClientProtocol clientProtocol = new TcpClientProtocol("localhost", freePort);
-            client = new WeaveAgentClient(clientProtocol, new DefaultWeaveAgentClientListener());
+            client = new WeaveAgentClient(clientProtocol);
 
             final int finalFreePort = freePort;
             client.connect(MAX_RETRIES, 1000L, new ConnectionRetriesListener() {
@@ -292,7 +293,7 @@ public final class WeaveAgentService implements Disposable {
                     final String[] paths = getClasspath(module);
                     if (client != null) {
                         long startTime = System.currentTimeMillis();
-                        client.runPreview(inputsPath, script, identifier, url, maxTime, paths, new DefaultWeaveAgentClientListener() {
+                        client.runPreview(inputsPath, script, identifier, url, maxTime, paths, new PreviewExecutedListener() {
                             @Override
                             public void onPreviewExecuted(PreviewExecutedEvent result) {
                                 long duration = System.currentTimeMillis() - startTime;
@@ -304,6 +305,11 @@ public final class WeaveAgentService implements Disposable {
                                         callback.onPreviewFailed((PreviewExecutedFailedEvent) result);
                                     }
                                 });
+                            }
+                            @Override
+                            public void onUnexpectedError(UnexpectedServerErrorEvent unexpectedServerErrorEvent) {
+                                Notifications.Bus.notify(new Notification(Notifications.SYSTEM_MESSAGES_GROUP_ID, "[data-weave-agent] Unexpected error at 'runPreview'",
+                                        "Unexpected error at 'runPreview' caused by: \n" + unexpectedServerErrorEvent.stacktrace(), NotificationType.ERROR));
                             }
                         });
                     }
@@ -373,7 +379,7 @@ public final class WeaveAgentService implements Disposable {
 
     private String getMarkerClassFQName() {
         //The class from the agent runtime
-        return "org.mule.weave.v2.runtime.utils.AgentCustomRunner";
+        return "org.mule.weave.v2.runtime.DataWeaveScriptingEngine";
     }
 
     public void calculateImplicitInputTypes(String inputsPath, ImplicitInputTypesCallback callback) {
@@ -383,12 +389,18 @@ public final class WeaveAgentService implements Disposable {
                 FileDocumentManager.getInstance().saveAllDocuments();
                 ApplicationManager.getApplication().executeOnPooledThread(() -> {
                     if (client == null) return;
-                    client.inferInputsWeaveType(inputsPath, new DefaultWeaveAgentClientListener() {
+
+                    client.inferInputsWeaveType(inputsPath, new ImplicitWeaveTypesListener() {
                         @Override
                         public void onImplicitWeaveTypesCalculated(ImplicitInputTypesEvent result) {
                             ApplicationManager.getApplication().invokeLater(() -> {
                                 callback.onInputsTypesCalculated(result);
                             });
+                        }
+                        @Override
+                        public void onUnexpectedError(UnexpectedServerErrorEvent unexpectedServerErrorEvent) {
+                            Notifications.Bus.notify(new Notification(Notifications.SYSTEM_MESSAGES_GROUP_ID, "[data-weave-agent] Unexpected error at 'inferInputsWeaveType'",
+                                    "Unexpected error at 'inferInputsWeaveType' caused by: \n" + unexpectedServerErrorEvent.stacktrace(), NotificationType.ERROR));
                         }
                     });
                 });
@@ -401,12 +413,18 @@ public final class WeaveAgentService implements Disposable {
             //Make sure all files are persisted before running preview
             ApplicationManager.getApplication().invokeLater(() -> {
                 if (client != null) {
-                    client.inferWeaveType(path, new DefaultWeaveAgentClientListener() {
+                    client.inferWeaveType(path, new WeaveTypeInferListener() {
                         @Override
                         public void onWeaveTypeInfer(InferWeaveTypeEvent result) {
                             ApplicationManager.getApplication().invokeLater(() -> {
                                 callback.onType(result);
                             });
+                        }
+
+                        @Override
+                        public void onUnexpectedError(UnexpectedServerErrorEvent unexpectedServerErrorEvent) {
+                            Notifications.Bus.notify(new Notification(Notifications.SYSTEM_MESSAGES_GROUP_ID, "[data-weave-agent] Unexpected error at 'inferWeaveType'",
+                                    "Unexpected error at 'inferWeaveType' caused by: \n" + unexpectedServerErrorEvent.stacktrace(), NotificationType.ERROR));
                         }
                     });
                 }
@@ -417,12 +435,18 @@ public final class WeaveAgentService implements Disposable {
     public void dataFormats(DataFormatsDefinitionCallback callback) {
         checkClientConnected(() -> {
             if (client != null) {
-                client.definedDataFormats(new DefaultWeaveAgentClientListener() {
+                client.definedDataFormats(new DataFormatDefinitionListener() {
                     @Override
                     public void onDataFormatDefinitionCalculated(DataFormatsDefinitionsEvent dfde) {
                         ApplicationManager.getApplication().invokeLater(() -> {
                             callback.onDataFormatsLoaded(dfde);
                         });
+                    }
+
+                    @Override
+                    public void onUnexpectedError(UnexpectedServerErrorEvent unexpectedServerErrorEvent) {
+                        Notifications.Bus.notify(new Notification(Notifications.SYSTEM_MESSAGES_GROUP_ID, "[data-weave-agent] Unexpected error at 'definedDataFormats'",
+                                "Unexpected error at 'definedDataFormats' caused by: \n" + unexpectedServerErrorEvent.stacktrace(), NotificationType.ERROR));
                     }
                 });
             }
@@ -431,12 +455,18 @@ public final class WeaveAgentService implements Disposable {
 
     public void availableModules(AvailableModulesCallback callback) {
         if (client != null) {
-            client.availableModules(new DefaultWeaveAgentClientListener() {
+            client.availableModules(new AvailableModulesListener() {
                 @Override
                 public void onAvailableModules(AvailableModulesEvent am) {
                     ApplicationManager.getApplication().invokeLater(() -> {
                         callback.onAvailableModules(am);
                     });
+                }
+
+                @Override
+                public void onUnexpectedError(UnexpectedServerErrorEvent unexpectedServerErrorEvent) {
+                    Notifications.Bus.notify(new Notification(Notifications.SYSTEM_MESSAGES_GROUP_ID, "[data-weave-agent] Unexpected error at 'availableModules'",
+                            "Unexpected error at 'availableModules' caused by: \n" + unexpectedServerErrorEvent.stacktrace(), NotificationType.ERROR));
                 }
             });
         }
@@ -446,12 +476,18 @@ public final class WeaveAgentService implements Disposable {
         final String[] paths = getClasspath(module);
         checkClientConnected(() -> {
             if (client != null) {
-                client.resolveModule(identifier, loader, paths, new DefaultWeaveAgentClientListener() {
+                client.resolveModule(identifier, loader, paths, new ModuleLoadedListener() {
                     @Override
                     public void onModuleLoaded(ModuleResolvedEvent result) {
                         ApplicationManager.getApplication().invokeLater(() -> {
                             callback.onModuleResolved(result);
                         });
+                    }
+
+                    @Override
+                    public void onUnexpectedError(UnexpectedServerErrorEvent unexpectedServerErrorEvent) {
+                        Notifications.Bus.notify(new Notification(Notifications.SYSTEM_MESSAGES_GROUP_ID, "[data-weave-agent] Unexpected error at 'resolveModule'",
+                                "Unexpected error at 'resolveModule' caused by: \n" + unexpectedServerErrorEvent.stacktrace(), NotificationType.ERROR));
                     }
                 });
             }
@@ -477,12 +513,15 @@ public final class WeaveAgentService implements Disposable {
     private RunProfileState createRunProfileState(int freePort) {
         return new CommandLineState(null) {
             private SimpleJavaParameters createJavaParameters() {
-                final SimpleJavaParameters params = WeaveRunnerHelper.createJavaParameters(myProject);
+                final SimpleJavaParameters params = WeaveRunnerHelper.createJavaParameters(myProject, AGENT_SERVER_LAUNCHER_MAIN_CLASS);
 //        if (Boolean.getBoolean("debugWeaveAgent")) {
 //        params.getVMParametersList().add("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5678");
-//        }
+//
+                for (String jar : agentClasspathResolver.resolveClasspathJars()) {
+                    params.getClassPath().add(jar);
+                }
                 ParametersList parametersList = params.getProgramParametersList();
-                parametersList.add("--agent");
+                // parametersList.add("--agent");
                 parametersList.add("-p");
                 parametersList.add(String.valueOf(freePort));
                 return params;
