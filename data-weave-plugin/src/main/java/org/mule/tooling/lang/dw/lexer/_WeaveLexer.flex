@@ -121,6 +121,7 @@ CARET_SPACE="^"[\ \t\f\n]
   "at"                     { return AT_KEYWORD;}
   "matches"                     { return MATCHES_KEYWORD;}
   "->"                        { return ARROW_TOKEN;}
+  "<~"                        { return METADATA_INJECTOR;}
   "=>"                        { return FAT_ARROW;}
 
   "%dw"                       { return VERSION_DIRECTIVE_KEYWORD;}

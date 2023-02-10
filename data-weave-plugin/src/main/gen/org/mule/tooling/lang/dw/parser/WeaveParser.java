@@ -1546,7 +1546,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // DOLLAR_VARIABLE | ID | MATCH_KEYWORD | MATCHES_KEYWORD | FROM_KEYWORD | NOT_KEYWORD | UPDATE_KEYWORD | AT_KEYWORD
+  // DOLLAR_VARIABLE | ID | MATCH_KEYWORD | MATCHES_KEYWORD | FROM_KEYWORD | NOT_KEYWORD | UPDATE_KEYWORD | AT_KEYWORD | METADATA_INJECTOR
   public static boolean Identifier(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "Identifier")) return false;
     boolean r;
@@ -1559,6 +1559,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     if (!r) r = consumeToken(b, NOT_KEYWORD);
     if (!r) r = consumeToken(b, UPDATE_KEYWORD);
     if (!r) r = consumeToken(b, AT_KEYWORD);
+    if (!r) r = consumeToken(b, METADATA_INJECTOR);
     exit_section_(b, l, m, r, false, null);
     return r;
   }

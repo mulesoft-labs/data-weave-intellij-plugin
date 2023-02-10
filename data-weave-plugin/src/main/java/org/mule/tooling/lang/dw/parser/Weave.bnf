@@ -59,6 +59,7 @@
         QUESTION="?"
         ESCLAMATION="!"
         HASH="#"
+        METADATA_INJECTOR="<~"
 
         AND_KEYWORD="and"
         DO_KEYWORD="do"
@@ -635,6 +636,6 @@ ContainerModuleIdentifier ::= (Identifier '::')*
 
 CustomLoader ::= Identifier"!"
 
-Identifier ::= (DOLLAR_VARIABLE | ID | MATCH_KEYWORD | MATCHES_KEYWORD | FROM_KEYWORD | NOT_KEYWORD | UPDATE_KEYWORD | AT_KEYWORD)  {methods = [getName] name="Identifier" }
+Identifier ::= (DOLLAR_VARIABLE | ID | MATCH_KEYWORD | MATCHES_KEYWORD | FROM_KEYWORD | NOT_KEYWORD | UPDATE_KEYWORD | AT_KEYWORD | METADATA_INJECTOR)  {methods = [getName] name="Identifier" }
 
 LiteralType ::= NumberLiteral | StringLiteral | BooleanLiteral

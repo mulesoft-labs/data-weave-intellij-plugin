@@ -192,6 +192,7 @@ public interface WeaveTypes {
   IElementType L_PARREN = new WeaveTokenType("(");
   IElementType MATCHES_KEYWORD = new WeaveTokenType("matches");
   IElementType MATCH_KEYWORD = new WeaveTokenType("match");
+  IElementType METADATA_INJECTOR = new WeaveTokenType("<~");
   IElementType MIME_TYPE_KEYWORD = new WeaveTokenType("MIME_TYPE_KEYWORD");
   IElementType MINUS = new WeaveTokenType("-");
   IElementType MODULO = new WeaveTokenType("%");
