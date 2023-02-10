@@ -24,7 +24,7 @@ import java.util.Objects;
 
 public class RestSdkModuleBuilder extends AbstractMavenBasedProjectBuilder implements SourcePathsBuilder {
 
-    public static final String REST_SDK_DEFAULT_VERSION = "0.8.0-SNAPSHOT";
+    public static final String REST_SDK_DEFAULT_VERSION = "0.9.0-SNAPSHOT";
     private final RestSdkConfigurationModel restSdkModel;
 
     public RestSdkModuleBuilder() {
