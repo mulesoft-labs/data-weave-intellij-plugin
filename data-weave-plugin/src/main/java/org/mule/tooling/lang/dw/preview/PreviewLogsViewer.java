@@ -9,7 +9,7 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.components.BorderLayoutPanel;
 import org.mule.tooling.lang.dw.filter.DataWeaveFilter;
-import org.mule.weave.v2.debugger.event.WeaveLogMessage;
+import org.mule.weave.v2.agent.api.event.WeaveLogMessage;
 
 import java.util.List;
 import java.util.stream.Collectors;

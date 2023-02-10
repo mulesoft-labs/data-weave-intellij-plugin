@@ -35,8 +35,8 @@ import org.mule.tooling.lang.dw.service.agent.WeaveAgentService;
 import org.mule.tooling.lang.dw.settings.DataWeaveSettingsState;
 import org.mule.tooling.lang.dw.util.ModuleUtils;
 import org.mule.tooling.lang.dw.util.ScalaUtils;
-import org.mule.weave.v2.debugger.event.PreviewExecutedFailedEvent;
-import org.mule.weave.v2.debugger.event.PreviewExecutedSuccessfulEvent;
+import org.mule.weave.v2.agent.api.event.PreviewExecutedFailedEvent;
+import org.mule.weave.v2.agent.api.event.PreviewExecutedSuccessfulEvent;
 
 import javax.swing.*;
 import java.awt.event.InputEvent;

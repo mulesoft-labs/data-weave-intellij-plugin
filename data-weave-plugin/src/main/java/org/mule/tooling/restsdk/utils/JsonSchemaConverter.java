@@ -85,16 +85,13 @@ public class JsonSchemaConverter {
     } else if (build instanceof ReferenceSchema) {
       String id = Optional.ofNullable(build.getId()).orElse(Optional.ofNullable(build.getSchemaLocation()).orElse(UUID.randomUUID().toString()));
       NameIdentifier nameIdentifier = NameIdentifier.apply(id, Option.empty());
-      return new ReferenceType(nameIdentifier, Option.empty(), new ReferenceTypeResolver() {
-        @Override
-        public WeaveType resolveType() {
-          if (references.containsKey(id)) {
-            return references.get(id);
-          } else {
-            WeaveType weaveType = toWeaveType(((ReferenceSchema) build).getReferredSchema(), references);
-            references.put(id, weaveType);
-            return weaveType;
-          }
+      return new SimpleReferenceType(nameIdentifier, Option.empty(), () -> {
+        if (references.containsKey(id)) {
+          return references.get(id);
+        } else {
+          WeaveType weaveType = toWeaveType(((ReferenceSchema) build).getReferredSchema(), references);
+          references.put(id, weaveType);
+          return weaveType;
         }
       });
     } else if (build instanceof CombinedSchema) {

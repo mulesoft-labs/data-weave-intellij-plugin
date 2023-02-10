@@ -231,7 +231,7 @@ public class RestSdkHelper {
       return new NullType();
     } else if (shape instanceof RecursiveShape) {
       final String value = shape.name().value();
-      return new ReferenceType(NameIdentifier.apply(value, Option.empty()), Option.empty(), new ReferenceTypeResolver() {
+      return new SimpleReferenceType(NameIdentifier.apply(value, Option.empty()), Option.empty(), new ReferenceTypeResolver() {
         WeaveType result = null;
 
         @Override

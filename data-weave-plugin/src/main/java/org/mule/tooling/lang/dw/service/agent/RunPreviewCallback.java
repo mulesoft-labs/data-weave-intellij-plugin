@@ -1,7 +1,7 @@
 package org.mule.tooling.lang.dw.service.agent;
 
-import org.mule.weave.v2.debugger.event.PreviewExecutedFailedEvent;
-import org.mule.weave.v2.debugger.event.PreviewExecutedSuccessfulEvent;
+import org.mule.weave.v2.agent.api.event.PreviewExecutedFailedEvent;
+import org.mule.weave.v2.agent.api.event.PreviewExecutedSuccessfulEvent;
 
 public interface RunPreviewCallback {
 
