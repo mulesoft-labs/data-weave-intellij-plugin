@@ -4,7 +4,7 @@ import java.time.format.DateTimeFormatter
 
 
 plugins {
-    id "org.jetbrains.intellij" version "1.4.0"
+    id "org.jetbrains.intellij" version "1.13.3"
 }
 
 version = pluginVersion
@@ -30,16 +30,13 @@ allprojects {
 //        mavenLocal()
         mavenCentral()
         maven {
-            url "http://central.maven.org/maven2/"
-        }
-        maven {
             url 'https://oss.sonatype.org/content/repositories/snapshots'
         }
         maven {
             url "https://repository.mulesoft.org/releases/"
         }
         maven {
-            url "http://repository.mulesoft.org/snapshots/"
+            url "https://repository.mulesoft.org/snapshots/"
         }
         maven {
             url "https://repository.mulesoft.org/nexus/content/repositories/releases"

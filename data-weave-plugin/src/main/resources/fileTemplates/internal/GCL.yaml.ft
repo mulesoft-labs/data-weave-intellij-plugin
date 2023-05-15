@@ -1,0 +1,14 @@
+apiVersion: gateway.mulesoft.com/v1alpha1
+kind: ApiInstance
+metadata:
+  labels:
+      name: comerce-api
+  name: comerce-api
+spec:
+  address: http://0.0.0.0:8083/v3/
+  services:
+      upstream:
+          address: https://httpbin.org
+          routes:
+              - config:
+                  destinationPath: /

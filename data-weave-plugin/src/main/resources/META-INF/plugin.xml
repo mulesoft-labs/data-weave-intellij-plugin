@@ -497,12 +497,16 @@
         <alsLanguage implementation="org.mule.tooling.als.languages.WebApiLanguage"/>
         <alsLanguage implementation="org.mule.tooling.als.component.AMLLanguageExtension"/>
     </extensions>
-    <!--    <extensions defaultExtensionNs="JavaScript.JsonSchema">-->
-    <!--        <ProviderFactory implementation="org.mule.tooling.restsdk.schema.RestSdkDescriptorJsonSchemaProviderFactory"/>-->
-    <!--    </extensions>-->
+    <extensions defaultExtensionNs="JavaScript.JsonSchema">
+        <ProviderFactory implementation="org.mule.tooling.gcl.schema.GCLJsonSchemaProviderFactory"/>
+    </extensions>
     <!-- FINISH REST SDK Extensions -->
 
     <extensions defaultExtensionNs="com.intellij">
+
+        <fileTemplateGroup implementation="org.mule.tooling.gcl.GCLFileTemplateManager"/>
+
+        <fileTemplateGroup implementation="org.mule.tooling.restsdk.templates.RamlFilesTemplateManager"/>
 
         <intentionAction>
             <className>org.mule.tooling.lang.dw.intention.InsertTypeIntentionAction</className>

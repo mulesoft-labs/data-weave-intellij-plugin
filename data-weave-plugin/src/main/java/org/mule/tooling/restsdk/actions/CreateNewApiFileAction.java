@@ -6,6 +6,7 @@ import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiDirectory;
 import org.jetbrains.annotations.NotNull;
+import org.mule.tooling.gcl.GCLFileTemplateManager;
 import org.mule.tooling.restsdk.templates.RamlFilesTemplateManager;
 import org.mule.tooling.restsdk.utils.RestSdkIcons;
 
@@ -19,6 +20,7 @@ public class CreateNewApiFileAction extends CreateFileFromTemplateAction impleme
   protected void buildDialog(@NotNull Project project, @NotNull PsiDirectory psiDirectory, CreateFileFromTemplateDialog.Builder builder) {
     builder.setTitle("API File")
             .addKind("OAS File", RestSdkIcons.OASFileType, RamlFilesTemplateManager.OAS3)
+            .addKind("GCL", RestSdkIcons.OASFileType, GCLFileTemplateManager.GCL)
             .addKind("RAML API specification", RestSdkIcons.RamlFileType, RamlFilesTemplateManager.RAML_FILE)
             .addKind("RAML Annotation type declaration", RestSdkIcons.RamlFileType, RamlFilesTemplateManager.ANNOTATION_TYPE_DECLARATION)
             .addKind("RAML Data type", RestSdkIcons.RamlFileType, RamlFilesTemplateManager.DATA_TYPE)

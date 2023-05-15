@@ -1,0 +1,773 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "gateway.mulesoft.com/v1alpha1",
+  "oneOf": [
+    {
+      "$ref": "#/definitions/ApiInstance"
+    },
+    {
+      "$ref": "#/definitions/PolicyBinding"
+    },
+    {
+      "$ref": "#/definitions/Services"
+    },
+    {
+      "$ref": "#/definitions/Extension"
+    },
+    {
+      "$ref": "#/definitions/Environment"
+    },
+    {
+      "$ref": "#/definitions/EnvironmentBinding"
+    }
+  ],
+  "discriminator": {
+    "propertyName": "kind",
+    "mapping": {
+      "ApiInstance": "#/definitions/ApiInstance",
+      "PolicyBinding": "#/definitions/PolicyBinding",
+      "Services": "#/definitions/Services",
+      "Extension": "#/definitions/Extension",
+      "Environment": "#/definitions/Environment",
+      "EnvironmentBinding": "#/definitions/EnvironmentBinding"
+    }
+  },
+  "definitions": {
+    "ApiInstance": {
+      "@context": {
+        "@type": [
+          "http://anypoint.com/vocabs/management#APIInstance"
+        ]
+      },
+      "type": "object",
+      "properties": {
+        "apiVersion": {
+          "type": "string",
+          "const": "gateway.mulesoft.com/v1alpha1"
+        },
+        "kind": {
+          "type": "string",
+          "const": "ApiInstance"
+        },
+        "metadata": {
+          "$ref": "#/definitions/Metadata"
+        },
+        "spec": {
+          "type": "object",
+          "properties": {
+            "address": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "services": {
+              "type": "object",
+              "patternProperties": {
+                "^.*$": {
+                  "type": "object",
+                  "properties": {
+                    "address": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "routes": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "rules": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "path": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "path"
+                              ]
+                            }
+                          },
+                          "config": {
+                            "type": "object",
+                            "properties": {
+                              "destinationPath": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "required": [
+                    "address"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "required": [
+        "apiVersion",
+        "kind",
+        "metadata",
+        "spec"
+      ]
+    },
+    "PolicyBinding": {
+      "@context": {
+        "@type": [
+          "http://anypoint.com/vocabs/management#PolicyBiding"
+        ]
+      },
+      "type": "object",
+      "properties": {
+        "apiVersion": {
+          "type": "string",
+          "const": "gateway.mulesoft.com/v1alpha1"
+        },
+        "kind": {
+          "type": "string",
+          "const": "PolicyBinding"
+        },
+        "metadata": {
+          "$ref": "#/definitions/Metadata"
+        },
+        "spec": {
+          "type": "object",
+          "properties": {
+            "targetRef": {
+              "type": "object",
+              "properties": {
+                "namespace": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name"
+              ]
+            },
+            "policyRef": {
+              "type": "object",
+              "properties": {
+                "namespace": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name"
+              ]
+            },
+            "config": {
+              "type": "object"
+            },
+            "rules": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  },
+                  "method": {
+                    "type": "string"
+                  },
+                  "host": {
+                    "type": "string"
+                  },
+                  "headers": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "order": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "targetRef"
+          ]
+        }
+      },
+      "required": [
+        "apiVersion",
+        "kind",
+        "metadata",
+        "spec"
+      ]
+    },
+    "Metadata": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "labels": {
+          "type": "object",
+          "properties": {
+            "mulesoft.com/apiinstance-id": {
+              "type": "integer"
+            },
+            "mulesoft.com/apiinstance-label": {
+              "type": "string"
+            },
+            "mulesoft.com/apiinstance-name": {
+              "type": "string"
+            },
+            "mulesoft.com/environment-id": {
+              "type": "string"
+            },
+            "mulesoft.com/organization-id": {
+              "type": "string"
+            },
+            "mulesoft.com/apiinstance-group-id": {
+              "type": "string"
+            },
+            "mulesoft.com/apiinstance-asset-id": {
+              "type": "string"
+            },
+            "mulesoft.com/apiinstance-asset-name": {
+              "type": "string"
+            },
+            "mulesoft.com/apiinstance-version": {
+              "type": "string"
+            },
+            "mulesoft.com/definition-groupId": {
+              "type": "string"
+            },
+            "mulesoft.com/definition-assetId": {
+              "type": "string"
+            },
+            "mulesoft.com/definition-version": {
+              "type": "string"
+            },
+            "mulesoft.com/implementation-groupId": {
+              "type": "string"
+            },
+            "mulesoft.com/implementation-assetId": {
+              "type": "string"
+            },
+            "mulesoft.com/implementation-version": {
+              "type": "string"
+            },
+            "mulesoft.com/definition-template-id": {
+              "type": "string"
+            },
+            "aws.amazon.com/account": {
+              "type": "string",
+              "description": "Aws origin account of the mapped api instance"
+            },
+            "aws.amazon.com/resource-type": {
+              "type": "string",
+              "description": "Aws resource type",
+              "enum": [
+                "HTTP",
+                "REST",
+                "stage"
+              ]
+            },
+            "aws.amazon.com/instance-id": {
+              "type": "string",
+              "description": "Aws id of the mapped gateway"
+            },
+            "aws.amazon.com/region": {
+              "type": "string",
+              "description": "AWS region where the api instance is deployed"
+            },
+            "mulesoft.com/third-party-source": {
+              "type": "string",
+              "description": "Source where this api instance is mapped from",
+              "enum": [
+                "aws"
+              ]
+            }
+          }
+        },
+        "annotations": {
+          "type": "object",
+          "properties": {
+            "mulesoft.com/apiinstance-deprecated": {
+              "type": "boolean"
+            },
+            "mulesoft.com/apiinstance-deployment-target": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "enum": [
+                "CH",
+                "HY",
+                "RTF",
+                null
+              ]
+            },
+            "mulesoft.com/apiinstance-deployment-runtime-version": {
+              "type": "string"
+            },
+            "mulesoft.com/apiinstance-deployment-technology": {
+              "type": "string",
+              "enum": [
+                "mule4",
+                "mule3",
+                "flexGateway",
+                "serviceMesh"
+              ]
+            },
+            "aws.amazon.com/arn": {
+              "type": "string",
+              "description": "aws unique resource identifier from where the instance is mapped from"
+            },
+            "mulesoft.com/third-party-href": {
+              "type": "string",
+              "description": "Link to third party api instance console"
+            },
+            "mulesoft.com/third-party-label": {
+              "type": "string",
+              "description": "Description of the third party api instance console"
+            }
+          }
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "Services": {
+      "@context": {
+        "@type": [
+          "http://anypoint.com/vocabs/management#Services"
+        ]
+      },
+      "type": "object",
+      "properties": {
+        "apiVersion": {
+          "type": "string",
+          "const": "gateway.mulesoft.com/v1alpha1"
+        },
+        "kind": {
+          "type": "string",
+          "const": "Service"
+        },
+        "metadata": {
+          "$ref": "#/definitions/Metadata"
+        },
+        "spec": {
+          "type": "object",
+          "properties": {
+            "address": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        }
+      },
+      "required": [
+        "apiVersion",
+        "kind",
+        "metadata",
+        "spec"
+      ]
+    },
+    "Extension": {
+      "@context": {
+        "@type": [
+          "http://anypoint.com/vocabs/management#Extension"
+        ]
+      },
+      "type": "object",
+      "properties": {
+        "apiVersion": {
+          "type": "string",
+          "const": "gateway.mulesoft.com/v1alpha1"
+        },
+        "kind": {
+          "type": "string",
+          "const": "Extension"
+        },
+        "extends": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "name"
+            ]
+          }
+        },
+        "metadata": {
+          "$ref": "#/definitions/Metadata"
+        },
+        "spec": {
+          "@context": {
+            "@type": [
+              "http://anypoint.com/vocabs/management#PolicySchema"
+            ]
+          },
+          "type": "object",
+          "properties": {
+            "required": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "properties": {
+              "type": "object",
+              "patternProperties": {
+                "^[a-z0-9_]+$": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/definitions/ObjectType"
+                    },
+                    {
+                      "$ref": "#/definitions/BooleanType"
+                    },
+                    {
+                      "$ref": "#/definitions/NumberType"
+                    },
+                    {
+                      "$ref": "#/definitions/IntegerType"
+                    },
+                    {
+                      "$ref": "#/definitions/ArrayType"
+                    },
+                    {
+                      "$ref": "#/definitions/StringType"
+                    }
+                  ],
+                  "discriminator": {
+                    "propertyName": "type",
+                    "mapping": {
+                      "object": "#/definitions/ObjectType",
+                      "string": "#/definitions/BooleanType",
+                      "boolean": "#/definitions/NumberType",
+                      "integer": "#/definitions/IntegerType",
+                      "number": "#/definitions/StringType",
+                      "array": "#/definitions/ArrayType"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "required": [
+        "apiVersion",
+        "kind",
+        "metadata"
+      ]
+    },
+    "ObjectType": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "object"
+        },
+        "default": {
+          "type": "object"
+        },
+        "properties": {
+          "type": "object",
+          "patternProperties": {
+            "^[a-z0-9]+$": {
+              "oneOf": [
+                {
+                  "$ref": "#/definitions/ObjectType"
+                },
+                {
+                  "$ref": "#/definitions/BooleanType"
+                },
+                {
+                  "$ref": "#/definitions/NumberType"
+                },
+                {
+                  "$ref": "#/definitions/IntegerType"
+                },
+                {
+                  "$ref": "#/definitions/ArrayType"
+                },
+                {
+                  "$ref": "#/definitions/StringType"
+                }
+              ],
+              "discriminator": {
+                "propertyName": "type",
+                "mapping": {
+                  "object": "#/definitions/ObjectType",
+                  "string": "#/definitions/StringType",
+                  "boolean": "#/definitions/BooleanType",
+                  "integer": "#/definitions/IntegerType",
+                  "number": "#/definitions/StringType",
+                  "array": "#/definitions/ArrayType"
+                }
+              }
+            }
+          }
+        },
+        "required": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "type"
+      ]
+    },
+    "StringType": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "string"
+        },
+        "format": {
+          "type": "string",
+          "enum": [
+            "dataweave",
+            "date-time",
+            "time",
+            "date",
+            "duration",
+            "email",
+            "idn-hostname",
+            "ipv4",
+            "ipv6",
+            "uuid",
+            "uri",
+            "uri-reference",
+            "json-pointer",
+            "regex"
+          ]
+        },
+        "default": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ]
+    },
+    "BooleanType": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "boolean"
+        },
+        "default": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "type"
+      ]
+    },
+    "NumberType": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "number"
+        },
+        "default": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "type"
+      ]
+    },
+    "IntegerType": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "integer"
+        },
+        "default": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "type"
+      ]
+    },
+    "ArrayType": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "array"
+        },
+        "items": {
+          "oneOf": [
+            {
+              "$ref": "#/definitions/ObjectType"
+            },
+            {
+              "$ref": "#/definitions/IntegerType"
+            },
+            {
+              "$ref": "#/definitions/BooleanType"
+            },
+            {
+              "$ref": "#/definitions/NumberType"
+            },
+            {
+              "$ref": "#/definitions/ArrayType"
+            },
+            {
+              "$ref": "#/definitions/StringType"
+            }
+          ]
+        },
+        "default": {
+          "type": "array"
+        }
+      },
+      "required": [
+        "type"
+      ]
+    },
+    "Environment": {
+      "@context": {
+        "@type": [
+          "http://anypoint.com/vocabs/management#Environment"
+        ]
+      },
+      "type": "object",
+      "properties": {
+        "apiVersion": {
+          "type": "string",
+          "const": "gateway.mulesoft.com/v1alpha1"
+        },
+        "kind": {
+          "type": "string",
+          "const": "Environment"
+        },
+        "metadata": {
+          "$ref": "#/definitions/Metadata"
+        },
+        "spec": {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "Production",
+                "Design",
+                "Sandbox"
+              ]
+            }
+          }
+        }
+      },
+      "required": [
+        "apiVersion",
+        "kind",
+        "metadata",
+        "spec"
+      ]
+    },
+    "EnvironmentBinding": {
+      "@context": {
+        "@type": [
+          "http://anypoint.com/vocabs/management#EnvironmentBinding"
+        ]
+      },
+      "type": "object",
+      "properties": {
+        "apiVersion": {
+          "type": "string",
+          "const": "gateway.mulesoft.com/v1alpha1"
+        },
+        "kind": {
+          "type": "string",
+          "const": "EnvironmentBinding"
+        },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "namespace": {
+              "type": "string"
+            },
+            "annotations": {
+              "type": "object"
+            },
+            "labels": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "name"
+          ]
+        },
+        "spec": {
+          "type": "object",
+          "properties": {
+            "targetRef": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name"
+              ]
+            },
+            "targetEnvironmentRef": {
+              "type": "object",
+              "properties": {
+                "namespace": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name"
+              ]
+            }
+          }
+        }
+      },
+      "required": [
+        "apiVersion",
+        "kind",
+        "metadata",
+        "spec"
+      ]
+    }
+  }
+}
