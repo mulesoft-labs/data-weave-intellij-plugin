@@ -317,6 +317,50 @@
                 null
               ]
             },
+            "category": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "enum": [
+                "Quality of service",
+                "Security",
+                "Troubleshooting",
+                "Transformation",
+                "Compliance"
+              ]
+            },
+            "description": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "interfaceScope": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "providedCharacteristics": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "capabilities/injectionPoint": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "enum": [
+                "Inbound",
+                "Outbound"
+              ]
+            },
+            "capabilities/requiresSpec": {
+              "type": "boolean"
+            },
             "mulesoft.com/apiinstance-deployment-runtime-version": {
               "type": "string"
             },
