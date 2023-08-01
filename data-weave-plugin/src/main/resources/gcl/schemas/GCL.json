@@ -557,18 +557,7 @@
                 {
                   "$ref": "#/definitions/StringType"
                 }
-              ],
-              "discriminator": {
-                "propertyName": "type",
-                "mapping": {
-                  "object": "#/definitions/ObjectType",
-                  "string": "#/definitions/StringType",
-                  "boolean": "#/definitions/BooleanType",
-                  "integer": "#/definitions/IntegerType",
-                  "number": "#/definitions/StringType",
-                  "array": "#/definitions/ArrayType"
-                }
-              }
+              ]
             }
           }
         },
@@ -589,6 +578,12 @@
         "type": {
           "type": "string",
           "const": "string"
+        },
+        "enum": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         },
         "format": {
           "type": "string",
@@ -641,6 +636,12 @@
         },
         "default": {
           "type": "number"
+        },
+        "minimum": {
+          "type": "number"
+        },
+        "maximum": {
+          "type": "number"
         }
       },
       "required": [
@@ -653,6 +654,12 @@
         "type": {
           "type": "string",
           "const": "integer"
+        },
+        "minimum": {
+          "type": "number"
+        },
+        "maximum": {
+          "type": "number"
         },
         "default": {
           "type": "integer"
