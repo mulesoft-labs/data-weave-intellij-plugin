@@ -21,18 +21,16 @@ public class WeaveModuleInitializer {
         try {
             VfsUtil.createDirectories(root.getPath() + "/src/main/resources");
             VfsUtil.createDirectories(root.getPath() + "/src/main/dw");
-            VfsUtil.createDirectories(root.getPath() + "/src/test/dwit");
-            VfsUtil.createDirectories(root.getPath() + "/src/test/dwmit");
-            VfsUtil.createDirectories(root.getPath() + "/src/test/dwtest");
+            VfsUtil.createDirectories(root.getPath() + "/src/test/dw");
             VfsUtil.createDirectories(root.getPath() + "/src/test/resources");
             createPomFile(project, projectId, model, root);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
 
-    private static void createPomFile(final Project project, final MavenId projectId,final DataWeaveConfigurationModel model, final VirtualFile root) {
+    private static void createPomFile(final Project project, final MavenId projectId, final DataWeaveConfigurationModel model, final VirtualFile root) {
         try {
             WriteCommandAction.writeCommandAction(project).withName("Create Weave Module").run(new ThrowableRunnable<Throwable>() {
                 @Override
@@ -55,7 +53,7 @@ public class WeaveModuleInitializer {
                 }
             });
         } catch (Throwable throwable) {
-            throwable.printStackTrace();
+            throw new RuntimeException(throwable);
         }
     }
 }

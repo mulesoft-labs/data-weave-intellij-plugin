@@ -63,7 +63,7 @@ public class OutputComponent implements Disposable {
     private Content content;
 
     public OutputComponent() {
-        outputDocument = ((EditorFactoryImpl)EditorFactory.getInstance()).createDocument("", true, false);
+        outputDocument = ((EditorFactoryImpl) EditorFactory.getInstance()).createDocument("", true, false);
     }
 
     public JComponent createComponent(Project project, PreviewToolWindowFactory.NameChanger nameChanger) {
@@ -126,7 +126,7 @@ public class OutputComponent implements Disposable {
 
     public void onPreviewResult(PreviewExecutedSuccessfulEvent result, VirtualFile expectedOutput, long duration) {
         this.content.setDisplayName("Output \u2713 - Took: " + duration + " ms - At:" + getCurrentTime() + "");
-        final String extension = (result.extension().startsWith(".")) ? result.extension().substring(1) : result.extension();
+        final String extension = result.extension() == null ? "dwl" : ((result.extension().startsWith(".")) ? result.extension().substring(1) : result.extension());
         final String content = getContent(result);
         if (expectedOutput != null) {
             diffPanel.setRequest(createDiffRequest(content, expectedOutput));

@@ -16,88 +16,138 @@
     <name>DataWeave ${ARTIFACT_ID} Module</name>
 
     <properties>
-        <weave.version>${WEAVE_VERSION}</weave.version>
-        <wtf.version>${WTF_VERSION}</wtf.version>
+        <data.weave.version>${WEAVE_VERSION</data.weave.version>
+        <data.weave.testing.framework.version>${WTF_VERSION}</data.weave.testing.framework.version>
+        <data.weave.maven.plugin.version>${WEAVE_MAVEN_VERSION}</data.weave.maven.plugin.version>
     </properties>
 
     <dependencies>
-
         <dependency>
             <groupId>org.mule.weave</groupId>
             <artifactId>runtime</artifactId>
-             <version>${weave.version}</version>
+            <version>${data.weave.version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.mule.weave</groupId>
             <artifactId>core-modules</artifactId>
-            <version>${weave.version}</version>
+            <version>${data.weave.version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.mule.weave</groupId>
             <artifactId>java-module</artifactId>
-             <version>${weave.version}</version>
+            <version>${data.weave.version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.mule.weave</groupId>
-            <artifactId>wtf</artifactId>
-            <version>${wtf.version}</version>
+            <artifactId>yaml-module</artifactId>
+            <version>${data.weave.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mule.weave</groupId>
+            <artifactId>ndjson-module</artifactId>
+            <version>${data.weave.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+<!--        The modules below are only available on MuleSoft's Enterprise Edition-->
+
+<!--        <dependency>-->
+<!--            <groupId>org.mule.weave</groupId>-->
+<!--            <artifactId>excel-module</artifactId>-->
+<!--            <version>${data.weave.version}</version>-->
+<!--            <scope>provided</scope>-->
+<!--        </dependency>-->
+
+<!--        <dependency>-->
+<!--            <groupId>org.mule.weave</groupId>-->
+<!--            <artifactId>flatfile-module</artifactId>-->
+<!--            <version>${data.weave.version}</version>-->
+<!--            <scope>provided</scope>-->
+<!--        </dependency>-->
+
+<!--        <dependency>-->
+<!--            <groupId>org.mule.weave</groupId>-->
+<!--            <artifactId>avro-module</artifactId>-->
+<!--            <version>${data.weave.version}</version>-->
+<!--            <scope>provided</scope>-->
+<!--        </dependency>-->
+
+        <dependency>
+            <groupId>org.mule.weave</groupId>
+            <artifactId>data-weave-testing-framework</artifactId>
+            <version>${data.weave.testing.framework.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
 
-     <build>
-         <resources>
-             <resource>
-                 <directory>src/main/dw</directory>
-             </resource>
-         </resources>
-         <testResources>
-             <testResource>
-                 <directory>src/test/dwit</directory>
-             </testResource>
-             <testResource>
-                 <directory>src/test/dwmit</directory>
-             </testResource>
-             <testResource>
-                 <directory>src/test/dwit</directory>
-             </testResource>
-         </testResources>
-         <plugins>
-             <plugin>
-                 <groupId>org.mule.weave</groupId>
-                 <artifactId>weave-maven-plugin</artifactId>
-                 <version>${WEAVE_MAVEN_VERSION}</version>
-                 <extensions>true</extensions>
-             </plugin>
-         </plugins>
-     </build>
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/dw</directory>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
+        <testResources>
+            <testResource>
+                <directory>src/test/dw</directory>
+            </testResource>
+            <testResource>
+                <directory>src/test/resources</directory>
+            </testResource>
+        </testResources>
+        <plugins>
+            <plugin>
+                <groupId>org.mule.weave</groupId>
+                <artifactId>data-weave-maven-plugin</artifactId>
+                <version>${data.weave.maven.plugin.version}</version>
+                <extensions>true</extensions>
+            </plugin>
+        </plugins>
+    </build>
 
+    <!-- Add Exchange repository to publish your DataWeave library to Exchange -->
+    <!-- You can find more reference at https://docs.mulesoft.com/exchange/to-publish-assets-maven#publish-an-asset-to-exchange-using-maven -->
+    <!--
+    <distributionManagement>
+        <repository>
+            <id>exchange</id>
+            <name>Exchange Repository</name>
+            <url>https://maven.anypoint.mulesoft.com/api/v3/organizations/ORGANIZATION_ID/maven</url>
+            <layout>default</layout>
+        </repository>
+    </distributionManagement>
+    -->
     <repositories>
+        <!-- Add Exchange repository to consume DataWeave library from Exchange -->
+        <!-- You can find more reference at https://docs.mulesoft.com/exchange/to-publish-assets-maven#consume-an-exchange-asset-with-maven -->
+        <!--
+        <repository>
+            <id>exchange</id>
+            <name>Exchange Repository</name>
+            <url>https://maven.anypoint.mulesoft.com/api/v3/organizations/ORGANIZATION_ID/maven</url>
+            <layout>default</layout>
+        </repository>
+        -->
         <repository>
             <id>mule-releases</id>
             <url>https://repository-master.mulesoft.org/nexus/content/repositories/releases</url>
         </repository>
 
-         <repository>
+        <repository>
             <id>mule-snapshots</id>
             <url>https://repository-master.mulesoft.org/nexus/content/repositories/snapshots</url>
-         </repository>
+        </repository>
     </repositories>
-    #if (${ORG_ID} != "")
-      <distributionManagement>
-          <repository>
-              <id>exchange</id>
-              <name>Exchange</name>
-              <url>https://maven.anypoint.mulesoft.com/api/v2/organizations/${ORG_ID}/maven</url>
-          </repository>
-      </distributionManagement>
-    #end
     <pluginRepositories>
         <pluginRepository>
             <id>mule-releases</id>

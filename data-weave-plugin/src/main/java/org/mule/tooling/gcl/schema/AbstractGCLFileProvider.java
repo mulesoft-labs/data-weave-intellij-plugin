@@ -1,6 +1,8 @@
 package org.mule.tooling.gcl.schema;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -26,24 +28,26 @@ public abstract class AbstractGCLFileProvider implements JsonSchemaFileProvider 
 
     @Nullable
     public static String getKind(Project project, VirtualFile file) {
-        final PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
-        if (psiFile != null) {
-            if (psiFile.getFileType() == YAMLFileType.YML) {
-                final YAMLDocument[] childrenOfType = PsiTreeUtil.getChildrenOfType(psiFile, YAMLDocument.class);
-                if (childrenOfType == null) {
-                    return null;
-                }
-                for (YAMLDocument yamlDocument : childrenOfType) {
-                    final PsiElement psiElement = KIND_SELECTION.selectYaml(yamlDocument);
-                    if (psiElement instanceof YAMLScalar) {
-                        return ((YAMLScalar) psiElement).getTextValue();
-                    } else {
-                        return psiElement != null ? "" : null;
+        return ApplicationManager.getApplication().runReadAction((Computable<String>) () -> {
+            final PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
+            if (psiFile != null) {
+                if (psiFile.getFileType() == YAMLFileType.YML) {
+                    final YAMLDocument[] childrenOfType = PsiTreeUtil.getChildrenOfType(psiFile, YAMLDocument.class);
+                    if (childrenOfType == null) {
+                        return null;
+                    }
+                    for (YAMLDocument yamlDocument : childrenOfType) {
+                        final PsiElement psiElement = KIND_SELECTION.selectYaml(yamlDocument);
+                        if (psiElement instanceof YAMLScalar) {
+                            return ((YAMLScalar) psiElement).getTextValue();
+                        } else {
+                            return psiElement != null ? "" : null;
+                        }
                     }
                 }
             }
-        }
-        return null;
+            return null;
+        });
     }
 
     @Nullable
