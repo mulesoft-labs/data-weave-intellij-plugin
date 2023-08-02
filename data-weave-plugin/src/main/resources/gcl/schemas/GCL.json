@@ -579,6 +579,9 @@
           "type": "string",
           "const": "string"
         },
+        "description": {
+          "type": "string"
+        },
         "enum": {
           "type": "array",
           "items": {
@@ -619,6 +622,9 @@
           "type": "string",
           "const": "boolean"
         },
+        "description": {
+          "type": "string"
+        },
         "default": {
           "type": "boolean"
         }
@@ -633,6 +639,9 @@
         "type": {
           "type": "string",
           "const": "number"
+        },
+        "description": {
+          "type": "string"
         },
         "default": {
           "type": "number"
@@ -655,6 +664,9 @@
           "type": "string",
           "const": "integer"
         },
+        "description": {
+          "type": "string"
+        },
         "minimum": {
           "type": "number"
         },
@@ -675,6 +687,9 @@
         "type": {
           "type": "string",
           "const": "array"
+        },
+        "description": {
+          "type": "string"
         },
         "items": {
           "oneOf": [
