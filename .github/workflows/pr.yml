@@ -4,10 +4,9 @@
 name: Java CI with Gradle
 
 on:
-  push:
-    branches: [ master ]
   pull_request:
-    branches: [ master ]
+    branches:
+      - '**'
 
 jobs:
   build:
@@ -24,6 +23,6 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew build --stacktrace
     - name: Deploy to Jetbrain
-      run:  ./gradlew data-weave-plugin:publishPlugin --stacktrace --info
+      run:  ./gradlew data-weave-plugin:build --stacktrace --info
       env:
         IJ_TOKEN: ${{secrets.IJ_TOKEN}}
