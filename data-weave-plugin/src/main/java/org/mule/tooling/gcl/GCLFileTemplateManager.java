@@ -3,7 +3,7 @@ package org.mule.tooling.gcl;
 import com.intellij.ide.fileTemplates.FileTemplateDescriptor;
 import com.intellij.ide.fileTemplates.FileTemplateGroupDescriptor;
 import com.intellij.ide.fileTemplates.FileTemplateGroupDescriptorFactory;
-import org.mule.tooling.restsdk.utils.RestSdkIcons;
+import org.mule.tooling.als.utils.RestSdkIcons;
 
 public class GCLFileTemplateManager implements FileTemplateGroupDescriptorFactory {
 

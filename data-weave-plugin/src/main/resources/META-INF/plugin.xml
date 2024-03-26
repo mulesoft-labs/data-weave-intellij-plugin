@@ -489,24 +489,13 @@
                         interface="org.mule.tooling.als.component.ALSLanguageExtension"/>
     </extensionPoints>
 
-    <!-- Begins  REST SDK -->
-    <extensions defaultExtensionNs="org.mule.tooling.intellij.dataweave.v2">
-        <inputOutputTypesProvider implementation="org.mule.tooling.restsdk.datasense.RestSdkInputOutputTypesProvider"/>
-        <nameIdentifierProvider implementation="org.mule.tooling.restsdk.nameidentifier.RestSdkNameIdentifierProvider"/>
-        <alsLanguage implementation="org.mule.tooling.restsdk.als.RestSdkLanguageExtension"/>
-        <alsLanguage implementation="org.mule.tooling.als.languages.WebApiLanguage"/>
-        <alsLanguage implementation="org.mule.tooling.als.component.AMLLanguageExtension"/>
-    </extensions>
-    <extensions defaultExtensionNs="JavaScript.JsonSchema">
-        <ProviderFactory implementation="org.mule.tooling.gcl.schema.GCLJsonSchemaProviderFactory"/>
-    </extensions>
-    <!-- FINISH REST SDK Extensions -->
+
 
     <extensions defaultExtensionNs="com.intellij">
 
         <fileTemplateGroup implementation="org.mule.tooling.gcl.GCLFileTemplateManager"/>
 
-        <fileTemplateGroup implementation="org.mule.tooling.restsdk.templates.RamlFilesTemplateManager"/>
+        <fileTemplateGroup implementation="org.mule.tooling.als.templates.RamlFilesTemplateManager"/>
 
         <intentionAction>
             <className>org.mule.tooling.lang.dw.intention.InsertTypeIntentionAction</className>
@@ -671,7 +660,7 @@
             <keyboard-shortcut keymap="$default" first-keystroke="alt shift T"/>
         </action>
         <action id="RAML.CreateNewFileAction"
-                class="org.mule.tooling.restsdk.actions.CreateNewApiFileAction" text="RAML File"
+                class="org.mule.tooling.als.action.CreateNewApiFileAction" text="RAML File"
                 description="Create new RAML file">
             <add-to-group group-id="NewGroup" anchor="first"/>
             <!--<keyboard-shortcut keymap="$default" first-keystroke="shift ctrl W"/>-->
@@ -683,16 +672,6 @@
 
             <keyboard-shortcut keymap="$default" first-keystroke="shift alt R" second-keystroke="ctrl alt R"/>
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="shift meta R" second-keystroke="ctrl meta R"/>
-
-        </action>
-
-        <!-- REST SDK actions -->
-
-        <action id="org.mule.tooling.restsdk.generation.BulkEndpointOperationsGeneratorAction"
-                class="org.mule.tooling.restsdk.generation.BulkEndpointOperationsGeneratorAction"
-                text="Endpoint Operations Generator..."
-                description="Tool to generate several endpoint operations at once">
-            <add-to-group group-id="ToolsMenu" anchor="last"/>
         </action>
     </actions>
 

@@ -22,7 +22,6 @@ public class YesNoDialog extends DialogWrapper {
         myMessage = message;
         setOKButtonText(RefactoringBundle.message("yes.button"));
         setCancelButtonText(RefactoringBundle.message("no.button"));
-        setButtonsAlignment(SwingUtilities.CENTER);
         init();
     }
 

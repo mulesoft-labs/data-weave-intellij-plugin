@@ -5,7 +5,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.yaml.YAMLFileType;
 import org.mule.tooling.als.component.ALSLanguageExtension;
-import org.mule.tooling.restsdk.utils.SelectionPath;
+import org.mule.tooling.als.utils.SelectionPath;
 
 import java.util.Objects;
 import java.util.Optional;

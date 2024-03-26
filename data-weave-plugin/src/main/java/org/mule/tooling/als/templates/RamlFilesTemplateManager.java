@@ -1,9 +1,10 @@
-package org.mule.tooling.restsdk.templates;
+package org.mule.tooling.als.templates;
 
 import com.intellij.ide.fileTemplates.FileTemplateDescriptor;
 import com.intellij.ide.fileTemplates.FileTemplateGroupDescriptor;
 import com.intellij.ide.fileTemplates.FileTemplateGroupDescriptorFactory;
-import org.mule.tooling.restsdk.utils.RestSdkIcons;
+import org.mule.tooling.als.utils.RestSdkIcons;
+
 
 public class RamlFilesTemplateManager implements FileTemplateGroupDescriptorFactory {
     public static final String RAML_FILE = "RAML File";
