@@ -7,19 +7,23 @@ plugins {
     id "org.jetbrains.intellij" version "1.17.2"
 }
 
-version = pluginVersion
-
-
 allprojects {
 
     apply plugin: 'idea'
     apply plugin: 'org.jetbrains.intellij'
     apply plugin: 'java'
 
-    if (ijPluginRepoChannel.equalsIgnoreCase("Develop")) {
-        version = pluginVersion + "-" + DateTimeFormatter.ofPattern("yyyyMMdd.HHmmss").withZone(ZoneOffset.UTC).format(Instant.now())
+    def String DEVELOP = "Develop"
+    def branch = gitBranch()
+
+    def ijPluginRepoChannel = branch.startsWith("release/") ? "" : DEVELOP
+
+    if (ijPluginRepoChannel.equalsIgnoreCase(DEVELOP)) {
+        version = DateTimeFormatter.ofPattern("yyyyMMdd.HHmmss").withZone(ZoneOffset.UTC).format(Instant.now())
     } else {
-        version = pluginVersion
+        // format is: release/{plugin_version}
+        def branchParts = branch.split("/")
+        version = branchParts[1]
     }
 
     configurations {
@@ -64,12 +68,28 @@ allprojects {
     }
 
     publishPlugin {
-        token =  System.getenv('IJ_TOKEN')
+        token = System.getenv('IJ_TOKEN')
         channels = [ijPluginRepoChannel]
     }
 
     assemble.dependsOn jarSources
 
+}
+
+
+def gitBranch() {
+    def ciBranch = System.getenv("BRANCH_NAME")
+    if (ciBranch != null) {
+        ciBranch
+    } else {
+        def workingDir = new File("${project.projectDir}/")
+        def branch = ""
+        def proc = "git rev-parse --abbrev-ref HEAD".execute(null, workingDir)
+        proc.in.eachLine { line -> branch = line }
+        proc.err.eachLine { line -> println line }
+        proc.waitFor()
+        branch
+    }
 }
 
 
