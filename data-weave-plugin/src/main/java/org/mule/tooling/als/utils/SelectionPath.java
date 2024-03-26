@@ -1,4 +1,4 @@
-package org.mule.tooling.restsdk.utils;
+package org.mule.tooling.als.utils;
 
 import com.intellij.json.psi.*;
 import com.intellij.psi.PsiElement;

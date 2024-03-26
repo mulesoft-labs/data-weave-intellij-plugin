@@ -19,7 +19,7 @@ import org.mule.weave.v2.parser.ast.variables.NameIdentifier;
 
 public class WeaveConfigurationProducer extends JavaRunConfigurationProducerBase<WeaveConfiguration> {
     protected WeaveConfigurationProducer() {
-        super(WeaveConfigurationType.getInstance().getConfigurationFactories()[0]);
+        super();
     }
 
     @Override

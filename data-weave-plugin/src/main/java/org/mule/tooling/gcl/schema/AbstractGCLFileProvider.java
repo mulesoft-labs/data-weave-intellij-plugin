@@ -15,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.yaml.YAMLFileType;
 import org.jetbrains.yaml.psi.YAMLDocument;
 import org.jetbrains.yaml.psi.YAMLScalar;
-import org.mule.tooling.restsdk.utils.SelectionPath;
+import org.mule.tooling.als.utils.SelectionPath;
 
 public abstract class AbstractGCLFileProvider implements JsonSchemaFileProvider {
     static SelectionPath KIND_SELECTION = SelectionPath.DOCUMENT.child("kind");

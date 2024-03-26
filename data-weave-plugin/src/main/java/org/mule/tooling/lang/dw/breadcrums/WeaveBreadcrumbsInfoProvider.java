@@ -18,7 +18,7 @@ package org.mule.tooling.lang.dw.breadcrums;
 import com.intellij.lang.Language;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiElement;
-import com.intellij.xml.breadcrumbs.BreadcrumbsInfoProvider;
+import com.intellij.ui.breadcrumbs.BreadcrumbsProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.WeaveLanguage;
@@ -28,7 +28,7 @@ import scala.Option;
 
 import java.util.List;
 
-public class WeaveBreadcrumbsInfoProvider extends BreadcrumbsInfoProvider {
+public class WeaveBreadcrumbsInfoProvider implements BreadcrumbsProvider {
     private final static Language[] LANGUAGES = new Language[]{WeaveLanguage.getInstance()};
 
     private final static int SCALAR_MAX_LENGTH = 20;
