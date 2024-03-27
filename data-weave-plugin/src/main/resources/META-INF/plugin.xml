@@ -17,13 +17,6 @@
         <li> Preview Support</li>
         <li> Type Information</li>
        </ul>
-      <h1>RestSdk:</h1>
-      <ul>
-        <li> Completion</li>
-        <li> Navigation</li>
-        <li> Basic Validation</li>
-        <li> DataWeave injection</li>
-       </ul>
       <h1>RAML/OAS:</h1>
       <ul>
         <li> Completion</li>
@@ -604,18 +597,6 @@
                            implementationClass="org.mule.tooling.lang.dw.annotator.WeaveDocsAnnotator"/>
 
         <highlightingPassFactory implementation="org.mule.tooling.lang.dw.hints.WeaveTypeHintPassFactory"/>
-
-        <!--  REST-SDK      -->
-
-        <codeInsight.lineMarkerProvider language="yaml"
-                                        implementationClass="org.mule.tooling.restsdk.linemarker.RestSdkLineMarkerProvider"/>
-
-        <psi.referenceContributor language="yaml"
-                                  implementation="org.mule.tooling.restsdk.reference.RestSdkReferenceContributor"/>
-        <moduleBuilder builderClass="org.mule.tooling.restsdk.wizard.RestSdkModuleBuilder"/>
-        <completion.contributor language="yaml"
-                                implementationClass="org.mule.tooling.restsdk.completion.RestSdkCompletionContributor"/>
-        <annotator language="yaml" implementationClass="org.mule.tooling.restsdk.annotator.RestSdkAnnotator"/>
 
         <!--        ALS -->
 
