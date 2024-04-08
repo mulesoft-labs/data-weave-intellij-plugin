@@ -90,6 +90,7 @@ public interface WeaveTypes {
   IElementType LITERAL_PATTERN = new WeaveElementType("LITERAL_PATTERN");
   IElementType LITERAL_TYPE = new WeaveElementType("LITERAL_TYPE");
   IElementType MATCH_EXPRESSION = new WeaveElementType("MATCH_EXPRESSION");
+  IElementType METADATA_INJECTOR_TYPE = new WeaveElementType("METADATA_INJECTOR_TYPE");
   IElementType MULTIPLICATION_DIVISION_EXPRESSION = new WeaveElementType("MULTIPLICATION_DIVISION_EXPRESSION");
   IElementType MULTI_VALUE_SELECTOR = new WeaveElementType("MULTI_VALUE_SELECTOR");
   IElementType NAMED_LITERAL_PATTERN = new WeaveElementType("NAMED_LITERAL_PATTERN");
@@ -464,6 +465,9 @@ public interface WeaveTypes {
       }
       else if (type == MATCH_EXPRESSION) {
         return new WeaveMatchExpressionImpl(node);
+      }
+      else if (type == METADATA_INJECTOR_TYPE) {
+        return new WeaveMetadataInjectorTypeImpl(node);
       }
       else if (type == MULTIPLICATION_DIVISION_EXPRESSION) {
         return new WeaveMultiplicationDivisionExpressionImpl(node);
