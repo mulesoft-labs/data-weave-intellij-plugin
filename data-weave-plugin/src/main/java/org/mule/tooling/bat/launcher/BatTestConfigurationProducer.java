@@ -2,11 +2,13 @@ package org.mule.tooling.bat.launcher;
 
 import com.intellij.execution.Location;
 import com.intellij.execution.actions.ConfigurationContext;
+import com.intellij.execution.configurations.ConfigurationFactory;
 import com.intellij.execution.junit.JavaRunConfigurationProducerBase;
 import com.intellij.openapi.util.Ref;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import org.apache.commons.lang.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.mule.tooling.bat.testintegration.BatTestFramework;
 import org.mule.tooling.bat.utils.BatUtils;
 import org.mule.tooling.lang.dw.WeaveFileType;
@@ -18,6 +20,12 @@ import org.mule.weave.v2.parser.ast.variables.NameIdentifier;
 public class BatTestConfigurationProducer extends JavaRunConfigurationProducerBase<BatTestConfiguration> {
   protected BatTestConfigurationProducer() {
     super(BatTestConfigurationType.getInstance());
+  }
+
+
+  @Override
+  public @NotNull ConfigurationFactory getConfigurationFactory() {
+    return BatTestConfigurationType.getInstance().getConfigurationFactories()[0];
   }
 
   @Override

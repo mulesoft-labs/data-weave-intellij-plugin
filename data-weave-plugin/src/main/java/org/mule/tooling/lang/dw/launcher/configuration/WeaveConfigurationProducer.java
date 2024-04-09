@@ -2,6 +2,7 @@ package org.mule.tooling.lang.dw.launcher.configuration;
 
 import com.intellij.execution.Location;
 import com.intellij.execution.actions.ConfigurationContext;
+import com.intellij.execution.configurations.ConfigurationFactory;
 import com.intellij.execution.junit.JavaRunConfigurationProducerBase;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.util.Ref;
@@ -9,6 +10,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
+import org.mule.tooling.lang.dw.launcher.configuration.ui.test.WeaveTestConfigurationType;
 import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
 import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.service.Scenario;
@@ -20,6 +22,11 @@ import org.mule.weave.v2.parser.ast.variables.NameIdentifier;
 public class WeaveConfigurationProducer extends JavaRunConfigurationProducerBase<WeaveConfiguration> {
     protected WeaveConfigurationProducer() {
         super();
+    }
+
+    @Override
+    public @NotNull ConfigurationFactory getConfigurationFactory() {
+        return WeaveConfigurationType.getInstance().getConfigurationFactories()[0];
     }
 
     @Override

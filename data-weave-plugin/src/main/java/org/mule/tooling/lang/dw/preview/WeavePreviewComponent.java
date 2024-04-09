@@ -98,7 +98,7 @@ public class WeavePreviewComponent implements Disposable {
         layoutUi.addContent(logsContent, 0, PlaceInGrid.right, false);
 
         DefaultActionGroup group = createActionGroup();
-        layoutUi.getOptions().setLeftToolbar(group, "unknown");
+        layoutUi.getOptions().setLeftToolbar(group, ActionPlaces.RUNNER_TOOLBAR);
         return layoutUi.getComponent();
     }
 

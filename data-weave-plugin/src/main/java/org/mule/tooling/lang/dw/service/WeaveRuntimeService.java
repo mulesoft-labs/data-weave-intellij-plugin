@@ -127,7 +127,7 @@ public final class WeaveRuntimeService implements Disposable {
             return;
         }
         final Application app = ApplicationManager.getApplication();
-        Runnable r = () -> {
+        final Runnable scenarioTask = () -> {
             if (myProject.isDisposed()) {
                 return; //sometime
             }
@@ -141,11 +141,7 @@ public final class WeaveRuntimeService implements Disposable {
                 }
             });
         };
-        if (app.isDispatchThread()) {
-            r.run();
-        } else {
-            app.invokeLater(r);
-        }
+        app.invokeLater(scenarioTask);
     }
 
     public void availableDataFormat(Consumer<WeaveDataFormatDescriptor[]> callback) {
