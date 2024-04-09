@@ -575,7 +575,7 @@ private ArrayElement::= Expression (IF SimpleExpression)?
 
 private TypeLiteral ::= Type
 
-Type ::= UnionType
+Type ::= MetadataInjectorType
 
 private BasicTypeExpression ::= (LambdaType | CloseOrderedObjectType | OrderedObjectType | CloseObjectType | ObjectType  | ReferenceType | LiteralType | ('(' Type ')')) (Schema)?
 
@@ -584,6 +584,8 @@ TypeParameter ::= Identifier ( '<:' Type)? {
        implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
        mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
    }
+
+MetadataInjectorType ::= UnionType ('<~' Schema)?
 
 UnionType ::= IntersectionType UnionTypeExpression* {pin= 2}
 

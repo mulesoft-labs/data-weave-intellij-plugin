@@ -334,6 +334,10 @@ public class WeaveVisitor extends PsiElementVisitor {
     visitExpression(o);
   }
 
+  public void visitMetadataInjectorType(@NotNull WeaveMetadataInjectorType o) {
+    visitType(o);
+  }
+
   public void visitMultiValueSelector(@NotNull WeaveMultiValueSelector o) {
     visitPsiElement(o);
   }

@@ -46,8 +46,8 @@ public class WeaveParser implements PsiParser, LightPsiParser {
       TYPE_PATTERN),
     create_token_set_(ATTRIBUTES_TYPE, CLOSE_OBJECT_TYPE, CLOSE_ORDERED_OBJECT_TYPE, INTERSECTION_TYPE,
       KEY_TYPE, KEY_VALUE_PAIR_TYPE, LAMBDA_TYPE, LITERAL_TYPE,
-      NAME_TYPE, OBJECT_TYPE, ORDERED_OBJECT_TYPE, REFERENCE_TYPE,
-      TYPE, UNION_TYPE),
+      METADATA_INJECTOR_TYPE, NAME_TYPE, OBJECT_TYPE, ORDERED_OBJECT_TYPE,
+      REFERENCE_TYPE, TYPE, UNION_TYPE),
     create_token_set_(ADDITION_SUBTRACTION_EXPRESSION, AND_EXPRESSION, ANY_DATE_LITERAL, ARRAY_EXPRESSION,
       AS_EXPRESSION, BINARY_EXPRESSION, BOOLEAN_LITERAL, BRACKET_SELECTOR_EXPRESSION,
       CONDITIONAL_EXPRESSION, CUSTOM_INTERPOLATOR_EXPRESSION, DEFAULT_VALUE_EXPRESSION, DOT_SELECTOR_EXPRESSION,
@@ -2075,6 +2075,36 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
+  // UnionType ('<~' Schema)?
+  public static boolean MetadataInjectorType(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "MetadataInjectorType")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _COLLAPSE_, METADATA_INJECTOR_TYPE, "<metadata injector type>");
+    r = UnionType(b, l + 1);
+    r = r && MetadataInjectorType_1(b, l + 1);
+    exit_section_(b, l, m, r, false, null);
+    return r;
+  }
+
+  // ('<~' Schema)?
+  private static boolean MetadataInjectorType_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "MetadataInjectorType_1")) return false;
+    MetadataInjectorType_1_0(b, l + 1);
+    return true;
+  }
+
+  // '<~' Schema
+  private static boolean MetadataInjectorType_1_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "MetadataInjectorType_1_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, METADATA_INJECTOR);
+    r = r && Schema(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  /* ********************************************************** */
   // '*'fieldSelector
   public static boolean MultiValueSelector(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "MultiValueSelector")) return false;
@@ -3130,12 +3160,12 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // UnionType
+  // MetadataInjectorType
   public static boolean Type(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "Type")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _COLLAPSE_, TYPE, "<type>");
-    r = UnionType(b, l + 1);
+    r = MetadataInjectorType(b, l + 1);
     exit_section_(b, l, m, r, false, null);
     return r;
   }
