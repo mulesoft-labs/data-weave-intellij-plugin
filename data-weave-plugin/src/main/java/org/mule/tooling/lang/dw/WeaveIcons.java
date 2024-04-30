@@ -14,8 +14,8 @@ public class WeaveIcons {
     public static final Icon RestSdkIcon = IconLoader.findIcon("/icons/rest_sdk_module.png", WeaveIcons.class.getClassLoader());
     public static final Icon DataWeaveModuleIcon = IconLoader.findIcon("/icons/dw-module-icon.png", WeaveIcons.class.getClassLoader());
     public static final Icon DataWeaveMappingIcon = IconLoader.findIcon("/icons/dw-mapping-icon.png", WeaveIcons.class.getClassLoader());
-    public static final Icon DataWeaveTestIcon = IconLoader.findIcon("/icons/dw-test-icon.png", WeaveIcons.class.getClassLoader());
-    public static final Icon DataWeaveTestingFrameworkIcon = IconLoader.findIcon("/icons/dw-testing-framework.png", WeaveIcons.class.getClassLoader());
+    public static final Icon DataWeaveTestIcon = IconLoader.findIcon("/icons/dw-module-icon.png", WeaveIcons.class.getClassLoader());
+    public static final Icon DataWeaveTestingFrameworkIcon = IconLoader.findIcon("/icons/dw-module-icon.png", WeaveIcons.class.getClassLoader());
 
     private WeaveIcons() {
         super();

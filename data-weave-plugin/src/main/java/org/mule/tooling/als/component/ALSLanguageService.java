@@ -217,14 +217,15 @@ public class ALSLanguageService implements Disposable {
         }
 
         ReadAction.nonBlocking(() -> {
-          VirtualFile fileByUrl = VirtualFileManager.getInstance().findFileByUrl(uri);
-          if (fileByUrl != null) {
-            PsiFile file = PsiManager.getInstance(myProject).findFile(fileByUrl);
-            if (file != null) {
-              DaemonCodeAnalyzer.getInstance(myProject).restart(file);
+            VirtualFile fileByUrl = VirtualFileManager.getInstance().findFileByUrl(uri);
+            if (fileByUrl != null) {
+                PsiFile file = PsiManager.getInstance(myProject).findFile(fileByUrl);
+                if (file != null) {
+                    DaemonCodeAnalyzer.getInstance(myProject).restart(file);
+                }
             }
-          }
-        });
+            return null;
+        }).submit(AppExecutorUtil.getAppExecutorService());
       }
     });
     languageServerFactory.withSerializationProps(EmptyJvmSerializationProps$.MODULE$);

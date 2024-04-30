@@ -21,7 +21,7 @@ import java.util.*;
 
 import static java.util.Optional.ofNullable;
 
-public class WeaveTestConfiguration extends ModuleBasedConfiguration<JavaRunConfigurationModule, RunProfileState> implements ModuleRunProfile, RunConfigurationWithSuppressedDefaultDebugAction, WeaveTestBaseRunnerConfig {
+public class WeaveTestConfiguration extends ModuleBasedConfiguration<JavaRunConfigurationModule, RunProfileState> implements ModuleRunProfile, WeaveTestBaseRunnerConfig {
 
     public static final String PREFIX = "DataWeaveTestConfig-";
     public static final String WEAVE_FILE = PREFIX + "WeaveFile";

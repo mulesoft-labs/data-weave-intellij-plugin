@@ -121,47 +121,49 @@ public class IJVirtualFileSystemAdaptor implements VirtualFileSystem, Disposable
 
     private void onFileChanged(VirtualFile virtualFile) {
         ReadAction.nonBlocking(() -> {
-            if (project.isDisposed()) {
-                return;
-            }
-            //If it is a file from the project
-            final IJVirtualFileAdaptor intellijVirtualFile = new IJVirtualFileAdaptor(IJVirtualFileSystemAdaptor.this, virtualFile, project, null);
-            onChanged(intellijVirtualFile);
-        }).expireWith(project)
+                    if (project.isDisposed()) {
+                        return null;
+                    }
+                    //If it is a file from the project
+                    final IJVirtualFileAdaptor intellijVirtualFile = new IJVirtualFileAdaptor(IJVirtualFileSystemAdaptor.this, virtualFile, project, null);
+                    onChanged(intellijVirtualFile);
+                    return null;
+                }).expireWith(project)
                 .submit(fs_updater);
     }
 
     private void onFileDeleted(VirtualFile virtualFile) {
         ReadAction.nonBlocking(() -> {
-            if (project.isDisposed()) {
-                return;
-            }
+                    if (project.isDisposed()) {
+                        return null;
+                    }
 
-            //If it is a file from the project
-            final IJVirtualFileAdaptor intellijVirtualFile = new IJVirtualFileAdaptor(IJVirtualFileSystemAdaptor.this, virtualFile, project, null);
-            for (ChangeListener listener : listeners) {
-                if (listener != null) {
-                    listener.onDeleted(intellijVirtualFile);
-                }
-            }
-        })
+                    //If it is a file from the project
+                    final IJVirtualFileAdaptor intellijVirtualFile = new IJVirtualFileAdaptor(IJVirtualFileSystemAdaptor.this, virtualFile, project, null);
+                    for (ChangeListener listener : listeners) {
+                        if (listener != null) {
+                            listener.onDeleted(intellijVirtualFile);
+                        }
+                    }
+                    return null;
+                })
                 .expireWith(project)
                 .submit(fs_updater);
     }
 
     private void onFileCreated(VirtualFile virtualFile) {
         ReadAction.nonBlocking(() -> {
-            if (project.isDisposed()) {
-                return;
-            }
-            //If it is a file from the project
-            final IJVirtualFileAdaptor intellijVirtualFile = new IJVirtualFileAdaptor(IJVirtualFileSystemAdaptor.this, virtualFile, project, null);
-            for (ChangeListener listener : listeners) {
-                if (listener != null) {
-                    listener.onCreated(intellijVirtualFile);
-                }
-            }
-        }).expireWith(project)
+                    if (project.isDisposed()) {
+                        return;
+                    }
+                    //If it is a file from the project
+                    final IJVirtualFileAdaptor intellijVirtualFile = new IJVirtualFileAdaptor(IJVirtualFileSystemAdaptor.this, virtualFile, project, null);
+                    for (ChangeListener listener : listeners) {
+                        if (listener != null) {
+                            listener.onCreated(intellijVirtualFile);
+                        }
+                    }
+                }).expireWith(project)
                 .submit(fs_updater);
         ;
     }

@@ -21,7 +21,7 @@ public class WeaveFilesTemplateManager implements FileTemplateGroupDescriptorFac
         final FileTemplateGroupDescriptor group = new FileTemplateGroupDescriptor("Data Weave", WeaveIcons.DataWeaveIcon);
         group.addTemplate(new FileTemplateDescriptor(DATA_WEAVE_FILE, WeaveIcons.DataWeaveIcon));
         group.addTemplate(new FileTemplateDescriptor(DATA_WEAVE_MODULE_FILE, WeaveIcons.DataWeaveIcon));
-        group.addTemplate(new FileTemplateDescriptor(DATA_WEAVE_UNIT_FILE, WeaveIcons.DataWeaveIcon));
+        group.addTemplate(new FileTemplateDescriptor(DATA_WEAVE_UNIT_FILE, WeaveIcons.DataWeaveTestIcon));
         group.addTemplate(new FileTemplateDescriptor(BAT_FILE, WeaveIcons.DataWeaveIcon));
         group.addTemplate(new FileTemplateDescriptor(WEAVE_MAVEN_MODULE, OpenapiIcons.RepositoryLibraryLogo));
 
