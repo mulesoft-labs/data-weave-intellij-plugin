@@ -126,21 +126,27 @@ public final class WeaveRuntimeService implements Disposable {
         if (myProject.isDisposed()) {
             return;
         }
+        final Application app = ApplicationManager.getApplication();
 
-        WriteAction
-                .compute(() -> {
-                    final Application app = ApplicationManager.getApplication();
+        ReadAction.nonBlocking(() -> {
                     if (myProject.isDisposed()) {
                         return null; //sometime
                     }
-                    final Module moduleForFile = ModuleUtil.findModuleForFile(modifiedFile, myProject);
-                    final VirtualFile dwitFolder = getScenariosRootFolder(moduleForFile);
-                    if (dwitFolder != null && VfsUtil.isAncestor(dwitFolder, modifiedFile, true)) {
-                        VirtualFile scenario = findScenario(modifiedFile, dwitFolder);
-                        onModified(new Scenario(scenario));
-                    }
-                    return null;
+                    return ModuleUtil.findModuleForFile(modifiedFile, myProject);
+                })
+                .submit(AppExecutorUtil.getAppExecutorService())
+                .onSuccess((moduleForFile) -> {
+                    app.invokeLater(() -> {
+                        WriteAction.run(() -> {
+                            final VirtualFile dwitFolder = getScenariosRootFolder(moduleForFile);
+                            if (dwitFolder != null && VfsUtil.isAncestor(dwitFolder, modifiedFile, true)) {
+                                VirtualFile scenario = findScenario(modifiedFile, dwitFolder);
+                                onModified(new Scenario(scenario));
+                            }
+                        });
+                    });
                 });
+
     }
 
     public void availableDataFormat(Consumer<WeaveDataFormatDescriptor[]> callback) {

@@ -14,8 +14,8 @@ public class WeaveTestRunnerConfPanel {
     private JPanel mainPanel;
     private ModulesComboBox modules;
     private WeaveNameIdentifierSelector testField;
-    private JTextField textField1;
-    private JLabel testToRun;
+    private JTextField testToRun;
+    private JLabel testToRunLabel;
     private RawCommandLineEditor vmOptions;
     private TextFieldWithBrowseButton workingDirectory;
 
@@ -34,6 +34,10 @@ public class WeaveTestRunnerConfPanel {
 
     public WeaveNameIdentifierSelector getTestField() {
         return testField;
+    }
+
+    public JTextField getTestToRun() {
+        return testToRun;
     }
 
     public JPanel getMainPanel() {
