@@ -486,6 +486,9 @@
 
     <extensions defaultExtensionNs="com.intellij">
 
+        <runLineMarkerContributor implementationClass="org.mule.tooling.lang.dw.lineMarker.RunTestLineMarkerContributor"
+                                  language="Weave"/>
+
         <fileTemplateGroup implementation="org.mule.tooling.gcl.GCLFileTemplateManager"/>
 
         <fileTemplateGroup implementation="org.mule.tooling.als.templates.RamlFilesTemplateManager"/>

@@ -47,7 +47,7 @@ public class WeaveTestRunnerCommandLine extends WeaveCommandLineState {
         final ProjectRootManager manager = ProjectRootManager.getInstance(module.getProject());
         javaParams.setJdk(manager.getProjectSdk());
         // All modules to use the same things
-        javaParams.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS | JavaParameters.INCLUDE_PROVIDED);
+        javaParams.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS);
         javaParams.setMainClass(WeaveRunnerHelper.WEAVE_RUNNER_MAIN_CLASS);
 
         //Add default vm parameters
