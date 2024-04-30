@@ -8,15 +8,17 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.NotNull;
-import org.mule.tooling.lang.dw.testintegration.WeaveTestFramework;
+import org.mule.tooling.lang.dw.util.WeaveUtils;
 
 public class RunTestLineMarkerContributor extends RunLineMarkerContributor {
 
-    public  Info getInfo(@NotNull PsiElement element){
-        if(WeaveTestFramework.isWeaveTestMethod(element)){
+    public Info getInfo(@NotNull PsiElement element) {
+        boolean isTestSuite = WeaveUtils.isWeaveTestMethod(element);
+        if (isTestSuite || WeaveUtils.isTestCase(element)) {
             final AnAction[] actions = ExecutorAction.getActions(Integer.MAX_VALUE);
             return new Info(
-                    AllIcons.RunConfigurations.TestState.Run,
+                    isTestSuite ?
+                            AllIcons.RunConfigurations.TestState.Run_run : AllIcons.RunConfigurations.TestState.Run,
                     actions,
                     e -> StringUtil.join(ContainerUtil.mapNotNull(actions, action -> getText(action, e)), "\n")
             );

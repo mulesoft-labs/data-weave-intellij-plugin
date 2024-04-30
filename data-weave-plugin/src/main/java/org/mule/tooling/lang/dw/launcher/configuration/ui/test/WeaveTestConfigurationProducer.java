@@ -16,6 +16,10 @@ import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
 import org.mule.tooling.lang.dw.util.WeaveUtils;
 import org.mule.weave.v2.parser.ast.variables.NameIdentifier;
 
+import java.util.Optional;
+
+import static org.apache.commons.lang.StringUtils.capitalize;
+
 public class WeaveTestConfigurationProducer extends JavaRunConfigurationProducerBase<WeaveTestConfiguration> {
     protected WeaveTestConfigurationProducer() {
         super();
@@ -28,16 +32,26 @@ public class WeaveTestConfigurationProducer extends JavaRunConfigurationProducer
 
     @Override
     protected boolean setupConfigurationFromContext(@NotNull WeaveTestConfiguration weaveConfiguration, ConfigurationContext configurationContext, Ref<PsiElement> ref) {
-        final Location location = configurationContext.getLocation();
+        final Location<?> location = configurationContext.getLocation();
         if (location != null && isTestFile(configurationContext)) {
             final PsiFile containingFile = location.getPsiElement().getContainingFile();
             if (containingFile != null) {
                 final boolean weaveFile = containingFile.getFileType() == WeaveFileType.getInstance();
                 if (weaveFile) {
-                    NameIdentifier nameIdentifier = WeavePsiImplUtils.getNameIdentifier(containingFile);
+                    final NameIdentifier nameIdentifier = WeavePsiImplUtils.getNameIdentifier(containingFile);
                     weaveConfiguration.setWeaveFile(nameIdentifier.name());
                     weaveConfiguration.setModule(configurationContext.getModule());
-                    weaveConfiguration.setName("Run Test " + StringUtils.capitalize(containingFile.getVirtualFile().getNameWithoutExtension()));
+                    if (ref.get() != null && WeaveUtils.isTestCase(ref.get())) {
+                        Optional<String> testCaseName = WeaveUtils.getTestCaseName(ref.get());
+                        if (testCaseName.isPresent()) {
+                            testCaseName.ifPresent((s) -> weaveConfiguration.setTestToRun(s));
+                            weaveConfiguration.setName("Test Case: " + testCaseName.get() + "@" + capitalize(containingFile.getVirtualFile().getNameWithoutExtension()));
+                        } else {
+                            weaveConfiguration.setName("Suite: " + capitalize(containingFile.getVirtualFile().getNameWithoutExtension()));
+                        }
+                    } else {
+                        weaveConfiguration.setName("Suite: " + capitalize(containingFile.getVirtualFile().getNameWithoutExtension()));
+                    }
                     return true;
                 }
             }
@@ -51,6 +65,10 @@ public class WeaveTestConfigurationProducer extends JavaRunConfigurationProducer
         if (isTestFile(configurationContext) && psiLocation != null) {
             final PsiFile containingFile = psiLocation.getContainingFile();
             final NameIdentifier nameIdentifier = WeavePsiImplUtils.getNameIdentifier(containingFile);
+            Optional<String> testCaseName = WeaveUtils.getTestCaseName(psiLocation);
+            if (testCaseName.isPresent() && !muleConfiguration.getTestToRun().equals(testCaseName.get())) {
+                return false;
+            }
             return muleConfiguration.getTests().contains(nameIdentifier.name());
         } else {
             return false;
@@ -58,7 +76,7 @@ public class WeaveTestConfigurationProducer extends JavaRunConfigurationProducer
     }
 
     private boolean isTestFile(ConfigurationContext configurationContext) {
-        final Location location = configurationContext.getLocation();
+        final Location<?> location = configurationContext.getLocation();
         if (location != null) {
             final PsiFile containingFile = location.getPsiElement().getContainingFile();
             if (containingFile != null) {

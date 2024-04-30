@@ -13,14 +13,13 @@ import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.WeaveFile;
 import org.mule.tooling.lang.dw.WeaveIcons;
 import org.mule.tooling.lang.dw.WeaveLanguage;
-import org.mule.tooling.lang.dw.parser.psi.WeaveBinaryExpression;
-import org.mule.tooling.lang.dw.parser.psi.WeaveBinaryFunctionIdentifier;
 import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
-import org.mule.tooling.lang.dw.parser.psi.WeaveExpression;
 import org.mule.tooling.lang.dw.templates.WeaveFilesTemplateManager;
 import org.mule.tooling.lang.dw.util.WeaveUtils;
 
 import javax.swing.*;
+
+import static org.mule.tooling.lang.dw.util.WeaveUtils.isWeaveTestMethod;
 
 public class WeaveTestFramework implements TestFramework {
 
@@ -109,17 +108,6 @@ public class WeaveTestFramework implements TestFramework {
     @Override
     public boolean isTestMethod(PsiElement psiElement) {
         return isWeaveTestMethod(psiElement);
-    }
-
-    public static boolean isWeaveTestMethod(PsiElement psiElement) {
-        if(psiElement instanceof WeaveExpression) {
-            if (psiElement instanceof WeaveBinaryExpression) {
-                WeaveBinaryFunctionIdentifier binaryFunctionIdentifier = ((WeaveBinaryExpression) psiElement).getBinaryFunctionIdentifier();
-                String name = binaryFunctionIdentifier.getIdentifier().getName();
-                return name.equals("describedBy");
-            }
-        }
-        return false;
     }
 
     @NotNull
