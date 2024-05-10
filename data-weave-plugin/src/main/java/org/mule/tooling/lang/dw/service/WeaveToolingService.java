@@ -196,7 +196,7 @@ public final class WeaveToolingService implements Disposable {
 
     @Nullable
     public WeaveType typeOf(@Nullable PsiElement element) {
-        if (element == null) {
+        if (element == null || element.getContainingFile() == null) {
             return null;
         } else {
             final WeaveDocumentToolingService weaveDocument = didOpen(element.getContainingFile(), false);
@@ -218,7 +218,11 @@ public final class WeaveToolingService implements Disposable {
     }
 
     public Optional<String> scaffoldWeaveDocOf(@NotNull PsiElement element) {
-        final WeaveDocumentToolingService weaveDocument = didOpen(element.getContainingFile(), false);
+        final PsiFile containingFile = element.getContainingFile();
+        if (containingFile == null) {
+            return Optional.empty();
+        }
+        final WeaveDocumentToolingService weaveDocument = didOpen(containingFile, false);
         final TextRange textRange = element.getTextRange();
         Option<String> stringOption = weaveDocument.scaffoldDocs(textRange.getStartOffset(), textRange.getEndOffset());
         if (stringOption.isDefined()) {
@@ -232,8 +236,8 @@ public final class WeaveToolingService implements Disposable {
         return didOpen(file, false).validateDocs();
     }
 
-    private WeaveDocumentToolingService didOpen(PsiFile psiFile, boolean useExpectedOutput) {
-        Optional<InputOutputTypesProvider> inputOutputTypesProvider = ReadAction.compute(() -> InputOutputTypesExtensionService.inputOutputTypesProvider(psiFile));
+    private WeaveDocumentToolingService didOpen(@NotNull PsiFile psiFile, boolean useExpectedOutput) {
+        final Optional<InputOutputTypesProvider> inputOutputTypesProvider = ReadAction.compute(() -> InputOutputTypesExtensionService.inputOutputTypesProvider(psiFile));
         final WeaveRuntimeService instance = WeaveRuntimeService.getInstance(myProject);
         final ImplicitInput currentImplicitTypes;
         final WeaveType expectedOutput;
@@ -413,8 +417,12 @@ public final class WeaveToolingService implements Disposable {
 
     @Nullable
     public String documentation(PsiElement psiElement) {
-        WeaveDocumentToolingService weaveDocumentService = didOpen(psiElement.getContainingFile(), false);
-        Option<HoverMessage> hoverMessageOption = weaveDocumentService.hoverResult(psiElement.getTextOffset());
+        final PsiFile containingFile = psiElement.getContainingFile();
+        if (containingFile == null) {
+            return null;
+        }
+        final WeaveDocumentToolingService weaveDocumentService = didOpen(containingFile, false);
+        final Option<HoverMessage> hoverMessageOption = weaveDocumentService.hoverResult(psiElement.getTextOffset());
         String result = null;
         if (hoverMessageOption.isDefined()) {
             HoverMessage hoverMessage = hoverMessageOption.get();
@@ -457,7 +465,11 @@ public final class WeaveToolingService implements Disposable {
     @Nullable
     public VariableScope scopeOf(PsiElement element) {
         return ReadAction.compute(() -> {
-            WeaveDocumentToolingService weaveDocumentToolingService = didOpen(element.getContainingFile(), false);
+            final PsiFile containingFile = element.getContainingFile();
+            if (containingFile == null) {
+                return null;
+            }
+            WeaveDocumentToolingService weaveDocumentToolingService = didOpen(containingFile, false);
             Option<VariableScope> scopeOf = weaveDocumentToolingService.scopeOf(element.getTextRange().getStartOffset(), element.getTextRange().getEndOffset());
             if (scopeOf.isDefined()) {
                 return scopeOf.get();
@@ -468,7 +480,11 @@ public final class WeaveToolingService implements Disposable {
     }
 
     public VariableDependency[] externalScopeDependencies(PsiElement element, @Nullable VariableScope parent) {
-        WeaveDocumentToolingService weaveDocumentToolingService = didOpen(element.getContainingFile(), false);
+        PsiFile containingFile = element.getContainingFile();
+        if (containingFile == null) {
+            return new VariableDependency[0];
+        }
+        WeaveDocumentToolingService weaveDocumentToolingService = didOpen(containingFile, false);
         TextRange textRange = element.getTextRange();
         return weaveDocumentToolingService.externalScopeDependencies(textRange.getStartOffset(), textRange.getEndOffset(), Option.apply(parent));
     }
@@ -575,7 +591,7 @@ public final class WeaveToolingService implements Disposable {
                         .resolveModule(name.name(), name.loader().get(), myProject, event -> {
                             if (event.content().isDefined()) {
                                 String content = event.content().get();
-                                Option<WeaveResource> resourceOption = Option.apply(WeaveResource$.MODULE$.apply(name.name(), content));
+                                Option<WeaveResource> resourceOption = Option.<WeaveResource>apply(WeaveResource$.MODULE$.apply(name.name(), content));
                                 callback.accept(resourceOption);
                                 dwTextDocumentService.invalidateModule(name);
                             } else {
