@@ -524,6 +524,12 @@ public final class WeaveAgentService implements Disposable {
                 // parametersList.add("--agent");
                 parametersList.add("-p");
                 parametersList.add(String.valueOf(freePort));
+
+                // Force use of dynamic classpath.  In Windows, a large project will cause the agent fail to start due
+                // to a very large classpath line in the command line.
+                //noinspection MissingRecentApi
+                params.useDynamicClasspathDefinedByJdkLevel();
+
                 return params;
             }
 

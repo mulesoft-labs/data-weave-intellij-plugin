@@ -200,7 +200,8 @@ public final class WeaveRuntimeService implements Disposable {
 
     @NotNull
     private String getTestFolderName(WeaveDocument weaveDocument) {
-        return weaveDocument.getQualifiedName().replaceAll("::", "-");
+        // Replace directory separator with a "-".  Support Mac, Unix and Windows directory separators
+        return weaveDocument.getQualifiedName().replaceAll("::|/|\\\\", "-");
     }
 
     @Nullable
