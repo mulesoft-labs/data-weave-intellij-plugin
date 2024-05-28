@@ -33,10 +33,4 @@ public class WeaveMetadataInjectorTypeImpl extends WeaveTypeImpl implements Weav
     return findChildByClass(WeaveSchema.class);
   }
 
-  @Override
-  @NotNull
-  public WeaveType getType() {
-    return findNotNullChildByClass(WeaveType.class);
-  }
-
 }

@@ -574,6 +574,9 @@ public interface WeaveTypes {
       else if (type == STRING_LITERAL) {
         return new WeaveStringLiteralImpl(node);
       }
+      else if (type == TYPE) {
+        return new WeaveTypeImpl(node);
+      }
       else if (type == TYPE_DEFINITION) {
         return new WeaveTypeDefinitionImpl(node);
       }
