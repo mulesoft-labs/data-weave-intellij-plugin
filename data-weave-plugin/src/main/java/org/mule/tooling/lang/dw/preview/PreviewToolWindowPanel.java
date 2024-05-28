@@ -141,12 +141,12 @@ public class PreviewToolWindowPanel extends SimpleToolWindowPanel implements Dis
     if (psiFile == null) {
       cardLayout.show(mainPanel, NOTHING_TO_SHOW);
       // Dispose the wavePreviewComponent when dwl file is closed, so that the component can open when dwl is reopened
-      weavePreviewComponent.dispose();
+      Disposer.dispose( weavePreviewComponent);
     } else if (psiFile != weavePreviewComponent.getCurrentFile() && psiFile.getFileType() == WeaveFileType.getInstance()) {
       WeaveDocument weaveDocument = WeavePsiUtils.getWeaveDocument(psiFile);
       if (weaveDocument != null && weaveDocument.isMappingDocument()) {
         if (previewComponent != null) {
-          weavePreviewComponent.dispose();
+          Disposer.dispose( weavePreviewComponent);
           mainPanel.remove(previewComponent);
           previewComponent = null;
         }

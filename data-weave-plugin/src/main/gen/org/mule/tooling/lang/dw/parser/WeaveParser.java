@@ -1833,20 +1833,32 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // NameType AttributesType?
+  // Annotation* NameType AttributesType?
   public static boolean KeyType(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "KeyType")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _COLLAPSE_, KEY_TYPE, "<key type>");
-    r = NameType(b, l + 1);
-    r = r && KeyType_1(b, l + 1);
+    r = KeyType_0(b, l + 1);
+    r = r && NameType(b, l + 1);
+    r = r && KeyType_2(b, l + 1);
     exit_section_(b, l, m, r, false, null);
     return r;
   }
 
+  // Annotation*
+  private static boolean KeyType_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "KeyType_0")) return false;
+    while (true) {
+      int c = current_position_(b);
+      if (!Annotation(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "KeyType_0", c)) break;
+    }
+    return true;
+  }
+
   // AttributesType?
-  private static boolean KeyType_1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "KeyType_1")) return false;
+  private static boolean KeyType_2(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "KeyType_2")) return false;
     AttributesType(b, l + 1);
     return true;
   }
@@ -2172,7 +2184,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // ((Identifier"#")?(Identifier | StringLiteral) ('?')?) | '_' | '('TypeParameter')'
+  // Annotation* ((Identifier"#")?(Identifier | StringLiteral) ('?')?) | '_' | '('TypeParameter')'
   public static boolean NameType(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "NameType")) return false;
     boolean r;
@@ -2184,28 +2196,50 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // (Identifier"#")?(Identifier | StringLiteral) ('?')?
+  // Annotation* ((Identifier"#")?(Identifier | StringLiteral) ('?')?)
   private static boolean NameType_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "NameType_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = NameType_0_0(b, l + 1);
     r = r && NameType_0_1(b, l + 1);
-    r = r && NameType_0_2(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // Annotation*
+  private static boolean NameType_0_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "NameType_0_0")) return false;
+    while (true) {
+      int c = current_position_(b);
+      if (!Annotation(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "NameType_0_0", c)) break;
+    }
+    return true;
+  }
+
+  // (Identifier"#")?(Identifier | StringLiteral) ('?')?
+  private static boolean NameType_0_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "NameType_0_1")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = NameType_0_1_0(b, l + 1);
+    r = r && NameType_0_1_1(b, l + 1);
+    r = r && NameType_0_1_2(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
   }
 
   // (Identifier"#")?
-  private static boolean NameType_0_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "NameType_0_0")) return false;
-    NameType_0_0_0(b, l + 1);
+  private static boolean NameType_0_1_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "NameType_0_1_0")) return false;
+    NameType_0_1_0_0(b, l + 1);
     return true;
   }
 
   // Identifier"#"
-  private static boolean NameType_0_0_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "NameType_0_0_0")) return false;
+  private static boolean NameType_0_1_0_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "NameType_0_1_0_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = Identifier(b, l + 1);
@@ -2215,8 +2249,8 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   // Identifier | StringLiteral
-  private static boolean NameType_0_1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "NameType_0_1")) return false;
+  private static boolean NameType_0_1_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "NameType_0_1_1")) return false;
     boolean r;
     r = Identifier(b, l + 1);
     if (!r) r = StringLiteral(b, l + 1);
@@ -2224,8 +2258,8 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   // ('?')?
-  private static boolean NameType_0_2(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "NameType_0_2")) return false;
+  private static boolean NameType_0_1_2(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "NameType_0_1_2")) return false;
     consumeToken(b, QUESTION);
     return true;
   }
@@ -3160,14 +3194,26 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // MetadataInjectorType
+  // Annotation* MetadataInjectorType
   public static boolean Type(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "Type")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _COLLAPSE_, TYPE, "<type>");
-    r = MetadataInjectorType(b, l + 1);
+    r = Type_0(b, l + 1);
+    r = r && MetadataInjectorType(b, l + 1);
     exit_section_(b, l, m, r, false, null);
     return r;
+  }
+
+  // Annotation*
+  private static boolean Type_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "Type_0")) return false;
+    while (true) {
+      int c = current_position_(b);
+      if (!Annotation(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "Type_0", c)) break;
+    }
+    return true;
   }
 
   /* ********************************************************** */

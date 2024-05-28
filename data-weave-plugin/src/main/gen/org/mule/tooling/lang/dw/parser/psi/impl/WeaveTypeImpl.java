@@ -11,7 +11,7 @@ import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import org.mule.tooling.lang.dw.parser.psi.*;
 
-public abstract class WeaveTypeImpl extends ASTWrapperPsiElement implements WeaveType {
+public class WeaveTypeImpl extends ASTWrapperPsiElement implements WeaveType {
 
   public WeaveTypeImpl(@NotNull ASTNode node) {
     super(node);
@@ -25,6 +25,18 @@ public abstract class WeaveTypeImpl extends ASTWrapperPsiElement implements Weav
   public void accept(@NotNull PsiElementVisitor visitor) {
     if (visitor instanceof WeaveVisitor) accept((WeaveVisitor)visitor);
     else super.accept(visitor);
+  }
+
+  @Override
+  @NotNull
+  public List<WeaveAnnotation> getAnnotationList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, WeaveAnnotation.class);
+  }
+
+  @Override
+  @NotNull
+  public WeaveType getType() {
+    return findNotNullChildByClass(WeaveType.class);
   }
 
 }

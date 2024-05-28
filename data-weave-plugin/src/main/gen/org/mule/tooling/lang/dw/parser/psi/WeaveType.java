@@ -7,4 +7,10 @@ import com.intellij.psi.PsiElement;
 
 public interface WeaveType extends PsiElement {
 
+  @NotNull
+  List<WeaveAnnotation> getAnnotationList();
+
+  @NotNull
+  WeaveType getType();
+
 }

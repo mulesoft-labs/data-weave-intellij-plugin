@@ -10,7 +10,4 @@ public interface WeaveMetadataInjectorType extends WeaveType {
   @Nullable
   WeaveSchema getSchema();
 
-  @NotNull
-  WeaveType getType();
-
 }
