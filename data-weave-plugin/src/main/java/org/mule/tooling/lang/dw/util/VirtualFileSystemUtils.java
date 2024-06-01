@@ -127,7 +127,7 @@ public class VirtualFileSystemUtils {
     public static NameIdentifier getNameIdentifierWithRelative(VirtualFile vfs, VirtualFile contentRootForFile) {
         final String relPath = VfsUtil.getRelativePath(vfs, contentRootForFile);
         if (relPath != null) {
-            return NameIdentifierHelper.fromWeaveFilePath(FileSystems.getDefault().getSeparator().equals("\\") ? relPath.replace("/", "\\") : relPath);
+            return NameIdentifierHelper.fromWeaveFilePath(relPath, FileSystems.getDefault().getSeparator());
         } else {
             return NameIdentifierHelper.fromWeaveFilePath(contentRootForFile.getPath());
         }
