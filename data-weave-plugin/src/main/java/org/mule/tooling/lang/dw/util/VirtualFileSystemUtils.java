@@ -24,6 +24,7 @@ import org.mule.weave.v2.parser.ast.variables.NameIdentifier;
 import org.mule.weave.v2.sdk.NameIdentifierHelper;
 
 import java.io.IOException;
+import java.nio.file.FileSystems;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -126,7 +127,7 @@ public class VirtualFileSystemUtils {
     public static NameIdentifier getNameIdentifierWithRelative(VirtualFile vfs, VirtualFile contentRootForFile) {
         final String relPath = VfsUtil.getRelativePath(vfs, contentRootForFile);
         if (relPath != null) {
-            return NameIdentifierHelper.fromWeaveFilePath(relPath);
+            return NameIdentifierHelper.fromWeaveFilePath(relPath, FileSystems.getDefault().getSeparator());
         } else {
             return NameIdentifierHelper.fromWeaveFilePath(contentRootForFile.getPath());
         }
