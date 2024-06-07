@@ -338,10 +338,11 @@ public final class WeaveAgentService implements Disposable {
     }
 
     public void loadClasspathInto(Module module, PathsList pathsList) {
-        final OrderEnumerator orderEnumerator = OrderEnumerator.orderEntries(module).withoutLibraries().withoutSdk();
+        final OrderEnumerator orderEnumerator = OrderEnumerator.orderEntries(module).withoutSdk();
         //We add sources too as we don't compile the we want to have the weave files up to date
         pathsList.addVirtualFiles(orderEnumerator.getSourceRoots());
         pathsList.addVirtualFiles(orderEnumerator.getClassesRoots());
+        pathsList.addVirtualFiles(orderEnumerator.getAllLibrariesAndSdkClassesRoots());
     }
 
     public void checkClientConnected(Runnable onConnected) {
