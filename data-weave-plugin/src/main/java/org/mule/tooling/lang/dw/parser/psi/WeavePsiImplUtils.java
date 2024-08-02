@@ -4,6 +4,7 @@ import com.intellij.icons.AllIcons;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
+import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.PlatformIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -115,8 +116,9 @@ public class WeavePsiImplUtils {
         return document;
     }
 
+    @Nullable
     public static WeaveExpression getExpression(WeaveBody body) {
-        return body.getAnnotatedExpression().getExpression();
+        return PsiTreeUtil.findChildOfType(body, WeaveExpression.class);
     }
 
     public static ItemPresentation getPresentation(WeaveObjectExpression document) {
