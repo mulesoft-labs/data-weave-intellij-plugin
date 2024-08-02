@@ -48,16 +48,16 @@ public class WeaveParser implements PsiParser, LightPsiParser {
       KEY_TYPE, KEY_VALUE_PAIR_TYPE, LAMBDA_TYPE, LITERAL_TYPE,
       METADATA_INJECTOR_TYPE, NAME_TYPE, OBJECT_TYPE, ORDERED_OBJECT_TYPE,
       REFERENCE_TYPE, TYPE, UNION_TYPE),
-    create_token_set_(ADDITION_SUBTRACTION_EXPRESSION, AND_EXPRESSION, ANY_DATE_LITERAL, ARRAY_EXPRESSION,
-      AS_EXPRESSION, BINARY_EXPRESSION, BOOLEAN_LITERAL, BRACKET_SELECTOR_EXPRESSION,
-      CONDITIONAL_EXPRESSION, CUSTOM_INTERPOLATOR_EXPRESSION, DEFAULT_VALUE_EXPRESSION, DOT_SELECTOR_EXPRESSION,
-      DO_EXPRESSION, ENCLOSED_EXPRESSION, EQUALITY_EXPRESSION, EXPRESSION,
-      FUNCTION_CALL_EXPRESSION, GREATER_THAN_EXPRESSION, IS_EXPRESSION, LAMBDA_LITERAL,
-      LEFT_SHIFT_EXPRESSION, LITERAL_EXPRESSION, MATCH_EXPRESSION, MULTIPLICATION_DIVISION_EXPRESSION,
-      NOT_EXPRESSION, NULL_LITERAL, NUMBER_LITERAL, OBJECT_DECONSTRUCT_EXPRESSION,
-      OBJECT_EXPRESSION, OR_EXPRESSION, PATTERN_MATCHER_EXPRESSION, REGEX_LITERAL,
-      RIGHT_SHIFT_EXPRESSION, STRING_LITERAL, UNARY_MINUS_EXPRESSION, UNDEFINED_LITERAL,
-      UPDATE_EXPRESSION, USING_EXPRESSION, VARIABLE_REFERENCE_EXPRESSION),
+    create_token_set_(ADDITION_SUBTRACTION_EXPRESSION, AND_EXPRESSION, ANNOTATED_EXPRESSION, ANY_DATE_LITERAL,
+      ARRAY_EXPRESSION, AS_EXPRESSION, BINARY_EXPRESSION, BOOLEAN_LITERAL,
+      BRACKET_SELECTOR_EXPRESSION, CONDITIONAL_EXPRESSION, CUSTOM_INTERPOLATOR_EXPRESSION, DEFAULT_VALUE_EXPRESSION,
+      DOT_SELECTOR_EXPRESSION, DO_EXPRESSION, ENCLOSED_EXPRESSION, EQUALITY_EXPRESSION,
+      EXPRESSION, FUNCTION_CALL_EXPRESSION, GREATER_THAN_EXPRESSION, IS_EXPRESSION,
+      LAMBDA_LITERAL, LEFT_SHIFT_EXPRESSION, LITERAL_EXPRESSION, MATCH_EXPRESSION,
+      MULTIPLICATION_DIVISION_EXPRESSION, NOT_EXPRESSION, NULL_LITERAL, NUMBER_LITERAL,
+      OBJECT_DECONSTRUCT_EXPRESSION, OBJECT_EXPRESSION, OR_EXPRESSION, PATTERN_MATCHER_EXPRESSION,
+      REGEX_LITERAL, RIGHT_SHIFT_EXPRESSION, STRING_LITERAL, UNARY_MINUS_EXPRESSION,
+      UNDEFINED_LITERAL, UPDATE_EXPRESSION, USING_EXPRESSION, VARIABLE_REFERENCE_EXPRESSION),
   };
 
   /* ********************************************************** */
@@ -85,6 +85,29 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
+  // Annotation* Expression
+  public static boolean AnnotatedExpression(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "AnnotatedExpression")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _COLLAPSE_, ANNOTATED_EXPRESSION, "<annotated expression>");
+    r = AnnotatedExpression_0(b, l + 1);
+    r = r && Expression(b, l + 1, -1);
+    exit_section_(b, l, m, r, false, null);
+    return r;
+  }
+
+  // Annotation*
+  private static boolean AnnotatedExpression_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "AnnotatedExpression_0")) return false;
+    while (true) {
+      int c = current_position_(b);
+      if (!Annotation(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "AnnotatedExpression_0", c)) break;
+    }
+    return true;
+  }
+
+  /* ********************************************************** */
   // '@'FqnIdentifier AnnotationArguments?
   public static boolean Annotation(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "Annotation")) return false;
@@ -107,14 +130,14 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // Identifier '=' Expression
+  // Identifier '=' AnnotatedExpression
   public static boolean AnnotationArgument(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "AnnotationArgument")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, ANNOTATION_ARGUMENT, "<annotation argument>");
     r = Identifier(b, l + 1);
     r = r && consumeToken(b, EQ);
-    r = r && Expression(b, l + 1, -1);
+    r = r && AnnotatedExpression(b, l + 1);
     exit_section_(b, l, m, r, false, null);
     return r;
   }
@@ -263,7 +286,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // ((Identifier) ':' TypeLiteral) ('=' Expression)?
+  // ((Identifier) ':' TypeLiteral) ('=' AnnotatedExpression)?
   public static boolean AnnotationParameter(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "AnnotationParameter")) return false;
     boolean r;
@@ -296,20 +319,20 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // ('=' Expression)?
+  // ('=' AnnotatedExpression)?
   private static boolean AnnotationParameter_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "AnnotationParameter_1")) return false;
     AnnotationParameter_1_0(b, l + 1);
     return true;
   }
 
-  // '=' Expression
+  // '=' AnnotatedExpression
   private static boolean AnnotationParameter_1_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "AnnotationParameter_1_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, EQ);
-    r = r && Expression(b, l + 1, -1);
+    r = r && AnnotatedExpression(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
   }
@@ -327,7 +350,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // '[' DeconstructVariableDeclaration '~' DeconstructVariableDeclaration ']' '->' Expression
+  // '[' DeconstructVariableDeclaration '~' DeconstructVariableDeclaration ']' '->' AnnotatedExpression
   public static boolean ArrayDeconstructPattern(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ArrayDeconstructPattern")) return false;
     if (!nextTokenIs(b, L_BRACKET)) return false;
@@ -339,18 +362,18 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     p = r; // pin = 3
     r = r && report_error_(b, DeconstructVariableDeclaration(b, l + 1));
     r = p && report_error_(b, consumeTokens(b, -1, R_BRACKET, ARROW_TOKEN)) && r;
-    r = p && Expression(b, l + 1, -1) && r;
+    r = p && AnnotatedExpression(b, l + 1) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
   }
 
   /* ********************************************************** */
-  // Expression (IF SimpleExpression)?
+  // AnnotatedExpression (IF SimpleExpression)?
   static boolean ArrayElement(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ArrayElement")) return false;
     boolean r;
     Marker m = enter_section_(b);
-    r = Expression(b, l + 1, -1);
+    r = AnnotatedExpression(b, l + 1);
     r = r && ArrayElement_1(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
@@ -596,12 +619,12 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // Expression
+  // AnnotatedExpression
   public static boolean Body(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "Body")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, BODY, "<body>");
-    r = Expression(b, l + 1, -1);
+    r = AnnotatedExpression(b, l + 1);
     exit_section_(b, l, m, r, false, null);
     return r;
   }
@@ -744,7 +767,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // "(" (Identifier | StringLiteral) ':' Expression ")" IF "(" Expression ")"
+  // "(" (Identifier | StringLiteral) ':' AnnotatedExpression ")" IF "(" AnnotatedExpression ")"
   public static boolean ConditionalSchemaKV(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ConditionalSchemaKV")) return false;
     if (!nextTokenIs(b, L_PARREN)) return false;
@@ -754,9 +777,9 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     r = r && ConditionalSchemaKV_1(b, l + 1);
     r = r && consumeToken(b, COLON);
     p = r; // pin = 3
-    r = r && report_error_(b, Expression(b, l + 1, -1));
+    r = r && report_error_(b, AnnotatedExpression(b, l + 1));
     r = p && report_error_(b, consumeTokens(b, -1, R_PARREN, IF, L_PARREN)) && r;
-    r = p && report_error_(b, Expression(b, l + 1, -1)) && r;
+    r = p && report_error_(b, AnnotatedExpression(b, l + 1)) && r;
     r = p && consumeToken(b, R_PARREN) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
@@ -856,7 +879,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // ELSE (Identifier)? '->' Expression
+  // ELSE (Identifier)? '->' AnnotatedExpression
   public static boolean DefaultPattern(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "DefaultPattern")) return false;
     if (!nextTokenIs(b, ELSE)) return false;
@@ -866,7 +889,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     p = r; // pin = 1
     r = r && report_error_(b, DefaultPattern_1(b, l + 1));
     r = p && report_error_(b, consumeToken(b, ARROW_TOKEN)) && r;
-    r = p && Expression(b, l + 1, -1) && r;
+    r = p && AnnotatedExpression(b, l + 1) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
   }
@@ -1000,28 +1023,28 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // '(' Expression ')' ((':' Expression) | (IF Expression))?
+  // '(' AnnotatedExpression ')' ((':' AnnotatedExpression) | (IF AnnotatedExpression))?
   public static boolean DynamicAttribute(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "DynamicAttribute")) return false;
     if (!nextTokenIs(b, L_PARREN)) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, L_PARREN);
-    r = r && Expression(b, l + 1, -1);
+    r = r && AnnotatedExpression(b, l + 1);
     r = r && consumeToken(b, R_PARREN);
     r = r && DynamicAttribute_3(b, l + 1);
     exit_section_(b, m, DYNAMIC_ATTRIBUTE, r);
     return r;
   }
 
-  // ((':' Expression) | (IF Expression))?
+  // ((':' AnnotatedExpression) | (IF AnnotatedExpression))?
   private static boolean DynamicAttribute_3(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "DynamicAttribute_3")) return false;
     DynamicAttribute_3_0(b, l + 1);
     return true;
   }
 
-  // (':' Expression) | (IF Expression)
+  // (':' AnnotatedExpression) | (IF AnnotatedExpression)
   private static boolean DynamicAttribute_3_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "DynamicAttribute_3_0")) return false;
     boolean r;
@@ -1032,37 +1055,37 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // ':' Expression
+  // ':' AnnotatedExpression
   private static boolean DynamicAttribute_3_0_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "DynamicAttribute_3_0_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, COLON);
-    r = r && Expression(b, l + 1, -1);
+    r = r && AnnotatedExpression(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
   }
 
-  // IF Expression
+  // IF AnnotatedExpression
   private static boolean DynamicAttribute_3_0_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "DynamicAttribute_3_0_1")) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, IF);
-    r = r && Expression(b, l + 1, -1);
+    r = r && AnnotatedExpression(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
   }
 
   /* ********************************************************** */
-  // '(' Expression ')' (dynamicKV | conditionalKV)?
+  // '(' AnnotatedExpression ')' (dynamicKV | conditionalKV)?
   public static boolean DynamicKeyValuePair(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "DynamicKeyValuePair")) return false;
     if (!nextTokenIs(b, L_PARREN)) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, L_PARREN);
-    r = r && Expression(b, l + 1, -1);
+    r = r && AnnotatedExpression(b, l + 1);
     r = r && consumeToken(b, R_PARREN);
     r = r && DynamicKeyValuePair_3(b, l + 1);
     exit_section_(b, m, DYNAMIC_KEY_VALUE_PAIR, r);
@@ -1098,14 +1121,14 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // (Attributes)? ':' Expression
+  // (Attributes)? ':' AnnotatedExpression
   public static boolean DynamicSingleKeyValuePair(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "DynamicSingleKeyValuePair")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, DYNAMIC_SINGLE_KEY_VALUE_PAIR, "<dynamic single key value pair>");
     r = DynamicSingleKeyValuePair_0(b, l + 1);
     r = r && consumeToken(b, COLON);
-    r = r && Expression(b, l + 1, -1);
+    r = r && AnnotatedExpression(b, l + 1);
     exit_section_(b, l, m, r, false, null);
     return r;
   }
@@ -1128,33 +1151,33 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // '['']'  '->' Expression
+  // '['']'  '->' AnnotatedExpression
   public static boolean EmptyArrayPattern(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "EmptyArrayPattern")) return false;
     if (!nextTokenIs(b, L_BRACKET)) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = consumeTokens(b, 0, L_BRACKET, R_BRACKET, ARROW_TOKEN);
-    r = r && Expression(b, l + 1, -1);
+    r = r && AnnotatedExpression(b, l + 1);
     exit_section_(b, m, EMPTY_ARRAY_PATTERN, r);
     return r;
   }
 
   /* ********************************************************** */
-  // '{''}'  '->' Expression
+  // '{''}'  '->' AnnotatedExpression
   public static boolean EmptyObjectPattern(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "EmptyObjectPattern")) return false;
     if (!nextTokenIs(b, L_CURLY)) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = consumeTokens(b, 0, L_CURLY, R_CURLY, ARROW_TOKEN);
-    r = r && Expression(b, l + 1, -1);
+    r = r && AnnotatedExpression(b, l + 1);
     exit_section_(b, m, EMPTY_OBJECT_PATTERN, r);
     return r;
   }
 
   /* ********************************************************** */
-  // Identifier IF (EnclosedExpression | SimpleExpression) '->' Expression
+  // Identifier IF (EnclosedExpression | SimpleExpression) '->' AnnotatedExpression
   public static boolean ExpressionPattern(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ExpressionPattern")) return false;
     boolean r, p;
@@ -1164,7 +1187,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     r = r && ExpressionPattern_2(b, l + 1);
     r = r && consumeToken(b, ARROW_TOKEN);
     p = r; // pin = 4
-    r = r && Expression(b, l + 1, -1);
+    r = r && AnnotatedExpression(b, l + 1);
     exit_section_(b, l, m, r, p, null);
     return r || p;
   }
@@ -1199,7 +1222,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // '(' ( Expression ( ',' Expression )* )? (',')? ')'
+  // '(' ( AnnotatedExpression ( ',' AnnotatedExpression )* )? (',')? ')'
   public static boolean FunctionCallArguments(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "FunctionCallArguments")) return false;
     if (!nextTokenIs(b, L_PARREN)) return false;
@@ -1214,25 +1237,25 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     return r || p;
   }
 
-  // ( Expression ( ',' Expression )* )?
+  // ( AnnotatedExpression ( ',' AnnotatedExpression )* )?
   private static boolean FunctionCallArguments_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "FunctionCallArguments_1")) return false;
     FunctionCallArguments_1_0(b, l + 1);
     return true;
   }
 
-  // Expression ( ',' Expression )*
+  // AnnotatedExpression ( ',' AnnotatedExpression )*
   private static boolean FunctionCallArguments_1_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "FunctionCallArguments_1_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
-    r = Expression(b, l + 1, -1);
+    r = AnnotatedExpression(b, l + 1);
     r = r && FunctionCallArguments_1_0_1(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
   }
 
-  // ( ',' Expression )*
+  // ( ',' AnnotatedExpression )*
   private static boolean FunctionCallArguments_1_0_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "FunctionCallArguments_1_0_1")) return false;
     while (true) {
@@ -1243,13 +1266,13 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     return true;
   }
 
-  // ',' Expression
+  // ',' AnnotatedExpression
   private static boolean FunctionCallArguments_1_0_1_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "FunctionCallArguments_1_0_1_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, COMMA);
-    r = r && Expression(b, l + 1, -1);
+    r = r && AnnotatedExpression(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
   }
@@ -1316,7 +1339,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // Identifier TypeParameterDeclaration? L_PARREN ( FunctionParameter ( ',' FunctionParameter )* )? (",")? R_PARREN ( ":" (Type | DynamicReturn)? "=" | "=")? Expression
+  // Identifier TypeParameterDeclaration? L_PARREN ( FunctionParameter ( ',' FunctionParameter )* )? (",")? R_PARREN ( ":" (Type | DynamicReturn)? "=" | "=")? AnnotatedExpression
   public static boolean FunctionDefinition(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "FunctionDefinition")) return false;
     boolean r, p;
@@ -1329,7 +1352,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     r = p && report_error_(b, FunctionDefinition_4(b, l + 1)) && r;
     r = p && report_error_(b, consumeToken(b, R_PARREN)) && r;
     r = p && report_error_(b, FunctionDefinition_6(b, l + 1)) && r;
-    r = p && Expression(b, l + 1, -1) && r;
+    r = p && AnnotatedExpression(b, l + 1) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
   }
@@ -1461,7 +1484,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // VariableNameTypeDefinition ('=' Expression)?
+  // VariableNameTypeDefinition ('=' AnnotatedExpression)?
   public static boolean FunctionParameter(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "FunctionParameter")) return false;
     boolean r;
@@ -1472,20 +1495,20 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // ('=' Expression)?
+  // ('=' AnnotatedExpression)?
   private static boolean FunctionParameter_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "FunctionParameter_1")) return false;
     FunctionParameter_1_0(b, l + 1);
     return true;
   }
 
-  // '=' Expression
+  // '=' AnnotatedExpression
   private static boolean FunctionParameter_1_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "FunctionParameter_1_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, EQ);
-    r = r && Expression(b, l + 1, -1);
+    r = r && AnnotatedExpression(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
   }
@@ -1814,20 +1837,32 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // QualifiedName Attributes?
+  // Annotation* QualifiedName Attributes?
   public static boolean Key(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "Key")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, KEY, "<key>");
-    r = QualifiedName(b, l + 1);
-    r = r && Key_1(b, l + 1);
+    r = Key_0(b, l + 1);
+    r = r && QualifiedName(b, l + 1);
+    r = r && Key_2(b, l + 1);
     exit_section_(b, l, m, r, false, null);
     return r;
   }
 
+  // Annotation*
+  private static boolean Key_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "Key_0")) return false;
+    while (true) {
+      int c = current_position_(b);
+      if (!Annotation(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "Key_0", c)) break;
+    }
+    return true;
+  }
+
   // Attributes?
-  private static boolean Key_1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "Key_1")) return false;
+  private static boolean Key_2(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "Key_2")) return false;
     Attributes(b, l + 1);
     return true;
   }
@@ -1864,7 +1899,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // Key ':' Expression
+  // Key ':' AnnotatedExpression
   public static boolean KeyValuePair(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "KeyValuePair")) return false;
     boolean r, p;
@@ -1872,7 +1907,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     r = Key(b, l + 1);
     r = r && consumeToken(b, COLON);
     p = r; // pin = 2
-    r = r && Expression(b, l + 1, -1);
+    r = r && AnnotatedExpression(b, l + 1);
     exit_section_(b, l, m, r, p, null);
     return r || p;
   }
@@ -2051,7 +2086,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // (LiteralExpression | FqnIdentifier ) '->' Expression
+  // (LiteralExpression | FqnIdentifier ) '->' AnnotatedExpression
   public static boolean LiteralPattern(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "LiteralPattern")) return false;
     boolean r, p;
@@ -2059,7 +2094,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     r = LiteralPattern_0(b, l + 1);
     r = r && consumeToken(b, ARROW_TOKEN);
     p = r; // pin = 2
-    r = r && Expression(b, l + 1, -1);
+    r = r && AnnotatedExpression(b, l + 1);
     exit_section_(b, l, m, r, p, null);
     return r || p;
   }
@@ -2299,7 +2334,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // Identifier ':' LiteralExpression '->' Expression
+  // Identifier ':' LiteralExpression '->' AnnotatedExpression
   public static boolean NamedLiteralPattern(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "NamedLiteralPattern")) return false;
     boolean r, p;
@@ -2309,13 +2344,13 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     p = r; // pin = 2
     r = r && report_error_(b, LiteralExpression(b, l + 1));
     r = p && report_error_(b, consumeToken(b, ARROW_TOKEN)) && r;
-    r = p && Expression(b, l + 1, -1) && r;
+    r = p && AnnotatedExpression(b, l + 1) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
   }
 
   /* ********************************************************** */
-  // Identifier 'matches' RegexLiteral '->' Expression
+  // Identifier 'matches' RegexLiteral '->' AnnotatedExpression
   public static boolean NamedRegexPattern(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "NamedRegexPattern")) return false;
     boolean r, p;
@@ -2325,13 +2360,13 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     r = r && RegexLiteral(b, l + 1);
     r = r && consumeToken(b, ARROW_TOKEN);
     p = r; // pin = 4
-    r = r && Expression(b, l + 1, -1);
+    r = r && AnnotatedExpression(b, l + 1);
     exit_section_(b, l, m, r, p, null);
     return r || p;
   }
 
   /* ********************************************************** */
-  // Identifier "is" TypeLiteral '->' Expression
+  // Identifier "is" TypeLiteral '->' AnnotatedExpression
   public static boolean NamedTypePattern(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "NamedTypePattern")) return false;
     boolean r, p;
@@ -2341,7 +2376,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     p = r; // pin = 2
     r = r && report_error_(b, TypeLiteral(b, l + 1));
     r = p && report_error_(b, consumeToken(b, ARROW_TOKEN)) && r;
-    r = p && Expression(b, l + 1, -1) && r;
+    r = p && AnnotatedExpression(b, l + 1) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
   }
@@ -2447,7 +2482,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // '{' DeconstructVariableDeclaration ':' DeconstructVariableDeclaration '~' DeconstructVariableDeclaration '}' '->' Expression
+  // '{' DeconstructVariableDeclaration ':' DeconstructVariableDeclaration '~' DeconstructVariableDeclaration '}' '->' AnnotatedExpression
   public static boolean ObjectDeconstructPattern(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ObjectDeconstructPattern")) return false;
     if (!nextTokenIs(b, L_CURLY)) return false;
@@ -2461,7 +2496,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     p = r; // pin = 5
     r = r && report_error_(b, DeconstructVariableDeclaration(b, l + 1));
     r = p && report_error_(b, consumeTokens(b, -1, R_CURLY, ARROW_TOKEN)) && r;
-    r = p && Expression(b, l + 1, -1) && r;
+    r = p && AnnotatedExpression(b, l + 1) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
   }
@@ -2969,7 +3004,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // 'matches' RegexLiteral '->' Expression
+  // 'matches' RegexLiteral '->' AnnotatedExpression
   public static boolean RegexPattern(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "RegexPattern")) return false;
     if (!nextTokenIs(b, MATCHES_KEYWORD)) return false;
@@ -2979,7 +3014,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     r = r && RegexLiteral(b, l + 1);
     r = r && consumeToken(b, ARROW_TOKEN);
     p = r; // pin = 3
-    r = r && Expression(b, l + 1, -1);
+    r = r && AnnotatedExpression(b, l + 1);
     exit_section_(b, l, m, r, p, null);
     return r || p;
   }
@@ -3060,7 +3095,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // (Identifier | StringLiteral) ':' Expression
+  // (Identifier | StringLiteral) ':' AnnotatedExpression
   public static boolean SchemaKV(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "SchemaKV")) return false;
     boolean r, p;
@@ -3068,7 +3103,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     r = SchemaKV_0(b, l + 1);
     r = r && consumeToken(b, COLON);
     p = r; // pin = 2
-    r = r && Expression(b, l + 1, -1);
+    r = r && AnnotatedExpression(b, l + 1);
     exit_section_(b, l, m, r, p, null);
     return r || p;
   }
@@ -3131,16 +3166,28 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // QualifiedName ':' Expression
+  // Annotation* QualifiedName ':' AnnotatedExpression
   public static boolean SimpleAttribute(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "SimpleAttribute")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, SIMPLE_ATTRIBUTE, "<simple attribute>");
-    r = QualifiedName(b, l + 1);
+    r = SimpleAttribute_0(b, l + 1);
+    r = r && QualifiedName(b, l + 1);
     r = r && consumeToken(b, COLON);
-    r = r && Expression(b, l + 1, -1);
+    r = r && AnnotatedExpression(b, l + 1);
     exit_section_(b, l, m, r, false, null);
     return r;
+  }
+
+  // Annotation*
+  private static boolean SimpleAttribute_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "SimpleAttribute_0")) return false;
+    while (true) {
+      int c = current_position_(b);
+      if (!Annotation(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "SimpleAttribute_0", c)) break;
+    }
+    return true;
   }
 
   /* ********************************************************** */
@@ -3364,7 +3411,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // 'is' Type '->' Expression
+  // 'is' Type '->' AnnotatedExpression
   public static boolean TypePattern(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "TypePattern")) return false;
     if (!nextTokenIs(b, IS)) return false;
@@ -3374,7 +3421,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     r = r && Type(b, l + 1);
     r = r && consumeToken(b, ARROW_TOKEN);
     p = r; // pin = 3
-    r = r && Expression(b, l + 1, -1);
+    r = r && AnnotatedExpression(b, l + 1);
     exit_section_(b, l, m, r, p, null);
     return r || p;
   }
@@ -3416,7 +3463,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // ((Identifier | '(' Identifier ',' Identifier ')') 'at')? UpdateSelector ('!')? (IF EnclosedExpression)? '->' Expression
+  // ((Identifier | '(' Identifier ',' Identifier ')') 'at')? UpdateSelector ('!')? (IF EnclosedExpression)? '->' AnnotatedExpression
   public static boolean UpdateCase(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "UpdateCase")) return false;
     boolean r, p;
@@ -3427,7 +3474,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     r = r && UpdateCase_3(b, l + 1);
     p = r; // pin = 4
     r = r && report_error_(b, consumeToken(b, ARROW_TOKEN));
-    r = p && Expression(b, l + 1, -1) && r;
+    r = p && AnnotatedExpression(b, l + 1) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
   }
@@ -3542,7 +3589,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // (('.' (ValueSelector | MultiValueSelector | AttributeSelector)) | '[' Expression ']') (UpdateSelector)*
+  // (('.' (ValueSelector | MultiValueSelector | AttributeSelector)) | '[' AnnotatedExpression ']') (UpdateSelector)*
   static boolean UpdateSelector(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "UpdateSelector")) return false;
     boolean r;
@@ -3553,7 +3600,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // ('.' (ValueSelector | MultiValueSelector | AttributeSelector)) | '[' Expression ']'
+  // ('.' (ValueSelector | MultiValueSelector | AttributeSelector)) | '[' AnnotatedExpression ']'
   private static boolean UpdateSelector_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "UpdateSelector_0")) return false;
     boolean r;
@@ -3585,13 +3632,13 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // '[' Expression ']'
+  // '[' AnnotatedExpression ']'
   private static boolean UpdateSelector_0_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "UpdateSelector_0_1")) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, L_BRACKET);
-    r = r && Expression(b, l + 1, -1);
+    r = r && AnnotatedExpression(b, l + 1);
     r = r && consumeToken(b, R_BRACKET);
     exit_section_(b, m, null, r);
     return r;
@@ -3630,7 +3677,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // VariableNameTypeDefinition '='  Expression
+  // VariableNameTypeDefinition '='  AnnotatedExpression
   public static boolean VariableDefinition(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "VariableDefinition")) return false;
     boolean r, p;
@@ -3638,7 +3685,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     r = VariableNameTypeDefinition(b, l + 1);
     r = r && consumeToken(b, EQ);
     p = r; // pin = 2
-    r = r && Expression(b, l + 1, -1);
+    r = r && AnnotatedExpression(b, l + 1);
     exit_section_(b, l, m, r, p, null);
     return r || p;
   }
@@ -3744,7 +3791,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // IF Expression
+  // IF AnnotatedExpression
   static boolean conditionalKV(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "conditionalKV")) return false;
     if (!nextTokenIs(b, IF)) return false;
@@ -3752,13 +3799,13 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     Marker m = enter_section_(b, l, _NONE_);
     r = consumeToken(b, IF);
     p = r; // pin = 1
-    r = r && Expression(b, l + 1, -1);
+    r = r && AnnotatedExpression(b, l + 1);
     exit_section_(b, l, m, r, p, null);
     return r || p;
   }
 
   /* ********************************************************** */
-  // (Attributes)? ':' Expression
+  // (Attributes)? ':' AnnotatedExpression
   static boolean dynamicKV(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "dynamicKV")) return false;
     boolean r, p;
@@ -3766,7 +3813,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     r = dynamicKV_0(b, l + 1);
     r = r && consumeToken(b, COLON);
     p = r; // pin = 2
-    r = r && Expression(b, l + 1, -1);
+    r = r && AnnotatedExpression(b, l + 1);
     exit_section_(b, l, m, r, p, null);
     return r || p;
   }
@@ -3981,7 +4028,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // 'match' (PatternMatcherExpression )
+  // 'match' (PatternMatcherExpression)
   private static boolean MatchExpression_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "MatchExpression_0")) return false;
     boolean r;
@@ -3992,7 +4039,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // (PatternMatcherExpression )
+  // (PatternMatcherExpression)
   private static boolean MatchExpression_0_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "MatchExpression_0_1")) return false;
     boolean r;
@@ -4342,7 +4389,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // ( IF | UNLESS ) '(' Expression ')' Expression ELSE Expression
+  // ( IF | UNLESS ) '(' AnnotatedExpression ')' AnnotatedExpression ELSE AnnotatedExpression
   public static boolean ConditionalExpression(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ConditionalExpression")) return false;
     if (!nextTokenIsSmart(b, IF, UNLESS)) return false;
@@ -4351,11 +4398,11 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     r = ConditionalExpression_0(b, l + 1);
     p = r; // pin = 1
     r = r && report_error_(b, consumeToken(b, L_PARREN));
-    r = p && report_error_(b, Expression(b, l + 1, -1)) && r;
+    r = p && report_error_(b, AnnotatedExpression(b, l + 1)) && r;
     r = p && report_error_(b, consumeToken(b, R_PARREN)) && r;
-    r = p && report_error_(b, Expression(b, l + 1, -1)) && r;
+    r = p && report_error_(b, AnnotatedExpression(b, l + 1)) && r;
     r = p && report_error_(b, consumeToken(b, ELSE)) && r;
-    r = p && Expression(b, l + 1, -1) && r;
+    r = p && AnnotatedExpression(b, l + 1) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
   }
@@ -4369,7 +4416,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // USING '(' VariableDefinition ( ',' VariableDefinition )*  (",")? ')' Expression
+  // USING '(' VariableDefinition ( ',' VariableDefinition )*  (",")? ')' AnnotatedExpression
   public static boolean UsingExpression(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "UsingExpression")) return false;
     if (!nextTokenIsSmart(b, USING)) return false;
@@ -4381,7 +4428,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     r = p && report_error_(b, UsingExpression_3(b, l + 1)) && r;
     r = p && report_error_(b, UsingExpression_4(b, l + 1)) && r;
     r = p && report_error_(b, consumeToken(b, R_PARREN)) && r;
-    r = p && Expression(b, l + 1, -1) && r;
+    r = p && AnnotatedExpression(b, l + 1) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
   }
@@ -4415,7 +4462,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     return true;
   }
 
-  // 'do' '{' (DoDirectives+ '---')?  Expression'}'
+  // 'do' '{' (DoDirectives+ '---')?  AnnotatedExpression'}'
   public static boolean DoExpression(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "DoExpression")) return false;
     if (!nextTokenIsSmart(b, DO_KEYWORD)) return false;
@@ -4424,7 +4471,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     r = consumeTokensSmart(b, 1, DO_KEYWORD, L_CURLY);
     p = r; // pin = 1
     r = r && report_error_(b, DoExpression_2(b, l + 1));
-    r = p && report_error_(b, Expression(b, l + 1, -1)) && r;
+    r = p && report_error_(b, AnnotatedExpression(b, l + 1)) && r;
     r = p && consumeToken(b, R_CURLY) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
@@ -4561,7 +4608,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     return true;
   }
 
-  // '{' (KeyValuePair | DynamicKeyValuePair) '~' Expression '}'
+  // '{' (KeyValuePair | DynamicKeyValuePair) '~' AnnotatedExpression '}'
   public static boolean ObjectDeconstructExpression(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ObjectDeconstructExpression")) return false;
     if (!nextTokenIsSmart(b, L_CURLY)) return false;
@@ -4571,7 +4618,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     r = r && ObjectDeconstructExpression_1(b, l + 1);
     r = r && consumeToken(b, TILDE);
     p = r; // pin = 3
-    r = r && report_error_(b, Expression(b, l + 1, -1));
+    r = r && report_error_(b, AnnotatedExpression(b, l + 1));
     r = p && consumeToken(b, R_CURLY) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
@@ -4597,7 +4644,7 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // '[' (ArrayElement (('~' Expression) | ( ',' ArrayElement )* (',')? )?)? ']'
+  // '[' (ArrayElement (('~' AnnotatedExpression) | ( ',' ArrayElement )* (',')? )?)? ']'
   public static boolean ArrayExpression(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ArrayExpression")) return false;
     if (!nextTokenIsSmart(b, L_BRACKET)) return false;
@@ -4611,14 +4658,14 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     return r || p;
   }
 
-  // (ArrayElement (('~' Expression) | ( ',' ArrayElement )* (',')? )?)?
+  // (ArrayElement (('~' AnnotatedExpression) | ( ',' ArrayElement )* (',')? )?)?
   private static boolean ArrayExpression_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ArrayExpression_1")) return false;
     ArrayExpression_1_0(b, l + 1);
     return true;
   }
 
-  // ArrayElement (('~' Expression) | ( ',' ArrayElement )* (',')? )?
+  // ArrayElement (('~' AnnotatedExpression) | ( ',' ArrayElement )* (',')? )?
   private static boolean ArrayExpression_1_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ArrayExpression_1_0")) return false;
     boolean r;
@@ -4629,14 +4676,14 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // (('~' Expression) | ( ',' ArrayElement )* (',')? )?
+  // (('~' AnnotatedExpression) | ( ',' ArrayElement )* (',')? )?
   private static boolean ArrayExpression_1_0_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ArrayExpression_1_0_1")) return false;
     ArrayExpression_1_0_1_0(b, l + 1);
     return true;
   }
 
-  // ('~' Expression) | ( ',' ArrayElement )* (',')?
+  // ('~' AnnotatedExpression) | ( ',' ArrayElement )* (',')?
   private static boolean ArrayExpression_1_0_1_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ArrayExpression_1_0_1_0")) return false;
     boolean r;
@@ -4647,13 +4694,13 @@ public class WeaveParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // '~' Expression
+  // '~' AnnotatedExpression
   private static boolean ArrayExpression_1_0_1_0_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ArrayExpression_1_0_1_0_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = consumeTokenSmart(b, TILDE);
-    r = r && Expression(b, l + 1, -1);
+    r = r && AnnotatedExpression(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
   }

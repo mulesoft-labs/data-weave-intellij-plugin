@@ -5,15 +5,12 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface WeaveKey extends PsiElement {
+public interface WeaveAnnotatedExpression extends WeaveExpression {
 
   @NotNull
   List<WeaveAnnotation> getAnnotationList();
 
-  @Nullable
-  WeaveAttributes getAttributes();
-
   @NotNull
-  WeaveQualifiedName getQualifiedName();
+  WeaveExpression getExpression();
 
 }

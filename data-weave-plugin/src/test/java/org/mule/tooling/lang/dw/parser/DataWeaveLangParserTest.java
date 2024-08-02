@@ -6,6 +6,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiErrorElement;
 import com.intellij.testFramework.LightVirtualFile;
 import com.intellij.testFramework.ParsingTestCase;
+import com.intellij.testFramework.TestApplicationManagerKt;
 import com.intellij.testFramework.TestRunnerUtil;
 import com.intellij.util.ThrowableRunnable;
 import org.jetbrains.annotations.NotNull;
@@ -47,7 +48,7 @@ public class DataWeaveLangParserTest extends ParsingTestCase {
 
     public void runTest(ThrowableRunnable<Throwable> runnable) throws Throwable {
         final ResultHolder<Throwable> result = new ResultHolder<>();
-        TestRunnerUtil.replaceIdeEventQueueSafely();
+        TestApplicationManagerKt.replaceIdeEventQueueSafely();
         runTestRunnable(runnable);
         if (result.nonEmpty()) {
             throw result.get();

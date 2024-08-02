@@ -8,17 +8,17 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static org.mule.tooling.lang.dw.parser.psi.WeaveTypes.*;
-import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import org.mule.tooling.lang.dw.parser.psi.*;
 
-public class WeaveKeyImpl extends ASTWrapperPsiElement implements WeaveKey {
+public class WeaveAnnotatedExpressionImpl extends WeaveExpressionImpl implements WeaveAnnotatedExpression {
 
-  public WeaveKeyImpl(@NotNull ASTNode node) {
+  public WeaveAnnotatedExpressionImpl(@NotNull ASTNode node) {
     super(node);
   }
 
+  @Override
   public void accept(@NotNull WeaveVisitor visitor) {
-    visitor.visitKey(this);
+    visitor.visitAnnotatedExpression(this);
   }
 
   @Override
@@ -34,15 +34,9 @@ public class WeaveKeyImpl extends ASTWrapperPsiElement implements WeaveKey {
   }
 
   @Override
-  @Nullable
-  public WeaveAttributes getAttributes() {
-    return findChildByClass(WeaveAttributes.class);
-  }
-
-  @Override
   @NotNull
-  public WeaveQualifiedName getQualifiedName() {
-    return findNotNullChildByClass(WeaveQualifiedName.class);
+  public WeaveExpression getExpression() {
+    return findNotNullChildByClass(WeaveExpression.class);
   }
 
 }

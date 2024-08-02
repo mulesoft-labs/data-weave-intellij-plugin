@@ -145,7 +145,7 @@ AnnotationDefinition ::= Identifier '('( AnnotationParameter ( ',' AnnotationPar
      pin=1
 }
 
-AnnotationParameter::= ((Identifier) ':' TypeLiteral) ('=' Expression)?
+AnnotationParameter::= ((Identifier) ':' TypeLiteral) ('=' AnnotatedExpression)?
 
 private HeaderRecover::= !('---'|OUTPUT_DIRECTIVE_KEYWORD|'type'|'fun'|'ns'|'var'|'%dw'|'input'|IMPORT_DIRECTIVE_KEYWORD | '@' | 'annotation')
 
@@ -188,7 +188,7 @@ TypeDefinition::=Identifier TypeParameterDeclaration? '=' (TypeLiteral | Undefin
 
 FunctionDirective::= Annotation*  'fun' FunctionDefinition {pin=2}
 
-FunctionDefinition::=Identifier TypeParameterDeclaration? L_PARREN ( FunctionParameter ( ',' FunctionParameter )* )? (",")? R_PARREN ( ":" (Type | DynamicReturn)? "=" | "=")? Expression
+FunctionDefinition::=Identifier TypeParameterDeclaration? L_PARREN ( FunctionParameter ( ',' FunctionParameter )* )? (",")? R_PARREN ( ":" (Type | DynamicReturn)? "=" | "=")? AnnotatedExpression
 {
      methods = [getName setName getNameIdentifier getPresentation getElementIcon]
      implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
@@ -202,9 +202,9 @@ Schema::= '{' ( SchemaElement ( ',' SchemaElement )* )? (",")? '}' {pin = 1}
 
 SchemaElement::=SchemaKV | ConditionalSchemaKV
 
-SchemaKV::= (Identifier | StringLiteral) ':' Expression {pin = 2}
+SchemaKV::= (Identifier | StringLiteral) ':' AnnotatedExpression {pin = 2}
 
-ConditionalSchemaKV::= "(" (Identifier | StringLiteral) ':' Expression ")" IF "(" Expression ")" {pin = 3}
+ConditionalSchemaKV::= "(" (Identifier | StringLiteral) ':' AnnotatedExpression ")" IF "(" AnnotatedExpression ")" {pin = 3}
 
 InputDirective::= Annotation* 'input' VariableNameTypeDefinition InputDataFormat? Options? {
     pin=2
@@ -219,7 +219,9 @@ Options::= OptionElement ( ',' OptionElement )*
 
 OptionElement::= Identifier '=' LiteralExpression {pin=2}
 
-Body ::= Expression
+Body ::= AnnotatedExpression {
+ methods=[getExpression]
+}
 
 ObjectExpression ::= SingleKeyValuePairObj | MultipleKeyValuePairObj {
     implements="com.intellij.psi.NavigatablePsiElement"
@@ -232,20 +234,20 @@ private MultipleKeyValuePairObj::= '{' objectEntryRule? (',' objectEntryRule)* (
 
 private objectEntryRule ::= KeyValuePair | DynamicKeyValuePair
 
-KeyValuePair::=  Key ':' Expression
+KeyValuePair::=  Key ':' AnnotatedExpression
                  {
                      implements="com.intellij.psi.NavigatablePsiElement"
                      methods=[getPresentation]
                      pin=2
                  }
 
-DynamicKeyValuePair ::= '(' Expression ')' (dynamicKV | conditionalKV)?
+DynamicKeyValuePair ::= '(' AnnotatedExpression ')' (dynamicKV | conditionalKV)?
 
-private conditionalKV ::= IF Expression {pin=1}
+private conditionalKV ::= IF AnnotatedExpression {pin=1}
 
-private dynamicKV ::= (Attributes)? ':' Expression {pin=2}
+private dynamicKV ::= (Attributes)? ':' AnnotatedExpression {pin=2}
 
-Key::= QualifiedName Attributes?
+Key::= Annotation* QualifiedName Attributes?
 
 QualifiedName::= DeclaredNamespace? (Identifier | StringLiteral) {
     name="Key Name"
@@ -258,9 +260,11 @@ Attributes::= '@(' ( Attribute ( ',' Attribute )* )? ')' {pin=1}
 Attribute::= SimpleAttribute
            | DynamicAttribute
 
-DynamicAttribute ::= '(' Expression ')' ((':' Expression) | (IF Expression))?
+DynamicAttribute ::= '(' AnnotatedExpression ')' ((':' AnnotatedExpression) | (IF AnnotatedExpression))?
 
-SimpleAttribute::= QualifiedName ':' Expression
+SimpleAttribute::= Annotation* QualifiedName ':' AnnotatedExpression
+
+AnnotatedExpression ::= Annotation* Expression
 
 Expression::= MatchExpression
             | UpdateExpression
@@ -315,7 +319,7 @@ Annotation ::= '@'FqnIdentifier AnnotationArguments? {pin=2}
 
 AnnotationArguments ::= '(' (AnnotationArgument ( ',' AnnotationArgument )* )? (',')? ')'
 
-AnnotationArgument ::= Identifier '=' Expression
+AnnotationArgument ::= Identifier '=' AnnotatedExpression
 
 UnaryMinusExpression ::= '-' SimpleExpression {pin=1}
 
@@ -353,7 +357,7 @@ GreaterThanExpression
          ::= Expression  ( '>' !('>') | '>=' |  '<' !('<') | '<=' ) AdditionSubtractionExpression
 
 AdditionSubtractionExpression
-         ::= Expression  ( '+' | '-' ) Expression {pin=2}
+         ::= Expression  ( '+' | '-' ) AnnotatedExpression {pin=2}
 
 RightShiftExpression
          ::= Expression '>''>' MultiplicationDivisionExpression {pin=2}
@@ -361,22 +365,22 @@ RightShiftExpression
 LeftShiftExpression
          ::= Expression '<''<' MultiplicationDivisionExpression {pin=2}
 
-MultiplicationDivisionExpression ::= Expression  ( '*' | '/' ) Expression {pin=2}
+MultiplicationDivisionExpression ::= Expression  ( '*' | '/' ) AnnotatedExpression {pin=2}
 
 FunctionCallExpression ::= Expression FunctionCallTypeParameters? FunctionCallArguments
 
 FunctionCallTypeParameters ::= '<' (Type ( ',' Type )*)? '>'
 
-FunctionCallArguments ::= '(' ( Expression ( ',' Expression )* )? (',')? ')' {pin=1}
+FunctionCallArguments ::= '(' ( AnnotatedExpression ( ',' AnnotatedExpression )* )? (',')? ')' {pin=1}
 
-UsingExpression ::=USING '(' VariableDefinition ( ',' VariableDefinition )*  (",")? ')' Expression {pin=1}
+UsingExpression ::=USING '(' VariableDefinition ( ',' VariableDefinition )*  (",")? ')' AnnotatedExpression {pin=1}
 
 
-ConditionalExpression ::= ( IF | UNLESS ) '(' Expression ')' Expression ELSE Expression {pin=1}
+ConditionalExpression ::= ( IF | UNLESS ) '(' AnnotatedExpression ')' AnnotatedExpression ELSE AnnotatedExpression {pin=1}
 
-EnclosedExpression ::= '(' Expression ')' (DynamicSingleKeyValuePair)?
+EnclosedExpression ::= '(' AnnotatedExpression ')' (DynamicSingleKeyValuePair)?
 
-DynamicSingleKeyValuePair ::= (Attributes)? ':' Expression
+DynamicSingleKeyValuePair ::= (Attributes)? ':' AnnotatedExpression
 
 //Selectors
 DotSelectorExpression ::=Expression ( '..' | '.' ) Selector? ('!'| '?')? {pin=2}
@@ -389,11 +393,11 @@ UpdateExpression ::= Expression 'update' (UpdateCases)
 
 UpdateCases ::= '{' ('case' UpdateCase)+ '}' {pin = 2}
 
-UpdateCase ::= ((Identifier | '(' Identifier ',' Identifier ')') 'at')? UpdateSelector ('!')? (IF EnclosedExpression)? '->' Expression  {
+UpdateCase ::= ((Identifier | '(' Identifier ',' Identifier ')') 'at')? UpdateSelector ('!')? (IF EnclosedExpression)? '->' AnnotatedExpression  {
     pin = 4
 }
 
-private UpdateSelector ::= (('.' (ValueSelector | MultiValueSelector | AttributeSelector)) | '[' Expression ']') (UpdateSelector)*
+private UpdateSelector ::= (('.' (ValueSelector | MultiValueSelector | AttributeSelector)) | '[' AnnotatedExpression ']') (UpdateSelector)*
 
 
 PatternMatcherExpression ::= '{' ('case' Pattern)+ (DefaultPattern)? '}' {pin = 2}
@@ -410,13 +414,13 @@ Pattern ::= RegexPattern
           | NamedLiteralPattern
           | ExpressionPattern
 
-EmptyArrayPattern ::= '['']'  '->' Expression
+EmptyArrayPattern ::= '['']'  '->' AnnotatedExpression
 
-EmptyObjectPattern ::= '{''}'  '->' Expression
+EmptyObjectPattern ::= '{''}'  '->' AnnotatedExpression
 
-ObjectDeconstructPattern ::= '{' DeconstructVariableDeclaration ':' DeconstructVariableDeclaration '~' DeconstructVariableDeclaration '}' '->' Expression {pin=5}
+ObjectDeconstructPattern ::= '{' DeconstructVariableDeclaration ':' DeconstructVariableDeclaration '~' DeconstructVariableDeclaration '}' '->' AnnotatedExpression {pin=5}
 
-ArrayDeconstructPattern::= '[' DeconstructVariableDeclaration '~' DeconstructVariableDeclaration ']' '->' Expression {pin=3}
+ArrayDeconstructPattern::= '[' DeconstructVariableDeclaration '~' DeconstructVariableDeclaration ']' '->' AnnotatedExpression {pin=3}
 
 DeconstructVariableDeclaration::=Identifier {
      methods = [getName setName getNameIdentifier]
@@ -425,43 +429,43 @@ DeconstructVariableDeclaration::=Identifier {
      pin=2
 }
 
-LiteralPattern ::= (LiteralExpression | FqnIdentifier ) '->' Expression {pin=2}
+LiteralPattern ::= (LiteralExpression | FqnIdentifier ) '->' AnnotatedExpression {pin=2}
 
-ExpressionPattern ::= Identifier IF (EnclosedExpression | SimpleExpression) '->' Expression {
+ExpressionPattern ::= Identifier IF (EnclosedExpression | SimpleExpression) '->' AnnotatedExpression {
      methods = [getName setName getNameIdentifier]
      implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
      mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
      pin=4
 }
 
-NamedLiteralPattern ::= Identifier ':' LiteralExpression '->' Expression {
+NamedLiteralPattern ::= Identifier ':' LiteralExpression '->' AnnotatedExpression {
      methods = [getName setName getNameIdentifier]
      implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
      mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
      pin=2
 }
 
-TypePattern ::= 'is' Type '->' Expression {pin = 3}
+TypePattern ::= 'is' Type '->' AnnotatedExpression {pin = 3}
 
-NamedTypePattern ::= Identifier "is" TypeLiteral '->' Expression {
+NamedTypePattern ::= Identifier "is" TypeLiteral '->' AnnotatedExpression {
     methods = [getName setName getNameIdentifier]
     implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
     mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
     pin = 2
 }
 
-RegexPattern ::= 'matches' RegexLiteral '->' Expression {
+RegexPattern ::= 'matches' RegexLiteral '->' AnnotatedExpression {
     pin = 3
 }
 
-NamedRegexPattern ::= Identifier 'matches' RegexLiteral '->' Expression {
+NamedRegexPattern ::= Identifier 'matches' RegexLiteral '->' AnnotatedExpression {
     methods = [getName setName getNameIdentifier]
     implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
     mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
     pin = 4
 }
 
-DefaultPattern ::= ELSE (Identifier)? '->' Expression {pin=1}
+DefaultPattern ::= ELSE (Identifier)? '->' AnnotatedExpression {pin=1}
 
 Selector ::= (ValueSelector |
          AllAttributeSelector |
@@ -502,7 +506,7 @@ MultiValueSelector ::= '*'fieldSelector  {pin=1}
 
 VariableReferenceExpression ::= FqnIdentifier
 
-VariableDefinition ::= VariableNameTypeDefinition '='  Expression  {
+VariableDefinition ::= VariableNameTypeDefinition '='  AnnotatedExpression  {
             methods=[getName setName getNameIdentifier getElementIcon]
             implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
             mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
@@ -520,7 +524,7 @@ LiteralExpression
            | AnyDateLiteral
            | RegexLiteral
 
-DoExpression ::= 'do' '{' (DoDirectives+ '---')?  Expression'}' {pin=1}
+DoExpression ::= 'do' '{' (DoDirectives+ '---')?  AnnotatedExpression'}' {pin=1}
 
 
 private DoDirectives
@@ -536,7 +540,7 @@ LambdaLiteral ::= TypeParameterDeclaration? '(' ( FunctionParameter ( ',' Functi
 
 private TypeParameterDeclaration ::= '<' (TypeParameter (',' TypeParameter)*)? '>'
 
-FunctionParameter ::= VariableNameTypeDefinition ('=' Expression)?  {
+FunctionParameter ::= VariableNameTypeDefinition ('=' AnnotatedExpression)?  {
         methods=[getName setName getNameIdentifier]
         mixin="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElementImpl"
         implements="org.mule.tooling.lang.dw.parser.psi.WeaveNamedElement"
@@ -562,16 +566,16 @@ RegexLiteral::= RULE_ANY_REGEX {
 mixin = "org.mule.tooling.lang.dw.parser.psi.WeaveRegexLiteralMixin"
 }
 
-ObjectDeconstructExpression ::= '{' (KeyValuePair | DynamicKeyValuePair) '~' Expression '}' {pin=3}
+ObjectDeconstructExpression ::= '{' (KeyValuePair | DynamicKeyValuePair) '~' AnnotatedExpression '}' {pin=3}
 
-ArrayExpression::= '[' (ArrayElement (('~' Expression) | ( ',' ArrayElement )* (',')? )?)? ']'
+ArrayExpression::= '[' (ArrayElement (('~' AnnotatedExpression) | ( ',' ArrayElement )* (',')? )?)? ']'
 {
     implements="com.intellij.psi.NavigatablePsiElement"
     methods=[getPresentation]
     pin=1
 }
 
-private ArrayElement::= Expression (IF SimpleExpression)?
+private ArrayElement::= AnnotatedExpression (IF SimpleExpression)?
 
 private TypeLiteral ::= Type
 
