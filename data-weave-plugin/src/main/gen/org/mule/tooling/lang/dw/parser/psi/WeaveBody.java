@@ -10,6 +10,6 @@ public interface WeaveBody extends PsiElement {
   @NotNull
   WeaveAnnotatedExpression getAnnotatedExpression();
 
-  WeaveExpression getExpression();
+  @Nullable WeaveExpression getExpression();
 
 }

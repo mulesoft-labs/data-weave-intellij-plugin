@@ -3,6 +3,7 @@ package org.mule.tooling.lang.dw.refactor;
 import com.intellij.codeInsight.hint.HintManagerImpl;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.command.WriteCommandAction;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Computable;
@@ -10,6 +11,8 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiNamedElement;
 import com.intellij.refactoring.RefactoringActionHandler;
+import com.intellij.testFramework.LoggedErrorProcessor;
+import com.intellij.testFramework.TestLoggerFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.parser.psi.WeaveBody;
@@ -30,6 +33,8 @@ import static org.mule.tooling.lang.dw.parser.psi.WeaveElementFactory.createNewL
 import static org.mule.tooling.lang.dw.util.ListUtils.last;
 
 public abstract class AbstractIntroduceDirectiveHandler implements RefactoringActionHandler {
+
+
     @Override
     public void invoke(@NotNull Project project, Editor editor, PsiFile psiFile, DataContext dataContext) {
         PsiElement valueToReplace = getValueToReplace(psiFile, editor);

@@ -34,7 +34,7 @@ public class WeaveBodyImpl extends ASTWrapperPsiElement implements WeaveBody {
   }
 
   @Override
-  public WeaveExpression getExpression() {
+  public @Nullable WeaveExpression getExpression() {
     return WeavePsiImplUtils.getExpression(this);
   }
 
