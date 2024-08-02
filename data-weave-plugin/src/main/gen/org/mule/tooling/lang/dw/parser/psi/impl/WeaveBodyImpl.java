@@ -29,8 +29,13 @@ public class WeaveBodyImpl extends ASTWrapperPsiElement implements WeaveBody {
 
   @Override
   @NotNull
+  public WeaveAnnotatedExpression getAnnotatedExpression() {
+    return findNotNullChildByClass(WeaveAnnotatedExpression.class);
+  }
+
+  @Override
   public WeaveExpression getExpression() {
-    return findNotNullChildByClass(WeaveExpression.class);
+    return WeavePsiImplUtils.getExpression(this);
   }
 
 }

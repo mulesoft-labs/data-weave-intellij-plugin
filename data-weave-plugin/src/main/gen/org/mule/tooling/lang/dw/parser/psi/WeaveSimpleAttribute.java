@@ -8,6 +8,9 @@ import com.intellij.psi.PsiElement;
 public interface WeaveSimpleAttribute extends WeaveAttribute {
 
   @NotNull
+  List<WeaveAnnotation> getAnnotationList();
+
+  @NotNull
   WeaveExpression getExpression();
 
   @NotNull

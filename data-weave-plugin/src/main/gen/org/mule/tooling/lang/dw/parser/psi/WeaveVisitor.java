@@ -25,6 +25,10 @@ public class WeaveVisitor extends PsiElementVisitor {
     visitExpression(o);
   }
 
+  public void visitAnnotatedExpression(@NotNull WeaveAnnotatedExpression o) {
+    visitExpression(o);
+  }
+
   public void visitAnnotation(@NotNull WeaveAnnotation o) {
     visitPsiElement(o);
   }

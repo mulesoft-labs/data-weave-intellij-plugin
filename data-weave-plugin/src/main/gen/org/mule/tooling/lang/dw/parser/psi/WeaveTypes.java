@@ -14,6 +14,7 @@ public interface WeaveTypes {
   IElementType ALL_ATTRIBUTE_SELECTOR = new WeaveElementType("ALL_ATTRIBUTE_SELECTOR");
   IElementType ALL_SCHEMA_SELECTOR = new WeaveElementType("ALL_SCHEMA_SELECTOR");
   IElementType AND_EXPRESSION = new WeaveElementType("AND_EXPRESSION");
+  IElementType ANNOTATED_EXPRESSION = new WeaveElementType("ANNOTATED_EXPRESSION");
   IElementType ANNOTATION = new WeaveElementType("ANNOTATION");
   IElementType ANNOTATION_ARGUMENT = new WeaveElementType("ANNOTATION_ARGUMENT");
   IElementType ANNOTATION_ARGUMENTS = new WeaveElementType("ANNOTATION_ARGUMENTS");
@@ -246,6 +247,9 @@ public interface WeaveTypes {
       }
       else if (type == AND_EXPRESSION) {
         return new WeaveAndExpressionImpl(node);
+      }
+      else if (type == ANNOTATED_EXPRESSION) {
+        return new WeaveAnnotatedExpressionImpl(node);
       }
       else if (type == ANNOTATION) {
         return new WeaveAnnotationImpl(node);

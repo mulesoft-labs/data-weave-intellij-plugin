@@ -8,6 +8,8 @@ import com.intellij.psi.PsiElement;
 public interface WeaveBody extends PsiElement {
 
   @NotNull
+  WeaveAnnotatedExpression getAnnotatedExpression();
+
   WeaveExpression getExpression();
 
 }

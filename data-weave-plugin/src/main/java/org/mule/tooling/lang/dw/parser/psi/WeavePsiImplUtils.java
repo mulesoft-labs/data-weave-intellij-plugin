@@ -115,6 +115,10 @@ public class WeavePsiImplUtils {
         return document;
     }
 
+    public static WeaveExpression getExpression(WeaveBody body) {
+        return body.getAnnotatedExpression().getExpression();
+    }
+
     public static ItemPresentation getPresentation(WeaveObjectExpression document) {
         return new ItemPresentation() {
 

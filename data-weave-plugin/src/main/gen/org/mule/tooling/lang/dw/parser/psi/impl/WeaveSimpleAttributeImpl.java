@@ -29,6 +29,12 @@ public class WeaveSimpleAttributeImpl extends WeaveAttributeImpl implements Weav
 
   @Override
   @NotNull
+  public List<WeaveAnnotation> getAnnotationList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, WeaveAnnotation.class);
+  }
+
+  @Override
+  @NotNull
   public WeaveExpression getExpression() {
     return findNotNullChildByClass(WeaveExpression.class);
   }
