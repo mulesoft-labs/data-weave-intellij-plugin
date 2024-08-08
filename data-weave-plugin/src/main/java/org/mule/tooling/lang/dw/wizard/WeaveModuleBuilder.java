@@ -55,12 +55,9 @@ public class WeaveModuleBuilder extends AbstractMavenModuleBuilder implements So
         });
     }
 
-    private VirtualFile createAndGetContentEntry() {
+    protected VirtualFile createAndGetContentEntry() {
         final String path = FileUtil.toSystemIndependentName(Objects.requireNonNull(this.getContentEntryPath()));
-        boolean mkdirs = new File(path).mkdirs();
-        if (!mkdirs) {
-            System.out.println("Unable to create " + path);
-        }
+        new File(path).mkdirs();
         return LocalFileSystem.getInstance().refreshAndFindFileByPath(path);
     }
 

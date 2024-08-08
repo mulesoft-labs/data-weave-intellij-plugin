@@ -2,6 +2,7 @@ package org.mule.tooling.lang.dw.develop_view;
 
 
 import com.intellij.icons.AllIcons;
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
@@ -27,6 +28,11 @@ public class AstGraphToolingWindowPanel extends DotBasedToolingWindowPanel {
 
     public RefreshASTAction() {
       super("Ast Graph", "Show ast graph from current file", AllIcons.Actions.Refresh);
+    }
+
+    @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+      return ActionUpdateThread.EDT;
     }
 
     @Override

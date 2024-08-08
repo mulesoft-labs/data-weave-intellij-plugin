@@ -13,7 +13,6 @@ import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComponentWithActions;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -67,6 +66,13 @@ public class WeavePreviewComponent implements Disposable {
         myProject = project;
     }
 
+
+    public void close() {
+        currentFile = null;
+        outputComponent.close();
+    }
+
+
     public JComponent createComponent() {
         listener = new WeaveTreeChangeListener();
         PsiManager.getInstance(myProject).addPsiTreeChangeListener(listener, this);
@@ -76,7 +82,6 @@ public class WeavePreviewComponent implements Disposable {
     public PsiFile getCurrentFile() {
         return currentFile;
     }
-
 
     private JComponent createPreviewPanel() {
         RunnerLayoutUi layoutUi = RunnerLayoutUi.Factory.getInstance(myProject).create("DW-Preview", "DW Preview", myProject.getName(), this);
@@ -106,6 +111,12 @@ public class WeavePreviewComponent implements Disposable {
     private DefaultActionGroup createActionGroup() {
         DefaultActionGroup group = new DefaultActionGroup();
         group.add(new AnAction("Add New Scenario", "Adds a new scenario for the current mapping", AllIcons.General.Add) {
+
+            @Override
+            public @NotNull ActionUpdateThread getActionUpdateThread() {
+                return ActionUpdateThread.EDT;
+            }
+
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
                 WeaveRuntimeService manager = getScenariosManager();
@@ -119,12 +130,13 @@ public class WeavePreviewComponent implements Disposable {
                 dialog.show();
             }
 
-            @Override
-            public void update(@NotNull AnActionEvent e) {
-
-            }
         });
         group.add(new ToggleAction("Pin to This Mapping", "Pin to this mapping", AllIcons.General.Pin_tab) {
+
+            @Override
+            public @NotNull ActionUpdateThread getActionUpdateThread() {
+                return ActionUpdateThread.EDT;
+            }
 
             @Override
             public boolean isSelected(@NotNull AnActionEvent e) {
@@ -138,6 +150,11 @@ public class WeavePreviewComponent implements Disposable {
         });
         group.add(new AnAction("Run", "Execute", AllIcons.RunConfigurations.TestState.Run) {
             @Override
+            public @NotNull ActionUpdateThread getActionUpdateThread() {
+                return ActionUpdateThread.EDT;
+            }
+
+            @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
                 runPreview();
             }
@@ -148,6 +165,10 @@ public class WeavePreviewComponent implements Disposable {
             }
         });
         group.add(new ToggleAction("Run on Editor Changes", "Run on editor changes", AllIcons.Ide.IncomingChangesOn) {
+            @Override
+            public @NotNull ActionUpdateThread getActionUpdateThread() {
+                return ActionUpdateThread.EDT;
+            }
 
             @Override
             public boolean isSelected(@NotNull AnActionEvent e) {
@@ -180,6 +201,12 @@ public class WeavePreviewComponent implements Disposable {
         JComponent component = inputsComponent.createComponent(myProject);
         DefaultActionGroup group = new DefaultActionGroup();
         group.add(new AnAction("Add New Input", "Adds a new input to the scenario", AllIcons.General.Add) {
+
+            @Override
+            public @NotNull ActionUpdateThread getActionUpdateThread() {
+                return ActionUpdateThread.EDT;
+            }
+
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
                 Scenario currentScenarioMaybe = ReadAction.compute(() -> getCurrentScenario());
@@ -188,10 +215,7 @@ public class WeavePreviewComponent implements Disposable {
                 dialog.show();
             }
 
-            @Override
-            public void update(@NotNull AnActionEvent e) {
 
-            }
         });
         return new ComponentWithActions.Impl(group, null, null, null, component);
     }
@@ -314,7 +338,6 @@ public class WeavePreviewComponent implements Disposable {
     }
 
 
-
     @Nullable
     public WeaveDocument getCurrentWeaveDocument() {
         return WeavePsiUtils.getWeaveDocument(currentFile);
@@ -361,6 +384,7 @@ public class WeavePreviewComponent implements Disposable {
     public boolean isPinned() {
         return pinned;
     }
+
 
     /**
      * This listener runs the preview each time a change occurred in the PSI tree
