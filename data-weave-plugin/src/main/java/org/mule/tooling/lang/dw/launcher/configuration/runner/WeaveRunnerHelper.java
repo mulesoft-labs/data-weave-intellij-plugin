@@ -24,15 +24,13 @@ public class WeaveRunnerHelper {
     javaParams.setJdk(manager.getProjectSdk());
     // All modules to use the same things
     final Module[] modules = ModuleManager.getInstance(project).getModules();
-    if (modules.length > 0) {
-      for (Module module : modules) {
-        ApplicationManager.getApplication().runReadAction(() -> {
-          try {
-            javaParams.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS);
-          } catch (CantRunException ignored) {
-          }
-        });
-      }
+    for (Module module : modules) {
+      ApplicationManager.getApplication().runReadAction(() -> {
+        try {
+          javaParams.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS);
+        } catch (CantRunException ignored) {
+        }
+      });
     }
     javaParams.setMainClass(mainClass);
     setupDefaultVMParams(javaParams);
