@@ -60,6 +60,7 @@ public class WeavePreviewComponent implements Disposable {
     private WeaveTreeChangeListener listener;
 
     private boolean pinned = false;
+    private boolean disposed = false;
 
     public WeavePreviewComponent(Project project) {
         inputsComponent = new InputsComponent();
@@ -268,6 +269,11 @@ public class WeavePreviewComponent implements Disposable {
         outputComponent.dispose();
         previewLogsViewer.dispose();
         PsiManager.getInstance(myProject).removePsiTreeChangeListener(listener);
+        disposed = true;
+    }
+
+    public boolean isDisposed() {
+        return disposed;
     }
 
     public void runPreview() {

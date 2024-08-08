@@ -150,6 +150,9 @@ public class PreviewToolWindowPanel extends SimpleToolWindowPanel implements Dis
           mainPanel.remove(previewComponent);
           previewComponent = null;
         }
+        if (weavePreviewComponent.isDisposed()) {
+          weavePreviewComponent = new WeavePreviewComponent(myProject);
+        }
         previewComponent = weavePreviewComponent.createComponent();
         mainPanel.add(previewComponent, PREVIEW_EDITOR);
         weavePreviewComponent.open(psiFile);
