@@ -8,10 +8,7 @@ import com.intellij.diff.requests.DiffRequest;
 import com.intellij.diff.requests.SimpleDiffRequest;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.Disposable;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
-import com.intellij.openapi.actionSystem.ToggleAction;
+import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
@@ -188,9 +185,20 @@ public class OutputComponent implements Disposable {
         this.content.setDisplayName("Output \u274C - At: " + getCurrentTime() + "");
     }
 
+    public void close() {
+        this.currentFile = null;
+    }
+
     private class SaveOutputAction extends AnAction {
+
+
         public SaveOutputAction() {
             super("Save as Expected Output", "Save as expected output", AllIcons.Actions.Menu_saveall);
+        }
+
+        @Override
+        public @NotNull ActionUpdateThread getActionUpdateThread() {
+            return ActionUpdateThread.EDT;
         }
 
         @Override
@@ -226,6 +234,12 @@ public class OutputComponent implements Disposable {
 
         public ShowDiffAction() {
             super("Show Diff with Expected", "Show diff", AllIcons.Actions.Diff);
+        }
+
+
+        @Override
+        public @NotNull ActionUpdateThread getActionUpdateThread() {
+            return ActionUpdateThread.EDT;
         }
 
         @Override

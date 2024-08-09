@@ -2,6 +2,7 @@ package org.mule.tooling.lang.dw.develop_view;
 
 
 import com.intellij.icons.AllIcons;
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
@@ -26,6 +27,11 @@ public class DependencyGraphToolingWindowPanel extends DotBasedToolingWindowPane
 
         public RefreshASTAction() {
             super("Dependency Graph", "Show dependencies from the modules.", AllIcons.Actions.Refresh);
+        }
+
+        @Override
+        public @NotNull ActionUpdateThread getActionUpdateThread() {
+            return ActionUpdateThread.EDT;
         }
 
         @Override
