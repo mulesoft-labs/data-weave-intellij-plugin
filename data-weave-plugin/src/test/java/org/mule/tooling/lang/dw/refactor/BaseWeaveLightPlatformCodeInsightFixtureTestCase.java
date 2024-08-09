@@ -5,15 +5,15 @@ import com.intellij.refactoring.RefactoringActionHandler;
 import com.intellij.testFramework.EdtTestUtilKt;
 import com.intellij.testFramework.LightProjectDescriptor;
 import com.intellij.testFramework.TestLoggerFactory;
-import com.intellij.testFramework.TestRunnerUtil;
+import com.intellij.testFramework.UITestUtil;
 import com.intellij.testFramework.fixtures.BasePlatformTestCase;
 import com.intellij.testFramework.fixtures.DefaultLightProjectDescriptor;
-import com.intellij.testFramework.fixtures.LightPlatformCodeInsightFixtureTestCase;
 import com.intellij.util.ThrowableRunnable;
 import org.apache.commons.io.FilenameUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.runner.Description;
 import org.mule.tooling.lang.dw.refactor.variable.IntroduceLocalVariableTest;
 
 import java.io.File;
@@ -58,7 +58,7 @@ public abstract class BaseWeaveLightPlatformCodeInsightFixtureTestCase extends B
             myFixture.configureByFile(new File(testName + DWL_EXTENSION).getName());
             constantHandler.invoke(myFixture.getProject(), myFixture.getEditor(), myFixture.getFile(), null);
             myFixture.checkResultByFile(new File(testName + POST_DWL).getName(), true);
-            TestLoggerFactory.onTestFinished(true);
+            TestLoggerFactory.onTestFinished(true, Description.EMPTY);
         };
         runTest(runnable);
     }
@@ -92,7 +92,7 @@ public abstract class BaseWeaveLightPlatformCodeInsightFixtureTestCase extends B
 
     protected void runTest(ThrowableRunnable<Throwable> runnable) throws Throwable {
         if (runInDispatchThread()) {
-            TestRunnerUtil.replaceIdeEventQueueSafely();
+            UITestUtil.replaceIdeEventQueueSafely();
             runTestRunnable(runnable);
         } else {
             runTestRunnable(runnable);
