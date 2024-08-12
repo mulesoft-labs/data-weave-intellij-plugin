@@ -95,7 +95,11 @@ public class PreviewToolWindowPanel extends SimpleToolWindowPanel implements Dis
                     final PsiFile psiFile = file.isValid() ? PsiManager.getInstance(myProject).findFile(file) : null;
                     // This invokeLater is required. The problem is open does a commit to PSI, but open is
                     // invoked inside PSI change event. It causes an Exception like "Changes to PSI are not allowed inside event processing"
-                    DumbService.getInstance(myProject).smartInvokeLater(() -> setFile(psiFile));
+                    DumbService.getInstance(myProject).smartInvokeLater(() -> {
+                        ApplicationManager.getApplication().invokeLater(() -> {
+                            setFile(psiFile);
+                        });
+                    });
                 }
             }
 
@@ -141,7 +145,12 @@ public class PreviewToolWindowPanel extends SimpleToolWindowPanel implements Dis
             final PsiFile psiFile = ReadAction.compute(() -> file != null && file.isValid() ? PsiManager.getInstance(myProject).findFile(file) : null);
             // This invokeLater is required. The problem is open does a commit to PSI, but open is
             // invoked inside PSI change event. It causes an Exception like "Changes to PSI are not allowed inside event processing"
-            DumbService.getInstance(myProject).smartInvokeLater(() -> setFile(psiFile));
+            DumbService.getInstance(myProject).smartInvokeLater(() -> {
+                ApplicationManager.getApplication().invokeLater(() -> {
+                    setFile(psiFile);
+                });
+
+            });
         }
     }
 

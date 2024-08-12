@@ -297,13 +297,11 @@ public final class WeaveAgentService implements Disposable {
               @Override
               public void onPreviewExecuted(PreviewExecutedEvent result) {
                 long duration = System.currentTimeMillis() - startTime;
-                ApplicationManager.getApplication().invokeLater(() -> {
-                  if (result instanceof PreviewExecutedSuccessfulEvent successfulEvent) {
-                    callback.onPreviewSuccessful(successfulEvent, duration);
-                  } else if (result instanceof PreviewExecutedFailedEvent) {
-                    callback.onPreviewFailed((PreviewExecutedFailedEvent) result);
-                  }
-                });
+                if (result instanceof PreviewExecutedSuccessfulEvent successfulEvent) {
+                  callback.onPreviewSuccessful(successfulEvent, duration);
+                } else if (result instanceof PreviewExecutedFailedEvent) {
+                  callback.onPreviewFailed((PreviewExecutedFailedEvent) result);
+                }
               }
 
               @Override

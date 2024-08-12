@@ -1,7 +1,7 @@
 package org.mule.tooling.lang.dw.annotator;
 
 import com.intellij.codeInsight.intention.IntentionAction;
-import com.intellij.lang.annotation.Annotation;
+import com.intellij.lang.annotation.AnnotationBuilder;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.ExternalAnnotator;
 import com.intellij.lang.annotation.HighlightSeverity;
@@ -88,11 +88,14 @@ public class WeaveValidatorAnnotator extends ExternalAnnotator<PsiFile, Validati
             final WeaveLocation location = validationMessage.location();
             final int startIndex = getValidIndex(location.startPosition());
             final int endIndex = getValidIndex(location.endPosition());
-            final Annotation annotation = holder.createAnnotation(severity, new TextRange(startIndex, endIndex), validationMessage.message().message(), WeaveToolingService.toHtml(validationMessage.message().message()));
+            @NotNull AnnotationBuilder annotationBuilder = holder.newAnnotation(severity, validationMessage.message().message())
+                    .range(new TextRange(startIndex, endIndex))
+                    .tooltip(WeaveToolingService.toHtml(validationMessage.message().message()));
             final QuickFix[] quickFixes = validationMessage.quickFix();
             for (QuickFix quickFix : quickFixes) {
-                annotation.registerFix(new WeaveIntentionAction(quickFix));
+                annotationBuilder = annotationBuilder.withFix(new WeaveIntentionAction(quickFix));
             }
+            annotationBuilder.create();
 
         }
     }

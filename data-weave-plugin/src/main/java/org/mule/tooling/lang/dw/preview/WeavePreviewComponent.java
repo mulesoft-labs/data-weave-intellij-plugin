@@ -15,12 +15,15 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComponentWithActions;
+import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.ui.content.Content;
 import com.intellij.util.Alarm;
+import com.intellij.util.concurrency.AppExecutorUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.concurrency.CancellablePromise;
 import org.mule.tooling.lang.dw.WeaveConstants;
 import org.mule.tooling.lang.dw.WeaveFileType;
 import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
@@ -43,6 +46,8 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import static com.intellij.openapi.application.ReadAction.nonBlocking;
 
 public class WeavePreviewComponent implements Disposable {
 
@@ -244,18 +249,19 @@ public class WeavePreviewComponent implements Disposable {
         WeaveDocument weaveDocument = WeavePsiUtils.getWeaveDocument(psiFile);
         if (weaveDocument != null) {
             WeaveRuntimeService instance = getScenariosManager();
-            List<Scenario> scenarios = instance.getScenariosFor(weaveDocument);
-
-            if (scenarios.isEmpty()) {
-                listener.doRunPreviewWithoutScenario();
-            } else {
-                //Load first scenario
-                Scenario currentScenarioFor = instance.getCurrentScenarioFor(weaveDocument);
-                if (currentScenarioFor == null) {
-                    return;
-                }
-                loadScenario(currentScenarioFor);
-            }
+            CancellablePromise<Scenario> selectedFilePromise = nonBlocking(() -> {
+                return instance.getCurrentScenarioFor(weaveDocument);
+            }).submit(AppExecutorUtil.getAppExecutorService());
+            selectedFilePromise
+                    .onSuccess((currentScenarioFor) -> {
+                        ApplicationManager.getApplication().invokeLater(() -> {
+                            if (currentScenarioFor == null) {
+                                listener.doRunPreviewWithoutScenario();
+                            } else {
+                                loadScenario(currentScenarioFor);
+                            }
+                        });
+                    });
         }
     }
 
@@ -275,7 +281,9 @@ public class WeavePreviewComponent implements Disposable {
         } else {
             inputsComponent.closeAllInputs();
         }
-        listener.doRunPreview();
+        nonBlocking(() -> {
+            listener.doRunPreview();
+        }).submit(AppExecutorUtil.getAppExecutorService());
     }
 
     public void clearScenario() {
@@ -554,19 +562,26 @@ public class WeavePreviewComponent implements Disposable {
 
         @Override
         public void onPreviewSuccessful(PreviewExecutedSuccessfulEvent result, long duration) {
-            Scenario scenario = getCurrentScenario();
-            final VirtualFile file = getOutputFile(scenario);
-            outputComponent.onPreviewResult(result, file, duration);
-            previewLogsViewer.clear();
-            previewLogsViewer.logInfo(ScalaUtils.toList(result.messages()));
+            VirtualFile vFile = ApplicationManager.getApplication().runReadAction((Computable<VirtualFile>) () -> {
+                Scenario scenario = getCurrentScenario();
+                return getOutputFile(scenario);
+            });
+
+            ApplicationManager.getApplication().invokeLater(() -> {
+                outputComponent.onPreviewResult(result, vFile, duration);
+                previewLogsViewer.clear();
+                previewLogsViewer.logInfo(ScalaUtils.toList(result.messages()));
+            });
         }
 
         @Override
         public void onPreviewFailed(PreviewExecutedFailedEvent message) {
-            outputComponent.onPreviewResultFailed();
-            previewLogsViewer.clear();
-            previewLogsViewer.logInfo(ScalaUtils.toList(message.messages()));
-            previewLogsViewer.logError(message.message());
+            ApplicationManager.getApplication().invokeLater(() -> {
+                outputComponent.onPreviewResultFailed();
+                previewLogsViewer.clear();
+                previewLogsViewer.logInfo(ScalaUtils.toList(message.messages()));
+                previewLogsViewer.logError(message.message());
+            });
         }
     }
 
