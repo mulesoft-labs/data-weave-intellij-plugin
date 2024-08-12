@@ -2,6 +2,7 @@ package org.mule.tooling.lang.dw.preview;
 
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
@@ -13,12 +14,16 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.ui.JBTabsPaneImpl;
 import com.intellij.ui.tabs.TabInfo;
+import com.intellij.util.concurrency.AppExecutorUtil;
 import com.intellij.util.ui.components.BorderLayoutPanel;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.concurrency.CancellablePromise;
 
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.intellij.openapi.application.ReadAction.nonBlocking;
 
 public class InputsComponent implements Disposable {
 
@@ -49,26 +54,33 @@ public class InputsComponent implements Disposable {
 
     public void loadInputFiles(VirtualFile inputsFolder) {
         closeAllInputs();
-        List<VirtualFile> children = VfsUtil.collectChildrenRecursively(inputsFolder);
-        for (VirtualFile input : children) {
-            if (input.isDirectory()) {
-                continue;
+        CancellablePromise<List<PsiFile>> documents = nonBlocking(() -> {
+            List<VirtualFile> children = VfsUtil.collectChildrenRecursively(inputsFolder);
+            return children.stream().map((input) -> {
+                if (input.isDirectory()) {
+                    return null;
+                }
+                return PsiManager.getInstance(myProject).findFile(input);
+            }).toList();
+        }).submit(AppExecutorUtil.getAppExecutorService());
+        documents.onSuccess((documentList) -> {
+            for (PsiFile file : documentList) {
+                if (file != null) {
+                    final VirtualFile input = file.getVirtualFile();
+                    final Document document = file.getViewProvider().getDocument();
+                    if (document != null) {
+                        ApplicationManager.getApplication().invokeLater(() -> {
+                            Editor editor = EditorFactory.getInstance().createEditor(document, myProject, input, false);
+                            editors.add(editor);
+                            TabInfo tabInfo = createTabInfo(inputsFolder, input, file, editor);
+                            inputTabs.getTabs().addTab(tabInfo);
+                            inputTabs.setSelectedIndex(0);
+                        });
+                    }
+                }
             }
-            PsiFile file = PsiManager.getInstance(myProject).findFile(input);
-            if (file == null) {
-                continue;
-            }
+        });
 
-            Document document = file.getViewProvider().getDocument();
-            if (document == null) {
-                continue;
-            }
-            Editor editor = EditorFactory.getInstance().createEditor(document, myProject, input, false);
-            editors.add(editor);
-            TabInfo tabInfo = createTabInfo(inputsFolder, input, file, editor);
-            inputTabs.getTabs().addTab(tabInfo);
-            inputTabs.setSelectedIndex(0);
-        }
     }
 
     @NotNull
