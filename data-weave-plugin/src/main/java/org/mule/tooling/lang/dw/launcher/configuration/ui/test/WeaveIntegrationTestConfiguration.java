@@ -100,11 +100,11 @@ public class WeaveIntegrationTestConfiguration extends ModuleBasedConfiguration<
     @Override
     public List<String> getTests() {
         final ArrayList<String> tests = new ArrayList<>();
-        if (WeaveUtils.getDWITFolder(getModule()) != null && kind.shouldRunDWIT()) {
+        if (WeaveUtils.getDWTestResourceFolder(getModule()) != null && kind.shouldRunDWIT()) {
             tests.add("dw::test::DWITTestRunner");
         }
 
-        if (WeaveUtils.getDWMITFolder(getModule()) != null && kind.shouldRunDWMIT()) {
+        if (WeaveUtils.getDWTestFolder(getModule()) != null && kind.shouldRunDWMIT()) {
             tests.add("dw::test::DWMITTestRunner");
         }
 
@@ -122,12 +122,12 @@ public class WeaveIntegrationTestConfiguration extends ModuleBasedConfiguration<
 
     @Override
     public void addAdditionalVMParameters(JavaParameters javaParams) {
-        final VirtualFile dwitFolder = WeaveUtils.getDWITFolder(getModule());
+        final VirtualFile dwitFolder = WeaveUtils.getDWTestResourceFolder(getModule());
         if (dwitFolder != null && dwitFolder.getCanonicalPath() != null) {
             javaParams.getVMParametersList().addProperty("dwitDir", dwitFolder.getCanonicalPath());
         }
 
-        VirtualFile dwmitFolder = WeaveUtils.getDWMITFolder(getModule());
+        VirtualFile dwmitFolder = WeaveUtils.getDWTestFolder(getModule());
         if (dwmitFolder != null && dwmitFolder.getCanonicalPath() != null) {
             javaParams.getVMParametersList().addProperty("dwmitDir", dwmitFolder.getCanonicalPath());
         }

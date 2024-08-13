@@ -40,13 +40,13 @@ import org.mule.weave.v2.ts.WeaveType;
 import scala.Tuple2;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import static org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils.getWeaveDocument;
 
@@ -56,7 +56,7 @@ public final class WeaveRuntimeService implements Disposable {
     private static final Logger LOG = Logger.getInstance(WeaveRuntimeService.class);
 
     private Map<String, Scenario> selectedScenariosByMapping = new HashMap<>();
-    private Map<Scenario, ImplicitInput> implicitInputTypes = new ConcurrentHashMap<>();
+    private Map<Scenario, ImplicitInputStatus> implicitInputTypes = new ConcurrentHashMap<>();
     private Map<Scenario, WeaveType> expectedOutputType = new HashMap<>();
     private Map<String, VirtualFile> dwitFolders = new HashMap<>();
 
@@ -127,18 +127,14 @@ public final class WeaveRuntimeService implements Disposable {
             return;
         }
         final Application app = ApplicationManager.getApplication();
-
         ReadAction.nonBlocking(() -> {
-                    if (myProject.isDisposed()) {
-                        return null; //sometime
-                    }
                     return ModuleUtil.findModuleForFile(modifiedFile, myProject);
                 })
                 .submit(AppExecutorUtil.getAppExecutorService())
                 .onSuccess((moduleForFile) -> {
                     app.invokeLater(() -> {
                         WriteAction.run(() -> {
-                            final VirtualFile dwitFolder = getScenariosRootFolder(moduleForFile);
+                            final VirtualFile dwitFolder = WeaveUtils.getDWTestResourceFolder(moduleForFile);
                             if (dwitFolder != null && VfsUtil.isAncestor(dwitFolder, modifiedFile, true)) {
                                 VirtualFile scenario = findScenario(modifiedFile, dwitFolder);
                                 onModified(new Scenario(scenario));
@@ -190,8 +186,10 @@ public final class WeaveRuntimeService implements Disposable {
     }
 
     private void onModified(Scenario scenario) {
-        implicitInputTypes.remove(scenario);
-        expectedOutputType.remove(scenario);
+        ImplicitInputStatus implicitInputStatus = implicitInputTypes.get(scenario);
+        if (implicitInputStatus != null) {
+            implicitInputTypes.put(scenario, new ImplicitInputStatus(implicitInputStatus.implicitInput(), false, false));
+        }
     }
 
     public void setCurrentScenario(WeaveDocument weaveDocument, Scenario scenario) {
@@ -201,7 +199,7 @@ public final class WeaveRuntimeService implements Disposable {
     @NotNull
     private String getTestFolderName(WeaveDocument weaveDocument) {
         // Replace directory separator with a "-".  Support Mac, Unix and Windows directory separators
-        return weaveDocument.getQualifiedName().replaceAll("::|/|\\\\", "-");
+        return weaveDocument.getQualifiedName().replaceAll("::", "/");
     }
 
     @Nullable
@@ -238,11 +236,14 @@ public final class WeaveRuntimeService implements Disposable {
         if (weaveDocument == null || currentScenario == null) {
             return null;
         }
-        if (implicitInputTypes.containsKey(currentScenario)) {
-            return implicitInputTypes.get(currentScenario);
+        if (implicitInputTypes.containsKey(currentScenario)
+                && (implicitInputTypes.get(currentScenario).active() || implicitInputTypes.get(currentScenario).resolving())) {
+            return implicitInputTypes.get(currentScenario).implicitInput();
         } else {
             final FutureResult<ImplicitInput> futureResult = new FutureResult<>();
             if (WeaveAgentService.getInstance(myProject).isWeaveRuntimeInstalled()) {
+                //We create Dummy inputs
+                createDummyInputs(currentScenario, false);
                 VirtualFile inputs = currentScenario.getInputs();
                 if (inputs != null) {
                     AppExecutorUtil.getAppExecutorService().submit(() -> {
@@ -259,7 +260,7 @@ public final class WeaveRuntimeService implements Disposable {
                                                 }
                                                 implicitInput.addInput(weaveTypeEntry.name(), weaveType);
                                             }
-                                            implicitInputTypes.put(currentScenario, implicitInput);
+                                            implicitInputTypes.put(currentScenario, new ImplicitInputStatus(implicitInput, true, false));
                                             futureResult.set(implicitInput);
                                         });
                             }
@@ -268,24 +269,31 @@ public final class WeaveRuntimeService implements Disposable {
                         return futureResult.get(WeaveConstants.SERVER_TIMEOUT, TimeUnit.MILLISECONDS);
                     } catch (InterruptedException | ExecutionException | TimeoutException e) {
                         LOG.warn("Unable Infer Input Types. Reason: \n" + e.getMessage(), e);
-                        final VirtualFile scenarioInputs = currentScenario.getInputs();
-                        if (scenarioInputs != null) {
-                            final VirtualFile[] children = scenarioInputs.getChildren();
-                            final HashMap<String, WeaveType> inputTypes = new HashMap<>();
-                            for (VirtualFile child : children) {
-                                inputTypes.put(child.getNameWithoutExtension(), AnyType.apply());
-                            }
-                            implicitInputTypes.put(currentScenario, ImplicitInput.apply(toScalaImmutableMap(inputTypes)));
-
+                        if (implicitInputTypes.containsKey(currentScenario)) {
+                            return implicitInputTypes.get(currentScenario).implicitInput();
                         } else {
-                            implicitInputTypes.put(currentScenario, ImplicitInput.apply());
+                            return createDummyInputs(currentScenario, false);
                         }
-                        return implicitInputTypes.get(currentScenario);
                     }
                 }
             }
             return null;
         }
+    }
+
+    private @Nullable ImplicitInput createDummyInputs(Scenario currentScenario, boolean resolving) {
+        final VirtualFile scenarioInputs = currentScenario.getInputs();
+        if (scenarioInputs != null) {
+            final VirtualFile[] children = scenarioInputs.getChildren();
+            final HashMap<String, WeaveType> inputTypes = new HashMap<>();
+            for (VirtualFile child : children) {
+                inputTypes.put(child.getNameWithoutExtension(), AnyType.apply());
+            }
+            implicitInputTypes.put(currentScenario, new ImplicitInputStatus(ImplicitInput.apply(toScalaImmutableMap(inputTypes)), false, resolving));
+        } else {
+            implicitInputTypes.put(currentScenario, new ImplicitInputStatus(null, false, resolving));
+        }
+        return implicitInputTypes.get(currentScenario).implicitInput();
     }
 
     @SuppressWarnings("unchecked")
@@ -357,13 +365,13 @@ public final class WeaveRuntimeService implements Disposable {
         final Module moduleForFile = ModuleUtils.findModule(weaveFile);
         if (moduleForFile != null) {
             List<VirtualFile> scenarios = findScenarios(weaveFile);
-            result.addAll(scenarios.stream().map(Scenario::new).collect(Collectors.toList()));
+            result.addAll(scenarios.stream().map(Scenario::new).toList());
         }
         return result;
     }
 
     private List<VirtualFile> findScenarios(PsiFile psiFile) {
-        VirtualFile mappingTestFolder = findMappingTestFolder(psiFile);
+        VirtualFile mappingTestFolder = findMappingTestResourcesFolder(psiFile);
         if (mappingTestFolder != null) {
             return Arrays.asList(mappingTestFolder.getChildren());
         }
@@ -371,23 +379,55 @@ public final class WeaveRuntimeService implements Disposable {
     }
 
     @Nullable
-    public VirtualFile findMappingTestFolder(PsiFile psiFile) {
-        WeaveDocument document = getWeaveDocument(psiFile);
+    public VirtualFile findMappingTestResourcesFolder(PsiFile psiFile) {
+        final WeaveDocument document = getWeaveDocument(psiFile);
         if (document != null) {
-            String qualifiedName = ReadAction.compute(() -> getTestFolderName(document));
-            VirtualFile scenariosRootFolder = getScenariosRootFolder(psiFile);
+            final String qualifiedName = ReadAction.compute(() -> getTestFolderName(document));
+            final VirtualFile scenariosRootFolder = getScenariosResourceFolder(psiFile);
             if (scenariosRootFolder != null && scenariosRootFolder.isValid()) {
-                return scenariosRootFolder.findChild(qualifiedName);
+                return scenariosRootFolder.findFileByRelativePath(qualifiedName);
             }
         }
         return null;
     }
 
+
     @Nullable
-    public VirtualFile findOrCreateMappingTestFolder(PsiFile psiFile) {
-        VirtualFile testFolder = findMappingTestFolder(psiFile);
+    public VirtualFile findTestFolder(PsiFile dwFile) {
+        final WeaveDocument document = getWeaveDocument(dwFile);
+        if (document != null) {
+            final String qualifiedName = ReadAction.compute(() -> getTestFolderName(document));
+            final VirtualFile scenariosRootFolder = getScenariosTestFolder(dwFile);
+            if (scenariosRootFolder != null && scenariosRootFolder.isValid()) {
+                try {
+                    return createDirectories(qualifiedName, scenariosRootFolder);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+        return null;
+    }
+
+    private VirtualFile createDirectories(String qualifiedName, VirtualFile scenariosRootFolder) throws IOException {
+        final String[] directories = qualifiedName.split("/");
+        VirtualFile childDirectory = scenariosRootFolder;
+        for (String directory : directories) {
+            VirtualFile child = childDirectory.findChild(directory);
+            if (child != null) {
+                childDirectory = child;
+            } else {
+                childDirectory = childDirectory.createChildDirectory(this, directory);
+            }
+        }
+        return childDirectory;
+    }
+
+    @Nullable
+    public VirtualFile findOrCreateMappingResourceFolder(PsiFile psiFile) {
+        VirtualFile testFolder = findMappingTestResourcesFolder(psiFile);
         if (testFolder == null) {
-            testFolder = createMappingTestFolder(psiFile);
+            testFolder = createMappingResourceFolder(psiFile);
         }
         return testFolder;
     }
@@ -395,12 +435,12 @@ public final class WeaveRuntimeService implements Disposable {
 
     @Nullable
     public Scenario createScenario(PsiFile psiFile, String scenarioName) {
-        VirtualFile testFolder = findOrCreateMappingTestFolder(psiFile);
+        final VirtualFile testFolder = findOrCreateMappingResourceFolder(psiFile);
         if (testFolder == null) {
             return null;
         }
         try {
-            VirtualFile scenarioFolder = WriteAction.compute(() -> testFolder.createChildDirectory(this, scenarioName));
+            final VirtualFile scenarioFolder = WriteAction.compute(() -> testFolder.createChildDirectory(this, scenarioName));
             Scenario scenario = new Scenario(scenarioFolder);
             WeaveDocument weaveDocument = WeavePsiUtils.getWeaveDocument(psiFile);
             if (weaveDocument != null) {
@@ -416,12 +456,12 @@ public final class WeaveRuntimeService implements Disposable {
     }
 
     @Nullable
-    public VirtualFile createMappingTestFolder(PsiFile weaveFile) {
+    public VirtualFile createMappingResourceFolder(PsiFile weaveFile) {
         return WriteAction.compute(() -> {
             try {
-                VirtualFile dwitFolder = getScenariosRootFolder(weaveFile);
-                if (dwitFolder == null) {
-                    //See if "src/test/dwit exists, if not, create it
+                VirtualFile testResourceFolder = getScenariosResourceFolder(weaveFile);
+                if (testResourceFolder == null) {
+                    //See if "src/test/resources exists, if not, create it
                     final Module module = ModuleUtils.findModule(weaveFile);
                     if (module == null) {
                         return null;
@@ -438,26 +478,26 @@ public final class WeaveRuntimeService implements Disposable {
                     } else if (!testFolder.isDirectory()) {
                         return null;
                     }
-                    dwitFolder = testFolder.findChild(WeaveConstants.INTEGRATION_TEST_FOLDER_NAME);
-                    if (dwitFolder == null) {
-                        dwitFolder = testFolder.createChildDirectory(this, WeaveConstants.INTEGRATION_TEST_FOLDER_NAME);
-                    } else if (!dwitFolder.isDirectory()) {
+                    testResourceFolder = testFolder.findChild(WeaveConstants.RESOURCES_FOLDER);
+                    if (testResourceFolder == null) {
+                        testResourceFolder = testFolder.createChildDirectory(this, WeaveConstants.RESOURCES_FOLDER);
+                    } else if (!testResourceFolder.isDirectory()) {
                         return null;
                     }
                     ModifiableRootModel model = ModuleRootManager.getInstance(module).getModifiableModel();
                     ContentEntry[] entries = model.getContentEntries();
                     for (ContentEntry entry : entries) {
                         if (Objects.equals(entry.getFile(), moduleRoot))
-                            entry.addSourceFolder(dwitFolder, true);
+                            entry.addSourceFolder(testResourceFolder, true);
                     }
                     model.commit();
                 }
                 final WeaveDocument document = WeavePsiUtils.getWeaveDocument(weaveFile);
                 if (document != null) {
                     String qName = getTestFolderName(document);
-                    VirtualFile child = dwitFolder.findChild(qName);
+                    VirtualFile child = testResourceFolder.findChild(qName);
                     if (child == null) {
-                        return dwitFolder.createChildDirectory(this, qName);
+                        return createDirectories(qName, testResourceFolder);
                     } else {
                         if (child.isDirectory()) {
                             return child;
@@ -476,20 +516,66 @@ public final class WeaveRuntimeService implements Disposable {
     }
 
     @Nullable
-    public VirtualFile getScenariosRootFolder(PsiFile weaveFile) {
+    public VirtualFile getScenariosResourceFolder(PsiFile weaveFile) {
         final Module module = ModuleUtils.findModule(weaveFile);
         if (module != null) {
-            return getScenariosRootFolder(module);
+            return WeaveUtils.getDWTestResourceFolder(module);
         }
         return null;
     }
 
     @Nullable
-    private VirtualFile getScenariosRootFolder(@Nullable Module module) {
-        return WeaveUtils.getDWITFolder(module);
+    public VirtualFile getScenariosTestFolder(PsiFile weaveFile) {
+        final Module module = ModuleUtils.findModule(weaveFile);
+        if (module != null) {
+            return WeaveUtils.getDWTestFolder(module);
+        }
+        return null;
     }
+
 
     @Override
     public void dispose() {
     }
+
+    public void createTest(PsiFile mappingFile, Scenario scenario) {
+        try {
+            WriteAction.run(() -> {
+                VirtualFile testFolder = findTestFolder(mappingFile);
+                if (testFolder == null) {
+                    return;
+                }
+                WeaveDocument weaveDocument = getWeaveDocument(mappingFile);
+                if (weaveDocument != null) {
+                    final String testFolderName = getTestFolderName(weaveDocument);
+
+                    final String testModule = weaveDocument.getName() + "Test.dwl";
+                    if (testFolder.findChild(testModule) == null) {
+                        final VirtualFile childData = testFolder.createChildData(this, testModule);
+                        final String scenarioPath = testFolderName + "/" + scenario.getName();
+                        final String test = "import * from dw::test::Tests\n" +
+                                "import * from dw::test::Asserts\n" +
+                                "---\n" +
+                                "\"Test " + weaveDocument.getName() + "\" describedBy [\n" +
+                                "\t\"Assert " + scenario.getName() + "\" in do {\n" +
+                                "\t\t\t evalPath(\"" + testFolderName + ".dwl\", inputsFrom(\"" + scenarioPath + "\"), 'json') \n\t\t\t\tmust equalTo(outputFrom(\"" + scenarioPath + "\")) \n " +
+                                "\t\t}\n" +
+                                "]";
+                        childData.setBinaryContent(test.getBytes(StandardCharsets.UTF_8));
+                    }
+
+
+                }
+            });
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+
 }
+
+record ImplicitInputStatus(ImplicitInput implicitInput, boolean active, boolean resolving) {
+}
+

@@ -209,17 +209,16 @@ public class WeavePsiUtils {
         return PsiTreeUtil.findChildrenOfAnyType(weaveDocument.getHeader(), WeaveInputDirective.class);
     }
 
+
     @Nullable
     public static WeaveDocument getWeaveDocument(PsiFile psiFile) {
         if (psiFile == null) {
             return null;
         }
         PsiElement[] children = psiFile.getChildren();
-        if (children.length > 0) {
-            for (PsiElement child : children) {
-                if (child instanceof WeaveDocument) {
-                    return (WeaveDocument) child;
-                }
+        for (PsiElement child : children) {
+            if (child instanceof WeaveDocument) {
+                return (WeaveDocument) child;
             }
         }
         return null;

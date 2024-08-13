@@ -1,6 +1,5 @@
 package org.mule.tooling.lang.dw.preview;
 
-import com.intellij.ProjectTopics;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ReadAction;
@@ -122,9 +121,9 @@ public class PreviewToolWindowPanel extends SimpleToolWindowPanel implements Dis
                     }
 
                     connection[0] = myProject.getMessageBus().connect(PreviewToolWindowPanel.this);
-                    connection[0].subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootListener() {
+                    connection[0].subscribe(ModuleRootListener.TOPIC, new ModuleRootListener() {
                         @Override
-                        public void rootsChanged(ModuleRootEvent event) {
+                        public void rootsChanged(@NotNull ModuleRootEvent event) {
                             dependenciesChanges.submit(() -> {
                                 if (agentRuntimeManager.isWeaveRuntimeInstalled()) {
                                     showFile(e);

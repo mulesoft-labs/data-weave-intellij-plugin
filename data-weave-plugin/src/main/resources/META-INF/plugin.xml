@@ -486,6 +486,8 @@
 
     <extensions defaultExtensionNs="com.intellij">
 
+        <notificationGroup displayType="BALLOON" id="WeaveNotification"/>
+
         <runLineMarkerContributor implementationClass="org.mule.tooling.lang.dw.lineMarker.RunTestLineMarkerContributor"
                                   language="Weave"/>
 
