@@ -115,7 +115,7 @@ root ::= Document
 
 Document ::= Header ('---'  Body) ? | Body {
     implements=["com.intellij.psi.NavigatablePsiElement" "com.intellij.psi.PsiQualifiedNamedElement"]
-    methods=[getPresentation getQualifiedName getName setName isMappingDocument isModuleDocument getElementIcon]
+    methods=[getPresentation getQualifiedName getName setName isMappingDocument isModuleDocument getElementIcon getOutput]
 }
 
 Header::= (Directive)+

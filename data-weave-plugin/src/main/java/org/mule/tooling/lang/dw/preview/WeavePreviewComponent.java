@@ -53,7 +53,7 @@ public class WeavePreviewComponent implements Disposable {
 
     private final Project myProject;
     private PsiFile currentFile;
-    private boolean runOnChange = true;
+    private boolean runOnChange = false;
 
     private final Alarm myDocumentAlarm = new Alarm(Alarm.ThreadToUse.POOLED_THREAD, this);
     private PreviewToolWindowFactory.NameChanger nameChanger;
@@ -156,12 +156,30 @@ public class WeavePreviewComponent implements Disposable {
         group.add(new AnAction("Run", "Execute", AllIcons.RunConfigurations.TestState.Run) {
             @Override
             public @NotNull ActionUpdateThread getActionUpdateThread() {
-                return ActionUpdateThread.EDT;
+                return ActionUpdateThread.BGT;
             }
 
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
                 runPreview();
+            }
+
+            @Override
+            public void update(@NotNull AnActionEvent e) {
+                e.getPresentation().setEnabled(runAvailable());
+            }
+        });
+
+        group.add(new AnAction("Restart Agent", "Restart agent", AllIcons.Actions.Refresh) {
+            @Override
+            public @NotNull ActionUpdateThread getActionUpdateThread() {
+                return ActionUpdateThread.BGT;
+            }
+
+            @Override
+            public void actionPerformed(@NotNull AnActionEvent e) {
+                final WeaveAgentService agentComponent = WeaveAgentService.getInstance(myProject);
+                agentComponent.scheduleRestart();
             }
 
             @Override

@@ -31,4 +31,6 @@ public interface WeaveDocument extends NavigatablePsiElement, PsiQualifiedNamedE
 
   Icon getElementIcon(int flags);
 
+  @Nullable WeaveOutputDirective getOutput();
+
 }

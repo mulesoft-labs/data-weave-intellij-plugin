@@ -90,6 +90,7 @@ public class OutputComponent implements Disposable {
     public DefaultActionGroup createActions() {
         DefaultActionGroup group = new DefaultActionGroup();
         group.add(new SaveOutputAction());
+        group.add(new CreateTestAction());
         group.add(showDiffAction);
         return group;
     }
@@ -139,6 +140,7 @@ public class OutputComponent implements Disposable {
             }
         } else if (extension != null) {
             setDocumentContent(content);
+            show(EDITOR_PANEL);
         } else {
             changePanel(new MessagePanel("Unable to render the output for extension " + extension), messagePanel, MESSAGE_PANEL);
         }
@@ -189,6 +191,37 @@ public class OutputComponent implements Disposable {
         this.currentFile = null;
     }
 
+    private class CreateTestAction extends AnAction {
+
+
+        public CreateTestAction() {
+            super("Create Mapping Test", "Create mapping test", AllIcons.Nodes.Test);
+        }
+
+        @Override
+        public @NotNull ActionUpdateThread getActionUpdateThread() {
+            return ActionUpdateThread.BGT;
+        }
+
+        @Override
+        public void update(@NotNull AnActionEvent e) {
+            super.update(e);
+            e.getPresentation().setEnabled(outputEditor != null);
+        }
+
+        @Override
+        public void actionPerformed(@NotNull AnActionEvent e) {
+            WeaveDocument document = WeavePsiUtils.getWeaveDocument(currentFile);
+            WeaveRuntimeService manager = WeaveRuntimeService.getInstance(myProject);
+            Scenario currentScenario = manager.getCurrentScenarioFor(document);
+            if (currentScenario != null) {
+                manager.createTest(currentFile, currentScenario);
+            }
+        }
+
+
+    }
+
     private class SaveOutputAction extends AnAction {
 
 
@@ -198,7 +231,7 @@ public class OutputComponent implements Disposable {
 
         @Override
         public @NotNull ActionUpdateThread getActionUpdateThread() {
-            return ActionUpdateThread.EDT;
+            return ActionUpdateThread.BGT;
         }
 
         @Override
@@ -211,7 +244,7 @@ public class OutputComponent implements Disposable {
         public void actionPerformed(@NotNull AnActionEvent e) {
             Scenario scenario = getOrCreateScenario();
             String ext = outputType.getDefaultExtension();
-            scenario.addOutput("out." + ext, outputDocument.getText(), myProject);
+            scenario.addOutput(Scenario.OUTPUT_FILE_NAME + "." + ext, outputDocument.getText(), myProject);
         }
 
         private Scenario getOrCreateScenario() {

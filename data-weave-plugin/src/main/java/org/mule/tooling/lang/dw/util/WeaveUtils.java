@@ -72,7 +72,7 @@ public class WeaveUtils {
     }
 
     @Nullable
-    public static VirtualFile getDWITFolder(@Nullable Module module) {
+    public static VirtualFile getDWTestResourceFolder(@Nullable Module module) {
         if (module == null) {
             return null;
         }
@@ -83,11 +83,11 @@ public class WeaveUtils {
             return null;
         }
         //Create it here
-        return moduleRoot.findFileByRelativePath(WeaveConstants.TEST_BASE_FOLDER_NAME + "/" + WeaveConstants.INTEGRATION_TEST_FOLDER_NAME);
+        return moduleRoot.findFileByRelativePath(WeaveConstants.TEST_BASE_FOLDER_NAME + "/" + WeaveConstants.RESOURCES_FOLDER);
     }
 
     @Nullable
-    public static VirtualFile getDWMITFolder(@Nullable Module module) {
+    public static VirtualFile getDWTestFolder(@Nullable Module module) {
         if (module == null) {
             return null;
         }
@@ -98,7 +98,7 @@ public class WeaveUtils {
             return null;
         }
         //Create it here
-        return moduleRoot.findFileByRelativePath(WeaveConstants.TEST_BASE_FOLDER_NAME + "/" + WeaveConstants.MODULE_INTEGRATION_TEST_FOLDER_NAME);
+        return moduleRoot.findFileByRelativePath(WeaveConstants.TEST_BASE_FOLDER_NAME + "/" + WeaveConstants.TEST_FOLDER);
     }
 
 }

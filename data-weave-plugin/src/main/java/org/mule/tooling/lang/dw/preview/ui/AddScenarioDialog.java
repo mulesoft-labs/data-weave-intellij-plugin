@@ -39,7 +39,7 @@ public class AddScenarioDialog extends DialogWrapper {
 
     private void validateInputName() {
         String inputName = getInputName();
-        VirtualFile dwitFolder = manager.findOrCreateMappingTestFolder(currentFile);
+        VirtualFile dwitFolder = manager.findOrCreateMappingResourceFolder(currentFile);
         if (dwitFolder != null) {
             VirtualFile child = dwitFolder.findChild(inputName);
             if (child != null) {

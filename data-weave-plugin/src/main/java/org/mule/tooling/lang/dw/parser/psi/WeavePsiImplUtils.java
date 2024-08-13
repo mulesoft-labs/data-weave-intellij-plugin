@@ -49,6 +49,11 @@ public class WeavePsiImplUtils {
         return document.isMappingDocument() ? WeaveIcons.DataWeaveMappingIcon : WeaveIcons.DataWeaveModuleIcon;
     }
 
+    public static @Nullable WeaveOutputDirective getOutput(WeaveDocument weaveDocument) {
+        return PsiTreeUtil.findChildOfType(weaveDocument.getHeader(), WeaveOutputDirective.class);
+    }
+
+
     public static Icon getElementIcon(WeaveFunctionDefinition functionDefinition, final int flags) {
         return PlatformIcons.FUNCTION_ICON;
     }

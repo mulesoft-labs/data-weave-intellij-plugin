@@ -76,4 +76,9 @@ public class WeaveDocumentImpl extends ASTWrapperPsiElement implements WeaveDocu
     return WeavePsiImplUtils.getElementIcon(this, flags);
   }
 
+  @Override
+  public @Nullable WeaveOutputDirective getOutput() {
+    return WeavePsiImplUtils.getOutput(this);
+  }
+
 }
