@@ -1,5 +1,8 @@
 package org.mule.tooling.lang.dw.service;
 
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
@@ -27,8 +30,7 @@ import com.intellij.util.concurrency.FutureResult;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.WeaveConstants;
-import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
-import org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils;
+import org.mule.tooling.lang.dw.parser.psi.*;
 import org.mule.tooling.lang.dw.service.agent.WeaveAgentService;
 import org.mule.tooling.lang.dw.util.ModuleUtils;
 import org.mule.tooling.lang.dw.util.WeaveUtils;
@@ -48,6 +50,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
+import static com.intellij.openapi.command.WriteCommandAction.runWriteCommandAction;
+import static java.util.Optional.ofNullable;
 import static org.mule.tooling.lang.dw.parser.psi.WeavePsiUtils.getWeaveDocument;
 
 @Service(Service.Level.PROJECT)
@@ -548,20 +552,57 @@ public final class WeaveRuntimeService implements Disposable {
                 WeaveDocument weaveDocument = getWeaveDocument(mappingFile);
                 if (weaveDocument != null) {
                     final String testFolderName = getTestFolderName(weaveDocument);
-
                     final String testModule = weaveDocument.getName() + "Test.dwl";
-                    if (testFolder.findChild(testModule) == null) {
-                        final VirtualFile childData = testFolder.createChildData(this, testModule);
-                        final String scenarioPath = testFolderName + "/" + scenario.getName();
-                        final String test = "import * from dw::test::Tests\n" +
+                    final VirtualFile childData = testFolder.createChildData(this, testModule);
+                    final String scenarioPath = testFolderName + "/" + scenario.getName();
+                    final String mimeType = ofNullable(weaveDocument.getOutput())
+                            .flatMap((out) ->
+                                    ofNullable(out.getDataFormat())
+                                            .map((o) -> o.getText())
+                                            .or(() ->
+                                                    ofNullable(out.getIdentifier())
+                                                            .map((i) -> i.getText())))
+                            .orElse("json");
+
+                    final String testCase = "\t\"Assert " + scenario.getName() + "\" in do {\n" +
+                            "\t\t\tevalPath(\"" + testFolderName + ".dwl\", inputsFrom(\"" + scenarioPath + "\"), '" + mimeType + "') \n\t\t\t\tmust equalTo(outputFrom(\"" + scenarioPath + "\")) \n " +
+                            "\t\t}\n";
+                    VirtualFile testFile = testFolder.findChild(testModule);
+                    if (testFile == null) {
+                        final String testSuite = "import * from dw::test::Tests\n" +
                                 "import * from dw::test::Asserts\n" +
                                 "---\n" +
                                 "\"Test " + weaveDocument.getName() + "\" describedBy [\n" +
-                                "\t\"Assert " + scenario.getName() + "\" in do {\n" +
-                                "\t\t\t evalPath(\"" + testFolderName + ".dwl\", inputsFrom(\"" + scenarioPath + "\"), 'json') \n\t\t\t\tmust equalTo(outputFrom(\"" + scenarioPath + "\")) \n " +
-                                "\t\t}\n" +
+                                testCase +
                                 "]";
-                        childData.setBinaryContent(test.getBytes(StandardCharsets.UTF_8));
+                        childData.setBinaryContent(testSuite.getBytes(StandardCharsets.UTF_8));
+
+                        Notifications.Bus.notify(new Notification(WeaveAgentService.WEAVE_NOTIFICATION, "New Test " + childData.getPath() + " was created", NotificationType.INFORMATION));
+                    } else {
+                        PsiFile testPsiFile = PsiManager.getInstance(myProject).findFile(testFile);
+                        WeaveDocument testWeaveDocument = getWeaveDocument(testPsiFile);
+                        WeaveBody body = testWeaveDocument.getBody();
+                        if (body != null) {
+                            WeaveExpression expression = body.getExpression();
+                            if (expression instanceof WeaveBinaryExpression) {
+                                List<WeaveExpression> expressionList = ((WeaveBinaryExpression) expression).getExpressionList();
+                                if (expressionList.size() == 2) {
+                                    WeaveExpression weaveExpression = expressionList.get(1);
+                                    if (weaveExpression instanceof WeaveArrayExpression) {
+
+                                        runWriteCommandAction(myProject, () -> {
+                                            String text = weaveExpression.getText();
+                                            int i = text.lastIndexOf("]");
+                                            String s = text.substring(0, i).trim() + ",\n\t" + testCase + "]";
+                                            WeaveExpression textCaseExpression = WeaveElementFactory.createExpression(myProject, s);
+                                            weaveExpression.replace(textCaseExpression);
+                                        });
+                                        Notifications.Bus.notify(new Notification(WeaveAgentService.WEAVE_NOTIFICATION, "New Test case was added to " + childData.getPath() + ".", NotificationType.INFORMATION));
+                                    }
+                                }
+                            }
+                        }
+
                     }
 
 

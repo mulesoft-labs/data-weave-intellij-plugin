@@ -4,8 +4,10 @@ package org.mule.tooling.lang.dw.parser.psi;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
 import com.intellij.psi.PsiParserFacade;
+import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.mule.tooling.lang.dw.WeaveFileType;
 import org.mule.tooling.lang.dw.refactor.utils.RefactorUtils;
@@ -51,8 +53,9 @@ public class WeaveElementFactory {
 
     public static WeaveDocument createFile(Project project, String text) {
         String name = "dummy.dwl";
-        return (WeaveDocument) PsiFileFactory.getInstance(project).
-                createFileFromText(name, WeaveFileType.getInstance(), text).getChildren()[0];
+        PsiFile fileFromText = PsiFileFactory.getInstance(project).
+                createFileFromText(name, WeaveFileType.getInstance(), text);
+        return PsiTreeUtil.findChildOfType(fileFromText, WeaveDocument.class);
     }
 
     public static WeaveDoExpression createDoBlock(Project project, PsiElement value) {
@@ -67,8 +70,14 @@ public class WeaveElementFactory {
 
     @NotNull
     public static PsiElement createNewLine(Project project) {
-        PsiParserFacade helper = PsiParserFacade.SERVICE.getInstance(project);
+        PsiParserFacade helper = PsiParserFacade.getInstance(project);
         return helper.createWhiteSpaceFromText("\n");
+    }
+
+    @NotNull
+    public static WeaveExpression createExpression(Project project, String text) {
+        WeaveDocument file = createFile(project, text);
+        return file.getBody().getExpression();
     }
 
     @NotNull

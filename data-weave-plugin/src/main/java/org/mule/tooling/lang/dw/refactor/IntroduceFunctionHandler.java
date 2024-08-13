@@ -159,7 +159,7 @@ public class IntroduceFunctionHandler extends AbstractIntroduceDirectiveHandler 
                             WeaveFqnIdentifier elementOfClassAtRange = PsiTreeUtil.findElementOfClassAtRange(psiFile, startOffset, endOffset, WeaveFqnIdentifier.class);
                             return new RenameVariable(elementOfClassAtRange, arg.getParamName());
                         }));
-                    }).collect(Collectors.toList());
+                    }).toList();
 
             WeaveRefactorFunctionData finalWeaveRefactorFunctionData = weaveRefactorFunctionData;
             simpleRefactor(() -> {
