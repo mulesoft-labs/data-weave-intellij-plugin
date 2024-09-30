@@ -5,7 +5,6 @@ import com.intellij.execution.executors.DefaultDebugExecutor;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.mule.tooling.lang.dw.launcher.configuration.WeaveConfiguration;
 import org.mule.tooling.lang.dw.service.Scenario;
@@ -13,6 +12,9 @@ import org.mule.tooling.lang.dw.service.WeaveRuntimeService;
 import org.mule.tooling.lang.dw.util.VirtualFileSystemUtils;
 import org.mule.weave.v2.parser.ast.variables.NameIdentifier;
 import scala.Option;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public class WeaveRunnerCommandLine extends WeaveCommandLineState {
 
@@ -37,7 +39,7 @@ public class WeaveRunnerCommandLine extends WeaveCommandLineState {
             javaParams.getProgramParametersList().add("-debug");
         }
         final String scenario = model.getScenario();
-        if (!StringUtils.isBlank(scenario)) {
+        if (!isBlank(scenario)) {
             VirtualFile resolve = VirtualFileSystemUtils.resolve(model.getModule(), NameIdentifier.apply(model.getNameIdentifier(), Option.<String>empty()));
             if (resolve != null) {
                 final WeaveRuntimeService instance = WeaveRuntimeService.getInstance(project);
@@ -50,11 +52,11 @@ public class WeaveRunnerCommandLine extends WeaveCommandLineState {
 
         //Set user.dir to module home
         final String workingDirectory = model.getWorkingDirectory();
-        if (StringUtils.isNotBlank(workingDirectory)) {
+        if (isNotBlank(workingDirectory)) {
             javaParams.getVMParametersList().addProperty("user.dir", workingDirectory);
         }
 
-        if (StringUtils.isNotBlank(model.getOutputPath())) {
+        if (isNotBlank(model.getOutputPath())) {
             javaParams.getProgramParametersList().add("-output", model.getOutputPath());
         }
 

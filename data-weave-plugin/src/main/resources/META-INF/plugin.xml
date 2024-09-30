@@ -483,7 +483,6 @@
     </extensionPoints>
 
 
-
     <extensions defaultExtensionNs="com.intellij">
 
         <notificationGroup displayType="BALLOON" id="WeaveNotification"/>
@@ -542,8 +541,11 @@
         <qualifiedNameProvider implementation="org.mule.tooling.lang.dw.qn.WeaveQualifiedNameProvider"/>
         <xdebugger.breakpointType implementation="org.mule.tooling.lang.dw.debug.breakpoint.WeaveBreakpointType"/>
 
-        <programRunner id="WeaveDebug" implementation="org.mule.tooling.lang.dw.debug.WeaveDebuggerRunner"
-                       order="last"/>
+        <programRunner id="WeaveDebuggerRunner" implementation="org.mule.tooling.lang.dw.debug.WeaveDebuggerRunner"
+                       order="first"/>
+
+
+        <notificationGroup displayType="BALLOON" id="AnypointNotification"/>
         <languageInjector implementation="org.mule.tooling.lang.dw.injector.MuleLanguageInjector"/>
         <multiHostInjector implementation="org.mule.tooling.lang.dw.injector.YamlLanguageInjector"/>
         <languageInjector implementation="org.mule.tooling.lang.dw.injector.StringInterpolationLanguageInjector"/>

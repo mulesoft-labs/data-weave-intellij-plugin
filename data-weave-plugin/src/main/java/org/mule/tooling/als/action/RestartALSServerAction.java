@@ -9,6 +9,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.mule.tooling.als.component.ALSLanguageService;
+import org.mule.tooling.commons.AnypointNotification;
 
 public class RestartALSServerAction extends AnAction {
 
@@ -27,7 +28,7 @@ public class RestartALSServerAction extends AnAction {
     Project project = e.getProject();
     if (project != null) {
       ALSLanguageService.getInstance(project).restart();
-      Notifications.Bus.notify(new Notification(Notifications.SYSTEM_MESSAGES_GROUP_ID, "ALS server restarted", "The ALS server was restarted successfully.", NotificationType.INFORMATION));
+      Notifications.Bus.notify(new Notification(AnypointNotification.ANYPOINT_NOTIFICATION, "ALS server restarted", "The ALS server was restarted successfully.", NotificationType.INFORMATION));
     }
   }
 }

@@ -7,7 +7,7 @@ import com.intellij.execution.junit.JavaRunConfigurationProducerBase;
 import com.intellij.openapi.util.Ref;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.mule.tooling.bat.testintegration.BatTestFramework;
 import org.mule.tooling.bat.utils.BatUtils;

@@ -7,7 +7,7 @@ import com.intellij.execution.junit.JavaRunConfigurationProducerBase;
 import com.intellij.openapi.util.Ref;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.mule.tooling.lang.dw.WeaveFileType;
 import org.mule.tooling.lang.dw.parser.psi.WeaveDocument;
@@ -18,7 +18,7 @@ import org.mule.weave.v2.parser.ast.variables.NameIdentifier;
 
 import java.util.Optional;
 
-import static org.apache.commons.lang.StringUtils.capitalize;
+import static org.apache.commons.lang3.StringUtils.capitalize;
 
 public class WeaveTestConfigurationProducer extends JavaRunConfigurationProducerBase<WeaveTestConfiguration> {
     protected WeaveTestConfigurationProducer() {

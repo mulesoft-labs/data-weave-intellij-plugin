@@ -28,12 +28,13 @@ import com.intellij.psi.PsiTreeAnyChangeAbstractAdapter;
 import com.intellij.util.Alarm;
 import com.intellij.util.concurrency.AppExecutorUtil;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.als.settings.DialectsRegistry;
 import org.mule.tooling.als.utils.LSPUtils;
+import org.mule.tooling.commons.AnypointNotification;
 import org.mule.tooling.lang.dw.util.ScalaUtils;
 import org.mulesoft.als.logger.PrintLnLogger$;
 import org.mulesoft.als.server.EmptyJvmSerializationProps$;
@@ -353,7 +354,7 @@ public class ALSLanguageService implements Disposable {
         return;
       }
       registerDialect(value);
-      Notifications.Bus.notify(new Notification(Notifications.SYSTEM_MESSAGES_GROUP_ID, "Updating dialect", "Dialect '" + event.getFileName() + "' was updated as changes where detected.", NotificationType.INFORMATION));
+      Notifications.Bus.notify(new Notification(AnypointNotification.ANYPOINT_NOTIFICATION, "Updating dialect", "Dialect '" + event.getFileName() + "' was updated as changes where detected.", NotificationType.INFORMATION));
     }, 500);
   }
 
@@ -383,9 +384,9 @@ public class ALSLanguageService implements Disposable {
     try {
       Future<Object> objectFuture = languageServer.workspaceService().executeCommand(executeCommandParams);
       resultOf(objectFuture);
-      Notifications.Bus.notify(new Notification(Notifications.SYSTEM_MESSAGES_GROUP_ID, "Dialect registered successfully", "Dialect '" + supportedLanguage.getDialectUrl() + "' was registered.", NotificationType.INFORMATION));
+      Notifications.Bus.notify(new Notification(AnypointNotification.ANYPOINT_NOTIFICATION, "Dialect registered successfully", "Dialect '" + supportedLanguage.getDialectUrl() + "' was registered.", NotificationType.INFORMATION));
     } catch (Exception e) {
-      Notifications.Bus.notify(new Notification(Notifications.SYSTEM_MESSAGES_GROUP_ID, "Unable to register dialect", "Unable to register dialect `" + supportedLanguage.getDialectUrl() + "`\nReason:\n" + e.getMessage(), NotificationType.ERROR));
+      Notifications.Bus.notify(new Notification(AnypointNotification.ANYPOINT_NOTIFICATION, "Unable to register dialect", "Unable to register dialect `" + supportedLanguage.getDialectUrl() + "`\nReason:\n" + e.getMessage(), NotificationType.ERROR));
     }
   }
 
@@ -402,7 +403,7 @@ public class ALSLanguageService implements Disposable {
         String dialectUrl = dialect.get().getDialectUrl();
         try {
           if (new File(new URI(dialectUrl)).exists() && !dialectUrl.isBlank()) {
-            Notifications.Bus.notify(new Notification(Notifications.SYSTEM_MESSAGES_GROUP_ID, "Registering dialect", "Dialect '" + dialectLocation.getName() + "'.", NotificationType.INFORMATION));
+            Notifications.Bus.notify(new Notification(AnypointNotification.ANYPOINT_NOTIFICATION, "Registering dialect", "Dialect '" + dialectLocation.getName() + "'.", NotificationType.INFORMATION));
             registerDialect(dialect.get());
             //If file doesn't exists don't register it
           }

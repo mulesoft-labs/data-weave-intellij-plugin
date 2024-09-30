@@ -23,10 +23,12 @@ import static org.mule.tooling.lang.dw.util.WeaveUtils.isWeaveTestMethod;
 
 public class WeaveTestFramework implements TestFramework {
 
+    public static final String WEAVE_TEST = "WeaveTest";
+
     @NotNull
     @Override
     public String getName() {
-        return "WeaveTest";
+        return WEAVE_TEST;
     }
 
     @NotNull
