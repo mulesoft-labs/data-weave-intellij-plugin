@@ -1,5 +1,5 @@
 <idea-plugin>
-    <idea-version since-build="203.8084.24"/>
+    <idea-version since-build="241"/>
     <id>org.mule.tooling.intellij.dataweave.v2</id>
     <name>Mulesoft: DataWeave RAML RestSdk</name>
     <version>2.0.6</version>
@@ -471,6 +471,7 @@
     <depends>org.jetbrains.idea.maven</depends>
     <depends>com.intellij.modules.java</depends>
     <depends>org.jetbrains.plugins.yaml</depends>
+    <depends>com.intellij.modules.json</depends>
 
     <extensionPoints>
         <extensionPoint name="inputOutputTypesProvider"

@@ -13,7 +13,6 @@ import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiQualifiedNamedElement;
 import com.intellij.psi.search.FileTypeIndex;
 import com.intellij.psi.search.GlobalSearchScope;
-import com.intellij.util.indexing.FileBasedIndex;
 import org.apache.commons.io.FilenameUtils;
 import org.jetbrains.annotations.Nullable;
 import org.mule.tooling.lang.dw.WeaveFileType;
@@ -23,9 +22,7 @@ import org.mule.weave.v2.sdk.NameIdentifierHelper;
 import scala.Option;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 public class WeaveQualifiedNameProvider implements QualifiedNameProvider {
     @Nullable
@@ -116,17 +113,16 @@ public class WeaveQualifiedNameProvider implements QualifiedNameProvider {
     }
 
     public List<PsiElement> getPsiElements(Project project, String fileRelativePath) {
-        String relativePath = fileRelativePath.startsWith("/") ? fileRelativePath : "/" + fileRelativePath;
+        final String relativePath = fileRelativePath.startsWith("/") ? fileRelativePath : "/" + fileRelativePath;
         final FileType stdFileType = FileTypeManager.getInstance().getFileTypeByFileName(FilenameUtils.getName(relativePath));
-        final Set<FileType> fileTypes = Collections.singleton(stdFileType);
         final List<VirtualFile> fileList = new ArrayList<>();
-        FileBasedIndex.getInstance().processFilesContainingAllKeys(FileTypeIndex.NAME, fileTypes, GlobalSearchScope.allScope(project), null, virtualFile -> {
+        FileTypeIndex.processFiles(stdFileType, virtualFile -> {
             if (virtualFile.getPath().endsWith(relativePath)) {
                 fileList.add(virtualFile);
             }
             return true;
-        });
-        ArrayList<PsiElement> result = new ArrayList<>();
+        }, GlobalSearchScope.allScope(project));
+        final ArrayList<PsiElement> result = new ArrayList<>();
         for (VirtualFile virtualFile : fileList) {
             result.add(PsiManager.getInstance(project).findFile(virtualFile));
         }

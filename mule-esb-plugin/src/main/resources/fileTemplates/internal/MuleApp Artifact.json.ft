@@ -1,4 +1,0 @@
-{
-  "configs": ["${ARTIFACT_ID}.xml"],
-  "minMuleVersion": "${MULE_VERSION}"
-}
