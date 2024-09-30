@@ -2,10 +2,11 @@ package org.mule.tooling.lang.dw.launcher.configuration.ui.test;
 
 import com.intellij.execution.configurations.JavaParameters;
 import com.intellij.openapi.module.Module;
-import org.apache.commons.lang.StringUtils;
 import org.mule.tooling.lang.dw.launcher.configuration.WeaveBasedConfiguration;
 
 import java.util.List;
+
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public interface WeaveTestBaseRunnerConfig extends WeaveBasedConfiguration {
     Module getModule();
@@ -22,7 +23,7 @@ public interface WeaveTestBaseRunnerConfig extends WeaveBasedConfiguration {
 
     default void addAdditionalVMParameters(JavaParameters javaParams) {
         final String vmOptions = getVmOptions();
-        if (StringUtils.isNotBlank(vmOptions))
+        if (isNotBlank(vmOptions))
             javaParams.getVMParametersList().add(vmOptions);
     }
 

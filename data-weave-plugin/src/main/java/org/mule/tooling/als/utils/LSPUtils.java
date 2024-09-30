@@ -11,6 +11,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.Nullable;
+import org.mule.tooling.commons.AnypointNotification;
 import org.mulesoft.lsp.feature.common.Position;
 import org.mulesoft.lsp.feature.common.TextDocumentIdentifier;
 import scala.concurrent.Await;
@@ -42,7 +43,7 @@ public class LSPUtils {
     try {
       return Optional.of(Await.result(objectFuture, Duration.apply(30, TimeUnit.SECONDS)));
     } catch (InterruptedException | TimeoutException e) {
-      Notifications.Bus.notify(new Notification(Notifications.SYSTEM_MESSAGES_GROUP_ID, "Error while executing future", "Unable to execute ALS Future. Reason: \n" + e.getMessage(), NotificationType.ERROR));
+      Notifications.Bus.notify(new Notification(AnypointNotification.ANYPOINT_NOTIFICATION, "Error while executing future", "Unable to execute ALS Future. Reason: \n" + e.getMessage(), NotificationType.ERROR));
       return Optional.empty();
     }
   }

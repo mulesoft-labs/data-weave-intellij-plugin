@@ -18,6 +18,7 @@ import com.intellij.psi.PsiManager;
 import com.intellij.ui.components.JBScrollPane;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.mule.tooling.commons.AnypointNotification;
 import org.mule.tooling.lang.dw.WeaveFileType;
 import org.mule.tooling.lang.dw.settings.DataWeaveSettingsState;
 
@@ -105,7 +106,7 @@ public abstract class DotBasedToolingWindowPanel extends SimpleToolWindowPanel i
             final int err = p.waitFor();
             return ImageIO.read(imageFile);
         } catch (Exception e) {
-            Notifications.Bus.notify(new Notification("Data Weave", "Unable to run dot cmd", "Unable to run dot command line from '" + cmdPath + "'", NotificationType.ERROR));
+            Notifications.Bus.notify(new Notification(AnypointNotification.ANYPOINT_NOTIFICATION, "Unable to run dot cmd", "Unable to run dot command line from '" + cmdPath + "'", NotificationType.ERROR));
             return null;
         }
     }

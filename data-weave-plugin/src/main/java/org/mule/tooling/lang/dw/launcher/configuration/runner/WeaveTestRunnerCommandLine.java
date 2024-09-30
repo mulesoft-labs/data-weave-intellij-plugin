@@ -17,19 +17,17 @@ import com.intellij.execution.testframework.sm.runner.SMTRunnerConsoleProperties
 import com.intellij.execution.ui.ConsoleView;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.roots.ProjectRootManager;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.mule.tooling.lang.dw.launcher.configuration.ui.test.WeaveTestBaseRunnerConfig;
+import org.mule.tooling.lang.dw.testintegration.WeaveTestFramework;
 
 import java.util.List;
-import java.util.Objects;
 
-import static java.util.Objects.requireNonNull;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public class WeaveTestRunnerCommandLine extends WeaveCommandLineState {
-
-    //Mule Main Class
-
+    public static final String TEST_RUNNER_CLASS_NAME = "org.mule.weave.v2.module.test.runner.TestRunner";
     private final boolean isDebug;
     private WeaveTestBaseRunnerConfig configuration;
 
@@ -48,7 +46,7 @@ public class WeaveTestRunnerCommandLine extends WeaveCommandLineState {
         javaParams.setJdk(manager.getProjectSdk());
         // All modules to use the same things
         javaParams.configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS);
-        javaParams.setMainClass(WeaveRunnerHelper.WEAVE_RUNNER_MAIN_CLASS);
+        javaParams.setMainClass(TEST_RUNNER_CLASS_NAME);
 
         //Add default vm parameters
         WeaveRunnerHelper.setupDefaultVMParams(javaParams);
@@ -56,7 +54,7 @@ public class WeaveTestRunnerCommandLine extends WeaveCommandLineState {
             javaParams.getVMParametersList().addProperty("updateResult", "true");
         }
 
-        if (StringUtils.isNotBlank(configuration.getTestToRun())) {
+        if (isNotBlank(configuration.getTestToRun())) {
             javaParams.getVMParametersList().addProperty("testToRun", configuration.getTestToRun());
         }
 
@@ -70,7 +68,6 @@ public class WeaveTestRunnerCommandLine extends WeaveCommandLineState {
         }
 
         ParametersList params = javaParams.getProgramParametersList();
-        params.add("--wtest");
         params.add("-testlistener");
         params.add("intellij");
 
@@ -84,7 +81,6 @@ public class WeaveTestRunnerCommandLine extends WeaveCommandLineState {
             params.add(test);
         }
 
-
         // All done, run it
         return javaParams;
     }
@@ -94,8 +90,8 @@ public class WeaveTestRunnerCommandLine extends WeaveCommandLineState {
     public ExecutionResult execute(@NotNull Executor executor, @NotNull ProgramRunner runner) throws ExecutionException {
         ProcessHandler processHandler = startProcess();
         RunConfiguration runConfiguration = getConfiguration();
-        TestConsoleProperties properties = new SMTRunnerConsoleProperties(runConfiguration, "WeaveTest", executor);
-        ConsoleView console = SMTestRunnerConnectionUtil.createAndAttachConsole("WeaveTest", processHandler, properties);
+        TestConsoleProperties properties = new SMTRunnerConsoleProperties(runConfiguration, WeaveTestFramework.WEAVE_TEST, executor);
+        ConsoleView console = SMTestRunnerConnectionUtil.createAndAttachConsole(WeaveTestFramework.WEAVE_TEST, processHandler, properties);
         return new DefaultExecutionResult(console, processHandler, createActions(console, processHandler));
     }
 

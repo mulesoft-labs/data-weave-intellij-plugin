@@ -11,7 +11,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.util.JDOMExternalizerUtil;
 import com.intellij.openapi.util.WriteExternalException;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -20,6 +20,7 @@ import org.mule.tooling.lang.dw.launcher.configuration.runner.WeaveTestRunnerCom
 import java.util.*;
 
 import static java.util.Optional.ofNullable;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class WeaveTestConfiguration extends ModuleBasedConfiguration<JavaRunConfigurationModule, RunProfileState> implements ModuleRunProfile, WeaveTestBaseRunnerConfig {
 
@@ -95,7 +96,7 @@ public class WeaveTestConfiguration extends ModuleBasedConfiguration<JavaRunConf
 
     @Override
     public void checkConfiguration() throws RuntimeConfigurationException {
-        if (StringUtils.isBlank(weaveFile)) {
+        if (isBlank(weaveFile)) {
             throw new RuntimeConfigurationException(getTests() + " weave file can not be empty.");
         }
         if (getModule() == null) {

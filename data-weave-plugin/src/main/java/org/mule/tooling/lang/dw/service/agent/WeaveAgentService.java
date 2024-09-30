@@ -49,6 +49,7 @@ import com.intellij.util.messages.MessageBusConnection;
 import com.intellij.util.net.NetUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.mule.tooling.commons.AnypointNotification;
 import org.mule.tooling.lang.dw.launcher.configuration.runner.WeaveRunnerHelper;
 import org.mule.tooling.lang.dw.settings.DataWeaveSettingsState;
 import org.mule.weave.v2.agent.api.event.*;
@@ -225,7 +226,7 @@ public final class WeaveAgentService implements Disposable {
                     i = i + 1;
                 }
             } catch (Throwable e) {
-                Notifications.Bus.notify(new Notification(WEAVE_NOTIFICATION, "Unable to start agent", "Unable to start agent. Reason: \n" + e.getMessage(), NotificationType.ERROR));
+                Notifications.Bus.notify(new Notification(AnypointNotification.ANYPOINT_NOTIFICATION, "Unable to start agent", "Unable to start agent. Reason: \n" + e.getMessage(), NotificationType.ERROR));
                 LOG.warn("\"Unable to start agent. Reason: \\n\" + e.getMessage()", e);
                 disable();
                 return;
@@ -245,7 +246,7 @@ public final class WeaveAgentService implements Disposable {
                 @Override
                 public void connectedSuccessfully() {
                     indicator.setText2("Agent connected successfully");
-                    Notifications.Bus.notify(new Notification(WEAVE_NOTIFICATION, "Server started", "Weave Server started and is reachable at port " + finalFreePort, NotificationType.INFORMATION));
+                    Notifications.Bus.notify(new Notification(AnypointNotification.ANYPOINT_NOTIFICATION, "Server started", "Weave Server started and is reachable at port " + finalFreePort, NotificationType.INFORMATION));
                     LOG.info("Weave Server started and is reachable at port " + finalFreePort);
                 }
 
@@ -308,7 +309,7 @@ public final class WeaveAgentService implements Disposable {
         });
         if (!connected) {
 
-            Notifications.Bus.notify(new Notification(WEAVE_NOTIFICATION, "Client not connected", "Unable to connect to client", NotificationType.INFORMATION));
+            Notifications.Bus.notify(new Notification(AnypointNotification.ANYPOINT_NOTIFICATION, "Client not connected", "Unable to connect to client", NotificationType.INFORMATION));
         }
     }
 
@@ -329,7 +330,7 @@ public final class WeaveAgentService implements Disposable {
 
                 @Override
                 public void onUnexpectedError(UnexpectedServerErrorEvent unexpectedServerErrorEvent) {
-                    Notifications.Bus.notify(new Notification(WEAVE_NOTIFICATION, "[data-weave-agent] Unexpected error at 'runPreview'",
+                    Notifications.Bus.notify(new Notification(AnypointNotification.ANYPOINT_NOTIFICATION, "[data-weave-agent] Unexpected error at 'runPreview'",
                             "Unexpected error at 'runPreview' caused by: \n" + unexpectedServerErrorEvent.stacktrace(), NotificationType.ERROR));
                 }
             });
@@ -371,7 +372,7 @@ public final class WeaveAgentService implements Disposable {
             if (client != null && client.isConnected()) {
                 onConnected.run();
             } else {
-                Notifications.Bus.notify(new Notification(WEAVE_NOTIFICATION, "Unable to connect", "Client is not able to connect to runtime", NotificationType.WARNING));
+                Notifications.Bus.notify(new Notification(AnypointNotification.ANYPOINT_NOTIFICATION, "Unable to connect", "Client is not able to connect to runtime", NotificationType.WARNING));
                 LOG.warn("Unable to connect; Client is " + client);
             }
             return true;

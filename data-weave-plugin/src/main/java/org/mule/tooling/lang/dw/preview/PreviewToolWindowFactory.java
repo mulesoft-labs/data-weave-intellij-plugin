@@ -46,7 +46,7 @@ public class PreviewToolWindowFactory implements ToolWindowFactory {
     }
 
     private ContentFactory getContentFactory() {
-        return ContentFactory.SERVICE.getInstance();
+        return ContentFactory.getInstance();
     }
 
     @Nullable
