@@ -1,5 +1,0 @@
-//Para crear un VirtualFile desde un java.io.File
-
-LocalFileSystem.getInstance().findFileByIoFile(File file) (if the file
-already exists in VFS)
-or LocalFileSystem.getInstance().refreshAndFindFileByIoFile(File file)
